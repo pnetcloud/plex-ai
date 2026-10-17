@@ -1,0 +1,8 @@
+# Keep each host's native inheritance behavior.
+[codex]
+
+[claude]
+model = "inherit"
+
+[antigravity]
+model = "inherit"

@@ -1,0 +1,9 @@
+{
+  "name": "pnet-plex",
+  "plugins": [
+    {
+      "name": "pnet-plex",
+      "source": { "source": "local", "path": "./" }
+    }
+  ]
+}

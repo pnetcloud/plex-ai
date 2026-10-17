@@ -1,0 +1,7 @@
+{
+  "name": "pnet-plex",
+  "owner": { "name": "pnetcloud" },
+  "plugins": [
+    { "name": "pnet-plex", "source": "./" }
+  ]
+}

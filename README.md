@@ -91,10 +91,11 @@ children may delegate only with explicit host and handoff authorization.
 
 ## Publication status
 
-This repository currently contains the project overview and license. Implementation,
-skills, installation instructions, and further documentation will be added in
-reviewed increments. The integration status above describes development progress;
-this initial publication is not an installable plugin release.
+This early development preview includes the `plex` and `plex-setup` skills,
+a checkout installer (`setup.py` / `setup.sh`), team presets, model profiles, and
+native plugin manifests. Full documentation and tests are not included in this
+publication yet. Live delegation and model routing still require host-specific
+verification; this is not a stable release.
 
 ## License
 

@@ -1,0 +1,41 @@
+# Optional project customization: replace only the blind-hunter recipe by id.
+# Apply through references/bmad-review.md; never edit installed skill defaults.
+
+[[workflow.review_layers]]
+id = "blind-hunter"
+name = "Blind Hunter"
+instruction = """
+Launch a context-free subagent with this prompt:
+
+Review the unified diff at `{diff_file}`. Look for correctness defects, regressions,
+missing required behavior and meaningful verification gaps in these changes.
+Read relevant surrounding code only to establish a concrete dependency or defect.
+For each actionable finding give its location, reachable trigger, impact and the
+requirement or invariant it violates. Keep optional suggestions separate; do not
+invent requirements or expand product scope. There is no finding quota. If no
+material findings remain, say "No material findings" and state any verification limits.
+If the diff is empty or unreadable, report that fact and stop.
+
+Do not edit application code, invoke skills or spawn subagents. Return findings as
+text in your final message, without a findings-reporting tool.
+"""
+
+[[workflow.oneshot_review_layers]]
+id = "blind-hunter"
+name = "Blind Hunter"
+instruction = """
+Launch a context-free subagent with this prompt:
+
+Review the changed files in the current worktree; inspect them directly.
+Look for correctness defects, regressions, missing required behavior and meaningful
+verification gaps in these changes. Read relevant surrounding code only to establish
+a concrete dependency or defect. For each actionable finding give its location,
+reachable trigger, impact and the requirement or invariant it violates. Keep optional
+suggestions separate; do not invent requirements or expand product scope.
+There is no finding quota. If no material findings remain, say "No material findings"
+and state any verification limits. If the changes are empty or unreadable, report
+that fact and stop.
+
+Do not edit application code, invoke skills or spawn subagents. Return findings as
+text in your final message, without a findings-reporting tool.
+"""
