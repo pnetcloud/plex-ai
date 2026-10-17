@@ -1,0 +1,8 @@
+# Public allowlist: deny everything unless an exact path is reviewed below.
+/*
+
+!/.gitignore
+!/README.md
+!/LICENSE
+
+# Add individual files deliberately; do not allow entire working directories.
