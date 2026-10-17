@@ -33,6 +33,9 @@
 !/.gitignore
 !/LICENSE
 !/README.md
+!/README.ru.md
+!/README.de.md
+!/README.zh-CN.md
 !/model-profiles/anthropic.toml
 !/model-profiles/google.toml
 !/model-profiles/inherit.toml

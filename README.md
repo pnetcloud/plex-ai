@@ -1,5 +1,7 @@
 # pNet Plex
 
+[English](README.md) · [Русский](README.ru.md) · [Deutsch](README.de.md) · [简体中文](README.zh-CN.md)
+
 **Compose your team. Coordinate the work.**
 
 pNet Plex is an **agent harness for multi-agent orchestration and coordination**
