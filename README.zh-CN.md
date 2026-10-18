@@ -7,7 +7,7 @@
 Plex 是用于 **多智能体编排与协调的 agent harness**，集成 OpenAI Codex、Anthropic Claude Code
 和 Google Antigravity。安装可复用团队，选择模型配置档，再让 Plex 组织实现、审查和验证。
 
-**[v0.1.0 Preview](https://github.com/pnetcloud/plex-ai/releases/tag/v0.1.0)** — 开源，MIT。可试用；接口仍可能变化。
+**[v0.2.0 Preview](https://github.com/pnetcloud/plex-ai/releases/tag/v0.2.0)** — 开源，MIT。可试用；接口仍可能变化。
 
 ## 快速开始
 
@@ -71,6 +71,17 @@ Plex 仅管理带标记的指令块，保留周围项目指令。
 
 该命令打开安装配置；客户端内的 Plex 请求启动协调。
 更新、用户范围、选项和覆盖设置见[配置](docs/translations/zh-CN/configuration.md)。
+
+## 检查、更新与卸载
+
+```sh
+plex status
+plex update
+plex uninstall --dry-run
+```
+
+运行 `plex uninstall` 确认卸载。PATH 中没有 `plex` 时，请用 `~/.local/bin/plex`。
+安装和更新选择已发布版本，包括预览版。
 
 ## 更多内容
 

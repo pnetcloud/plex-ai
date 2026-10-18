@@ -5,16 +5,43 @@
 ## 安装与更新
 
 首次安装请使用[快速开始](../../../README.zh-CN.md#快速开始)。
-引导脚本在 `~/.local/share/plex-ai` 保留共享副本，并在当前项目目录启动配置。
-请保留该副本，已安装插件仍引用它。再次运行同一命令即可更新并打开配置：
+引导脚本在 `~/.local/share/plex-ai` 保留共享副本，默认安装**最新已发布版本，包括预览版**。
+请保留该目录，插件仍引用它。入口脚本来自 `main`，应用文件检出所选发布标签。
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/pnetcloud/plex-ai/main/install.sh | bash
 ```
 
-更新使用 Git fast-forward pull，冲突的本地修改会阻止更新。
-检查配置计划以应用新角色/配置档，然后重新加载客户端。
-`~/.local/bin/plex` 打开配置但不下载更新；客户端内的 Plex 请求启动协调。
+### 状态、更新与卸载
+
+```sh
+plex status
+plex status --json
+plex update
+plex update --release v0.2.0
+plex update --development
+plex uninstall --dry-run
+plex uninstall
+```
+
+`status` 优先检查项目配置，否则检查相应客户端的用户安装。显示源码版本、团队/配置档、
+原生角色、冲突和插件发现结果，不更改 Plex 配置。`--json` 提供结构化输出。
+已配置客户端如有冲突、状态过期或插件不可用，会返回非零状态。这不能证明实际模型路由。
+
+`update` 选择最新已发布版本并打开配置以刷新所选客户端。`--release` 固定已发布标签，
+`--development` 明确选择 `main`。本地修改、符号链接和其他 origin 会阻止更新。
+源码检出具体标签而非浮动分支。`update --dry-run` 只显示版本选择，不写入源码或配置。
+
+`uninstall` 默认作用于项目和 receipt 中所有客户端。`--dry-run` 预览；交互卸载要求确认，
+无人值守执行需 `--yes`。可用 `--client codex` 筛选，或用 `--scope user` 明确选择用户范围。
+仅移除哈希未变的 receipt 所属角色和匹配指令块。修改/缺失文件或错误标记会中止操作，
+其他文件及周围指令保持不变。其他客户端仍使用的共享块将保留。
+每个客户端单独使用锁、事务和备份，多客户端卸载不是一个整体事务。
+
+共享插件、源码、CLI 快捷命令、可编辑 preset 和备份会保留，供其他项目或重装使用。
+删除块后原生指令文件仍保留。保留的项目偏好仍优先于全局默认值，不会自动切换范围。
+修改后打开新的客户端会话。如果 PATH 中没有 `plex`，请使用 `~/.local/bin/plex`。
+不带子命令的 `plex` 打开配置。
 
 在源码目录运行 `./setup.sh`。用空格选择客户端，按 Enter 继续。
 选择团队、安装范围和共享配置档，并检查各安装计划；默认选择项目范围。需要相应客户端 CLI。

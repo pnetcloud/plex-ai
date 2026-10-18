@@ -474,6 +474,8 @@ def _validate_receipt_structure(data: dict, scope="project") -> dict:
                 raise ValueError("Invalid managed instruction block hash")
         files = table(record.get("files", {}), f"applied.json.hosts.{host}.files")
         for role, file_info in files.items():
+            if not isinstance(role, str) or not re.fullmatch(r"[a-z][a-z0-9_-]*", role):
+                raise ValueError("Invalid managed role name")
             file_info = table(file_info, f"applied.json.hosts.{host}.files.{role}")
             keys(file_info, {"relpath", "sha256"}, f"applied.json.hosts.{host}.files.{role}")
             expected_rel = host_role_relpath(host, role, scope)
@@ -671,6 +673,9 @@ def check_project(project_root: Path, host: str | None = None, scope="project") 
         host_reports[h] = _inspect_host_state(
             project_root, h, resolved, source_sha256, receipt["hosts"].get(h), scope
         )
+
+    for h in HOSTS:
+        host_reports[h]["configured"] = receipt["hosts"].get(h) is not None
 
     all_conflicts = list(conflicts)
     for h in target_hosts:
@@ -1129,6 +1134,92 @@ def _apply_project(
         if failures:
             raise ValueError(f"{error}; rollback needs recovery: {'; '.join(failures)}") from error
         raise
+
+
+def uninstall_project(project_root, host, scope="project", dry_run=False):
+    """Remove unchanged receipt-owned roles/blocks; retain preferences and shared plugins."""
+    root = installation_root(Path(project_root), host, scope)
+    receipt_path = _ensure_safe_project_path(root, ".plex/applied.json")
+    if not receipt_path.is_file():
+        return {"status": "unconfigured", "host": host, "scope": scope, "removed_roles": []}
+    lock = _ensure_safe_project_path(root, ".plex/.apply.lock")
+    if not dry_run:
+        try:
+            with lock.open("x", encoding="utf-8") as stream:
+                stream.write(str(os.getpid()))
+        except FileExistsError:
+            raise ValueError("Another apply/uninstall holds .plex/.apply.lock") from None
+    try:
+        before_receipt = receipt_path.read_bytes()
+        receipt = _validate_receipt_structure(json.loads(before_receipt), scope)
+        record = receipt["hosts"].get(host)
+        if record is None:
+            return {"status": "unconfigured", "host": host, "scope": scope, "removed_roles": []}
+        remaining = {name: item for name, item in receipt["hosts"].items() if name != host}
+        roles = {}
+        for role, info in record.get("files", {}).items():
+            path = _ensure_safe_project_path(root, info["relpath"])
+            if not path.is_file() or sha256_bytes(path.read_bytes()) != info["sha256"]:
+                raise ValueError(f"Managed role changed or missing; preserved: {info['relpath']}")
+            roles[path] = info["sha256"]
+        instruction_path = None
+        instruction_before = instruction_after = None
+        info = record.get("instructions")
+        if info:
+            path = _ensure_safe_project_path(root, info["relpath"])
+            data = path.read_bytes() if path.is_file() else b""
+            span = instruction_span(data)
+            if span is None or sha256_bytes(data[span[0]:span[1]]) != info["sha256"]:
+                raise ValueError("Managed instruction block changed or missing; preserved")
+            shared = any(other.get("instructions", {}).get("relpath") == info["relpath"] for other in remaining.values())
+            if not shared:
+                instruction_path, instruction_before = path, data
+                instruction_after = data[:span[0]] + data[span[1]:]
+        snapshot = _ensure_safe_project_path(root, ".plex/resolved.json")
+        paths = {receipt_path, *roles}
+        if instruction_path:
+            paths.add(instruction_path)
+        if not remaining and snapshot.is_file():
+            paths.add(snapshot)
+        transaction = _ApplyTransaction(root, paths)
+        if transaction.original[receipt_path] != before_receipt:
+            raise ValueError("Concurrent receipt change; retry uninstall")
+        for path, digest in roles.items():
+            if sha256_bytes(transaction.original[path] or b"") != digest:
+                raise ValueError(f"Concurrent role change: {path}")
+        if instruction_path and transaction.original[instruction_path] != instruction_before:
+            raise ValueError("Concurrent instruction change; retry uninstall")
+        result = {"status": "planned" if dry_run else "uninstalled", "host": host, "scope": scope,
+                  "root": str(root), "removed_roles": list(record.get("files", {})),
+                  "instruction_block_removed": instruction_path is not None, "backup_dir": None}
+        if dry_run:
+            return result
+        backup = _create_backup_dir(root, host)
+        result["backup_dir"] = str(backup.relative_to(root.resolve()))
+        try:
+            (backup / "applied.before.json").write_bytes(before_receipt)
+            if instruction_path:
+                (backup / "instructions.before.md").write_bytes(instruction_before)
+                transaction.write(instruction_path, instruction_after)
+            for path, digest in roles.items():
+                transaction.archive(path, backup / path.name)
+                if sha256_bytes((backup / path.name).read_bytes()) != digest:
+                    raise ValueError(f"Backup verification failed: {path.name}")
+            if remaining:
+                transaction.write(receipt_path, (json.dumps({"hosts": remaining}, indent=2, sort_keys=True) + "\n").encode())
+            else:
+                transaction.archive(receipt_path, backup / "applied.json")
+                if snapshot in paths:
+                    transaction.archive(snapshot, backup / "resolved.json")
+        except (OSError, ValueError, KeyboardInterrupt) as error:
+            failures = transaction.rollback()
+            if failures:
+                raise ValueError(f"{error}; rollback needs recovery: {'; '.join(failures)}") from error
+            raise
+        return result
+    finally:
+        if not dry_run:
+            lock.unlink()
 
 
 def _resolve_file_snapshot(config_path: Path) -> dict:

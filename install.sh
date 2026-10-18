@@ -1,27 +1,26 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-source_dir="$HOME/.local/share/plex-ai"
-repository="https://github.com/pnetcloud/plex-ai.git"
-
 if ! command -v git >/dev/null 2>&1; then
     echo "Plex requires Git. Install Git, then rerun this command." >&2
     exit 127
 fi
+bootstrap_dir=$(mktemp -d "${TMPDIR:-/tmp}/plex-install.XXXXXX")
+trap 'rm -rf "$bootstrap_dir"' EXIT
+curl -fsSL https://raw.githubusercontent.com/pnetcloud/plex-ai/main/skills/plex-setup/scripts/releases.py \
+    -o "$bootstrap_dir/releases.py"
 
-if [[ -e "$source_dir" || -L "$source_dir" ]]; then
-    if [[ -L "$source_dir" || ! -d "$source_dir/.git" ]] ||
-       [[ "$(git -C "$source_dir" remote get-url origin)" != "$repository" ]]; then
-        echo "Plex cannot update this directory; existing files left unchanged: $source_dir" >&2
-        exit 1
-    fi
-    git -C "$source_dir" pull --ff-only
+if command -v uv >/dev/null 2>&1; then
+    runner=(uv run --script "$bootstrap_dir/releases.py")
+elif command -v python3 >/dev/null 2>&1; then
+    runner=(python3 "$bootstrap_dir/releases.py")
 else
-    git clone "$repository" "$source_dir"
+    echo "Plex requires uv or Python 3.11+." >&2
+    exit 127
 fi
-
-# A piped bootstrap must return stdin to the terminal for interactive menus.
+# Restore terminal input after curl | bash so the existing setup menus remain interactive.
 if [[ ! -t 0 ]] && { : </dev/tty; } 2>/dev/null; then
-    exec "$source_dir/setup.sh" "$@" </dev/tty
+    "${runner[@]}" "$@" </dev/tty
+else
+    "${runner[@]}" "$@"
 fi
-exec "$source_dir/setup.sh" "$@"

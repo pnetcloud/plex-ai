@@ -5,17 +5,52 @@
 ## Installation und Aktualisierung
 
 Für die Erstinstallation den [Schnellstart](../../../README.de.md#schnellstart) verwenden.
-Der Bootstrap behält einen gemeinsamen Checkout in `~/.local/share/plex-ai` und startet
-Setup im aktuellen Projekt. Den Checkout behalten: installierte Plugins verweisen darauf.
-Denselben Befehl erneut ausführen, um ihn zu aktualisieren und Setup zu öffnen:
+Der Bootstrap hält einen Checkout in `~/.local/share/plex-ai` und installiert die neueste
+**veröffentlichte Version einschließlich Vorschauen**. Den Checkout behalten: Plugins verweisen darauf.
+Der Einstieg kommt aus `main`, die Anwendungsdateien aus dem ausgewählten Versionstag.
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/pnetcloud/plex-ai/main/install.sh | bash
 ```
 
-Updates verwenden Fast-Forward-Pull; widersprüchliche lokale Änderungen stoppen das Update.
-Den Setup-Plan prüfen, neue Rollen/Profile anwenden und den Client neu laden.
-`~/.local/bin/plex` öffnet Setup ohne Download; die Plex-Anfrage im Client startet Koordination.
+### Status, Update und Entfernung
+
+```sh
+plex status
+plex status --json
+plex update
+plex update --release v0.2.0
+plex update --development
+plex uninstall --dry-run
+plex uninstall
+```
+
+`status` prüft zuerst die Projektkonfiguration, sonst die Benutzerinstallation des
+Clients. Es zeigt Quellversion, Team/Profil, native Rollen, Konflikte und Pluginerkennung,
+ohne Plex-Konfiguration zu ändern. `--json` liefert strukturierte Ausgabe. Konfigurierte
+Clients mit Konflikten, veraltetem Zustand oder fehlendem Plugin ergeben einen Fehlerstatus.
+Tatsächliches Modellrouting wird damit nicht nachgewiesen.
+
+`update` wählt die neueste veröffentlichte Version und öffnet Setup für die gewählten
+Clients. `--release` fixiert einen veröffentlichten Tag, `--development` wählt ausdrücklich
+`main`. Lokale Änderungen, Symlinks oder fremder Origin verhindern Updates. Quellen
+werden auf einen konkreten Tag ausgecheckt. `update --dry-run` zeigt die Auswahl ohne
+Checkout- oder Konfigurationsschreibzugriffe.
+
+`uninstall` gilt standardmäßig für das Projekt und alle im Receipt erfassten Clients.
+`--dry-run` zeigt den Plan; interaktive Entfernung fragt nach Bestätigung, unbeaufsichtigt
+ist `--yes` nötig. Mit `--client codex` filtern oder `--scope user` ausdrücklich wählen.
+Nur unveränderte Receipt-Rollen und der passende verwaltete Block werden entfernt.
+Geänderte/fehlende Dateien oder fehlerhafte Marker stoppen die Aktion. Fremde Dateien
+und umgebende Anweisungen bleiben erhalten. Ein geteilter Block bleibt für andere
+Clients bestehen. Jeder Client hat eigene Sperre, Transaktion und Backups; mehrere
+Clients bilden keine gemeinsame Transaktion.
+
+Gemeinsame Plugins, Checkout, CLI-Verknüpfung, editierbares Preset und Backups bleiben
+für andere Projekte oder Neuinstallation. Native Anweisungsdateien bleiben nach Blockentfernung.
+Erhaltene Projekteinstellungen haben weiterhin Vorrang vor Benutzerdefaults; der Bereich
+wechselt nicht automatisch. Anschließend eine neue Clientsitzung öffnen.
+Falls `plex` nicht im PATH liegt, `~/.local/bin/plex` verwenden. Reines `plex` öffnet Setup.
 
 Im Checkout `./setup.sh` starten. Leertaste markiert Clients, Enter fährt fort.
 Team, Geltungsbereich und gemeinsames Profil auswählen und jeden Installationsplan

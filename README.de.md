@@ -8,7 +8,7 @@ Plex ist ein **Agent Harness für Multi-Agent-Orchestrierung und Koordination** 
 OpenAI Codex, Anthropic Claude Code und Google Antigravity. Ein wiederverwendbares
 Team installieren, Modellprofil wählen und Plex mit Umsetzung, Review und Prüfung beauftragen.
 
-**[v0.1.0 Preview](https://github.com/pnetcloud/plex-ai/releases/tag/v0.1.0)** — Open Source, MIT. Zum Ausprobieren; Schnittstellen können sich ändern.
+**[v0.2.0 Preview](https://github.com/pnetcloud/plex-ai/releases/tag/v0.2.0)** — Open Source, MIT. Zum Ausprobieren; Schnittstellen können sich ändern.
 
 ## Schnellstart
 
@@ -73,6 +73,17 @@ Zum Ändern der Einstellungen oder Einrichten eines anderen Projekts **im Termin
 
 Dieser Befehl öffnet Setup; die Plex-Anfrage im Client startet Koordination.
 Updates, Benutzerbereich, Flags und Overrides: [Konfiguration](docs/translations/de/configuration.md).
+
+## Prüfen, aktualisieren oder entfernen
+
+```sh
+plex status
+plex update
+plex uninstall --dry-run
+```
+
+`plex uninstall` zum Bestätigen starten. Falls `plex` nicht im PATH liegt, `~/.local/bin/plex` verwenden.
+Installation und Updates wählen veröffentlichte Versionen einschließlich Vorschauen.
 
 ## Weiterführend
 

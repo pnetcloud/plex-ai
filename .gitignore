@@ -40,3 +40,7 @@
 !/.github/
 !/.github/workflows/
 !/.github/workflows/*.yml
+
+# Portable tests; generated caches and private benchmark evidence stay ignored.
+!/tests/
+!/tests/*.py

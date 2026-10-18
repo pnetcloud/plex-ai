@@ -23,8 +23,10 @@ working-tree changes. Do not commit or publish without a request.
 
 ## Verification
 
-The test suite is maintained in the development checkout and is not included in
-the public preview. When `tests/` is available, run from the repository root:
+Portable tests are included in `tests/`. CI runs Python 3.11/3.14 on Linux/macOS,
+and release publication requires those jobs to pass. Native-client checks skip when
+the corresponding CLI is unavailable; model runs and private benchmark data stay separate.
+Run from the repository root:
 
 ```sh
 uv run --with pyyaml --with questionary==2.1.1 python -m unittest discover -s tests -v

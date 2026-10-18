@@ -23,8 +23,9 @@ Ohne Auftrag weder committen noch veröffentlichen.
 
 ## Prüfungen
 
-Die Testsuite wird im Entwicklungs-Checkout gepflegt und fehlt in der öffentlichen Vorschau.
-Wenn `tests/` vorhanden ist, im Repository-Stamm ausführen:
+Portable Tests liegen in `tests/`. CI prüft Python 3.11/3.14 auf Linux/macOS;
+Veröffentlichung erfordert erfolgreiche Jobs. Native Prüfungen werden ohne passende
+CLI übersprungen. Modellläufe/private Benchmarks bleiben separat. Im Repository-Stamm ausführen:
 
 ```sh
 uv run --with pyyaml --with questionary==2.1.1 python -m unittest discover -s tests -v

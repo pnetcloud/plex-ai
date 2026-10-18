@@ -404,8 +404,79 @@ def setup_clients(args, clients, interactive):
     return 0
 
 
+def plex_status(project, clients, scope=None):
+    version = json.loads((ROOT / "plugins/codex/.codex-plugin/plugin.json").read_text())["version"]
+    reports = []
+    for client in clients:
+        report = CONFIG.check_project(project, client, scope or "auto")
+        state = report.get("hosts", {}).get(client, {})
+        configured = state.get("configured", False)
+        plugin = "not_checked"
+        if configured:
+            if not shutil.which(host_cli(client)):
+                plugin = "cli_missing"
+            else:
+                try:
+                    verify_plugin(client, project)
+                    plugin = "enabled"
+                except (OSError, ValueError, subprocess.TimeoutExpired) as error:
+                    plugin = str(error)
+        resolved = report.get("resolved") or {}
+        reports.append({"client": client, "scope": report.get("scope", scope or "auto"),
+                        "root": report.get("root"), "configured": configured,
+                        "status": report["status"] if configured or report.get("conflicts") else "unconfigured",
+                        "team": resolved.get("team"), "profile": resolved.get("model_profile"),
+                        "roles": state.get("installed_roles", []), "plugin": plugin,
+                        "conflicts": report.get("conflicts", [])})
+    return {"version": version, "source": str(ROOT), "clients": reports}
+
+
+def maintenance(args):
+    project = (args.project or Path.cwd()).expanduser().absolute()
+    clients = list(dict.fromkeys(([args.host] if args.host else []) + (args.clients or []))) or list(CONFIG.HOSTS)
+    if args.action == "status":
+        result = plex_status(project, clients, args.scope)
+        if args.json:
+            print(json.dumps(result, indent=2))
+        else:
+            print(f"Plex {result['version']}\nSource: {result['source']}")
+            for item in result["clients"]:
+                print(f"\n{item['client']} ({item['scope']}): {item['status']}")
+                print(f"  Team/profile: {item['team'] or '—'} / {item['profile'] or '—'}; plugin: {item['plugin']}")
+                print(f"  Root: {item['root']}; native roles: {len(item['roles'])}")
+                for conflict in item["conflicts"]:
+                    print(f"  Conflict: {conflict}")
+            print("\nConfiguration/plugin checks only; runtime model routing is not verified.")
+        return int(any(item["conflicts"] or item["configured"] and
+                       (item["status"] != "in_sync" or item["plugin"] != "enabled")
+                       for item in result["clients"]))
+    scope = args.scope or "project"
+    plans = [CONFIG.uninstall_project(project, client, scope, dry_run=True) for client in clients]
+    if args.dry_run:
+        print(json.dumps(plans, indent=2))
+        return 0
+    if not args.yes:
+        if not sys.stdin.isatty():
+            raise ValueError("Use uninstall --dry-run to preview or uninstall --yes to confirm")
+        for plan in plans:
+            print(f"{plan['host']} ({scope}): {len(plan['removed_roles'])} owned roles")
+        if input("Remove these Plex roles and owned instruction blocks? [y/N] ").strip().lower() not in {"y", "yes"}:
+            print("Uninstall cancelled.")
+            return 0
+    results = [CONFIG.uninstall_project(project, client, scope) for client in clients]
+    print(json.dumps(results, indent=2))
+    if not args.json:
+        print("Shared plugins, source checkout, preset preferences and backups were retained.")
+    return 0
+
+
 def main(argv=None, *, shared_profile=False, selection=None):
+    argv = list(sys.argv[1:] if argv is None else argv)
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("action", nargs="?", choices=("setup", "status", "update", "uninstall"), default="setup")
+    parser.add_argument("--json", action="store_true", help="Machine-readable status")
+    parser.add_argument("--release", help="Published tag for update; defaults to newest published release")
+    parser.add_argument("--development", action="store_true", help="Explicitly update to main")
     parser.add_argument("--project", type=Path, help="Existing target project directory")
     parser.add_argument("--client", dest="clients", action="append", choices=CONFIG.HOSTS,
                         help="Client to configure; repeat to select several")
@@ -424,6 +495,24 @@ def main(argv=None, *, shared_profile=False, selection=None):
     mode.add_argument("--install-command", action="store_true", help="Link this checkout as ~/.local/bin/plex")
     parser.add_argument("--yes", action="store_true", help="Apply without prompts; requires --client and --project for project scope")
     args = parser.parse_args(argv)
+    if args.action in {"status", "uninstall", "update"}:
+        try:
+            if args.action == "update":
+                spec = importlib.util.spec_from_file_location("plex_releases", ROOT / "skills/plex-setup/scripts/releases.py")
+                release = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(release)
+                forwarded = list(argv)
+                forwarded.remove("update")
+                return release.main(["--checkout", str(ROOT), *forwarded])
+            return maintenance(args)
+        except (OSError, ValueError, subprocess.TimeoutExpired) as error:
+            print(f"Plex {args.action} stopped: {error}", file=sys.stderr)
+            return 1
+        except (EOFError, KeyboardInterrupt):
+            print("Plex maintenance interrupted; inspect the last reported state.", file=sys.stderr)
+            return 130
+    if args.release or args.development:
+        parser.error("--release and --development require plex update")
     if args.team == "default":
         args.team = "pnet"
     interactive = sys.stdin.isatty() and not args.yes

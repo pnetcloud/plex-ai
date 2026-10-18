@@ -4,19 +4,53 @@
 
 ## Install and refresh
 
-For the first installation, follow the [quick start](../README.md#quick-start).
-The bootstrap keeps a shared checkout in `~/.local/share/plex-ai` and starts setup
-from your current project directory. Keep that checkout: installed plugins refer to it.
-Rerun the same command to update it and reopen setup:
+For first installation, follow the [quick start](../README.md#quick-start).
+The bootstrap keeps a shared checkout in `~/.local/share/plex-ai` and installs the
+newest **published release, including previews**. Keep that checkout: installed plugins refer to it.
+The entrypoint comes from `main`; application files are checked out at the selected release tag.
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/pnetcloud/plex-ai/main/install.sh | bash
 ```
 
-Updates use a fast-forward Git pull; conflicting local changes stop the update.
-Review the setup plan to apply changed roles/profiles, then reload the client.
-`~/.local/bin/plex` reopens setup without downloading updates; asking for Plex
-inside the client starts coordination.
+### Status, update and removal
+
+```sh
+plex status
+plex status --json
+plex update
+plex update --release v0.2.0
+plex update --development
+plex uninstall --dry-run
+plex uninstall
+```
+
+`status` checks project configuration first, otherwise the selected client's user
+installation. It reports the source version, team/profile, native roles, conflicts
+and plugin discovery. It changes no Plex configuration. `--json` gives structured
+output; configured clients with conflicts, stale state or an unavailable plugin
+return a nonzero status. This does not prove runtime model routing.
+
+`update` selects the newest published release and reopens setup to refresh the chosen
+clients. `--release` pins a published tag; `--development` explicitly selects `main`.
+Source checkouts with local changes, symlinks or another origin are refused. Updates
+use detached release checkouts, not a moving branch. `update --dry-run` previews
+source selection without writing a checkout or applying configuration.
+
+`uninstall` defaults to project scope and all recorded clients. Preview with
+`--dry-run`; interactive removal asks for confirmation, unattended removal needs
+`--yes`. Filter with `--client codex`, or explicitly select `--scope user`.
+Only unchanged receipt-owned roles and the matching managed instruction block are
+removed. Modified/missing owned files or malformed markers stop the operation;
+foreign files and surrounding instructions remain untouched. A block shared with
+another client stays until that client is removed. Each client's removal has its
+own lock, transaction and backups; multi-client removal is not one global transaction.
+
+Shared plugins, the source checkout, CLI shortcut, editable preset and backups remain
+for other projects or reinstall. Native instruction files remain after block removal.
+Retained project preferences continue to take precedence over global defaults; the
+command does not automatically switch your scope. Reopen a client session after changes.
+Use `~/.local/bin/plex` if the shortcut is not on your PATH. Plain `plex` opens setup.
 
 From a checkout, run `./setup.sh`. Select clients with Space, then press Enter.
 Choose a team, scope and shared profile; inspect each installation plan before applying.

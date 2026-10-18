@@ -22,7 +22,9 @@
 
 ## 检查
 
-测试套件在开发副本中维护，不包含在公开预览版中。存在 `tests/` 时，从仓库根目录运行：
+可移植测试包含在 `tests/` 中。CI 在 Linux/macOS 上检查 Python 3.11/3.14，
+发布需等待这些检查通过。缺少对应 CLI 时跳过原生客户端检查；模型运行和私有基准数据另存。
+从仓库根目录运行：
 
 ```sh
 uv run --with pyyaml --with questionary==2.1.1 python -m unittest discover -s tests -v
