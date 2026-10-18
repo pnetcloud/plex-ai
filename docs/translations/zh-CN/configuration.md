@@ -4,6 +4,21 @@
 
 ## 安装与更新
 
+首次安装请使用[快速开始](../../../README.zh-CN.md#快速开始)。
+其中的 GitHub 命令将 `main` 分支下载到 `~/.local/share/plex-ai` 并启动配置，
+不会改变当前目标项目目录。
+
+在目标项目中更新该副本：
+
+```sh
+git -C "$HOME/.local/share/plex-ai" pull --ff-only && \
+  "$HOME/.local/share/plex-ai/setup.sh"
+```
+
+不要向已有副本重复执行 `git clone`。如果选择了其他位置，请使用实际路径。
+检查安装计划以应用新角色/配置档，然后重新加载客户端。
+终端命令 `~/.local/bin/plex` 打开配置；客户端内的 Plex 请求启动协调。
+
 在源码目录运行 `./setup.sh`。用空格选择客户端，按 Enter 继续。
 选择团队、安装范围和共享配置档，并检查各安装计划；默认选择项目范围。需要相应客户端 CLI。
 

@@ -2,151 +2,89 @@
 
 [English](README.md) · [Русский](README.ru.md) · [Deutsch](README.de.md) · [简体中文](README.zh-CN.md)
 
-[Dokumentation](docs/translations/de/README.md) · [Tests und Effizienz](docs/translations/de/testing.md)
+**Team zusammenstellen. Arbeit koordinieren.**
 
-**Stelle dein Team zusammen. Koordiniere die Arbeit.**
+Plex ist ein **Agent Harness für Multi-Agent-Orchestrierung und Koordination** in
+OpenAI Codex, Anthropic Claude Code und Google Antigravity. Ein wiederverwendbares
+Team installieren, Modellprofil wählen und Plex mit Umsetzung, Review und Prüfung beauftragen.
 
-pNet Plex ist ein **Agent Harness für die Orchestrierung und Koordination mehrerer
-KI-Agenten** in der Softwareentwicklung. Definiere spezialisierte Rollen, wähle
-Modelle und verbinde Planung, Implementierung und Review in den Coding-Werkzeugen,
-die du bereits nutzt.
+**[v0.1.0 Preview](https://github.com/pnetcloud/plex-ai/releases/tag/v0.1.0)** — Open Source, MIT. Zum Ausprobieren; Schnittstellen können sich ändern.
 
-Ein leistungsfähiger Agent kann allein viel erreichen. Die Arbeit im Team bringt
-weitere Entscheidungen mit sich: Wer übernimmt welche Aufgabe, welchen Kontext
-braucht die jeweilige Rolle, welches Modell nutzt sie und wie werden Ergebnisse
-geprüft? Plex macht diese Entscheidungen durch eine Teamkonfiguration im Projekt
-und Skills zur Koordination explizit.
+## Schnellstart
 
-Teamdefinitionen und native Agenten liegen unter `teams/<team>/`, teamspezifische Modellprofile unter `teams/<team>/profiles/`. Der Skill `plex-setup` liest diesen Katalog aus dem Paketstamm.
+Benötigt werden **Git**, die gewählte Client-CLI und **uv oder Python 3.11+**.
+Im eigenen Projekt starten oder ein leeres Testprojekt anlegen:
 
-Die Anweisungen für den Root-Koordinator stehen in `teams/<team>/coordinator.md`; `plex` lädt das ausgewählte Team nach Prüfung der angewendeten Konfiguration.
-
-## Warum Plex?
-
-Der Name leitet sich von *multiplex* ab: Mehrere Datenströme werden in einem
-gemeinsamen System zusammengeführt. Bei Plex sind diese Ströme die Beiträge
-spezialisierter Agenten, die auf ein gemeinsames Ergebnis hinarbeiten. Jede Rolle
-hat eine klare Verantwortung; der Koordinator führt die Arbeit zusammen.
-
-## Orchestrierung, Koordination und Agent Harness
-
-- **Orchestrierung** strukturiert die Arbeit: passende Rollen auswählen, klar
-  abgegrenzte Aufgaben delegieren, Abhängigkeiten berücksichtigen und Ergebnisse
-  zur Integration zusammenführen.
-- **Koordination** stimmt das Team ab: relevanten Kontext teilen, Zuständigkeiten
-  für Dateien festlegen, Blockaden sichtbar machen und unabhängige Reviews organisieren.
-- **Der Agent Harness** macht den Ansatz wiederholbar: Projektkonfiguration,
-  wiederverwendbare Skills, Modellprofile und native Rollendefinitionen für jede
-  Agentenumgebung.
-
-Der laufende Agent übernimmt die Koordination. Plex arbeitet innerhalb der
-Ausführungs- und Berechtigungsregeln der jeweiligen Umgebung, ohne separaten
-Hintergrunddienst oder eigene Oberfläche. Unabhängige Aufgaben können parallel
-laufen, wenn ihre Eingaben und die Dateizuständigkeiten es zulassen. Für eine
-kleine Aufgabe reicht ein kleines Team; Delegation sollte einen Nutzen haben.
-
-## Plattformen im Fokus
-
-Plex konzentriert sich auf drei Agentenökosysteme:
-
-| Plattform | Stand der Plex-Integration |
-| --- | --- |
-| **OpenAI Codex** | Implementiert; isolierte Installations- und Konfigurationsprüfungen sind vorhanden |
-| **Anthropic Claude Code** | Generierung nativer Rollen implementiert; die tatsächliche Ausführung muss noch verifiziert werden |
-| **Google Antigravity** mit **Gemini-Modellen** | Native Integration und ausgewählte Live-Tests verifiziert; Modell- und Clientgrenzen gelten |
-
-Das sind die aktuellen Schwerpunkte des Produkts. Weitere Umgebungen gehören
-derzeit nicht zur Roadmap. Umgebung und Modell sind getrennte Entscheidungen:
-Ein Modellprofil bedeutet nicht, dass eine weitere Umgebung unterstützt wird.
-Gemini CLI ist eine separate Umgebung und gehört derzeit nicht zum Integrationsumfang.
-
-## Dein Team, deine Modelle
-
-Starte mit **pnet**: PM klärt die Aufgabe, explorer untersucht das Projekt, researcher
-prüft externe Quellen, dev implementiert, reviewer prüft Änderungen und QA das Verhalten.
-Der Koordinator wählt die benötigten Rollen; standardmäßig laufen höchstens drei Aufträge parallel.
-Wähle **BMad** für installierte BMad-Skills und -Workflows. pnet benötigt kein BMad.
-
-Teamzusammensetzung und Modellwahl sind voneinander getrennt. Wähle ein Modellprofil,
-passe Einstellungen einzelner Rollen an und speichere sie im Projekt. Plex erstellt
-native Projektrollen und hilft dem Koordinator, sie für die aktuelle Aufgabe einzusetzen.
-
-Verbesserungen bei Qualität, Geschwindigkeit und Kosten müssen gemessen werden;
-mehr Agenten allein belegen kein besseres Ergebnis.
-
-## So funktioniert es
-
-```mermaid
-flowchart TD
-    Root["Koordinator: verteilt Aufgaben und integriert Ergebnisse"]
-    Recon["Erkundung / Recherche bei Bedarf"]
-    Frame["Prüfung durch PM / Architekturrolle bei Bedarf"]
-    Work["Implementierung mit klaren Dateizuständigkeiten"]
-    Verify["Unabhängige Prüfung / Review"]
-    Root -->|Auftrag| Recon
-    Recon -->|Erkenntnisse| Root
-    Root -->|wenn Annahmen geprüft werden müssen| Frame
-    Frame -->|Randbedingungen und Aufgabenvereinbarungen| Root
-    Root -->|Auftrag| Work
-    Work -->|Änderungen und Prüfungen| Root
-    Root -->|nach Stabilisierung der Implementierung| Verify
-    Verify -->|Nachweise und Befunde| Root
+```sh
+mkdir plex-demo && cd plex-demo
 ```
 
-Der Koordinator wählt nur die benötigten Rollen aus dem konfigurierten Team.
-Klare, abgegrenzte Arbeit kann direkt in die Implementierung gehen. PM oder
-Architekturrolle kommen zum Einsatz, wenn Umfang, Abnahmekriterien oder technische
-Invarianten geprüft werden müssen. Recherche und Review können parallel laufen,
-wenn Eingaben und Dateizuständigkeiten es erlauben.
+Mit einem Befehl direkt aus GitHub installieren:
 
-Im BMad-Modus aktivieren Wrapper die tatsächlich installierten Skills und folgen
-den Workflows und Anpassungen dieser Version. Menübefehle und Schrittfolgen sind
-nicht fest einprogrammiert; vorgesehene menschliche Entscheidungspunkte bleiben
-erhalten. Die Pfeile zeigen Aufträge und Rückmeldungen. Untergeordnete Agenten
-dürfen nur dann weiterdelegieren, wenn Umgebung und Aufgabenübergabe dies
-ausdrücklich erlauben.
+```sh
+git clone --depth 1 https://github.com/pnetcloud/plex-ai.git "$HOME/.local/share/plex-ai" && \
+  "$HOME/.local/share/plex-ai/setup.sh"
+```
 
-## Installationsumfang und verwaltete Anweisungen
+Der Installer öffnet ein interaktives Menü:
 
-Starte `./setup.sh` und wähle einen oder mehrere Clients (Leertaste zum Markieren, Enter zum Fortfahren) und den Teamumfang. **Projekt** ist
-die empfohlene Voreinstellung. **Benutzer (global)** stellt das Team für die
-Projekte dieses Benutzers bereit. Codex berücksichtigt `CODEX_HOME`, Claude
-`CLAUDE_CONFIG_DIR`. Für unbeaufsichtigte Installation verwende `--scope project`
-mit `--project <pfad>` oder `--scope user`, jeweils mit `--client <plattform> --yes`.
+1. Clients mit **Leertaste** auswählen, mit **Enter** fortfahren (ohne uv per Nummerneingabe).
+2. Für diesen Test **Project** beibehalten und den Projektordner bestätigen.
+3. Das eigenständige Team **pnet** und **Inherit** für die Modelleinstellungen der Sitzung wählen.
+4. Den Installationsplan jedes Clients prüfen und bestätigen.
 
-Einstellungen und Installationsnachweise liegen in `.plex/` im gewählten Projekt
-oder Benutzerverzeichnis der Plattform. Plex prüft Projekteinstellungen zuerst;
-fehlerhafte Projekte werden gemeldet. Eine globale Installation entfernt keine
-Projektagenten. Das gemeinsame Plugin wird bei allen unterstützten Plattformen für den Benutzer installiert; die Auswahl bestimmt den Umfang der Teamdateien.
-Ein gemeinsames Profil — Inherit, Basic, Plus, Pro oder Pro+ — verwendet die passenden OpenAI-, Anthropic- und Google-Einstellungen für alle Clients. Für mehrere Clients ohne Menü kann `--client` wiederholt werden.
-Die vollständige Installation erstellt auch `~/.local/bin/plex`; mit `--no-command` bleibt der Befehl unverändert.
-Starte den Installer im eigenen Projekt oder gib `--project` an. Ein Durchlauf installiert das Plugin und richtet das Team ein; ein zusätzlicher Aufruf von `plex-setup` ist nicht erforderlich.
-Der Starter nutzt `uv`, falls vorhanden, sonst Python 3.11+ mit nummerierten Menüs.
+Das installiert das gemeinsame Plugin, native Teamrollen und einen verwalteten Anweisungsblock.
+`~/.local/share/plex-ai` behalten: installierte Plugins verweisen auf diesen Checkout.
+Bereits geklont? Dessen `setup.sh` erneut starten, statt `git clone` zu wiederholen.
 
-Der Installer bietet einen Block zwischen `<!-- plex:start -->` und
-`<!-- plex:end -->` in der nativen Anweisungsdatei an: `AGENTS.md` für Codex,
-`CLAUDE.md` für Claude, `GEMINI.md`/`AGENTS.md` für Antigravity. Vorhandene Codex
-Override- und konfigurierte Fallback-Dateien werden berücksichtigt. **Plex verwaltet
-nur diesen Block und erhält den gesamten übrigen Text.** Eigene Regeln gehören
-außerhalb des Blocks. Änderungen werden gesichert; manuelle Änderungen im Block
-und fehlerhafte Marker führen zu einem Konflikt. Wiederholte Installation erzeugt
-keine doppelten Blöcke. `--no-instructions` lässt Anweisungsdateien unverändert;
-`--dry-run` zeigt nur den Plan. Lade die Agentenumgebung danach neu.
+## Erste Aufgabe ausprobieren
 
-## Veröffentlichungsstand
+Eine **neue Sitzung** des Coding-Clients in `plex-demo` oder dem eigenen Projekt öffnen.
+Bei Bedarf Plugins/Agenten neu laden und folgende Anfrage senden:
 
-Diese frühe Entwicklungsversion enthält die Skills `plex` und `plex-setup`,
-ein Installationsprogramm für die lokale Repository-Kopie (`setup.py` / `setup.sh`),
-Team-Presets, Modellprofile, native Plugin-Manifeste, Dokumentation und zusammengefasste
-Testergebnisse. Automatisierte Tests und rohe Versuchsdaten werden außerhalb des öffentlichen
-Repositorys gepflegt. Delegation und Modellrouting brauchen clientspezifische Verifikation;
-dies ist eine frühe Vorschau.
+```text
+Nutze Plex, um eine responsive Buchungsseite für eine Fokussitzung zu erstellen.
+Reines HTML, CSS und JavaScript: Name, E-Mail und Dauer 25/50 Minuten.
+Eingaben prüfen und lokal bestätigen, ohne Daten zu speichern oder zu senden.
+Änderungen reviewen, verfügbare Prüfungen ausführen und tatsächlich Geprüftes nennen.
+```
 
-Die plattformspezifischen Manifeste liegen unter [`plugins/`](plugins/README.md). Der Installer erstellt vor der Installation ein vollständiges Paket für die gewählte Plattform.
+Plex wählt passende Rollen, implementiert die Seite und koordiniert Review/Prüfungen.
+Erwartet werden Quelldateien, ein lokaler Vorschaubefehl sowie Prüfergebnisse und offene Lücken.
+Installation allein startet keine Orchestrierung — **Plex ausdrücklich anfordern**.
 
+Problem gefunden? [Issue öffnen](https://github.com/pnetcloud/plex-ai/issues) mit Client/Version,
+Team/Profil, Befehl oder Anfrage sowie erwartetem und tatsächlichem Verhalten.
+Geheimnisse vor dem Anhängen aus Logs entfernen.
 
-Rollenanweisungen gliedern sich in Arbeitsschritte, Schwerpunkte, Qualitätsprüfungen und Ergebnisse. Als Vorlage dient [Awesome Codex Subagents](https://github.com/VoltAgent/awesome-codex-subagents); siehe [Drittanbieterhinweise](THIRD_PARTY_NOTICES.md).
+## Teams und Modelle
+
+| Team | Einsatz |
+|---|---|
+| **pnet** | Allgemeine Entwicklung mit PM, explorer, researcher, dev, reviewer und QA; kein BMad nötig |
+| **bmad** | Vorhandene BMad-Skills/Workflows mit Rollenmodellen; separat installiertes BMad und Projekt-Runtime nötig |
+
+Profile: **Inherit, Basic, Plus, Pro, Pro+**. Eine Stufe gilt für alle gewählten Clients;
+Rollen-Overrides sind möglich. Plex verwaltet nur den markierten Block und erhält umgebende Projektanweisungen.
+
+Zum Ändern der Einstellungen oder Einrichten eines anderen Projekts **im Terminal** aus dessen Ordner starten:
+
+```sh
+~/.local/bin/plex
+```
+
+Dieser Befehl öffnet Setup; die Plex-Anfrage im Client startet Koordination.
+Updates, Benutzerbereich, Flags und Overrides: [Konfiguration](docs/translations/de/configuration.md).
+
+## Weiterführend
+
+- [Dokumentation](docs/translations/de/README.md) — Einrichtung und Nutzung.
+- [Über Plex](docs/translations/de/product.md) — Zweck und Prinzipien.
+- [Kompatibilität](docs/translations/de/host-compatibility.md) — Live-Tests für Codex und ausgewählte Antigravity-Konfigurationen; native Claude-Code-Aufgaben noch ungeprüft.
+- [Tests und Effizienz](docs/translations/de/testing.md) — Methodik, Token-/Kostenmessungen und subjektive Qualitätsbewertung.
+- [Architektur](docs/translations/de/architecture.md) — Zusammenspiel von Konfiguration und Koordination.
 
 ## Lizenz
 
-pNet Plex wird unter der [MIT-Lizenz](LICENSE) veröffentlicht.
+[MIT](LICENSE). Agentenanweisungen adaptieren [Awesome Codex Subagents](https://github.com/VoltAgent/awesome-codex-subagents);
+siehe [Drittanbieterhinweise](THIRD_PARTY_NOTICES.md).

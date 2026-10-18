@@ -4,6 +4,22 @@
 
 ## Install and refresh
 
+For the first installation, follow the [quick start](../README.md#quick-start).
+The GitHub command there downloads the `main` branch into `~/.local/share/plex-ai`
+and launches setup without changing your target project directory.
+
+To update that checkout, run from your target project:
+
+```sh
+git -C "$HOME/.local/share/plex-ai" pull --ff-only && \
+  "$HOME/.local/share/plex-ai/setup.sh"
+```
+
+Do not repeat `git clone` into an existing checkout. Use its actual path if you chose
+another location. Review the setup plan to apply changed roles/profiles, then reload
+the client. The `~/.local/bin/plex` terminal shortcut reopens setup; asking for Plex
+inside the client starts coordination.
+
 From a checkout, run `./setup.sh`. Select clients with Space, then press Enter.
 Choose a team, scope and shared profile; inspect each installation plan before applying.
 Project scope is the default. The host CLI must be available.
