@@ -41,13 +41,13 @@ class InstallerTests(unittest.TestCase):
                 "UV_PYTHON_INSTALL_DIR": os.environ.get("UV_PYTHON_INSTALL_DIR", str(Path.home() / ".local/share/uv/python")),
                 "PATH": f"{Path(shutil.which('uv')).parent}:/usr/bin:/bin",
             }
-            command = Path(temp) / ".local/bin/plex"
+            command = Path(temp).resolve() / ".local/bin/plex"
             for _ in range(2):
                 result = self.run_setup("--install-command", env=env)
                 self.assertEqual(result.returncode, 0, result.stderr)
                 self.assertEqual(command.resolve(), ROOT / "setup.sh")
                 self.assertIn('export PATH=', result.stdout)
-            project = Path(temp) / "project with spaces"
+            project = Path(temp).resolve() / "project with spaces"
             project.mkdir()
             result = subprocess.run(
                 [str(command), "--project", ".", "--host", "codex", "--dry-run"],
@@ -56,7 +56,7 @@ class InstallerTests(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertIn(str(project), result.stdout)
             self.assertEqual(list(project.iterdir()), [])
-            fallback_bin = Path(temp) / "fallback-bin"
+            fallback_bin = Path(temp).resolve() / "fallback-bin"
             fallback_bin.mkdir()
             (fallback_bin / "python3").symlink_to(sys.executable)
             fallback = subprocess.run(
@@ -72,8 +72,8 @@ class InstallerTests(unittest.TestCase):
         installer = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(installer)
         with tempfile.TemporaryDirectory() as temp, redirect_stdout(io.StringIO()) as output:
-            home = Path(temp) / "home"
-            project = Path(temp) / "project"
+            home = Path(temp).resolve() / "home"
+            project = Path(temp).resolve() / "project"
             project.mkdir()
             (project / "CLAUDE.md").write_text("Personal rules.\n")
             env = {"HOME": str(home), "CLAUDE_CONFIG_DIR": str(home / ".claude")}
@@ -99,19 +99,19 @@ class InstallerTests(unittest.TestCase):
         installer = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(installer)
         with tempfile.TemporaryDirectory() as temp, redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()):
-            project = Path(temp) / "project"
+            project = Path(temp).resolve() / "project"
             project.mkdir()
-            with patch.dict(os.environ, {"HOME": str(Path(temp) / "home")}), \
+            with patch.dict(os.environ, {"HOME": str(Path(temp).resolve() / "home")}), \
                     patch.object(installer, "build_plugin"), \
                     patch.object(installer.shutil, "which", return_value="/bin/claude"), \
                     patch.object(installer, "run", return_value="[]"):
                 self.assertEqual(installer.main(["--host", "claude", "--project", str(project), "--yes"]), 1)
             self.assertEqual(list(project.iterdir()), [])
-            self.assertFalse((Path(temp) / "home/.local/bin/plex").exists())
+            self.assertFalse((Path(temp).resolve() / "home/.local/bin/plex").exists())
 
     def test_user_command_upgrades_this_checkouts_previous_shortcut(self):
         with tempfile.TemporaryDirectory() as temp:
-            command = Path(temp) / ".local/bin/plex"
+            command = Path(temp).resolve() / ".local/bin/plex"
             command.parent.mkdir(parents=True)
             command.symlink_to(ROOT / "setup.py")
             result = self.run_setup("--install-command", env={**os.environ, "HOME": temp})
@@ -130,22 +130,22 @@ class InstallerTests(unittest.TestCase):
                 self.assertEqual(installer.main(["--host", "codex", "--roles-only"]), 0)
             self.assertEqual(prompt.call_args_list[0].args, ("Project directory", ""))
             self.assertEqual(prompt.call_args_list[1].args, ("Project directory", ""))
-            self.assertEqual(list(Path(temp).iterdir()), [])
+            self.assertEqual(list(Path(temp).resolve().iterdir()), [])
 
     def test_user_command_preserves_foreign_file_and_broken_link(self):
         with tempfile.TemporaryDirectory() as temp:
             env = {**os.environ, "HOME": temp}
-            command = Path(temp) / ".local/bin/plex"
+            command = Path(temp).resolve() / ".local/bin/plex"
             command.parent.mkdir(parents=True)
             command.write_text("existing command")
             result = self.run_setup("--install-command", env=env)
             self.assertNotEqual(result.returncode, 0)
             self.assertEqual(command.read_text(), "existing command")
             command.unlink()
-            command.symlink_to(Path(temp) / "missing")
+            command.symlink_to(Path(temp).resolve() / "missing")
             result = self.run_setup("--install-command", env=env)
             self.assertNotEqual(result.returncode, 0)
-            self.assertEqual(os.readlink(command), str(Path(temp) / "missing"))
+            self.assertEqual(os.readlink(command), str(Path(temp).resolve() / "missing"))
 
     def test_interactive_menu_can_cancel_without_writes(self):
         spec = importlib.util.spec_from_file_location("plex_installer", ROOT / "setup.py")
@@ -163,7 +163,7 @@ class InstallerTests(unittest.TestCase):
             self.assertIn("user/session default model and reasoning", output.getvalue())
             self.assertIn("gpt-6.1-sol /", output.getvalue())
             self.assertIn("dev: gpt-6-luna /", output.getvalue())
-            self.assertEqual(list(Path(temp).iterdir()), [])
+            self.assertEqual(list(Path(temp).resolve().iterdir()), [])
 
     def test_shared_concurrency_prompt_persists_and_cli_can_override(self):
         spec = importlib.util.spec_from_file_location("plex_installer", ROOT / "setup.py")
@@ -177,7 +177,7 @@ class InstallerTests(unittest.TestCase):
                         patch.object(installer, "ask_text", return_value="6") as prompt:
                     self.assertEqual(installer.main(common), 0)
                 prompt.assert_called_once_with("Parallel agents", default)
-                source = Path(temp) / ".plex/preset.toml"
+                source = Path(temp).resolve() / ".plex/preset.toml"
                 self.assertEqual(tomllib.loads(source.read_text())["max_agents"], 6)
             result = self.run_setup(*common, "--yes", "--max-agents", "2")
             self.assertEqual(result.returncode, 0, result.stderr)
@@ -201,7 +201,7 @@ class InstallerTests(unittest.TestCase):
             self.assertIn("bmad setup", errors.getvalue())
             self.assertNotIn("Model profile", output.getvalue())
             run.assert_not_called()
-            self.assertEqual(list(Path(temp).iterdir()), [])
+            self.assertEqual(list(Path(temp).resolve().iterdir()), [])
 
     def run_setup(self, *args, env=None, stdin=""):
         return subprocess.run(
@@ -216,14 +216,14 @@ class InstallerTests(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertIn("claude plugin install", result.stdout)
             self.assertIn("sonnet", result.stdout)
-            self.assertEqual(list(Path(temp).iterdir()), [])
+            self.assertEqual(list(Path(temp).resolve().iterdir()), [])
             self.assertNotIn("\033", result.stdout)
             ag_res = self.run_setup("--project", temp, "--host", "antigravity", "--team", "pnet",
                                     "--model-profile", "google-plus", "--dry-run")
             self.assertEqual(ag_res.returncode, 0, ag_res.stderr)
             self.assertIn("agy plugin install", ag_res.stdout)
             self.assertIn("flash", ag_res.stdout)
-            self.assertEqual(list(Path(temp).iterdir()), [])
+            self.assertEqual(list(Path(temp).resolve().iterdir()), [])
 
     def test_roles_only_setup_repeat_and_profile_switch_preserve_overrides(self):
         with tempfile.TemporaryDirectory(prefix="plex-installer-") as temp:
@@ -231,7 +231,7 @@ class InstallerTests(unittest.TestCase):
             result = self.run_setup(*common, "--team", "pnet", "--model-profile", "openai-plus")
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertIn("configuration in sync", result.stdout)
-            root = Path(temp)
+            root = Path(temp).resolve()
             before = {p: p.read_bytes() for p in root.rglob("*") if p.is_file()}
             result = self.run_setup(*common)
             self.assertEqual(result.returncode, 0, result.stderr)
@@ -258,7 +258,7 @@ class InstallerTests(unittest.TestCase):
                 with self.subTest(extra=extra):
                     result = self.run_setup("--project", temp, "--host", "codex", "--roles-only", *extra)
                     self.assertNotEqual(result.returncode, 0)
-                    self.assertEqual(list(Path(temp).iterdir()), [])
+                    self.assertEqual(list(Path(temp).resolve().iterdir()), [])
 
     @unittest.skipUnless(shutil.which("sh"), "POSIX shell unavailable")
     def test_shell_entry_works_from_another_directory(self):
@@ -267,7 +267,7 @@ class InstallerTests(unittest.TestCase):
                                     capture_output=True, text=True, timeout=10)
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertIn("--roles-only", result.stdout)
-            fallback_bin = Path(temp) / "fallback-bin"
+            fallback_bin = Path(temp).resolve() / "fallback-bin"
             fallback_bin.mkdir()
             (fallback_bin / "python3").symlink_to(sys.executable)
             env = {**os.environ, "PATH": f"{fallback_bin}:/usr/bin:/bin"}
@@ -279,9 +279,9 @@ class InstallerTests(unittest.TestCase):
     @unittest.skipUnless(shutil.which("codex"), "Codex CLI unavailable")
     def test_native_install_uses_only_disposable_codex_profile(self):
         with tempfile.TemporaryDirectory(prefix="plex-installer-native-") as temp:
-            project = Path(temp) / "project with spaces"
+            project = Path(temp).resolve() / "project with spaces"
             project.mkdir()
-            profile = Path(temp) / "profile"
+            profile = Path(temp).resolve() / "profile"
             profile.mkdir()
             env = {**os.environ, "HOME": temp, "CODEX_HOME": str(profile)}
             result = self.run_setup("--project", project, "--host", "codex", "--team", "pnet",
@@ -301,7 +301,7 @@ class InstallerTests(unittest.TestCase):
     @unittest.skipUnless(shutil.which("codex") and shutil.which("agy"), "Codex and Antigravity CLIs required")
     def test_multi_client_native_install_and_repeat(self):
         with tempfile.TemporaryDirectory(prefix="plex-multi-client-") as temp:
-            root = Path(temp)
+            root = Path(temp).resolve()
             project = root / 'project'
             project.mkdir()
             profile = root / 'codex'
@@ -323,9 +323,9 @@ class InstallerTests(unittest.TestCase):
     @unittest.skipUnless(shutil.which("agy"), "Antigravity CLI unavailable")
     def test_native_install_uses_only_disposable_antigravity_home(self):
         with tempfile.TemporaryDirectory(prefix="plex-installer-agy-") as temp:
-            project = Path(temp) / "project with spaces"
+            project = Path(temp).resolve() / "project with spaces"
             project.mkdir()
-            home = Path(temp) / "home"
+            home = Path(temp).resolve() / "home"
             home.mkdir()
             env = {**os.environ, "HOME": str(home)}
             result = self.run_setup("--project", project, "--host", "antigravity", "--team", "pnet",

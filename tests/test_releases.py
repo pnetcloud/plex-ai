@@ -26,13 +26,13 @@ class ReleaseTests(unittest.TestCase):
         with patch.object(M.urllib.request,'urlopen',return_value=io.BytesIO(b'{"tag_name":"v0.1.0","published_at":"2026-10-17"}')):
             self.assertEqual(M.published_release('v0.1.0'),'v0.1.0')
         with tempfile.TemporaryDirectory() as temp,patch.object(M,'published_release',side_effect=ValueError('network')):
-            checkout=Path(temp)/'checkout'
+            checkout=Path(temp).resolve()/'checkout'
             with self.assertRaises(ValueError):M.update_checkout(checkout)
             self.assertFalse(checkout.exists())
 
     def test_tag_update_dirty_guard_explicit_main_and_dry_run(self):
         with tempfile.TemporaryDirectory() as temp:
-            base=Path(temp);repo=base/'origin';repo.mkdir()
+            base=Path(temp).resolve();repo=base/'origin';repo.mkdir()
             subprocess.run(['git','init','-q','-b','main',str(repo)],check=True)
             def git(*args):return M.git(repo,*args)
             git('config','user.name','Test');git('config','user.email','test@example.com')

@@ -15,7 +15,7 @@ ROOT = Path(__file__).resolve().parents[1]
 class BootstrapTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory();self.addCleanup(self.temp.cleanup)
-        self.root = Path(self.temp.name);self.project = self.root/'project';self.project.mkdir()
+        self.root = Path(self.temp.name).resolve();self.project = self.root/'project';self.project.mkdir()
         commands=self.root/'bin';commands.mkdir()
         fixture=self.root/'helper.py'
         fixture.write_text('''import os,sys,json

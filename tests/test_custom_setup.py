@@ -30,7 +30,7 @@ MODELS = {
 class CustomSetupTests(unittest.TestCase):
     def test_team_switch_with_missing_profile_offers_selection_without_writes(self):
         with tempfile.TemporaryDirectory() as temp, redirect_stdout(io.StringIO()):
-            root = Path(temp)
+            root = Path(temp).resolve()
             project = root / "project"
             project.mkdir()
             shutil.copytree(ROOT / "teams", root / "teams")
@@ -61,7 +61,7 @@ class CustomSetupTests(unittest.TestCase):
         ]:
             with self.subTest(host=host, saved=saved), tempfile.TemporaryDirectory() as temp, \
                     redirect_stdout(io.StringIO()):
-                project = Path(temp)
+                project = Path(temp).resolve()
                 CONFIG.apply_project(project, host, team="pnet", model_profile=saved)
                 before = (project / ".plex/preset.toml").read_bytes()
                 menus = []
@@ -121,7 +121,7 @@ class CustomSetupTests(unittest.TestCase):
 
     def test_multiple_clients_share_one_profile_and_switch_together(self):
         with tempfile.TemporaryDirectory() as temp, redirect_stdout(io.StringIO()):
-            project = Path(temp)
+            project = Path(temp).resolve()
             seen = []
             def choose(label, choices, default):
                 seen.append(label)
@@ -160,12 +160,12 @@ class CustomSetupTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp, redirect_stdout(io.StringIO()):
             args = ['--project', temp, '--client', 'codex', '--client', 'claude', '--roles-only']
             self.assertEqual(SETUP.main([*args, '--dry-run']), 0)
-            self.assertEqual(list(Path(temp).iterdir()), [])
+            self.assertEqual(list(Path(temp).resolve().iterdir()), [])
             with patch.object(SETUP.sys.stdin, 'isatty', return_value=True), \
                     patch.object(SETUP, 'choose', side_effect=lambda label, choices, default: default), \
                     patch.object(SETUP, 'ask_text', side_effect=lambda label, default: default):
                 self.assertEqual(SETUP.main(args), 0)
-            self.assertEqual(list(Path(temp).iterdir()), [])
+            self.assertEqual(list(Path(temp).resolve().iterdir()), [])
 
     def test_arrow_keys_return_value_and_control_c_interrupts(self):
         select = questionary.select
@@ -184,7 +184,7 @@ class CustomSetupTests(unittest.TestCase):
 
     def test_custom_apply_repeat_and_other_host_settings_survive(self):
         with tempfile.TemporaryDirectory() as temp, redirect_stdout(io.StringIO()):
-            project = Path(temp)
+            project = Path(temp).resolve()
             CONFIG.apply_project(project, "codex", team="pnet", host_overrides={
                 "claude": {"pm": {"model": "opus"}},
                 "codex": {"architect": {"reasoning": "high"}},
@@ -219,7 +219,7 @@ class CustomSetupTests(unittest.TestCase):
                     patch.object(SETUP, "ask_text", side_effect=lambda label, default: default):
                 result = SETUP.main(["--scope", "project", "--no-instructions", "--project", temp, "--host", "codex", "--roles-only"])
             self.assertEqual(result, 130)
-            self.assertEqual(list(Path(temp).iterdir()), [])
+            self.assertEqual(list(Path(temp).resolve().iterdir()), [])
 
     def test_model_specific_reasoning_and_default_remove_role_override(self):
         config = {"team": "pnet", "codex": {"pm": {"model": "old", "reasoning": "max"}}}
@@ -241,12 +241,12 @@ class CustomSetupTests(unittest.TestCase):
                 patch.object(SETUP, "choose", side_effect=["pm", "__manual__", "high", "__done__"]), \
                 patch.object(SETUP, "ask_text", return_value="provider/model#custom"):
             overrides = SETUP.customize_roles({"team": "pnet"}, "claude", ROOT)
-            CONFIG.apply_project(Path(temp), "claude", team="pnet", host_overrides=overrides)
-            role = (Path(temp) / ".claude/agents/plex-pm.md").read_text()
+            CONFIG.apply_project(Path(temp).resolve(), "claude", team="pnet", host_overrides=overrides)
+            role = (Path(temp).resolve() / ".claude/agents/plex-pm.md").read_text()
             header = yaml.safe_load(role.split("---", 2)[1])
             self.assertEqual(header["model"], "provider/model#custom")
             self.assertEqual(header["effort"], "high")
-            self.assertEqual(CONFIG.check_project(Path(temp), "claude")["status"], "in_sync")
+            self.assertEqual(CONFIG.check_project(Path(temp).resolve(), "claude")["status"], "in_sync")
 
     def test_catalog_failure_offers_unverified_fallback(self):
         with redirect_stdout(io.StringIO()) as output, \
@@ -257,7 +257,7 @@ class CustomSetupTests(unittest.TestCase):
 
     def test_invalid_custom_settings_do_not_replace_existing_configuration(self):
         with tempfile.TemporaryDirectory() as temp:
-            project = Path(temp)
+            project = Path(temp).resolve()
             CONFIG.apply_project(project, "codex", team="pnet")
             before = {p: p.read_bytes() for p in project.rglob("*") if p.is_file()}
             with self.assertRaises(ValueError):

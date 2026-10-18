@@ -44,7 +44,7 @@ def selected_assets(team_path, preset, host):
 class PackageTests(unittest.TestCase):
     def test_build_exports_only_reviewed_files_and_refreshes_without_stale_files(self):
         with tempfile.TemporaryDirectory() as temp:
-            checkout = Path(temp) / "checkout"
+            checkout = Path(temp).resolve() / "checkout"
             checkout.mkdir()
             shutil.copy2(ROOT / ".gitignore", checkout / ".gitignore")
             for line in (ROOT / ".gitignore").read_text().splitlines():
@@ -201,7 +201,7 @@ class PackageTests(unittest.TestCase):
             installed = inventory["installed"][0]
             self.assertEqual(installed["version"], manifest["version"])
             self.assertTrue(installed["enabled"] and installed["installed"])
-            roots = list((Path(temp) / "plugins/cache").rglob(".codex-plugin/plugin.json"))
+            roots = list((Path(temp).resolve() / "plugins/cache").rglob(".codex-plugin/plugin.json"))
             self.assertEqual(len(roots), 1)
             package = roots[0].parents[1]
             for directory in ("skills", "teams"):
@@ -212,7 +212,7 @@ class PackageTests(unittest.TestCase):
                         self.assertTrue(copied.resolve().is_relative_to(package))
                         self.assertEqual(copied.read_bytes(), source.read_bytes())
 
-            project_dir = Path(temp) / "sample-project"
+            project_dir = Path(temp).resolve() / "sample-project"
             project_dir.mkdir()
             script_path = package / "skills/plex-setup/scripts/resolve_config.py"
             apply_res = subprocess.run(
@@ -236,7 +236,7 @@ class PackageTests(unittest.TestCase):
                 tomllib.loads((ROOT / "teams/bmad/profiles/openai.toml").read_text())["profiles"]["plus"]["pm"],
             )
 
-            codex_config = Path(temp) / "config.toml"
+            codex_config = Path(temp).resolve() / "config.toml"
             existing_cfg = codex_config.read_text() if codex_config.exists() else ""
             codex_config.write_text(
                 existing_cfg + f'\n[projects."{project_dir.resolve()}"]\ntrust_level = "trusted"\n'
@@ -279,7 +279,7 @@ class PackageTests(unittest.TestCase):
             self.assertEqual(installed[0]["name"], "pnet-plex")
             self.assertTrue(installed[0]["enabled"])
 
-            project_dir = Path(temp) / "sample-project"
+            project_dir = Path(temp).resolve() / "sample-project"
             project_dir.mkdir()
             script_path = Path(installed[0]["path"]) / "skills/plex-setup/scripts/resolve_config.py"
             apply_res = subprocess.run(

@@ -79,7 +79,7 @@ class ConfigTests(unittest.TestCase):
 
     def test_unsupported_antigravity_routing_is_a_read_only_conflict(self):
         with tempfile.TemporaryDirectory() as temp:
-            project = Path(temp)
+            project = Path(temp).resolve()
             apply_project(project, "antigravity", team="pnet", model_profile="inherit")
             before = {p: p.read_bytes() for p in project.rglob("*") if p.is_file()}
             with self.assertRaisesRegex(ValueError, "No model substitution"):
@@ -103,7 +103,7 @@ class ConfigTests(unittest.TestCase):
     def test_failed_write_rolls_back_and_can_be_retried(self):
         for configured in (False, True):
             with self.subTest(configured=configured), tempfile.TemporaryDirectory() as temp:
-                project = Path(temp)
+                project = Path(temp).resolve()
                 if configured:
                     apply_project(project, "codex", team="bmad", model_profile="inherit")
                 paths = [*project.glob(".codex/agents/*"), *project.glob(".plex/*.json"),
@@ -132,7 +132,7 @@ class ConfigTests(unittest.TestCase):
     def test_concurrent_metadata_edits_are_preserved_and_roles_rolled_back(self):
         for relpath in (".plex/preset.toml", ".plex/resolved.json", ".plex/applied.json"):
             with self.subTest(path=relpath), tempfile.TemporaryDirectory() as temp:
-                project = Path(temp)
+                project = Path(temp).resolve()
                 apply_project(project, "codex", team="pnet")
                 before = {p: p.read_bytes() for p in project.glob(".codex/agents/*")}
                 original = MODULE._atomic_write_bytes
@@ -154,7 +154,7 @@ class ConfigTests(unittest.TestCase):
 
     def test_rollback_preserves_concurrent_role_edit_and_reports_recovery(self):
         with tempfile.TemporaryDirectory() as temp:
-            project = Path(temp)
+            project = Path(temp).resolve()
             apply_project(project, "codex", team="pnet")
             original = MODULE._atomic_write_bytes
             role_path = project / ".codex/agents/plex-dev.toml"
@@ -171,7 +171,7 @@ class ConfigTests(unittest.TestCase):
 
     def test_existing_apply_lock_prevents_changes(self):
         with tempfile.TemporaryDirectory() as temp:
-            project = Path(temp)
+            project = Path(temp).resolve()
             lock = project / ".plex/.apply.lock"
             lock.parent.mkdir()
             lock.write_text("another process")
@@ -202,7 +202,7 @@ class ConfigTests(unittest.TestCase):
 
     def test_named_team_uses_its_own_templates(self):
         with tempfile.TemporaryDirectory() as temp:
-            root = Path(temp)
+            root = Path(temp).resolve()
             shutil.copytree(ROOT / "teams", root / "teams")
             shutil.copytree(root / "teams/pnet", root / "teams/focused")
             asset = root / "teams/focused/agents/codex/dev.toml"
@@ -213,7 +213,7 @@ class ConfigTests(unittest.TestCase):
 
     def test_missing_team_template_never_falls_back(self):
         with tempfile.TemporaryDirectory() as temp:
-            root = Path(temp)
+            root = Path(temp).resolve()
             shutil.copytree(ROOT / "teams", root / "teams")
             (root / "teams/bmad/agents/codex/reviewer.toml").unlink()
             with patch.object(MODULE, "ROOT", root):
@@ -303,7 +303,7 @@ class ConfigTests(unittest.TestCase):
 
     def test_new_vendor_file_discovery_and_invalid_sections(self):
         with tempfile.TemporaryDirectory() as temp:
-            root = Path(temp)
+            root = Path(temp).resolve()
             directory = root / "teams/pnet/profiles"
             directory.mkdir(parents=True)
             (directory.parent / "team.toml").write_text('process = "plain"\nroles = ["pm", "dev", "reviewer"]\n')
@@ -365,7 +365,7 @@ class ConfigTests(unittest.TestCase):
 
     def test_profiles_are_team_local_without_fallback(self):
         with tempfile.TemporaryDirectory() as temp:
-            root = Path(temp)
+            root = Path(temp).resolve()
             shutil.copytree(ROOT / "teams", root / "teams")
             profile = root / "teams/pnet/profiles/openai.toml"
             profile.write_text(profile.read_text().replace("gpt-6.1-sol", "team-specific-model"))
@@ -422,7 +422,7 @@ class ConfigTests(unittest.TestCase):
 
     def test_cli_outputs_hashed_snapshot_and_never_writes(self):
         with tempfile.TemporaryDirectory(prefix="plex-config-test-") as temp:
-            source = Path(temp) / "preset.toml"
+            source = Path(temp).resolve() / "preset.toml"
             for content, success in [('team = "bmad"\nmodel_profile = "openai-plus"\n', True),
                                      ('team = "missing"\n', False), ('team = [', False)]:
                 source.write_text(content)
@@ -431,7 +431,7 @@ class ConfigTests(unittest.TestCase):
                                         capture_output=True, text=True, timeout=10)
                 self.assertEqual(result.returncode, 0 if success else 1, result.stderr)
                 self.assertEqual(source.read_bytes(), before)
-                self.assertEqual(list(Path(temp).iterdir()), [source])
+                self.assertEqual(list(Path(temp).resolve().iterdir()), [source])
                 if success:
                     snapshot = json.loads(result.stdout)
                     self.assertEqual(snapshot["source_sha256"], hashlib.sha256(before).hexdigest())
@@ -475,7 +475,7 @@ class ConfigTests(unittest.TestCase):
 
     def test_apply_check_and_switch_lifecycle_with_backups_and_dual_hosts(self):
         with tempfile.TemporaryDirectory(prefix="plex-lifecycle-test-") as temp:
-            project = Path(temp)
+            project = Path(temp).resolve()
             initial_check = check_project(project, host="codex")
             self.assertEqual(initial_check["status"], "needs_setup")
 
@@ -518,7 +518,7 @@ class ConfigTests(unittest.TestCase):
 
     def test_conflicts_abort_before_writes(self):
         with tempfile.TemporaryDirectory(prefix="plex-conflict-test-") as temp:
-            project = Path(temp)
+            project = Path(temp).resolve()
             unmanaged = project / ".codex/agents/plex-dev.toml"
             unmanaged.parent.mkdir(parents=True)
             unmanaged.write_text('name = "plex-dev"\n')
@@ -528,7 +528,7 @@ class ConfigTests(unittest.TestCase):
             self.assertFalse((project / ".plex/preset.toml").exists())
 
         with tempfile.TemporaryDirectory(prefix="plex-edit-conflict-test-") as temp:
-            project = Path(temp)
+            project = Path(temp).resolve()
             apply_project(project, host="codex", team="pnet", model_profile="inherit")
             worker_path = project / ".codex/agents/plex-dev.toml"
             worker_path.write_text(worker_path.read_text() + "# local edit\n")
