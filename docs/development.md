@@ -6,6 +6,7 @@
 
 | Path | Responsibility |
 |---|---|
+| `install.sh` | GitHub download/update entrypoint |
 | `setup.sh`, `setup.py` | Checkout installer and optional `plex` shortcut |
 | `skills/plex/` | Explicit coordination entry and configuration preflight |
 | `skills/plex-setup/` | Setup skill, resolver and managed instruction template |

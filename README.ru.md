@@ -12,7 +12,7 @@ OpenAI Codex, Anthropic Claude Code и Google Antigravity. Установите 
 
 ## Быстрый старт
 
-Нужны **Git**, CLI выбранного клиента и **uv или Python 3.11+**. Запускайте из папки
+Нужны **Git и curl**, CLI выбранного клиента и **uv или Python 3.11+**. Запускайте из папки
 своего проекта или создайте пустой проект для знакомства:
 
 ```sh
@@ -22,8 +22,7 @@ mkdir plex-demo && cd plex-demo
 Установите прямо из GitHub одной командой:
 
 ```sh
-git clone --depth 1 https://github.com/pnetcloud/plex-ai.git "$HOME/.local/share/plex-ai" && \
-  "$HOME/.local/share/plex-ai/setup.sh"
+curl -fsSL https://raw.githubusercontent.com/pnetcloud/plex-ai/main/install.sh | bash
 ```
 
 Установщик откроет интерактивное меню:
@@ -34,8 +33,7 @@ git clone --depth 1 https://github.com/pnetcloud/plex-ai.git "$HOME/.local/share
 4. Проверьте и подтвердите план установки для каждого клиента.
 
 Установятся общий плагин, нативные роли команды и управляемый блок инструкций.
-Не удаляйте `~/.local/share/plex-ai`: установленные плагины ссылаются на эту копию.
-Уже скачали? Повторно запускайте её `setup.sh`, а не `git clone`.
+Для обновления и повторной настройки запустите ту же команду.
 
 ## Попробуйте первую задачу
 

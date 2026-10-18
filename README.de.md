@@ -12,7 +12,7 @@ Team installieren, Modellprofil wählen und Plex mit Umsetzung, Review und Prüf
 
 ## Schnellstart
 
-Benötigt werden **Git**, die gewählte Client-CLI und **uv oder Python 3.11+**.
+Benötigt werden **Git und curl**, die gewählte Client-CLI und **uv oder Python 3.11+**.
 Im eigenen Projekt starten oder ein leeres Testprojekt anlegen:
 
 ```sh
@@ -22,8 +22,7 @@ mkdir plex-demo && cd plex-demo
 Mit einem Befehl direkt aus GitHub installieren:
 
 ```sh
-git clone --depth 1 https://github.com/pnetcloud/plex-ai.git "$HOME/.local/share/plex-ai" && \
-  "$HOME/.local/share/plex-ai/setup.sh"
+curl -fsSL https://raw.githubusercontent.com/pnetcloud/plex-ai/main/install.sh | bash
 ```
 
 Der Installer öffnet ein interaktives Menü:
@@ -34,8 +33,7 @@ Der Installer öffnet ein interaktives Menü:
 4. Den Installationsplan jedes Clients prüfen und bestätigen.
 
 Das installiert das gemeinsame Plugin, native Teamrollen und einen verwalteten Anweisungsblock.
-`~/.local/share/plex-ai` behalten: installierte Plugins verweisen auf diesen Checkout.
-Bereits geklont? Dessen `setup.sh` erneut starten, statt `git clone` zu wiederholen.
+Denselben Befehl erneut ausführen, um Updates zu laden und Setup zu öffnen.
 
 ## Erste Aufgabe ausprobieren
 

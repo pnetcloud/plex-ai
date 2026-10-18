@@ -11,7 +11,7 @@ Plex 是用于 **多智能体编排与协调的 agent harness**，集成 OpenAI 
 
 ## 快速开始
 
-需要 **Git**、所选客户端 CLI，以及 **uv 或 Python 3.11+**。
+需要 **Git 和 curl**、所选客户端 CLI，以及 **uv 或 Python 3.11+**。
 在自己的项目目录运行，或创建空白测试项目：
 
 ```sh
@@ -21,8 +21,7 @@ mkdir plex-demo && cd plex-demo
 用一条命令直接从 GitHub 安装：
 
 ```sh
-git clone --depth 1 https://github.com/pnetcloud/plex-ai.git "$HOME/.local/share/plex-ai" && \
-  "$HOME/.local/share/plex-ai/setup.sh"
+curl -fsSL https://raw.githubusercontent.com/pnetcloud/plex-ai/main/install.sh | bash
 ```
 
 安装器会打开交互菜单：
@@ -33,8 +32,7 @@ git clone --depth 1 https://github.com/pnetcloud/plex-ai.git "$HOME/.local/share
 4. 检查并确认每个客户端的安装计划。
 
 安装内容包括共享插件、原生团队角色和托管指令块。
-保留 `~/.local/share/plex-ai`：已安装插件仍引用该副本。
-已克隆过？再次运行该副本的 `setup.sh`，无需重复 `git clone`。
+再次运行同一命令即可下载更新并重新打开配置。
 
 ## 尝试第一个任务
 

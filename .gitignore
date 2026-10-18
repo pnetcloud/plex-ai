@@ -9,6 +9,7 @@
 !/README*.md
 !/setup.py
 !/setup.sh
+!/install.sh
 
 # Public documentation and reusable runtime sources, by file type.
 !/docs/

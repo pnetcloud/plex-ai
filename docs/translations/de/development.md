@@ -6,6 +6,7 @@
 
 | Pfad | Zuständigkeit |
 |---|---|
+| `install.sh` | Download/Update aus GitHub |
 | `setup.sh`, `setup.py` | Installer und optionale `plex`-Verknüpfung |
 | `skills/plex/` | Expliziter Koordinationseinstieg und Preflight |
 | `skills/plex-setup/` | Setup, Resolver und Anweisungsblockvorlage |

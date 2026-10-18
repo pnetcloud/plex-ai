@@ -5,20 +5,17 @@
 ## Installation und Aktualisierung
 
 Für die Erstinstallation den [Schnellstart](../../../README.de.md#schnellstart) verwenden.
-Der GitHub-Befehl lädt den Branch `main` nach `~/.local/share/plex-ai` und startet Setup,
-ohne das aktuelle Zielprojektverzeichnis zu wechseln.
-
-Diesen Checkout aus dem Zielprojekt aktualisieren:
+Der Bootstrap behält einen gemeinsamen Checkout in `~/.local/share/plex-ai` und startet
+Setup im aktuellen Projekt. Den Checkout behalten: installierte Plugins verweisen darauf.
+Denselben Befehl erneut ausführen, um ihn zu aktualisieren und Setup zu öffnen:
 
 ```sh
-git -C "$HOME/.local/share/plex-ai" pull --ff-only && \
-  "$HOME/.local/share/plex-ai/setup.sh"
+curl -fsSL https://raw.githubusercontent.com/pnetcloud/plex-ai/main/install.sh | bash
 ```
 
-`git clone` nicht in einen vorhandenen Checkout wiederholen. Bei anderem Speicherort
-dessen Pfad nutzen. Den Setup-Plan prüfen, neue Rollen/Profile anwenden und den Client
-neu laden. `~/.local/bin/plex` im Terminal öffnet Setup; die Plex-Anfrage im Client
-startet Koordination.
+Updates verwenden Fast-Forward-Pull; widersprüchliche lokale Änderungen stoppen das Update.
+Den Setup-Plan prüfen, neue Rollen/Profile anwenden und den Client neu laden.
+`~/.local/bin/plex` öffnet Setup ohne Download; die Plex-Anfrage im Client startet Koordination.
 
 Im Checkout `./setup.sh` starten. Leertaste markiert Clients, Enter fährt fort.
 Team, Geltungsbereich und gemeinsames Profil auswählen und jeden Installationsplan

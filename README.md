@@ -12,7 +12,7 @@ choose its model profile, and ask Plex to organize implementation, review and ve
 
 ## Quick start
 
-You need **Git**, your chosen client CLI, and **uv or Python 3.11+**. Run in your
+You need **Git and curl**, your chosen client CLI, and **uv or Python 3.11+**. Run in your
 project folder, or create an empty project to try Plex:
 
 ```sh
@@ -22,8 +22,7 @@ mkdir plex-demo && cd plex-demo
 Install directly from GitHub with one command:
 
 ```sh
-git clone --depth 1 https://github.com/pnetcloud/plex-ai.git "$HOME/.local/share/plex-ai" && \
-  "$HOME/.local/share/plex-ai/setup.sh"
+curl -fsSL https://raw.githubusercontent.com/pnetcloud/plex-ai/main/install.sh | bash
 ```
 
 The installer opens an interactive menu:
@@ -34,8 +33,7 @@ The installer opens an interactive menu:
 4. Review and confirm the installation plan for each client.
 
 This installs the shared plugin, native team roles and a managed instruction block.
-Keep `~/.local/share/plex-ai`: installed plugins refer to this checkout.
-Already cloned it? Run its `setup.sh` again instead of repeating `git clone`.
+Run the same command again to download updates and reopen setup.
 
 ## Try your first task
 

@@ -6,6 +6,7 @@
 
 | Путь | Назначение |
 |---|---|
+| `install.sh` | Скачивание/обновление из GitHub |
 | `setup.sh`, `setup.py` | Установщик и необязательный ярлык `plex` |
 | `skills/plex/` | Явная координация и preflight |
 | `skills/plex-setup/` | Setup, resolver и шаблон управляемых инструкций |

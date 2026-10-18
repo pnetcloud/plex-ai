@@ -6,6 +6,7 @@
 
 | 路径 | 职责 |
 |---|---|
+| `install.sh` | 从 GitHub 下载与更新入口 |
 | `setup.sh`、`setup.py` | 安装器与可选 `plex` 快捷命令 |
 | `skills/plex/` | 显式协调入口与 preflight |
 | `skills/plex-setup/` | 配置技能、解析器和指令块模板 |
