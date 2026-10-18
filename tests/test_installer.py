@@ -194,7 +194,8 @@ class InstallerTests(unittest.TestCase):
                 redirect_stderr(io.StringIO()) as errors:
             with patch.object(installer.sys.stdin, "isatty", return_value=True), \
                     patch("builtins.input", side_effect=["bmad"]), \
-                    patch.object(installer, "run") as run:
+                    patch.object(installer, "run") as run, \
+                    patch.object(installer.shutil, "which", return_value="/mock/codex"):
                 result = installer.main(["--scope", "project", "--no-instructions", "--project", temp, "--host", "codex"])
             self.assertEqual(result, 1)
             self.assertIn("bmad setup", errors.getvalue())
