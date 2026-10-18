@@ -13,6 +13,7 @@ Plex konfiguriert und koordiniert Agententeams in Codex, Claude Code und Antigra
 | [Rollenverträge](role-contracts.md) | Verantwortlichkeiten und Anweisungen |
 | [Entwicklung](development.md) | Quellstruktur und Prüfungen |
 | [Tests und Effizienz](testing.md) | Ergebnisse, Token, Kosten und Qualitätsbeobachtungen |
+| [Versionshinweise](releases/v0.1.0.md) | Vorschau v0.1.0: Inhalt, Installation und Grenzen |
 
 Für Experimente: [Prüfprotokoll](../../../EVALUATION.md),
 [Versuchsplan](templates/experiment-plan.md) und [Berichtsvorlage](templates/evaluation-report.md).

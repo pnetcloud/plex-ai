@@ -34,3 +34,8 @@
 !/.agents/plugins/marketplace.json
 !/.claude-plugin/
 !/.claude-plugin/marketplace.json
+
+# Release automation.
+!/.github/
+!/.github/workflows/
+!/.github/workflows/*.yml
