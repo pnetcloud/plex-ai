@@ -1,0 +1,110 @@
+# Google model profiles for Antigravity
+# Note: In Antigravity, subagent frontmatter `model:` accepts tier aliases
+# ("inherit", "flash_lite", "flash", "pro"). Because Antigravity's server-side
+# `pro` tier alias currently maps to Gemini 3.8 Flash (1322) while `inherit`
+# copies the parent session's exact model (e.g. `gemini-4-argon-medium` 1418
+# or `gemini-4-argon-high` 1417), strong roles use `model = "inherit"` (with a
+# Gemini 4 Argon root session) and fast roles use `model = "flash"`.
+host = "antigravity"
+# Basic shares defaults with a reviewer override; other tiers configure each role.
+
+# ==================== Basic ====================
+
+[profiles.basic]
+  model     = "flash"
+  reasoning = "high"
+
+# Basic review has an explicit role setting independent of implementation defaults.
+[profiles.basic.reviewer]
+  model     = "inherit"
+  reasoning = "medium"
+
+  # ==================== Plus ====================
+
+[profiles.plus.analyst]
+  model     = "inherit"
+  reasoning = "low"
+
+[profiles.plus.pm]
+  model     = "inherit"
+  reasoning = "medium"
+
+[profiles.plus.ux]
+  model     = "flash"
+  reasoning = "max"
+
+[profiles.plus.architect]
+  model     = "inherit"
+  reasoning = "medium"
+
+[profiles.plus.dev]
+  model     = "flash"
+  reasoning = "max"
+
+[profiles.plus.reviewer]
+  model     = "inherit"
+  reasoning = "medium"
+
+[profiles.plus.po]
+  model     = "inherit"
+  reasoning = "medium"
+
+  # ==================== Pro ====================
+
+[profiles.pro.analyst]
+  model     = "inherit"
+  reasoning = "high"
+
+[profiles.pro.pm]
+  model     = "inherit"
+  reasoning = "medium"
+
+[profiles.pro.ux]
+  model     = "inherit"
+  reasoning = "high"
+
+[profiles.pro.architect]
+  model     = "inherit"
+  reasoning = "high"
+
+[profiles.pro.dev]
+  model     = "inherit"
+  reasoning = "max"
+
+[profiles.pro.reviewer]
+  model     = "inherit"
+  reasoning = "high"
+
+[profiles.pro.po]
+  model     = "inherit"
+  reasoning = "medium"
+
+  # ==================== Pro+ ====================
+
+[profiles.pro-plus.analyst]
+  model     = "inherit"
+  reasoning = "low"
+
+[profiles.pro-plus.pm]
+  model     = "inherit"
+  reasoning = "medium"
+
+[profiles.pro-plus.ux]
+  model     = "inherit"
+  reasoning = "low"
+
+[profiles.pro-plus.architect]
+  model     = "inherit"
+  reasoning = "max"
+
+[profiles.pro-plus.dev]
+  model     = "inherit"
+  reasoning = "high"
+
+[profiles.pro-plus.reviewer]
+  model     = "inherit"
+  reasoning = "max"
+
+[profiles.pro-plus.po]
+  model     = "inherit"
+  reasoning = "medium"

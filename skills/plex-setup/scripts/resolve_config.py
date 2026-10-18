@@ -1,4 +1,4 @@
-"""Resolve, render, check and apply Plex project subagent settings. Requires Python 3.11+."""
+"""Resolve, render, check and apply Plex project or user subagent settings. Requires Python 3.11+."""
 
 import argparse
 from datetime import datetime, timezone
@@ -18,11 +18,19 @@ HOSTS = ("codex", "claude", "antigravity")
 PROFILE_TIERS = ("basic", "plus", "pro", "pro-plus")
 EFFORTS = {"minimal", "low", "medium", "high", "xhigh", "max", "ultra"}
 CLAUDE_EFFORTS = {"low", "medium", "high", "xhigh", "max"}
-ANTIGRAVITY_MODELS = ("inherit", "flash_lite", "flash", "pro")
+ANTIGRAVITY_NATIVE_MODELS = ("inherit", "flash_lite", "flash", "pro")
+ANTIGRAVITY_MODELS = (
+    *ANTIGRAVITY_NATIVE_MODELS,
+    "claude-sonnet-5-5-low", "claude-sonnet-5-5-medium", "claude-sonnet-5-5-high",
+    "claude-opus-5-5-low", "claude-opus-5-5-medium", "claude-opus-5-5-high",
+    "gemini-3.8-flash-low", "gemini-3.8-flash-medium", "gemini-3.8-flash-high",
+    "gemini-4-argon-low", "gemini-4-argon-medium", "gemini-4-argon-high",
+)
 SUBCOMMANDS = {"resolve", "list", "render", "check", "apply"}
 SKILL_PREFIX_RE = re.compile(
     r"^(Before substantive work, resolve and read these real installed skills "
     r"using the host active skill inventory:\s*)([^.\n]+)(\.)",
+    re.MULTILINE,
 )
 
 
@@ -42,24 +50,25 @@ def keys(value, allowed, label):
         raise ValueError(f"{label}: unknown fields {sorted(unknown)}")
 
 
-def named_file(directory, name):
+def named_file(directory, name, team_name=None):
     if not isinstance(name, str) or not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", name):
         raise ValueError(f"Invalid {directory} name: {name!r}")
-    if directory == "model-profiles":
-        profiles = load_model_profiles()
+    if directory == "profiles":
+        profiles = load_model_profiles(team_name)
         if name not in profiles:
-            raise ValueError(f"Unknown model-profiles {name!r}; available: {sorted(load_model_profiles())}")
+            raise ValueError(f"Unknown profiles {name!r}; available: {sorted(profiles)}")
         return profiles[name]
-    path = ROOT / directory / f"{name}.toml"
+    path = ROOT / "teams" / name / "team.toml"
     if path.is_symlink() or not path.is_file():
-        choices = sorted(p.stem for p in (ROOT / directory).glob("*.toml"))
+        choices = sorted(p.parent.name for p in (ROOT / "teams").glob("*/team.toml"))
         raise ValueError(f"Unknown {directory} {name!r}; available: {choices}")
     return tomllib.loads(path.read_text(encoding="utf-8"))
 
 
-def load_model_profiles():
+def load_model_profiles(team_name):
+    named_file("teams", team_name)
     profiles = {}
-    for path in sorted((ROOT / "model-profiles").glob("*.toml")):
+    for path in sorted((ROOT / "teams" / team_name / "profiles").glob("*.toml")):
         if path.is_symlink():
             continue
         document = tomllib.loads(path.read_text(encoding="utf-8"))
@@ -75,15 +84,26 @@ def load_model_profiles():
             if not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", name):
                 raise ValueError(f"Invalid model profile ID: {name!r}")
             profiles[name] = {host: table(config, name)}
+    for tier in PROFILE_TIERS:
+        sources = {"codex": f"openai-{tier}", "claude": f"anthropic-{tier}",
+                   "antigravity": f"google-{tier}"}
+        if all(name in profiles and host in profiles[name] for host, name in sources.items()):
+            profiles[tier] = {host: profiles[name][host] for host, name in sources.items()}
     return profiles
 
 
 def profile_sort_key(name):
     if name == "inherit":
         return (0, "", 0)
+    if name in PROFILE_TIERS:
+        return (1, "", PROFILE_TIERS.index(name))
+    for tier in sorted(PROFILE_TIERS, key=len, reverse=True):
+        suffix = f"-{tier}"
+        if name.endswith(suffix):
+            vendor = name[: -len(suffix)]
+            return (1, vendor, PROFILE_TIERS.index(tier))
     vendor, _, tier = name.partition("-")
-    order = PROFILE_TIERS.index(tier) if tier in PROFILE_TIERS else len(PROFILE_TIERS)
-    return (1, vendor, order)
+    return (1, vendor, len(PROFILE_TIERS))
 
 
 def settings(value, host, label):
@@ -119,35 +139,32 @@ def host_settings(value, host, roles, label):
 
 
 def discover_known_roles():
-    assets = ROOT / "skills/plex-setup/assets"
-    codex_roles = {p.stem for p in (assets / "codex").glob("*.toml") if not p.is_symlink()}
-    claude_roles = {p.stem for p in (assets / "claude").glob("*.md") if not p.is_symlink()}
-    antigravity_roles = {p.stem for p in (assets / "antigravity").glob("*.md") if not p.is_symlink()}
-    return codex_roles & claude_roles & antigravity_roles
+    return {role for path in (ROOT / "teams").glob("*/team.toml")
+            if not path.is_symlink()
+            for role in tomllib.loads(path.read_text(encoding="utf-8"))["roles"]}
 
 
-def select_asset_path(process: str, host: str, role: str) -> Path:
+def select_asset_path(process: str, host: str, role: str, team_name=None) -> Path:
     if host not in HOSTS:
         raise ValueError(f"Unknown host: {host!r}")
-    assets = ROOT / "skills/plex-setup/assets"
+    team_name = team_name or ("bmad" if process == "bmad" else "pnet")
     extension = "toml" if host == "codex" else "md"
-    candidates = [assets / host / f"{role}.{extension}"]
-    if process == "bmad":
-        candidates.insert(0, assets / "bmad" / host / f"{role}.{extension}")
-    for candidate in candidates:
-        if candidate.is_file() and not candidate.is_symlink():
-            return candidate
-    raise ValueError(f"No {host} asset for {process}/{role}")
+    candidate = ROOT / "teams" / team_name / "agents" / host / f"{role}.{extension}"
+    if candidate.is_file() and not any(path.is_symlink() for path in (candidate, *candidate.parents) if path != ROOT):
+        return candidate
+    raise ValueError(f"No {host} asset for team {team_name}/{role}")
 
 
 def resolve(config):
     config = table(config, "project")
     keys(config, {"team", "model_profile", "process", "roles", "skills", "max_agents", *HOSTS}, "project")
     team_name = config.get("team")
+    if team_name == "default":
+        team_name = "pnet"
     if team_name is not None:
         if {"process", "roles", "skills"} & config.keys():
             raise ValueError("Choose team OR legacy process/roles/skills, not both")
-        team = named_file("presets", team_name)
+        team = named_file("teams", team_name)
         keys(team, {"process", "roles", "skills", "max_agents"}, "team")
     else:
         team = {k: config[k] for k in ("process", "roles", "skills", "max_agents") if k in config}
@@ -167,7 +184,7 @@ def resolve(config):
         raise ValueError(f"Unknown roles: {sorted(set(roles) - known_roles)}")
     for host in HOSTS:
         for role in roles:
-            select_asset_path(process, host, role)
+            select_asset_path(process, host, role, team_name)
     bindings = table(team.get("skills", {}), "skills")
     keys(bindings, set(roles), "skills")
     for role, names in bindings.items():
@@ -176,12 +193,13 @@ def resolve(config):
                 or len(names) != len(set(names))):
             raise ValueError(f"skills.{role}: expected unique nonblank skill names")
     if process == "bmad":
-        required = named_file("presets", "bmad")["skills"]
+        required = named_file("teams", "bmad")["skills"]
         for role in roles:
             if role not in required or not set(required[role]) <= set(bindings.get(role, [])):
                 raise ValueError(f"Missing mandatory BMad bindings for {role}")
     profile_name = config.get("model_profile", "inherit")
-    profile = named_file("model-profiles", profile_name)
+    profile_team = team_name or ("bmad" if process == "bmad" else "pnet")
+    profile = named_file("profiles", profile_name, profile_team)
     keys(profile, set(HOSTS), "model profile")
     hosts = {}
     inactive = {}
@@ -205,14 +223,14 @@ def resolve(config):
 def _inject_skill_bindings(instructions: str, role_skills: list[str]) -> str:
     if not role_skills:
         return instructions
-    match = SKILL_PREFIX_RE.match(instructions)
+    match = SKILL_PREFIX_RE.search(instructions)
     if match:
         existing = [item.strip() for item in match.group(2).split(",") if item.strip()]
         merged = list(existing)
         for skill in role_skills:
             if skill not in merged:
                 merged.append(skill)
-        return f"{match.group(1)}{', '.join(merged)}{match.group(3)}{instructions[match.end():]}"
+        return f"{instructions[:match.start()]}{match.group(1)}{', '.join(merged)}{match.group(3)}{instructions[match.end():]}"
     skill_list = ", ".join(role_skills)
     prefix = (
         "Before substantive work, resolve and read these real installed skills "
@@ -222,12 +240,18 @@ def _inject_skill_bindings(instructions: str, role_skills: list[str]) -> str:
     return prefix + instructions
 
 
+def toml_multiline(value: str) -> str:
+    body = "\n".join(json.dumps(line, ensure_ascii=False)[1:-1].replace("\x7f", "\\u007f")
+                     for line in value.split("\n"))
+    return '\"\"\"\n' + body + '\"\"\"'
+
+
 def render_role(resolved: dict, host: str, role: str) -> str:
     if host not in HOSTS:
         raise ValueError(f"Unknown host: {host!r}")
     if role not in resolved["roles"]:
         raise ValueError(f"Role {role!r} is not active in resolved configuration")
-    asset_path = select_asset_path(resolved["process"], host, role)
+    asset_path = select_asset_path(resolved["process"], host, role, resolved.get("team"))
     raw = asset_path.read_text(encoding="utf-8")
     role_skills = resolved.get("skills", {}).get(role, [])
     role_settings = resolved["hosts"][host][role]
@@ -245,7 +269,7 @@ def render_role(resolved: dict, host: str, role: str) -> str:
             lines.append(f'model_reasoning_effort = {json.dumps(role_settings["reasoning"])}')
         if "sandbox_mode" in parsed:
             lines.append(f'sandbox_mode = {json.dumps(parsed["sandbox_mode"])}')
-        lines.append(f"developer_instructions = {json.dumps(instructions)}")
+        lines.append(f"developer_instructions = {toml_multiline(instructions)}")
         rendered = "\n".join(lines) + "\n"
         tomllib.loads(rendered)
         return rendered
@@ -257,6 +281,12 @@ def render_role(resolved: dict, host: str, role: str) -> str:
     body = parts[2].lstrip("\n")
     body = _inject_skill_bindings(body, role_skills)
     model_value = role_settings.get("model", "inherit")
+    if host == "antigravity" and model_value not in ANTIGRAVITY_NATIVE_MODELS:
+        raise ValueError(
+            f"Antigravity role {role!r}: native model routing does not support {model_value!r}; "
+            "choose a supported tier or explicitly choose inherit for the current session model. "
+            "No model substitution was applied."
+        )
     updated_frontmatter = []
     replaced_model = False
     for line in frontmatter_lines:
@@ -278,23 +308,41 @@ def host_dotdir(host: str) -> str:
     return ".agents" if host == "antigravity" else f".{host}"
 
 
-def host_agents_relpath(host: str) -> str:
+def user_root(host: str) -> Path:
+    if host == "codex":
+        return Path(os.environ.get("CODEX_HOME", Path.home() / ".codex")).expanduser().absolute()
+    if host == "claude":
+        return Path(os.environ.get("CLAUDE_CONFIG_DIR", Path.home() / ".claude")).expanduser().absolute()
+    if host == "antigravity":
+        return Path.home() / ".gemini"
+    raise ValueError(f"Unknown host: {host}")
+
+
+def installation_root(project: Path, host: str, scope: str) -> Path:
+    if scope not in {"project", "user"}:
+        raise ValueError(f"Unknown scope: {scope}")
+    return user_root(host) if scope == "user" else Path(project)
+
+
+def host_agents_relpath(host: str, scope="project") -> str:
+    if scope == "user":
+        return "config/agents" if host == "antigravity" else "agents"
     return f"{host_dotdir(host)}/agents"
 
 
-def host_role_relpath(host: str, role: str) -> str:
+def host_role_relpath(host: str, role: str, scope="project") -> str:
     extension = "toml" if host == "codex" else "md"
-    return f"{host_agents_relpath(host)}/plex-{role}.{extension}"
+    return f"{host_agents_relpath(host, scope)}/plex-{role}.{extension}"
 
 
-def render_host_roles(resolved: dict, host: str) -> dict[str, dict]:
+def render_host_roles(resolved: dict, host: str, scope="project") -> dict[str, dict]:
     if host not in HOSTS:
         raise ValueError(f"Unknown host: {host!r}")
     rendered = {}
     for role in resolved["roles"]:
         content = render_role(resolved, host, role)
         content_bytes = content.encode("utf-8")
-        relpath = host_role_relpath(host, role)
+        relpath = host_role_relpath(host, role, scope)
         rendered[role] = {
             "role": role,
             "name": f"plex-{role}",
@@ -307,10 +355,10 @@ def render_host_roles(resolved: dict, host: str) -> dict[str, dict]:
 
 def list_catalog() -> dict:
     teams = {}
-    for path in sorted((ROOT / "presets").glob("*.toml")):
+    for path in sorted((ROOT / "teams").glob("*/team.toml")):
         if not path.is_symlink():
-            teams[path.stem] = tomllib.loads(path.read_text(encoding="utf-8"))
-    return {"teams": teams, "model_profiles": load_model_profiles()}
+            teams[path.parent.name] = tomllib.loads(path.read_text(encoding="utf-8"))
+    return {"teams": teams, "model_profiles": {name: load_model_profiles(name) for name in teams}}
 
 
 def _ensure_safe_project_path(project_root: Path, relpath: str) -> Path:
@@ -328,7 +376,78 @@ def _ensure_safe_project_path(project_root: Path, relpath: str) -> Path:
     return target
 
 
-def _validate_receipt_structure(data: dict) -> dict:
+PLEX_START = b"<!-- plex:start -->"
+PLEX_END = b"<!-- plex:end -->"
+
+
+def instruction_block() -> bytes:
+    block = (ROOT / "skills/plex-setup/assets/AGENTS.md.template").read_bytes().removesuffix(b"\n")
+    if instruction_span(block) != (0, len(block)):
+        raise ValueError("AGENTS.md.template must contain exactly one complete Plex block and no outside text")
+    return block
+
+
+def instruction_span(data: bytes):
+    if not data.count(PLEX_START) and not data.count(PLEX_END):
+        return None
+    if data.count(PLEX_START) != 1 or data.count(PLEX_END) != 1:
+        raise ValueError("Duplicate or unbalanced Plex instruction markers")
+    start, end = data.index(PLEX_START), data.index(PLEX_END)
+    if end < start:
+        raise ValueError("Reversed Plex instruction markers")
+    return start, end + len(PLEX_END)
+
+
+def instruction_relpath(root: Path, host: str, scope: str) -> str:
+    if host == "codex":
+        names = ["AGENTS.override.md", "AGENTS.md"]
+        if scope == "project":
+            fallbacks = []
+            for config in (user_root(host) / "config.toml", root / ".codex/config.toml"):
+                if config.is_file():
+                    fallbacks = tomllib.loads(config.read_text()).get("project_doc_fallback_filenames", fallbacks)
+            if not isinstance(fallbacks, list) or not all(isinstance(n, str) and n and Path(n).name == n and n not in {".", ".."} and "\\" not in n for n in fallbacks):
+                raise ValueError("Invalid project_doc_fallback_filenames; instruction target is ambiguous")
+            names.extend(fallbacks)
+        default = "AGENTS.md"
+    elif host == "claude":
+        names = ["CLAUDE.md"] if scope == "user" else ["CLAUDE.md", ".claude/CLAUDE.md"]
+        default = "CLAUDE.md"
+    else:
+        names = ["GEMINI.md"] if scope == "user" else ["GEMINI.md", "AGENTS.md"]
+        default = "GEMINI.md"
+    for name in names:
+        path = _ensure_safe_project_path(root, name)
+        if path.is_file() and path.read_bytes().strip():
+            return name
+    return default
+
+
+def plan_instructions(root: Path, host: str, scope: str, record=None) -> dict:
+    relpath = instruction_relpath(root, host, scope)
+    path = _ensure_safe_project_path(root, relpath)
+    before = path.read_bytes() if path.exists() else None
+    data = before or b""
+    span = instruction_span(data)
+    current = data[slice(*span)] if span else None
+    block = instruction_block()
+    if record:
+        if record["relpath"] != relpath:
+            raise ValueError("Managed Plex instructions are masked by another instruction file")
+        if current is None or sha256_bytes(current) != record["sha256"]:
+            raise ValueError("Managed Plex instruction block was modified or removed; outside text is preserved")
+    elif current is not None and current != block:
+        raise ValueError("Unowned Plex instruction block differs; review it before installation")
+    if span:
+        after = data[:span[0]] + block + data[span[1]:]
+    else:
+        separator = b"" if not data or data.endswith(b"\n\n") else (b"\n" if data.endswith(b"\n") else b"\n\n")
+        after = data + separator + block + b"\n"
+    return {"path": path, "before": before, "after": after,
+            "record": {"relpath": relpath, "sha256": sha256_bytes(block)}}
+
+
+def _validate_receipt_structure(data: dict, scope="project") -> dict:
     data = table(data, "applied.json")
     keys(data, {"hosts"}, "applied.json")
     hosts_table = table(data.get("hosts", {}), "applied.json.hosts")
@@ -339,17 +458,25 @@ def _validate_receipt_structure(data: dict) -> dict:
             record,
             {
                 "host", "team", "model_profile", "process", "roles",
-                "skills", "max_agents", "role_settings", "files", "source_sha256",
+                "skills", "max_agents", "role_settings", "files", "source_sha256", "instructions",
             },
             f"applied.json.hosts.{host}",
         )
         if record.get("host") != host:
             raise ValueError(f"applied.json.hosts.{host}: mismatched host field")
+        if "instructions" in record:
+            instruction = table(record["instructions"], "instructions")
+            keys(instruction, {"relpath", "sha256"}, "instructions")
+            relpath = instruction.get("relpath")
+            if not isinstance(relpath, str) or Path(relpath).is_absolute() or ".." in Path(relpath).parts:
+                raise ValueError("Invalid managed instruction path")
+            if not isinstance(instruction.get("sha256"), str) or not re.fullmatch(r"[0-9a-f]{64}", instruction["sha256"]):
+                raise ValueError("Invalid managed instruction block hash")
         files = table(record.get("files", {}), f"applied.json.hosts.{host}.files")
         for role, file_info in files.items():
             file_info = table(file_info, f"applied.json.hosts.{host}.files.{role}")
             keys(file_info, {"relpath", "sha256"}, f"applied.json.hosts.{host}.files.{role}")
-            expected_rel = host_role_relpath(host, role)
+            expected_rel = host_role_relpath(host, role, scope)
             if file_info.get("relpath") != expected_rel:
                 raise ValueError(
                     f"applied.json.hosts.{host}.files.{role}: invalid relpath {file_info.get('relpath')!r}"
@@ -366,12 +493,14 @@ def _inspect_host_state(
     resolved: dict | None,
     source_sha256: str | None,
     receipt_record: dict | None,
+    scope="project",
 ) -> dict:
     extension = "toml" if host == "codex" else "md"
-    agents_rel = host_agents_relpath(host)
+    agents_rel = host_agents_relpath(host, scope)
     conflicts = []
     try:
-        _ensure_safe_project_path(project_root, host_dotdir(host))
+        if scope == "project":
+            _ensure_safe_project_path(project_root, host_dotdir(host))
         agents_dir = _ensure_safe_project_path(project_root, agents_rel)
     except ValueError as err:
         return {
@@ -385,6 +514,13 @@ def _inspect_host_state(
         }
 
     receipt_files = receipt_record.get("files", {}) if receipt_record else {}
+    instructions_stale = False
+    if receipt_record and receipt_record.get("instructions"):
+        try:
+            plan = plan_instructions(project_root, host, scope, receipt_record["instructions"])
+            instructions_stale = plan["before"] != plan["after"]
+        except (OSError, ValueError) as error:
+            conflicts.append(str(error))
     existing_plex_files = {}
     if agents_dir.is_dir():
         for entry in sorted(agents_dir.glob(f"plex-*.{extension}")):
@@ -408,8 +544,16 @@ def _inspect_host_state(
     for role in existing_plex_files:
         if role not in receipt_files:
             conflicts.append(
-                f"Unmanaged file collision: {host_role_relpath(host, role)} is not owned by .plex/applied.json"
+                f"Unmanaged file collision: {host_role_relpath(host, role, scope)} is not owned by .plex/applied.json"
             )
+
+    rendered = {}
+    if resolved is not None:
+        try:
+            rendered = render_host_roles(resolved, host, scope)
+        except ValueError as error:
+            conflicts.append(str(error))
+            resolved = None
 
     if resolved is None:
         status = "conflict" if conflicts else ("installed" if receipt_files else "unconfigured")
@@ -423,7 +567,6 @@ def _inspect_host_state(
             "retire_roles": [],
         }
 
-    rendered = render_host_roles(resolved, host)
     desired_roles = resolved["roles"]
     missing_roles = []
     outdated_roles = []
@@ -455,7 +598,7 @@ def _inspect_host_state(
         status = "conflict"
     elif not receipt_record and not existing_plex_files:
         status = "needs_setup"
-    elif missing_roles or outdated_roles or retire_roles or not receipt_matches_desired:
+    elif missing_roles or outdated_roles or retire_roles or not receipt_matches_desired or instructions_stale:
         status = "needs_refresh"
     else:
         status = "in_sync"
@@ -472,8 +615,14 @@ def _inspect_host_state(
     }
 
 
-def check_project(project_root: Path, host: str | None = None) -> dict:
+def check_project(project_root: Path, host: str | None = None, scope="project") -> dict:
+    if scope in {"user", "auto"} and host not in HOSTS:
+        raise ValueError("User/auto scope requires a host")
     project_root = Path(project_root)
+    if scope == "auto":
+        local_roles = project_root / host_agents_relpath(host)
+        scope = "project" if (project_root / ".plex").exists() or any(local_roles.glob("plex-*")) else "user"
+    project_root = installation_root(project_root, host, scope)
     conflicts = []
     try:
         _ensure_safe_project_path(project_root, ".plex")
@@ -501,8 +650,6 @@ def check_project(project_root: Path, host: str | None = None) -> dict:
                 saved_snapshot = json.loads(resolved_path.read_text(encoding="utf-8"))
                 if saved_snapshot == expected_snapshot:
                     snapshot_in_sync = True
-                else:
-                    conflicts_or_stale = "outdated"
             except (OSError, UnicodeError, ValueError) as err:
                 conflicts.append(f"Invalid .plex/resolved.json: {err}")
 
@@ -510,7 +657,7 @@ def check_project(project_root: Path, host: str | None = None) -> dict:
     if applied_path.is_file():
         try:
             receipt = _validate_receipt_structure(
-                json.loads(applied_path.read_text(encoding="utf-8"))
+                json.loads(applied_path.read_text(encoding="utf-8")), scope
             )
         except (OSError, UnicodeError, ValueError) as err:
             conflicts.append(f"Invalid .plex/applied.json: {err}")
@@ -518,8 +665,11 @@ def check_project(project_root: Path, host: str | None = None) -> dict:
     target_hosts = (host,) if host else HOSTS
     host_reports = {}
     for h in HOSTS:
+        if scope == "user" and h != host:
+            host_reports[h] = {"status": "unconfigured", "conflicts": []}
+            continue
         host_reports[h] = _inspect_host_state(
-            project_root, h, resolved, source_sha256, receipt["hosts"].get(h)
+            project_root, h, resolved, source_sha256, receipt["hosts"].get(h), scope
         )
 
     all_conflicts = list(conflicts)
@@ -544,6 +694,8 @@ def check_project(project_root: Path, host: str | None = None) -> dict:
 
     return {
         "status": overall,
+        "scope": scope,
+        "root": str(project_root.absolute()),
         "preset_exists": preset_path.is_file(),
         "snapshot_in_sync": snapshot_in_sync,
         "resolved": ({**resolved, "source_sha256": source_sha256} if resolved else None),
@@ -579,7 +731,10 @@ def build_preset_toml(
             config.pop(legacy_key, None)
         config["team"] = team
     elif "team" not in config and not ({"process", "roles", "skills"} & config.keys()):
-        config["team"] = "default"
+        config["team"] = "pnet"
+
+    if config.get("team") == "default":
+        config["team"] = "pnet"
 
     if model_profile is not None:
         config["model_profile"] = model_profile
@@ -713,8 +868,8 @@ class _ApplyTransaction:
 
 
 def apply_project(project_root, host, team=None, model_profile=None, max_agents=None, reset_overrides=False,
-                  host_overrides=None):
-    project_root = Path(project_root)
+                  host_overrides=None, scope="project", instructions=False):
+    project_root = installation_root(Path(project_root), host, scope)
     lock = _ensure_safe_project_path(project_root, ".plex/.apply.lock")
     lock.parent.mkdir(parents=True, exist_ok=True)
     try:
@@ -723,7 +878,7 @@ def apply_project(project_root, host, team=None, model_profile=None, max_agents=
     except FileExistsError:
         raise ValueError("Another apply holds .plex/.apply.lock; inspect the owning process before recovery") from None
     try:
-        return _apply_project(project_root, host, team, model_profile, max_agents, reset_overrides, host_overrides)
+        return _apply_project(project_root, host, team, model_profile, max_agents, reset_overrides, host_overrides, scope, instructions)
     finally:
         lock.unlink()
 
@@ -736,6 +891,8 @@ def _apply_project(
     max_agents: int | None = None,
     reset_overrides: bool = False,
     host_overrides: dict | None = None,
+    scope="project",
+    instructions=False,
 ) -> dict:
     if host not in HOSTS:
         raise ValueError(f"Unknown host: {host!r}")
@@ -744,8 +901,9 @@ def _apply_project(
     preset_path = _ensure_safe_project_path(project_root, ".plex/preset.toml")
     resolved_path = _ensure_safe_project_path(project_root, ".plex/resolved.json")
     applied_path = _ensure_safe_project_path(project_root, ".plex/applied.json")
-    _ensure_safe_project_path(project_root, host_dotdir(host))
-    _ensure_safe_project_path(project_root, host_agents_relpath(host))
+    if scope == "project":
+        _ensure_safe_project_path(project_root, host_dotdir(host))
+    _ensure_safe_project_path(project_root, host_agents_relpath(host, scope))
 
     existing_preset_bytes = preset_path.read_bytes() if preset_path.is_file() else None
     existing_resolved_bytes = resolved_path.read_bytes() if resolved_path.is_file() else None
@@ -785,24 +943,30 @@ def _apply_project(
     receipt = {"hosts": {}}
     if existing_applied_bytes is not None:
         receipt = _validate_receipt_structure(
-            json.loads(existing_applied_bytes.decode("utf-8"))
+            json.loads(existing_applied_bytes.decode("utf-8")), scope
         )
 
     host_state = _inspect_host_state(
-        project_root, host, resolved, source_sha256, receipt["hosts"].get(host)
+        project_root, host, resolved, source_sha256, receipt["hosts"].get(host), scope
     )
     if host_state["conflicts"]:
         raise ValueError("; ".join(host_state["conflicts"]))
 
-    rendered_roles = render_host_roles(resolved, host)
+    rendered_roles = render_host_roles(resolved, host, scope)
     old_host_record = receipt["hosts"].get(host, {})
     old_files = old_host_record.get("files", {})
+    instruction_plan = (plan_instructions(project_root, host, scope, old_host_record.get("instructions"))
+                        if instructions else None)
     retire_roles = sorted(set(old_files.keys()) - set(resolved["roles"]))
 
     paths = {preset_path, resolved_path, applied_path}
+    if instruction_plan:
+        paths.add(instruction_plan["path"])
     for role in set(old_files) | set(rendered_roles):
-        paths.add(_ensure_safe_project_path(project_root, host_role_relpath(host, role)))
+        paths.add(_ensure_safe_project_path(project_root, host_role_relpath(host, role, scope)))
     transaction = _ApplyTransaction(project_root, paths)
+    if instruction_plan and transaction.original[instruction_plan["path"]] != instruction_plan["before"]:
+        raise ValueError("Instruction file changed after planning; review and retry")
     for path, original in ((preset_path, existing_preset_bytes),
                            (resolved_path, existing_resolved_bytes),
                            (applied_path, existing_applied_bytes)):
@@ -879,6 +1043,12 @@ def _apply_project(
         if existing_resolved_bytes != candidate_resolved_bytes:
             transaction.write(resolved_path, candidate_resolved_bytes)
 
+        if instruction_plan and instruction_plan["before"] != instruction_plan["after"]:
+            if instruction_plan["before"] is not None:
+                bdir = ensure_backup()
+                (bdir / "instructions.before.md").write_bytes(instruction_plan["before"])
+            transaction.write(instruction_plan["path"], instruction_plan["after"])
+
         receipt["hosts"][host] = {
             "host": host,
             "team": resolved["team"],
@@ -891,6 +1061,12 @@ def _apply_project(
             "source_sha256": source_sha256,
             "files": new_files_record,
         }
+        instruction_record = instruction_plan["record"] if instruction_plan else old_host_record.get("instructions")
+        if instruction_record:
+            receipt["hosts"][host]["instructions"] = instruction_record
+            for other in receipt["hosts"].values():
+                if other.get("instructions", {}).get("relpath") == instruction_record["relpath"]:
+                    other["instructions"] = instruction_record
         receipt_bytes = (json.dumps(receipt, indent=2, sort_keys=True) + "\n").encode("utf-8")
         if transaction.original[applied_path] != receipt_bytes:
             transaction.write(applied_path, receipt_bytes)
@@ -900,6 +1076,9 @@ def _apply_project(
         other_hosts_needing_refresh = []
         for candidate_host in HOSTS:
             if candidate_host == host:
+                continue
+            if scope == "user":
+                other_hosts[candidate_host] = {"host": candidate_host, "configured": False, "needs_refresh": False, "status": "unconfigured"}
                 continue
             state = _inspect_host_state(
                 project_root, candidate_host, resolved, source_sha256, receipt["hosts"].get(candidate_host)
@@ -925,6 +1104,8 @@ def _apply_project(
 
         return {
             "status": "applied",
+            "scope": scope,
+            "root": str(project_root.absolute()),
             "host": host,
             "team": resolved["team"],
             "model_profile": resolved["model_profile"],
@@ -988,6 +1169,10 @@ def main(argv=None):
         "--reset-overrides", action="store_true", help="Clear personal overrides in .plex/preset.toml"
     )
 
+    render_parser.add_argument("--scope", choices=("project", "user"), default="project")
+    check_parser.add_argument("--scope", choices=("project", "user", "auto"), default="auto")
+    apply_parser.add_argument("--scope", choices=("project", "user"), default="project")
+    apply_parser.add_argument("--instructions", action="store_true", help="Also add/update the managed Plex block in the native instruction file")
     args = parser.parse_args(argv)
     try:
         if args.subcommand == "resolve":
@@ -999,10 +1184,10 @@ def main(argv=None):
             output = {
                 "host": args.host,
                 "resolved": snapshot,
-                "roles": render_host_roles(snapshot, args.host),
+                "roles": render_host_roles(snapshot, args.host, args.scope),
             }
         elif args.subcommand == "check":
-            output = check_project(args.project, host=args.host)
+            output = check_project(args.project, host=args.host, scope=("project" if args.host is None and args.scope == "auto" else args.scope))
         elif args.subcommand == "apply":
             output = apply_project(
                 args.project,
@@ -1011,6 +1196,8 @@ def main(argv=None):
                 model_profile=args.model_profile,
                 max_agents=args.max_agents,
                 reset_overrides=args.reset_overrides,
+                scope=args.scope,
+                instructions=args.instructions,
             )
         else:
             raise ValueError(f"Unknown subcommand: {args.subcommand}")

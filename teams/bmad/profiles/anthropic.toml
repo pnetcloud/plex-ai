@@ -1,0 +1,104 @@
+# Anthropic model profiles
+host = "claude"
+# Basic shares defaults with a reviewer override; other tiers configure each role.
+
+# ==================== Basic ====================
+
+[profiles.basic]
+  model     = "haiku"
+  reasoning = "high"
+
+# Basic review has an explicit role setting independent of implementation defaults.
+[profiles.basic.reviewer]
+  model     = "sonnet"
+  reasoning = "medium"
+
+  # ==================== Plus ====================
+
+[profiles.plus.analyst]
+  model     = "sonnet"
+  reasoning = "low"
+
+[profiles.plus.pm]
+  model     = "sonnet"
+  reasoning = "medium"
+
+[profiles.plus.ux]
+  model     = "haiku"
+  reasoning = "max"
+
+[profiles.plus.architect]
+  model     = "sonnet"
+  reasoning = "medium"
+
+[profiles.plus.dev]
+  model     = "haiku"
+  reasoning = "max"
+
+[profiles.plus.reviewer]
+  model     = "sonnet"
+  reasoning = "medium"
+
+[profiles.plus.po]
+  model     = "sonnet"
+  reasoning = "medium"
+
+  # ==================== Pro ====================
+
+[profiles.pro.analyst]
+  model     = "sonnet"
+  reasoning = "high"
+
+[profiles.pro.pm]
+  model     = "sonnet"
+  reasoning = "medium"
+
+[profiles.pro.ux]
+  model     = "sonnet"
+  reasoning = "high"
+
+[profiles.pro.architect]
+  model     = "sonnet"
+  reasoning = "high"
+
+[profiles.pro.dev]
+  model     = "haiku"
+  reasoning = "max"
+
+[profiles.pro.reviewer]
+  model     = "sonnet"
+  reasoning = "high"
+
+[profiles.pro.po]
+  model     = "sonnet"
+  reasoning = "medium"
+
+  # ==================== Pro+ ====================
+
+[profiles.pro-plus.analyst]
+  model     = "opus"
+  reasoning = "low"
+
+[profiles.pro-plus.pm]
+  model     = "sonnet"
+  reasoning = "medium"
+
+[profiles.pro-plus.ux]
+  model     = "opus"
+  reasoning = "low"
+
+[profiles.pro-plus.architect]
+  model     = "opus"
+  reasoning = "medium"
+
+[profiles.pro-plus.dev]
+  model     = "sonnet"
+  reasoning = "medium"
+
+[profiles.pro-plus.reviewer]
+  model     = "opus"
+  reasoning = "medium"
+
+[profiles.pro-plus.po]
+  model     = "sonnet"
+  reasoning = "medium"

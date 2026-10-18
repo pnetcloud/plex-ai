@@ -1,0 +1,93 @@
+# Google-Anthropic model profiles for Antigravity (Claude on Antigravity)
+# Run Antigravity with `--model claude-sonnet-5-5-medium` (for Plus/Pro) or
+# `--model claude-opus-5-5-medium` / `claude-opus-5-5-high` (for Pro+).
+# These are requested model IDs, not native tier aliases. Native role installation
+# rejects unsupported IDs instead of silently inheriting the root model.
+host = "antigravity"
+# Basic shares settings; other tiers explicitly configure each team role.
+
+# ==================== Basic ====================
+
+[profiles.basic]
+  model     = "claude-sonnet-5-5-low"
+  reasoning = "high"
+
+  # ==================== Plus ====================
+
+[profiles.plus.pm]
+  model     = "claude-sonnet-5-5-medium"
+  reasoning = "low"
+
+[profiles.plus.dev]
+  model     = "claude-sonnet-5-5-low"
+  reasoning = "max"
+
+[profiles.plus.reviewer]
+  model     = "claude-sonnet-5-5-medium"
+  reasoning = "medium"
+
+
+[profiles.plus.explorer]
+  model     = "claude-sonnet-5-5-low"
+  reasoning = "high"
+
+[profiles.plus.researcher]
+  model     = "claude-sonnet-5-5-medium"
+  reasoning = "low"
+
+[profiles.plus.qa]
+  model     = "claude-sonnet-5-5-low"
+  reasoning = "high"
+
+  # ==================== Pro ====================
+
+[profiles.pro.pm]
+  model     = "claude-sonnet-5-5-medium"
+  reasoning = "medium"
+
+[profiles.pro.dev]
+  model     = "claude-sonnet-5-5-medium"
+  reasoning = "max"
+
+[profiles.pro.reviewer]
+  model     = "claude-opus-5-5-medium"
+  reasoning = "high"
+
+
+[profiles.pro.explorer]
+  model     = "claude-sonnet-5-5-low"
+  reasoning = "high"
+
+[profiles.pro.researcher]
+  model     = "claude-sonnet-5-5-medium"
+  reasoning = "medium"
+
+[profiles.pro.qa]
+  model     = "claude-sonnet-5-5-low"
+  reasoning = "max"
+
+  # ==================== Pro+ ====================
+
+[profiles.pro-plus.pm]
+  model     = "claude-sonnet-5-5-medium"
+  reasoning = "medium"
+
+[profiles.pro-plus.dev]
+  model     = "claude-sonnet-5-5-medium"
+  reasoning = "high"
+
+[profiles.pro-plus.reviewer]
+  model     = "claude-opus-5-5-high"
+  reasoning = "medium"
+
+[profiles.pro-plus.explorer]
+  model     = "claude-sonnet-5-5-medium"
+  reasoning = "low"
+
+[profiles.pro-plus.researcher]
+  model     = "claude-sonnet-5-5-medium"
+  reasoning = "medium"
+
+[profiles.pro-plus.qa]
+  model     = "claude-sonnet-5-5-medium"
+  reasoning = "high"

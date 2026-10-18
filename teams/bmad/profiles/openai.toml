@@ -1,0 +1,104 @@
+# OpenAI model profiles
+host = "codex"
+# Basic shares defaults with a reviewer override; other tiers configure each role.
+
+# ==================== Basic ====================
+
+[profiles.basic]
+  model     = "gpt-6-luna"
+  reasoning = "high"
+
+# Basic review has an explicit role setting independent of implementation defaults.
+[profiles.basic.reviewer]
+  model     = "gpt-6.1-sol"
+  reasoning = "medium"
+
+  # ==================== Plus ====================
+
+[profiles.plus.analyst]
+  model     = "gpt-6.1-sol"
+  reasoning = "low"
+
+[profiles.plus.pm]
+  model     = "gpt-6.1-sol"
+  reasoning = "medium"
+
+[profiles.plus.ux]
+  model     = "gpt-6-luna"
+  reasoning = "max"
+
+[profiles.plus.architect]
+  model     = "gpt-6.1-sol"
+  reasoning = "medium"
+
+[profiles.plus.dev]
+  model     = "gpt-6-luna"
+  reasoning = "max"
+
+[profiles.plus.reviewer]
+  model     = "gpt-6.1-sol"
+  reasoning = "medium"
+
+[profiles.plus.po]
+  model     = "gpt-6.1-sol"
+  reasoning = "medium"
+
+  # ==================== Pro ====================
+
+[profiles.pro.analyst]
+  model     = "gpt-6.1-sol"
+  reasoning = "high"
+
+[profiles.pro.pm]
+  model     = "gpt-6.1-sol"
+  reasoning = "medium"
+
+[profiles.pro.ux]
+  model     = "gpt-6.1-sol"
+  reasoning = "high"
+
+[profiles.pro.architect]
+  model     = "gpt-6.1-sol"
+  reasoning = "high"
+
+[profiles.pro.dev]
+  model     = "gpt-6-luna"
+  reasoning = "max"
+
+[profiles.pro.reviewer]
+  model     = "gpt-6.1-sol"
+  reasoning = "high"
+
+[profiles.pro.po]
+  model     = "gpt-6.1-sol"
+  reasoning = "medium"
+
+  # ==================== Pro+ ====================
+
+[profiles.pro-plus.analyst]
+  model     = "gpt-6-astra"
+  reasoning = "low"
+
+[profiles.pro-plus.pm]
+  model     = "gpt-6.1-sol"
+  reasoning = "medium"
+
+[profiles.pro-plus.ux]
+  model     = "gpt-6-astra"
+  reasoning = "low"
+
+[profiles.pro-plus.architect]
+  model     = "gpt-6-astra"
+  reasoning = "medium"
+
+[profiles.pro-plus.dev]
+  model     = "gpt-6.1-sol"
+  reasoning = "medium"
+
+[profiles.pro-plus.reviewer]
+  model     = "gpt-6-astra"
+  reasoning = "medium"
+
+[profiles.pro-plus.po]
+  model     = "gpt-6.1-sol"
+  reasoning = "medium"

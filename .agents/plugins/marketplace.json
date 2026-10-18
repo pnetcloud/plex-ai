@@ -3,7 +3,10 @@
   "plugins": [
     {
       "name": "pnet-plex",
-      "source": { "source": "local", "path": "./" }
+      "source": {
+        "source": "local",
+        "path": "./.build/plugins/codex"
+      }
     }
   ]
 }

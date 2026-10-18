@@ -1,7 +1,12 @@
 {
   "name": "pnet-plex",
-  "owner": { "name": "pnetcloud" },
+  "owner": {
+    "name": "pnetcloud"
+  },
   "plugins": [
-    { "name": "pnet-plex", "source": "./" }
+    {
+      "name": "pnet-plex",
+      "source": "./.build/plugins/claude"
+    }
   ]
 }

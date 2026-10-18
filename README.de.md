@@ -2,6 +2,8 @@
 
 [English](README.md) · [Русский](README.ru.md) · [Deutsch](README.de.md) · [简体中文](README.zh-CN.md)
 
+[Dokumentation](docs/translations/de/README.md) · [Tests und Effizienz](docs/translations/de/testing.md)
+
 **Stelle dein Team zusammen. Koordiniere die Arbeit.**
 
 pNet Plex ist ein **Agent Harness für die Orchestrierung und Koordination mehrerer
@@ -14,6 +16,10 @@ weitere Entscheidungen mit sich: Wer übernimmt welche Aufgabe, welchen Kontext
 braucht die jeweilige Rolle, welches Modell nutzt sie und wie werden Ergebnisse
 geprüft? Plex macht diese Entscheidungen durch eine Teamkonfiguration im Projekt
 und Skills zur Koordination explizit.
+
+Teamdefinitionen und native Agenten liegen unter `teams/<team>/`, teamspezifische Modellprofile unter `teams/<team>/profiles/`. Der Skill `plex-setup` liest diesen Katalog aus dem Paketstamm.
+
+Die Anweisungen für den Root-Koordinator stehen in `teams/<team>/coordinator.md`; `plex` lädt das ausgewählte Team nach Prüfung der angewendeten Konfiguration.
 
 ## Warum Plex?
 
@@ -47,7 +53,7 @@ Plex konzentriert sich auf drei Agentenökosysteme:
 | --- | --- |
 | **OpenAI Codex** | Implementiert; isolierte Installations- und Konfigurationsprüfungen sind vorhanden |
 | **Anthropic Claude Code** | Generierung nativer Rollen implementiert; die tatsächliche Ausführung muss noch verifiziert werden |
-| **Google Antigravity** mit **Gemini-Modellen** | In Entwicklung; Vorlagen und Google-Modellprofile sind vorhanden, die durchgängige Unterstützung ist noch nicht verifiziert |
+| **Google Antigravity** mit **Gemini-Modellen** | Native Integration und ausgewählte Live-Tests verifiziert; Modell- und Clientgrenzen gelten |
 
 Das sind die aktuellen Schwerpunkte des Produkts. Weitere Umgebungen gehören
 derzeit nicht zur Roadmap. Umgebung und Modell sind getrennte Entscheidungen:
@@ -56,10 +62,10 @@ Gemini CLI ist eine separate Umgebung und gehört derzeit nicht zum Integrations
 
 ## Dein Team, deine Modelle
 
-Starte mit **default**: PM untersucht die Aufgabe und plant, dev implementiert und
-testet, reviewer prüft das Ergebnis unabhängig. Wähle **BMad**, um einen größeren
-Rollensatz mit installierten BMad-Skills und -Workflows zu nutzen. Das Team default
-funktioniert ohne BMad.
+Starte mit **pnet**: PM klärt die Aufgabe, explorer untersucht das Projekt, researcher
+prüft externe Quellen, dev implementiert, reviewer prüft Änderungen und QA das Verhalten.
+Der Koordinator wählt die benötigten Rollen; standardmäßig laufen höchstens drei Aufträge parallel.
+Wähle **BMad** für installierte BMad-Skills und -Workflows. pnet benötigt kein BMad.
 
 Teamzusammensetzung und Modellwahl sind voneinander getrennt. Wähle ein Modellprofil,
 passe Einstellungen einzelner Rollen an und speichere sie im Projekt. Plex erstellt
@@ -100,14 +106,46 @@ erhalten. Die Pfeile zeigen Aufträge und Rückmeldungen. Untergeordnete Agenten
 dürfen nur dann weiterdelegieren, wenn Umgebung und Aufgabenübergabe dies
 ausdrücklich erlauben.
 
+## Installationsumfang und verwaltete Anweisungen
+
+Starte `./setup.sh` und wähle einen oder mehrere Clients (Leertaste zum Markieren, Enter zum Fortfahren) und den Teamumfang. **Projekt** ist
+die empfohlene Voreinstellung. **Benutzer (global)** stellt das Team für die
+Projekte dieses Benutzers bereit. Codex berücksichtigt `CODEX_HOME`, Claude
+`CLAUDE_CONFIG_DIR`. Für unbeaufsichtigte Installation verwende `--scope project`
+mit `--project <pfad>` oder `--scope user`, jeweils mit `--client <plattform> --yes`.
+
+Einstellungen und Installationsnachweise liegen in `.plex/` im gewählten Projekt
+oder Benutzerverzeichnis der Plattform. Plex prüft Projekteinstellungen zuerst;
+fehlerhafte Projekte werden gemeldet. Eine globale Installation entfernt keine
+Projektagenten. Das gemeinsame Plugin wird bei allen unterstützten Plattformen für den Benutzer installiert; die Auswahl bestimmt den Umfang der Teamdateien.
+Ein gemeinsames Profil — Inherit, Basic, Plus, Pro oder Pro+ — verwendet die passenden OpenAI-, Anthropic- und Google-Einstellungen für alle Clients. Für mehrere Clients ohne Menü kann `--client` wiederholt werden.
+Die vollständige Installation erstellt auch `~/.local/bin/plex`; mit `--no-command` bleibt der Befehl unverändert.
+Starte den Installer im eigenen Projekt oder gib `--project` an. Ein Durchlauf installiert das Plugin und richtet das Team ein; ein zusätzlicher Aufruf von `plex-setup` ist nicht erforderlich.
+Der Starter nutzt `uv`, falls vorhanden, sonst Python 3.11+ mit nummerierten Menüs.
+
+Der Installer bietet einen Block zwischen `<!-- plex:start -->` und
+`<!-- plex:end -->` in der nativen Anweisungsdatei an: `AGENTS.md` für Codex,
+`CLAUDE.md` für Claude, `GEMINI.md`/`AGENTS.md` für Antigravity. Vorhandene Codex
+Override- und konfigurierte Fallback-Dateien werden berücksichtigt. **Plex verwaltet
+nur diesen Block und erhält den gesamten übrigen Text.** Eigene Regeln gehören
+außerhalb des Blocks. Änderungen werden gesichert; manuelle Änderungen im Block
+und fehlerhafte Marker führen zu einem Konflikt. Wiederholte Installation erzeugt
+keine doppelten Blöcke. `--no-instructions` lässt Anweisungsdateien unverändert;
+`--dry-run` zeigt nur den Plan. Lade die Agentenumgebung danach neu.
+
 ## Veröffentlichungsstand
 
 Diese frühe Entwicklungsversion enthält die Skills `plex` und `plex-setup`,
 ein Installationsprogramm für die lokale Repository-Kopie (`setup.py` / `setup.sh`),
-Team-Presets, Modellprofile und native Plugin-Manifeste. Vollständige Dokumentation
-und Tests sind noch nicht Teil dieser Veröffentlichung. Tatsächliche Delegation
-und Modellzuordnung müssen weiterhin in jeder Umgebung verifiziert werden;
-dies ist kein stabiler Release.
+Team-Presets, Modellprofile, native Plugin-Manifeste, Dokumentation und zusammengefasste
+Testergebnisse. Automatisierte Tests und rohe Versuchsdaten werden außerhalb des öffentlichen
+Repositorys gepflegt. Delegation und Modellrouting brauchen clientspezifische Verifikation;
+dies ist eine frühe Vorschau.
+
+Die plattformspezifischen Manifeste liegen unter [`plugins/`](plugins/README.md). Der Installer erstellt vor der Installation ein vollständiges Paket für die gewählte Plattform.
+
+
+Rollenanweisungen gliedern sich in Arbeitsschritte, Schwerpunkte, Qualitätsprüfungen und Ergebnisse. Als Vorlage dient [Awesome Codex Subagents](https://github.com/VoltAgent/awesome-codex-subagents); siehe [Drittanbieterhinweise](THIRD_PARTY_NOTICES.md).
 
 ## Lizenz
 

@@ -1,0 +1,95 @@
+# Google model profiles for Antigravity
+# Note: In Antigravity, subagent frontmatter `model:` accepts tier aliases
+# ("inherit", "flash_lite", "flash", "pro"). Because Antigravity's server-side
+# `pro` tier alias currently maps to Gemini 3.8 Flash (1322) while `inherit`
+# copies the parent session's exact model (e.g. `gemini-4-argon-medium` 1418
+# or `gemini-4-argon-high` 1417), strong roles use `model = "inherit"` (with a
+# Gemini 4 Argon root session) and fast roles use `model = "flash"`.
+host = "antigravity"
+# Basic shares settings; other tiers explicitly configure each team role.
+
+# ==================== Basic ====================
+
+[profiles.basic]
+  model     = "flash"
+  reasoning = "high"
+
+  # ==================== Plus ====================
+
+[profiles.plus.pm]
+  model     = "inherit"
+  reasoning = "low"
+
+[profiles.plus.dev]
+  model     = "flash"
+  reasoning = "max"
+
+[profiles.plus.reviewer]
+  model     = "inherit"
+  reasoning = "medium"
+
+
+[profiles.plus.explorer]
+  model     = "flash"
+  reasoning = "high"
+
+[profiles.plus.researcher]
+  model     = "inherit"
+  reasoning = "low"
+
+[profiles.plus.qa]
+  model     = "flash"
+  reasoning = "high"
+
+  # ==================== Pro ====================
+
+[profiles.pro.pm]
+  model     = "inherit"
+  reasoning = "medium"
+
+[profiles.pro.dev]
+  model     = "inherit"
+  reasoning = "max"
+
+[profiles.pro.reviewer]
+  model     = "inherit"
+  reasoning = "high"
+
+
+[profiles.pro.explorer]
+  model     = "flash"
+  reasoning = "high"
+
+[profiles.pro.researcher]
+  model     = "inherit"
+  reasoning = "medium"
+
+[profiles.pro.qa]
+  model     = "flash"
+  reasoning = "max"
+
+  # ==================== Pro+ ====================
+
+[profiles.pro-plus.pm]
+  model     = "inherit"
+  reasoning = "medium"
+
+[profiles.pro-plus.dev]
+  model     = "inherit"
+  reasoning = "high"
+
+[profiles.pro-plus.reviewer]
+  model     = "inherit"
+  reasoning = "max"
+
+[profiles.pro-plus.explorer]
+  model     = "inherit"
+  reasoning = "low"
+
+[profiles.pro-plus.researcher]
+  model     = "inherit"
+  reasoning = "medium"
+
+[profiles.pro-plus.qa]
+  model     = "inherit"
+  reasoning = "high"

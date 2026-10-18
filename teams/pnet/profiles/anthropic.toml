@@ -1,0 +1,89 @@
+# Anthropic model profiles
+host = "claude"
+# Basic shares settings; other tiers explicitly configure each team role.
+
+# ==================== Basic ====================
+
+[profiles.basic]
+  model     = "haiku"
+  reasoning = "high"
+
+  # ==================== Plus ====================
+
+[profiles.plus.pm]
+  model     = "sonnet"
+  reasoning = "low"
+
+[profiles.plus.dev]
+  model     = "haiku"
+  reasoning = "max"
+
+[profiles.plus.reviewer]
+  model     = "sonnet"
+  reasoning = "medium"
+
+
+[profiles.plus.explorer]
+  model     = "haiku"
+  reasoning = "high"
+
+[profiles.plus.researcher]
+  model     = "sonnet"
+  reasoning = "low"
+
+[profiles.plus.qa]
+  model     = "haiku"
+  reasoning = "high"
+
+  # ==================== Pro ====================
+
+[profiles.pro.pm]
+  model     = "sonnet"
+  reasoning = "medium"
+
+[profiles.pro.dev]
+  model     = "haiku"
+  reasoning = "max"
+
+[profiles.pro.reviewer]
+  model     = "sonnet"
+  reasoning = "high"
+
+
+[profiles.pro.explorer]
+  model     = "haiku"
+  reasoning = "high"
+
+[profiles.pro.researcher]
+  model     = "sonnet"
+  reasoning = "medium"
+
+[profiles.pro.qa]
+  model     = "haiku"
+  reasoning = "max"
+
+  # ==================== Pro+ ====================
+
+[profiles.pro-plus.pm]
+  model     = "sonnet"
+  reasoning = "medium"
+
+[profiles.pro-plus.dev]
+  model     = "sonnet"
+  reasoning = "high"
+
+[profiles.pro-plus.reviewer]
+  model     = "opus"
+  reasoning = "medium"
+
+[profiles.pro-plus.explorer]
+  model     = "sonnet"
+  reasoning = "low"
+
+[profiles.pro-plus.researcher]
+  model     = "sonnet"
+  reasoning = "medium"
+
+[profiles.pro-plus.qa]
+  model     = "sonnet"
+  reasoning = "high"

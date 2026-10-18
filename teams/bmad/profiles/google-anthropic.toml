@@ -1,0 +1,108 @@
+# Google-Anthropic model profiles for Antigravity (Claude on Antigravity)
+# Run Antigravity with `--model claude-sonnet-5-5-medium` (for Plus/Pro) or
+# `--model claude-opus-5-5-medium` / `claude-opus-5-5-high` (for Pro+).
+# These are requested model IDs, not native tier aliases. Native role installation
+# rejects unsupported IDs instead of silently inheriting the root model.
+host = "antigravity"
+# Basic shares defaults with a reviewer override; other tiers configure each role.
+
+# ==================== Basic ====================
+
+[profiles.basic]
+  model     = "claude-sonnet-5-5-low"
+  reasoning = "high"
+
+# Basic review has an explicit role setting independent of implementation defaults.
+[profiles.basic.reviewer]
+  model     = "claude-sonnet-5-5-medium"
+  reasoning = "medium"
+
+  # ==================== Plus ====================
+
+[profiles.plus.analyst]
+  model     = "claude-sonnet-5-5-medium"
+  reasoning = "low"
+
+[profiles.plus.pm]
+  model     = "claude-sonnet-5-5-medium"
+  reasoning = "medium"
+
+[profiles.plus.ux]
+  model     = "claude-sonnet-5-5-low"
+  reasoning = "max"
+
+[profiles.plus.architect]
+  model     = "claude-sonnet-5-5-medium"
+  reasoning = "medium"
+
+[profiles.plus.dev]
+  model     = "claude-sonnet-5-5-low"
+  reasoning = "max"
+
+[profiles.plus.reviewer]
+  model     = "claude-sonnet-5-5-medium"
+  reasoning = "medium"
+
+[profiles.plus.po]
+  model     = "claude-sonnet-5-5-medium"
+  reasoning = "medium"
+
+  # ==================== Pro ====================
+
+[profiles.pro.analyst]
+  model     = "claude-opus-5-5-medium"
+  reasoning = "high"
+
+[profiles.pro.pm]
+  model     = "claude-sonnet-5-5-medium"
+  reasoning = "medium"
+
+[profiles.pro.ux]
+  model     = "claude-sonnet-5-5-medium"
+  reasoning = "high"
+
+[profiles.pro.architect]
+  model     = "claude-opus-5-5-medium"
+  reasoning = "high"
+
+[profiles.pro.dev]
+  model     = "claude-sonnet-5-5-medium"
+  reasoning = "max"
+
+[profiles.pro.reviewer]
+  model     = "claude-opus-5-5-medium"
+  reasoning = "high"
+
+[profiles.pro.po]
+  model     = "claude-sonnet-5-5-medium"
+  reasoning = "medium"
+
+  # ==================== Pro+ ====================
+
+[profiles.pro-plus.analyst]
+  model     = "claude-opus-5-5-high"
+  reasoning = "low"
+
+[profiles.pro-plus.pm]
+  model     = "claude-sonnet-5-5-medium"
+  reasoning = "medium"
+
+[profiles.pro-plus.ux]
+  model     = "claude-opus-5-5-high"
+  reasoning = "low"
+
+[profiles.pro-plus.architect]
+  model     = "claude-opus-5-5-high"
+  reasoning = "medium"
+
+[profiles.pro-plus.dev]
+  model     = "claude-sonnet-5-5-medium"
+  reasoning = "medium"
+
+[profiles.pro-plus.reviewer]
+  model     = "claude-opus-5-5-high"
+  reasoning = "medium"
+
+[profiles.pro-plus.po]
+  model     = "claude-sonnet-5-5-medium"
+  reasoning = "medium"
