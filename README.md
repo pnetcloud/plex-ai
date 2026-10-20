@@ -8,32 +8,33 @@ Plex is an **agent harness for multi-agent orchestration and coordination** in
 OpenAI Codex, Anthropic Claude Code and Google Antigravity. Install a reusable team,
 choose its model profile, and ask Plex to organize implementation, review and verification.
 
-**[v0.5.1 Preview](https://github.com/pnetcloud/plex-ai/releases/tag/v0.5.1)** — open source, MIT. Ready to try; interfaces may change.
+**[v0.5.2 Preview](https://github.com/pnetcloud/plex-ai/releases/tag/v0.5.2)** — open source, MIT. Ready to try; interfaces may change.
 
 ## Quick start
 
-You need **Git and curl**, your chosen client CLI, and **uv or Python 3.11+**. Run in your
-project folder, or create an empty project to try Plex:
+Run from your project directory.
 
-```sh
-mkdir plex-demo && cd plex-demo
-```
-
-Install directly from GitHub with one command:
+**Standard installation**
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/pnetcloud/plex-ai/main/install.sh | bash
 ```
 
-The installer opens an interactive menu:
+**Development mode — Codex, project-local Plex skills**
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/pnetcloud/plex-ai/main/install.sh | bash -s -- --dev --client codex
+```
+
+Normal installation opens an interactive menu:
 
 1. Select clients with **Space**, then **Enter** (numbered prompts without uv).
-2. Keep **Project** scope for this test and confirm the project directory.
+2. Choose the installation scope (**Project** is recommended) and confirm the directory.
 3. Choose **pnet** for a standalone team and **Inherit** to use session model settings.
 4. Choose **Balanced** interaction for routine work, or select **Interactive** / **Auto**.
 5. Review and confirm the installation plan for each client.
 
-This installs the shared plugin, native team roles and a managed instruction block.
+Normal installation adds the shared plugin, native team roles and a managed instruction block.
 Run the same command again to download updates and reopen setup.
 
 [Installation and all parameters](readme/installation.md).
@@ -42,7 +43,7 @@ Already installed for this client and scope? Choose **Update only** to keep sett
 
 ## Try your first task
 
-Open a **new session** of your coding client in `plex-demo` (or your project).
+Open a **new session** of your coding client in your project.
 Reload plugins/agents if the client requires it, then send:
 
 ```text
@@ -88,7 +89,8 @@ plex update
 plex uninstall --dry-run
 ```
 
-Run `plex uninstall` to confirm removal. Use `~/.local/bin/plex` if `plex` is not on PATH.
+Run `plex uninstall` to confirm removal. If `plex` is unavailable, use
+`~/.local/share/plex-ai/setup.sh` instead (including fresh dev installations).
 Installation and updates select published releases, including previews.
 
 ## Develop Plex locally

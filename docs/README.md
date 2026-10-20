@@ -14,6 +14,7 @@ Plex configures and coordinates agent teams in Codex, Claude Code and Antigravit
 | [Role contracts](role-contracts.md) | Responsibilities and instruction authoring |
 | [Development](development.md) | Source layout and contributor checks |
 | [Testing and efficiency](testing.md) | Consolidated results, tokens, cost and quality observations |
+| [Release notes](releases/v0.5.2.md) | v0.5.2 preview: contents, installation and limitations |
 | [Release notes](releases/v0.5.1.md) | v0.5.1 preview: contents, installation and limitations |
 | [Release notes](releases/v0.5.0.md) | v0.5.0 preview: contents, installation and limitations |
 | [Release notes](releases/v0.4.0.md) | v0.4.0 preview: contents, installation and limitations |

@@ -7,32 +7,33 @@
 Plex 是用于 **多智能体编排与协调的 agent harness**，集成 OpenAI Codex、Anthropic Claude Code
 和 Google Antigravity。安装可复用团队，选择模型配置档，再让 Plex 组织实现、审查和验证。
 
-**[v0.5.1 Preview](https://github.com/pnetcloud/plex-ai/releases/tag/v0.5.1)** — 开源，MIT。可试用；接口仍可能变化。
+**[v0.5.2 Preview](https://github.com/pnetcloud/plex-ai/releases/tag/v0.5.2)** — 开源，MIT。可试用；接口仍可能变化。
 
 ## 快速开始
 
-需要 **Git 和 curl**、所选客户端 CLI，以及 **uv 或 Python 3.11+**。
-在自己的项目目录运行，或创建空白测试项目：
+在自己的项目目录中运行。
 
-```sh
-mkdir plex-demo && cd plex-demo
-```
-
-用一条命令直接从 GitHub 安装：
+**普通安装**
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/pnetcloud/plex-ai/main/install.sh | bash
 ```
 
-安装器会打开交互菜单：
+**开发模式 — Codex，项目级 Plex 技能**
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/pnetcloud/plex-ai/main/install.sh | bash -s -- --dev --client codex
+```
+
+普通安装会打开交互菜单：
 
 1. 用 **空格**选择客户端，按 **Enter** 继续（无 uv 时输入编号）。
-2. 本次测试保留 **Project** 范围，并确认项目目录。
+2. 选择安装范围（推荐 **Project**），并确认项目目录。
 3. 选择独立团队 **pnet** 和 **Inherit**，使用会话模型设置。
 4. 一般任务选择 **Balanced** 交互模式，也可选择 **Interactive** / **Auto**。
 5. 检查并确认每个客户端的安装计划。
 
-安装内容包括共享插件、原生团队角色和托管指令块。
+普通安装会添加共享插件、团队角色和托管指令块。
 再次运行同一命令即可下载更新并重新打开配置。
 
 [安装与所有参数](readme/translations/zh-CN/installation.md).
@@ -41,7 +42,7 @@ curl -fsSL https://raw.githubusercontent.com/pnetcloud/plex-ai/main/install.sh |
 
 ## 尝试第一个任务
 
-在 `plex-demo` 或自己的项目中打开编码客户端的 **新会话**。
+在项目中打开编码客户端的 **新会话**。
 如客户端要求，重新加载插件/智能体，然后发送：
 
 ```text
@@ -85,7 +86,8 @@ plex update
 plex uninstall --dry-run
 ```
 
-运行 `plex uninstall` 确认卸载。PATH 中没有 `plex` 时，请用 `~/.local/bin/plex`。
+运行 `plex uninstall` 确认卸载。若没有 `plex` 命令，请改用
+`~/.local/share/plex-ai/setup.sh`，首次开发模式安装后也适用。
 安装和更新选择已发布版本，包括预览版。
 
 ## 本地开发 Plex

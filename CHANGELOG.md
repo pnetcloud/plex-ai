@@ -3,6 +3,15 @@
 Important changes retained in Plex, grouped by release. The releases below are
 previews; interfaces and configuration may change before 1.0.
 
+## [0.5.2] — 2026-10-20
+
+- Simplify Quick start to standard and Codex `--dev` installation commands; remove
+  demo-directory scaffolding and move prerequisites to the installation guide.
+- Reorganize installation documentation around command scenarios, dev/BMad setup,
+  grouped options and troubleshooting; shorten the guide by about half in all four languages.
+- Document the source-checkout entrypoint when the optional `plex` shortcut is absent,
+  including fresh dev installations. Installer behavior is unchanged.
+
 ## [0.5.1] — 2026-10-20
 
 - Restyle CLI setup, status, source updates, removal and help with consistent
