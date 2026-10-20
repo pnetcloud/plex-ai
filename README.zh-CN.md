@@ -7,7 +7,7 @@
 Plex 是用于 **多智能体编排与协调的 agent harness**，集成 OpenAI Codex、Anthropic Claude Code
 和 Google Antigravity。安装可复用团队，选择模型配置档，再让 Plex 组织实现、审查和验证。
 
-**[v0.4.0 Preview](https://github.com/pnetcloud/plex-ai/releases/tag/v0.4.0)** — 开源，MIT。可试用；接口仍可能变化。
+**[v0.5.0 Preview](https://github.com/pnetcloud/plex-ai/releases/tag/v0.5.0)** — 开源，MIT。可试用；接口仍可能变化。
 
 ## 快速开始
 
@@ -29,10 +29,15 @@ curl -fsSL https://raw.githubusercontent.com/pnetcloud/plex-ai/main/install.sh |
 1. 用 **空格**选择客户端，按 **Enter** 继续（无 uv 时输入编号）。
 2. 本次测试保留 **Project** 范围，并确认项目目录。
 3. 选择独立团队 **pnet** 和 **Inherit**，使用会话模型设置。
-4. 检查并确认每个客户端的安装计划。
+4. 一般任务选择 **Balanced** 交互模式，也可选择 **Interactive** / **Auto**。
+5. 检查并确认每个客户端的安装计划。
 
 安装内容包括共享插件、原生团队角色和托管指令块。
 再次运行同一命令即可下载更新并重新打开配置。
+
+[安装与所有参数](readme/translations/zh-CN/installation.md).
+
+若所选客户端和范围已安装团队，选择 **Update only** 保留设置，或选择 **Reconfigure** 重新打开配置菜单。
 
 ## 尝试第一个任务
 
@@ -70,7 +75,7 @@ Plex 仅管理带标记的指令块，保留周围项目指令。
 ```
 
 该命令打开安装配置；客户端内的 Plex 请求启动协调。
-更新、用户范围、选项和覆盖设置见[配置](docs/translations/zh-CN/configuration.md)。
+团队与模型覆盖设置见[配置](docs/translations/zh-CN/configuration.md)。
 
 ## 检查、更新与卸载
 
@@ -82,6 +87,18 @@ plex uninstall --dry-run
 
 运行 `plex uninstall` 确认卸载。PATH 中没有 `plex` 时，请用 `~/.local/bin/plex`。
 安装和更新选择已发布版本，包括预览版。
+
+## 本地开发 Plex
+
+在 Plex 工作副本中连接 Codex 测试项目：
+
+```sh
+./setup.sh --dev --client codex --project /path/to/test-project
+```
+
+技能通过实时链接使用此工作副本；托管指令区块要求使用项目中的 Plex 技能。共享插件仅在该项目中禁用。用 `--no-dev` 重新运行即可恢复普通安装。修改后请重新打开 Codex。
+
+[安装与所有参数](readme/translations/zh-CN/installation.md).
 
 ## 更多内容
 

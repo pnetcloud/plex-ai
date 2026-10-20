@@ -2,6 +2,10 @@
 
 Read this only after the user invokes Plex coordination.
 
+Resolve this skill directory's symlinks before deriving `<plugin-root>` (two
+directories above the real skill folder). In development mode the project skill
+links point into the working checkout; its `teams/` and `skills/` form one package.
+
 ## Check the applied configuration once
 
 Run the read-only check before the first delegation:

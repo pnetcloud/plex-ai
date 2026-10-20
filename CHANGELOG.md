@@ -3,6 +3,21 @@
 Important changes retained in Plex, grouped by release. The releases below are
 previews; interfaces and configuration may change before 1.0.
 
+## [0.5.0] — 2026-10-20
+
+- Detect existing team installations and offer update-only or reconfiguration;
+  preserve saved settings, legacy profile IDs and per-client instruction choices
+  during refresh, using existing compatibility and conflict checks.
+- Offer interaction-mode selection in interactive setup and explicitly save it in
+  every applied preset, preserving saved modes and upgrading older configurations.
+- Use `plex:managed:start/end` instruction markers and migrate unchanged owned
+  blocks with legacy markers during refresh.
+- Add Codex project `--dev` setup with live links to the working Plex skills,
+  a project-only plugin override, explicit local-source instructions, source status
+  and owned cleanup through `--no-dev` or uninstall.
+- Publish a dedicated installation and CLI reference with English, Russian, German
+  and Chinese versions, linked from every root README.
+
 ## [0.4.0] — 2026-10-20
 
 - Offer explicit user-wide installation of selected official BMad skills for Codex,

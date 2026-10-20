@@ -15,7 +15,7 @@ are not migrations or uninstall requests. Detailed role instructions stay in tea
 The editable block template is `../assets/AGENTS.md.template`; keep both markers
 and all template content inside them.
 
-Ordinary setup may add/update a short `<!-- plex:start -->` / `<!-- plex:end -->`
+Ordinary setup may add/update a short `<!-- plex:managed:start -->` / `<!-- plex:managed:end -->`
 block in the selected native instruction file using `apply --instructions`. Preview
 the target and block. Preserve all bytes outside it; malformed or manually changed
 managed blocks require resolution. Existing Codex overrides/fallbacks are respected;

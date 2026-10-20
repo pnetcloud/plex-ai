@@ -42,7 +42,7 @@ class CustomSetupTests(unittest.TestCase):
                 if label == "Model profile":
                     menus.append(choices)
                     return "inherit"
-                return "no"
+                return "no" if label == "Apply this plan?" else default
             with patch.object(CONFIG, "ROOT", root), \
                     patch.object(SETUP.sys.stdin, "isatty", return_value=True), \
                     patch.object(SETUP, "choose", side_effect=select):
@@ -69,7 +69,7 @@ class CustomSetupTests(unittest.TestCase):
                     if label == "Model profile":
                         menus.append((choices, default))
                         return "inherit"
-                    return "no"
+                    return "no" if label == "Apply this plan?" else default
                 with patch.object(SETUP.sys.stdin, "isatty", return_value=True), \
                         patch.object(SETUP, "choose", side_effect=select), \
                         patch.object(SETUP, "ask_text", side_effect=lambda label, default: default):
@@ -189,8 +189,8 @@ class CustomSetupTests(unittest.TestCase):
                 "claude": {"pm": {"model": "opus"}},
                 "codex": {"architect": {"reasoning": "high"}},
             })
-            answers = ["pnet", "custom", "pm", "test-strong", "max", "dev", "test-fast", "low",
-                       "__done__", "yes"]
+            answers = ["configure", "pnet", "custom", "pm", "test-strong", "max", "dev", "test-fast", "low",
+                       "__done__", "balanced", "yes"]
             with patch.object(SETUP.sys.stdin, "isatty", return_value=True), \
                     patch.object(SETUP, "choose", side_effect=answers), \
                     patch.object(SETUP, "model_catalog", return_value=MODELS), \

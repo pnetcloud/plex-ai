@@ -13,6 +13,9 @@
 !/install.sh
 
 # Public documentation and reusable runtime sources, by file type.
+!/readme/
+!/readme/**/
+!/readme/**/*.md
 !/docs/
 !/docs/**/
 !/docs/**/*.md

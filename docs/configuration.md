@@ -2,114 +2,7 @@
 
 [English](configuration.md) · [Русский](translations/ru/configuration.md) · [Deutsch](translations/de/configuration.md) · [简体中文](translations/zh-CN/configuration.md)
 
-## Install and refresh
-
-For first installation, follow the [quick start](../README.md#quick-start).
-The bootstrap keeps a shared checkout in `~/.local/share/plex-ai` and installs the
-newest **published release, including previews**. Keep that checkout: installed plugins refer to it.
-The entrypoint comes from `main`; application files are checked out at the selected release tag.
-
-```sh
-curl -fsSL https://raw.githubusercontent.com/pnetcloud/plex-ai/main/install.sh | bash
-```
-
-### Status, update and removal
-
-```sh
-plex status
-plex status --json
-plex update
-plex update --release v0.2.0
-plex update --development
-plex uninstall --dry-run
-plex uninstall
-```
-
-`status` checks project configuration first, otherwise the selected client's user
-installation. It reports the source version, team/profile, native roles, conflicts
-and plugin discovery. It changes no Plex configuration. `--json` gives structured
-output; configured clients with conflicts, stale state or an unavailable plugin
-return a nonzero status. This does not prove runtime model routing.
-
-`update` selects the newest published release and reopens setup to refresh the chosen
-clients. `--release` pins a published tag; `--development` explicitly selects `main`.
-Source checkouts with local changes, symlinks or another origin are refused. Updates
-use detached release checkouts, not a moving branch. `update --dry-run` previews
-source selection without writing a checkout or applying configuration.
-
-`uninstall` defaults to project scope and all recorded clients. Preview with
-`--dry-run`; interactive removal asks for confirmation, unattended removal needs
-`--yes`. Filter with `--client codex`, or explicitly select `--scope user`.
-Only unchanged receipt-owned roles and the matching managed instruction block are
-removed. Modified/missing owned files or malformed markers stop the operation;
-foreign files and surrounding instructions remain untouched. A block shared with
-another client stays until that client is removed. Each client's removal has its
-own lock, transaction and backups; multi-client removal is not one global transaction.
-
-Shared plugins, the source checkout, CLI shortcut, editable preset and backups remain
-for other projects or reinstall. Native instruction files remain after block removal.
-Retained project preferences continue to take precedence over global defaults; the
-command does not automatically switch your scope. Reopen a client session after changes.
-Use `~/.local/bin/plex` if the shortcut is not on your PATH. Plain `plex` opens setup.
-
-From a checkout, run `./setup.sh`. Select clients with Space, then press Enter.
-Choose a team, scope and shared profile; inspect each installation plan before applying.
-Project scope is the default. The host CLI must be available.
-
-```sh
-./setup.sh --project /path/to/project --client codex --client antigravity --team pnet --model-profile plus --yes
-```
-
-Full setup installs the shared Plex plugin and configures native roles/instructions.
-The plugin remains shared; project skills are not duplicated. Keep its source/export
-available while a local marketplace refers to it. BMad project setup requires the appropriate installed skills and project runtime;
-the installer can initialize missing runtime through installed official BMad setup.
-
-Rerun setup to refresh or switch team/profile. Existing overrides are preserved;
-new definitions reach installed roles only after refresh. Start a fresh host session
-to load changed skills/roles. A shared project-profile change refreshes already
-configured clients; a client without a receipt is not installed implicitly.
-
-For a project-scoped `bmad` team without runtime, setup offers official
-initialization, switching to `pnet`, or cancellation. If the BMad setup skill is
-missing, it offers a separate user-wide dependency installation. Explicit approval
-is required: selected user skill files may be replaced and other projects share
-them. Existing plugins are left unchanged.
-
-`--install-bmad` authorizes that installation and project initialization;
-`--init-bmad` initializes from already installed skills. With `--yes`, displayed
-module defaults are accepted. `--dry-run` writes nothing. Setup invokes BMad's
-official script after plan confirmation, asking only unanswered module questions.
-Runtime and installed dependencies remain if a later step fails.
-
-Fresh installations use `skills@1.7.4` and the official BMad revision
-`495ef6e0996d07b23359cc4d6c73a1aa2f3ba5ad`, selecting only the team's entry/workflow
-skills, the `bmad` hub and two module records. This includes PO, which the current
-plugin marketplace lacks. Node.js/npm and `uv` are required. Codex, Claude Code and
-Antigravity are supported by the official Skills CLI.
-
-Direct project/user skills are preferred during discovery. Enabled installed
-Codex/Claude Toolbox plugins are also supported; arbitrary cache folders are not
-installation evidence. Use `--bmad-skill /path/to/installed/bmad` for an explicit
-hub. User-scoped roles still require runtime in every working project.
-
-
-| Option | Behavior |
-|---|---|
-| `--dry-run` | Preview without writes |
-| `--roles-only` | Skip Plex plugin installation; explicit BMad dependency flags still apply |
-| `--no-instructions` | Skip managed instruction integration |
-| `--no-command` | Skip the `~/.local/bin/plex` shortcut |
-| `--install-command` | Install only that checkout shortcut |
-| `--max-agents N` | Set the shared assignment limit |
-
-Plugin-manager changes and completed client installations are not rolled back if a later client fails.
-
-An existing command from another checkout, a foreign file or a broken link is
-kept with a notice; it does not block normal setup. The installer prints its own
-entrypoint when the existing command is retained. Explicit `--install-command`
-still refuses to overwrite an unrelated command.
-
+[Installation, dev mode and all CLI options](../readme/installation.md).
 
 ## Teams and profiles
 
@@ -172,6 +65,8 @@ profile; `custom` itself is not a saved profile. Model availability remains host
 
 ## Interaction
 
+Interactive setup asks for the mode once for all selected clients, with the saved mode selected (or `balanced` for a new installation). Every applied preset explicitly records `interaction`, including refreshed older presets.
+
 Set `interaction = "balanced"` at the root of `.plex/preset.toml`, or pass
 `--interaction interactive|balanced|auto` to setup or resolver `apply`.
 Omitting it preserves the saved value; new configurations default to `balanced`.
@@ -213,7 +108,9 @@ User-scoped BMad roles still require BMad prerequisites in each working project.
 
 ## Managed instructions and state
 
-Only the `<!-- plex:start -->` … `<!-- plex:end -->` block is owned by Plex.
+Unchanged receipt-owned blocks using the old `plex:start` / `plex:end` markers are migrated automatically on refresh. Mixed marker formats or edited blocks stop the update.
+
+Only the `<!-- plex:managed:start -->` … `<!-- plex:managed:end -->` block is owned by Plex.
 Keep personal instructions outside it. Edited, missing, duplicate or malformed
 managed markers cause a conflict instead of overwriting user changes.
 

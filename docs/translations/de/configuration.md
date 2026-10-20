@@ -2,113 +2,7 @@
 
 [English](../../configuration.md) · [Русский](../ru/configuration.md) · [Deutsch](configuration.md) · [简体中文](../zh-CN/configuration.md)
 
-## Installation und Aktualisierung
-
-Für die Erstinstallation den [Schnellstart](../../../README.de.md#schnellstart) verwenden.
-Der Bootstrap hält einen Checkout in `~/.local/share/plex-ai` und installiert die neueste
-**veröffentlichte Version einschließlich Vorschauen**. Den Checkout behalten: Plugins verweisen darauf.
-Der Einstieg kommt aus `main`, die Anwendungsdateien aus dem ausgewählten Versionstag.
-
-```sh
-curl -fsSL https://raw.githubusercontent.com/pnetcloud/plex-ai/main/install.sh | bash
-```
-
-### Status, Update und Entfernung
-
-```sh
-plex status
-plex status --json
-plex update
-plex update --release v0.2.0
-plex update --development
-plex uninstall --dry-run
-plex uninstall
-```
-
-`status` prüft zuerst die Projektkonfiguration, sonst die Benutzerinstallation des
-Clients. Es zeigt Quellversion, Team/Profil, native Rollen, Konflikte und Pluginerkennung,
-ohne Plex-Konfiguration zu ändern. `--json` liefert strukturierte Ausgabe. Konfigurierte
-Clients mit Konflikten, veraltetem Zustand oder fehlendem Plugin ergeben einen Fehlerstatus.
-Tatsächliches Modellrouting wird damit nicht nachgewiesen.
-
-`update` wählt die neueste veröffentlichte Version und öffnet Setup für die gewählten
-Clients. `--release` fixiert einen veröffentlichten Tag, `--development` wählt ausdrücklich
-`main`. Lokale Änderungen, Symlinks oder fremder Origin verhindern Updates. Quellen
-werden auf einen konkreten Tag ausgecheckt. `update --dry-run` zeigt die Auswahl ohne
-Checkout- oder Konfigurationsschreibzugriffe.
-
-`uninstall` gilt standardmäßig für das Projekt und alle im Receipt erfassten Clients.
-`--dry-run` zeigt den Plan; interaktive Entfernung fragt nach Bestätigung, unbeaufsichtigt
-ist `--yes` nötig. Mit `--client codex` filtern oder `--scope user` ausdrücklich wählen.
-Nur unveränderte Receipt-Rollen und der passende verwaltete Block werden entfernt.
-Geänderte/fehlende Dateien oder fehlerhafte Marker stoppen die Aktion. Fremde Dateien
-und umgebende Anweisungen bleiben erhalten. Ein geteilter Block bleibt für andere
-Clients bestehen. Jeder Client hat eigene Sperre, Transaktion und Backups; mehrere
-Clients bilden keine gemeinsame Transaktion.
-
-Gemeinsame Plugins, Checkout, CLI-Verknüpfung, editierbares Preset und Backups bleiben
-für andere Projekte oder Neuinstallation. Native Anweisungsdateien bleiben nach Blockentfernung.
-Erhaltene Projekteinstellungen haben weiterhin Vorrang vor Benutzerdefaults; der Bereich
-wechselt nicht automatisch. Anschließend eine neue Clientsitzung öffnen.
-Falls `plex` nicht im PATH liegt, `~/.local/bin/plex` verwenden. Reines `plex` öffnet Setup.
-
-Im Checkout `./setup.sh` starten. Leertaste markiert Clients, Enter fährt fort.
-Team, Geltungsbereich und gemeinsames Profil auswählen und jeden Installationsplan
-prüfen. Projektebene ist Standard. Der jeweilige Client-CLI muss verfügbar sein.
-
-```sh
-./setup.sh --project /path/to/project --client codex --client antigravity --team pnet --model-profile plus --yes
-```
-
-Die vollständige Einrichtung installiert das gemeinsame Plex-Plugin und konfiguriert
-native Rollen/Anweisungen. Skills werden nicht in Projekte dupliziert. Quellen oder
-Export erhalten, solange ein lokaler Marketplace darauf verweist. BMad benötigt
-bereits installierte passende Skills und eine Projekt-Runtime.
-
-Setup erneut ausführen, um Definitionen zu aktualisieren oder Team/Profil zu wechseln.
-Overrides bleiben erhalten. Neue Definitionen erreichen Rollen erst nach Refresh;
-für neue Skills/Rollen eine frische Clientsitzung starten. Gemeinsame Projektprofile
-aktualisieren bereits konfigurierte Clients; Clients ohne Receipt werden nicht implizit installiert.
-
-| Option | Wirkung |
-|---|---|
-| `--dry-run` | Vorschau ohne Schreibzugriffe |
-| `--roles-only` | Rollen/Zustand ohne Plugininstallation |
-| `--no-instructions` | Verwalteten Anweisungsblock überspringen |
-| `--no-command` | Verknüpfung `~/.local/bin/plex` überspringen |
-| `--install-command` | Nur die Checkout-Verknüpfung installieren |
-| `--max-agents N` | Gemeinsames Auftragslimit setzen |
-
-Pluginmanager-Änderungen und abgeschlossene Clientinstallationen werden bei einem späteren Fehler nicht zurückgerollt.
-
-Ein vorhandener Befehl aus einem anderen Checkout, eine fremde Datei oder ein
-defekter Link bleibt mit Hinweis erhalten und blockiert Setup nicht. Der Installer
-zeigt seinen eigenen Einstiegspunkt. Explizites `--install-command` überschreibt
-weiterhin keinen fremden Befehl.
-
-Fehlt beim projektbezogenen Team `bmad` die Runtime, bietet Setup offizielle
-Initialisierung, Wechsel zu `pnet` oder Abbruch. Ohne BMad-Setup-Skill wird eine
-separate Benutzerinstallation angeboten. Sie benötigt ausdrückliche Zustimmung:
-ausgewählte Benutzer-Skills können ersetzt werden und gelten für andere Projekte.
-Vorhandene Plugins bleiben unverändert.
-
-`--install-bmad` erlaubt Installation und Projektinitialisierung; `--init-bmad`
-verwendet vorhandene Skills. `--yes` akzeptiert angezeigte Modulstandards.
-`--dry-run` schreibt nichts. Nach Planbestätigung läuft das offizielle BMad-Setup
-mit nur unbeantworteten Modulfragen. Runtime und Abhängigkeiten bleiben bei
-späteren Fehlern erhalten.
-
-Neue Installationen nutzen `skills@1.7.4` und die offizielle BMad-Revision
-`495ef6e0996d07b23359cc4d6c73a1aa2f3ba5ad`: nur Einstieg-/Workflow-Skills des Teams,
-den Hub `bmad` und zwei Moduldatensätze. PO ist enthalten, im aktuellen Plugin-
-Marketplace jedoch noch nicht. Node.js/npm und `uv` sind erforderlich. Der offizielle
-Skills CLI unterstützt Codex, Claude Code und Antigravity.
-
-Direkte Projekt-/Benutzerskills haben Vorrang. Aktivierte installierte Codex/Claude-
-Toolbox-Plugins werden ebenfalls erkannt; Cache-Ordner allein reichen nicht.
-`--bmad-skill /path/to/installed/bmad` wählt einen Hub ausdrücklich. Benutzerrollen
-benötigen weiterhin Runtime in jedem Arbeitsprojekt.
-
+[Installation, Entwicklungsmodus und alle CLI-Optionen](../../../readme/translations/de/installation.md).
 
 ## Teams und Profile
 
@@ -163,6 +57,8 @@ Modellverfügbarkeit hängt vom Client und Provider ab.
 
 ## Interaktion
 
+Interaktives Setup fragt den Modus einmal für alle ausgewählten Clients ab; vorausgewählt ist der gespeicherte Modus, sonst `balanced`. Jeder angewendete Preset speichert `interaction` ausdrücklich, auch nach Aktualisierung älterer Konfigurationen.
+
 `interaction = "balanced"` steht auf oberster Ebene in `.plex/preset.toml`.
 Alternativ `--interaction interactive|balanced|auto` an Setup oder Resolver-`apply`
 übergeben. Ohne Option bleibt der gespeicherte Wert; Standard ist `balanced`.
@@ -202,7 +98,9 @@ anderen Bereich nicht. BMad-Benutzerrollen benötigen weiterhin Voraussetzungen 
 
 ## Verwaltete Anweisungen und Zustand
 
-Plex besitzt nur `<!-- plex:start -->` … `<!-- plex:end -->`. Persönliche Anweisungen
+Unveränderte, per Beleg verwaltete Blöcke mit `plex:start` / `plex:end` werden beim Aktualisieren automatisch migriert. Gemischte Markerformate oder bearbeitete Blöcke stoppen das Update.
+
+Plex besitzt nur `<!-- plex:managed:start -->` … `<!-- plex:managed:end -->`. Persönliche Anweisungen
 außerhalb lassen. Bearbeitete, fehlende, doppelte oder ungültige Marker verursachen
 einen Konflikt statt eines Überschreibens.
 

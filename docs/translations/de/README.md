@@ -7,12 +7,14 @@ Plex konfiguriert und koordiniert Agententeams in Codex, Claude Code und Antigra
 | Anleitung | Inhalt |
 |---|---|
 | [Über Plex](product.md) | Zweck, Prinzipien und Umfang |
-| [Konfiguration](configuration.md) | Installation, Team/Profil, Aktualisierung und Overrides |
+| [Installation und alle Optionen](../../../readme/translations/de/installation.md) | Installation, Entwicklungsmodus und alle CLI-Optionen |
+| [Konfiguration](configuration.md) | Team-, Profil- und Override-Einstellungen |
 | [Kompatibilität](host-compatibility.md) | Native Pfade, Modellgrenzen und Prüfstand |
 | [Architektur](architecture.md) | Konfiguration, Installation und Koordination |
 | [Rollenverträge](role-contracts.md) | Verantwortlichkeiten und Anweisungen |
 | [Entwicklung](development.md) | Quellstruktur und Prüfungen |
 | [Tests und Effizienz](testing.md) | Ergebnisse, Token, Kosten und Qualitätsbeobachtungen |
+| [Versionshinweise](releases/v0.5.0.md) | Vorschau v0.5.0: Inhalt, Installation und Grenzen |
 | [Versionshinweise](releases/v0.4.0.md) | Vorschau v0.4.0: Inhalt, Installation und Grenzen |
 | [Versionshinweise](releases/v0.3.1.md) | Vorschau v0.3.1: Inhalt, Installation und Grenzen |
 | [Versionshinweise](releases/v0.3.0.md) | Vorschau v0.3.0: Inhalt, Installation und Grenzen |

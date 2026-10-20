@@ -2,90 +2,7 @@
 
 [English](../../configuration.md) · [Русский](../ru/configuration.md) · [Deutsch](../de/configuration.md) · [简体中文](configuration.md)
 
-## 安装与更新
-
-首次安装请使用[快速开始](../../../README.zh-CN.md#快速开始)。
-引导脚本在 `~/.local/share/plex-ai` 保留共享副本，默认安装**最新已发布版本，包括预览版**。
-请保留该目录，插件仍引用它。入口脚本来自 `main`，应用文件检出所选发布标签。
-
-```sh
-curl -fsSL https://raw.githubusercontent.com/pnetcloud/plex-ai/main/install.sh | bash
-```
-
-### 状态、更新与卸载
-
-```sh
-plex status
-plex status --json
-plex update
-plex update --release v0.2.0
-plex update --development
-plex uninstall --dry-run
-plex uninstall
-```
-
-`status` 优先检查项目配置，否则检查相应客户端的用户安装。显示源码版本、团队/配置档、
-原生角色、冲突和插件发现结果，不更改 Plex 配置。`--json` 提供结构化输出。
-已配置客户端如有冲突、状态过期或插件不可用，会返回非零状态。这不能证明实际模型路由。
-
-`update` 选择最新已发布版本并打开配置以刷新所选客户端。`--release` 固定已发布标签，
-`--development` 明确选择 `main`。本地修改、符号链接和其他 origin 会阻止更新。
-源码检出具体标签而非浮动分支。`update --dry-run` 只显示版本选择，不写入源码或配置。
-
-`uninstall` 默认作用于项目和 receipt 中所有客户端。`--dry-run` 预览；交互卸载要求确认，
-无人值守执行需 `--yes`。可用 `--client codex` 筛选，或用 `--scope user` 明确选择用户范围。
-仅移除哈希未变的 receipt 所属角色和匹配指令块。修改/缺失文件或错误标记会中止操作，
-其他文件及周围指令保持不变。其他客户端仍使用的共享块将保留。
-每个客户端单独使用锁、事务和备份，多客户端卸载不是一个整体事务。
-
-共享插件、源码、CLI 快捷命令、可编辑 preset 和备份会保留，供其他项目或重装使用。
-删除块后原生指令文件仍保留。保留的项目偏好仍优先于全局默认值，不会自动切换范围。
-修改后打开新的客户端会话。如果 PATH 中没有 `plex`，请使用 `~/.local/bin/plex`。
-不带子命令的 `plex` 打开配置。
-
-在源码目录运行 `./setup.sh`。用空格选择客户端，按 Enter 继续。
-选择团队、安装范围和共享配置档，并检查各安装计划；默认选择项目范围。需要相应客户端 CLI。
-
-```sh
-./setup.sh --project /path/to/project --client codex --client antigravity --team pnet --model-profile plus --yes
-```
-
-完整安装会安装共享 Plex 插件，并配置原生角色与指令，不会把技能复制进各项目。
-本地 marketplace 仍引用源码或导出目录时，请保留这些目录。BMad 需要已安装的匹配技能和项目运行时。
-
-再次运行安装器可更新定义或切换团队、配置档；覆盖设置会保留。更新定义后需刷新才能更新原生角色；
-新技能或角色应在新客户端会话中使用。共享项目配置档会更新已配置的客户端，不会隐式安装没有 receipt 的客户端。
-
-| 选项 | 作用 |
-|---|---|
-| `--dry-run` | 只预览，不写入 |
-| `--roles-only` | 仅配置角色和状态，跳过插件安装 |
-| `--no-instructions` | 跳过托管指令块 |
-| `--no-command` | 跳过 `~/.local/bin/plex` 快捷命令 |
-| `--install-command` | 仅安装指向源码的快捷命令 |
-| `--max-agents N` | 设置共享任务并发上限 |
-
-后续失败不会回滚插件管理器操作或已经完成的客户端安装。
-
-来自其他副本的现有命令、外部文件或失效链接会保留并提示，不会阻止正常安装。
-安装器会显示自己的启动路径。显式 `--install-command` 仍拒绝覆盖无关命令。
-
-项目范围的 `bmad` 团队缺少运行时时，安装器提供官方初始化、切换到 `pnet` 或取消。
-缺少 BMad setup 技能时，另行提供用户范围的依赖安装。必须明确批准：选中的用户技能
-可能被替换，并由其他项目共享。现有插件保持不变。
-
-`--install-bmad` 授权安装和项目初始化；`--init-bmad` 使用已安装技能。
-`--yes` 接受显示的模块默认值，`--dry-run` 不写入任何文件。确认计划后运行官方 BMad setup，
-只询问未回答的模块问题。后续步骤失败时，已创建运行时和依赖仍会保留。
-
-新安装使用 `skills@1.7.4` 和官方 BMad 修订 `495ef6e0996d07b23359cc4d6c73a1aa2f3ba5ad`，
-仅选择团队入口和工作流技能、`bmad` hub 及两个模块记录。包含当前插件 marketplace 尚未提供的 PO。
-需要 Node.js/npm 和 `uv`。官方 Skills CLI 支持 Codex、Claude Code 和 Antigravity。
-
-发现时优先使用项目和用户的直接技能目录。也支持已安装且启用的 Codex/Claude Toolbox 插件；
-不能仅凭缓存目录认定已安装。可用 `--bmad-skill /path/to/installed/bmad` 明确指定 hub。
-用户范围角色仍要求每个工作项目具备运行时。
-
+[安装、开发模式与所有 CLI 参数](../../../readme/translations/zh-CN/installation.md).
 
 ## 团队与配置档
 
@@ -132,6 +49,8 @@ reasoning = "max"
 
 ## 交互模式
 
+交互安装仅为所有所选客户端询问一次模式，默认选中已保存模式，新安装默认 `balanced`。每次应用配置都会显式保存 `interaction`，包括刷新旧配置时。
+
 在 `.plex/preset.toml` 顶层设置 `interaction = "balanced"`，或向安装器及解析器
 `apply` 传递 `--interaction interactive|balanced|auto`。省略参数会保留已保存值；
 默认是 `balanced`。安装计划显示有效模式。模式由客户端共享，切换团队或配置档时保留。
@@ -164,7 +83,9 @@ auto 中未决事项只阻塞依赖它的工作。
 
 ## 托管指令与状态
 
-Plex 只管理 `<!-- plex:start -->` … `<!-- plex:end -->` 之间的内容。个人指令应放在块外。
+刷新时，仍与安装记录匹配的旧 `plex:start` / `plex:end` 区块会自动迁移。混用标记格式或修改托管区块会阻止更新。
+
+Plex 只管理 `<!-- plex:managed:start -->` … `<!-- plex:managed:end -->` 之间的内容。个人指令应放在块外。
 被修改、缺失、重复或无效的标记会产生冲突，不会被强制覆盖。
 
 安装器优先选择已有非空文件，否则创建默认文件：Codex 按 `AGENTS.override.md`、`AGENTS.md`、

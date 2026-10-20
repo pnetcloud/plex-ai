@@ -14,6 +14,7 @@ sys.dont_write_bytecode = True
 
 import argparse
 import copy
+from contextlib import contextmanager, nullcontext
 import importlib.util
 import json
 import os
@@ -54,7 +55,8 @@ def choose(label, choices, default):
     if ui:
         labels = {"__default__": "Default", "__manual__": "Other model…", "__done__": "Done",
                   "inherit": "Inherit session settings", "custom": "Custom",
-                  "basic": "Basic", "plus": "Plus", "pro": "Pro", "pro-plus": "Pro+"}
+                  "basic": "Basic", "plus": "Plus", "pro": "Pro", "pro-plus": "Pro+",
+                  "refresh": "Update only", "configure": "Reconfigure"}
         if label == "Model profile":
             for name in choices:
                 if name in CONFIG.PROFILE_TIERS:
@@ -531,6 +533,8 @@ def setup_clients(args, clients, interactive):
     project = select_target(args, interactive)
     print("One profile is shared by all clients. Each installation has a plan to confirm; stopping preserves completed clients.")
     completed = []
+    setup_mode = None
+    instruction_choices = {}
     for client in clients:
         heading(f"Configure client: {client}")
         options = ["--host", client, "--scope", args.scope, "--project", str(project)]
@@ -551,11 +555,13 @@ def setup_clients(args, clients, interactive):
         if args.instructions is not None:
             options.append("--instructions" if args.instructions else "--no-instructions")
         selection = {}
-        status = main(options, shared_profile=True, selection=selection)
+        status = main(options, shared_profile=True, selection=selection, setup_mode=setup_mode)
         if status or selection.get("cancelled"):
             print(f"Stopped at {client}. Completed clients: {', '.join(completed) or 'none'}. Rerun to continue.")
             return status
         completed.append(client)
+        setup_mode = selection["setup_mode"]
+        instruction_choices[client] = selection["instructions"]
         if args.team is None:
             args.team = selection["team"]
         if args.max_agents is None:
@@ -567,12 +573,122 @@ def setup_clients(args, clients, interactive):
     if not args.dry_run:
         # All selected clients must acknowledge the final shared configuration.
         for client in clients:
-            CONFIG.apply_project(project, client, scope=args.scope, instructions=args.instructions is not False)
+            CONFIG.apply_project(project, client, scope=args.scope, instructions=instruction_choices[client])
         for client in clients:
             if CONFIG.check_project(project, client, args.scope)["status"] != "in_sync":
                 raise ValueError(f"Final check failed for client {client}; rerun setup")
         print(f"All selected clients are in sync: {', '.join(completed)}.")
     return 0
+
+
+DEV_PLUGIN = "pnet-plex@pnet-plex"
+DEV_BLOCK = ('# plex-dev:start\n[plugins."pnet-plex@pnet-plex"]\nenabled = false\n# plex-dev:end\n')
+DEV_SKILLS = ("plex", "plex-setup")
+
+
+def plan_dev(project, enabled):
+    """Plan only owned links and a repo-local plugin override; never touch user config."""
+    project = project.resolve()
+    receipt = CONFIG._ensure_safe_project_path(project, ".plex/dev.json")
+    config = CONFIG._ensure_safe_project_path(project, ".codex/config.toml")
+    CONFIG._ensure_safe_project_path(project, ".agents/skills")
+    before = receipt.read_bytes() if receipt.exists() else None
+    record = json.loads(before) if before is not None else None
+    if record is not None and (not isinstance(record, dict) or set(record) != {"source", "config_block"}
+                               or not isinstance(record["source"], str) or not Path(record["source"]).is_absolute()
+                               or type(record["config_block"]) is not bool):
+        raise ValueError("Invalid .plex/dev.json; inspect before changing development mode")
+    config_before = config.read_bytes() if config.exists() else None
+    text = (config_before or b"").decode("utf-8")
+    settings = tomllib.loads(text)
+    plugins = settings.get("plugins", {})
+    if not isinstance(plugins, dict) or (DEV_PLUGIN in plugins and not isinstance(plugins[DEV_PLUGIN], dict)):
+        raise ValueError("Invalid project plugin settings; preserved")
+    if record and record["config_block"] and text.count(DEV_BLOCK) != 1:
+        raise ValueError("Managed Plex dev plugin override changed; preserved")
+    links = []
+    for name in DEV_SKILLS:
+        path = project / ".agents/skills" / name
+        old = str(Path(record["source"]) / "skills" / name) if record else None
+        actual = os.readlink(path) if path.is_symlink() else None
+        if (old is not None and actual != old) or (old is None and (path.exists() or path.is_symlink())):
+            raise ValueError(f"Foreign or modified development skill preserved: {path}")
+        target = str(ROOT / "skills" / name) if enabled else None
+        if enabled and not (Path(target) / "SKILL.md").is_file():
+            raise ValueError(f"Development source is incomplete: {target}")
+        links.append((path, actual, target))
+    if enabled:
+        owned_block = record["config_block"] if record else False
+        plugin = plugins.get(DEV_PLUGIN)
+        if not record and plugin is None:
+            text += ("" if not text or text.endswith("\n\n") else "\n" if text.endswith("\n") else "\n\n") + DEV_BLOCK
+            owned_block = True
+        if tomllib.loads(text).get("plugins", {}).get(DEV_PLUGIN, {}).get("enabled") is not False:
+            raise ValueError('Set [plugins."pnet-plex@pnet-plex"] enabled = false in project .codex/config.toml before --dev; existing override preserved')
+        after = (json.dumps({"source": str(ROOT), "config_block": owned_block}, indent=2) + "\n").encode()
+    else:
+        if record and record["config_block"]:
+            text = text.replace(DEV_BLOCK, "", 1)
+        after = None
+    config_after = text.encode() if text else None
+    return {"project": project, "enabled": enabled, "links": links,
+            "files": {config: (config_before, config_after), receipt: (before, after)}}
+
+
+@contextmanager
+def apply_dev(plan):
+    """Undo dev changes if role application fails, preserving concurrent edits."""
+    changed = []
+    def link_value(path):
+        CONFIG._ensure_safe_project_path(plan["project"], str(path.parent.relative_to(plan["project"])))
+        if path.is_symlink():
+            return os.readlink(path)
+        if path.exists():
+            raise ValueError(f"Foreign development skill preserved: {path}")
+        return None
+    def set_link(path, target):
+        if path.is_symlink():
+            path.unlink()
+        if target is not None:
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.symlink_to(target, target_is_directory=True)
+    transaction = CONFIG._ApplyTransaction(plan["project"], plan["files"])
+    try:
+        for path, (before, after) in plan["files"].items():
+            if transaction.original[path] != before:
+                raise ValueError(f"Development settings changed after preview: {path}")
+        for path, before, after in plan["links"]:
+            if link_value(path) != before:
+                raise ValueError(f"Development skill changed after preview: {path}")
+        for path, before, after in plan["links"]:
+            if before != after:
+                if link_value(path) != before:
+                    raise ValueError(f"Development skill changed during apply: {path}")
+                changed.append((path, before, after))
+                set_link(path, after)
+        for path, (before, after) in plan["files"].items():
+            if before == after:
+                continue
+            if after is None:
+                transaction.check()
+                transaction.changed.append((path, None))
+                path.unlink()
+                transaction.expected[path] = None
+            else:
+                transaction.write(path, after)
+        yield
+    except (OSError, ValueError, KeyboardInterrupt):
+        failures = transaction.rollback()
+        for path, before, after in reversed(changed):
+            try:
+                if link_value(path) != after:
+                    raise ValueError("concurrent edit preserved")
+                set_link(path, before)
+            except (OSError, ValueError) as error:
+                failures.append(f"{path}: {error}")
+        if failures:
+            raise ValueError("Development rollback needs recovery: " + "; ".join(failures))
+        raise
 
 
 def plex_status(project, clients, scope=None):
@@ -583,7 +699,21 @@ def plex_status(project, clients, scope=None):
         state = report.get("hosts", {}).get(client, {})
         configured = state.get("configured", False)
         plugin = "not_checked"
-        if configured:
+        dev_source = None
+        dev_receipt = CONFIG._ensure_safe_project_path(project.resolve(), ".plex/dev.json")
+        if configured and client == "codex" and report.get("scope") == "project" and dev_receipt.is_file():
+            try:
+                plan_dev(project, True)
+                dev_source = json.loads(dev_receipt.read_text())["source"]
+                for name in DEV_SKILLS:
+                    if not (Path(dev_source) / "skills" / name / "SKILL.md").is_file():
+                        raise ValueError(f"Development source missing: {dev_source}")
+                if not (Path(dev_source) / "teams").is_dir():
+                    raise ValueError(f"Development team resources missing: {dev_source}")
+                plugin = "development"
+            except (OSError, ValueError) as error:
+                plugin = str(error)
+        elif configured:
             if not shutil.which(host_cli(client)):
                 plugin = "cli_missing"
             else:
@@ -597,7 +727,7 @@ def plex_status(project, clients, scope=None):
                         "root": report.get("root"), "configured": configured,
                         "status": report["status"] if configured or report.get("conflicts") else "unconfigured",
                         "team": resolved.get("team"), "profile": resolved.get("model_profile"),
-                        "roles": state.get("installed_roles", []), "plugin": plugin,
+                        "roles": state.get("installed_roles", []), "plugin": plugin, "dev_source": dev_source,
                         "conflicts": report.get("conflicts", [])})
     return {"version": version, "source": str(ROOT), "clients": reports}
 
@@ -615,14 +745,22 @@ def maintenance(args):
                 print(f"\n{item['client']} ({item['scope']}): {item['status']}")
                 print(f"  Team/profile: {item['team'] or '—'} / {item['profile'] or '—'}; plugin: {item['plugin']}")
                 print(f"  Root: {item['root']}; native roles: {len(item['roles'])}")
+                if item["dev_source"]:
+                    print(f"  Development source: {item['dev_source']}")
                 for conflict in item["conflicts"]:
                     print(f"  Conflict: {conflict}")
             print("\nConfiguration/plugin checks only; runtime model routing is not verified.")
         return int(any(item["conflicts"] or item["configured"] and
-                       (item["status"] != "in_sync" or item["plugin"] != "enabled")
+                       (item["status"] != "in_sync" or item["plugin"] not in {"enabled", "development"})
                        for item in result["clients"]))
     scope = args.scope or "project"
+    dev_plan = (plan_dev(project, False) if scope == "project" and "codex" in clients
+                and CONFIG._ensure_safe_project_path(project.resolve(), ".plex/dev.json").is_file() else None)
     plans = [CONFIG.uninstall_project(project, client, scope, dry_run=True) for client in clients]
+    if dev_plan:
+        for plan in plans:
+            if plan["host"] == "codex":
+                plan["remove_dev_links_and_override"] = True
     if args.dry_run:
         print(json.dumps(plans, indent=2))
         return 0
@@ -634,14 +772,17 @@ def maintenance(args):
         if input("Remove these Plex roles and owned instruction blocks? [y/N] ").strip().lower() not in {"y", "yes"}:
             print("Uninstall cancelled.")
             return 0
-    results = [CONFIG.uninstall_project(project, client, scope) for client in clients]
+    results = []
+    for client in clients:
+        with apply_dev(dev_plan) if dev_plan and client == "codex" else nullcontext():
+            results.append(CONFIG.uninstall_project(project, client, scope))
     print(json.dumps(results, indent=2))
     if not args.json:
         print("Shared plugins, source checkout, preset preferences and backups were retained.")
     return 0
 
 
-def main(argv=None, *, shared_profile=False, selection=None):
+def main(argv=None, *, shared_profile=False, selection=None, setup_mode=None):
     argv = list(sys.argv[1:] if argv is None else argv)
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("action", nargs="?", choices=("setup", "status", "update", "uninstall"), default="setup")
@@ -663,6 +804,8 @@ def main(argv=None, *, shared_profile=False, selection=None):
     parser.add_argument("--install-bmad", action="store_true", help="Install the selected official BMad user skills; may replace selected skill files; project scope also initializes runtime")
     parser.add_argument("--init-bmad", action="store_true", help="Initialize missing project runtime using installed official BMad setup; --yes accepts module defaults")
     parser.add_argument("--bmad-skill", type=Path, help="Installed bmad setup skill directory; otherwise discover supported installed sources")
+    parser.add_argument("--dev", action=argparse.BooleanOptionalAction, default=None,
+                        help="Codex project: link this checkout as local Plex skills; --no-dev restores shared plugin discovery")
     parser.add_argument("--roles-only", action="store_true", help="Configure roles without installing the plugin")
     parser.add_argument("--command", action=argparse.BooleanOptionalAction, default=True,
                         help="Create ~/.local/bin/plex during full installation (default: enabled)")
@@ -671,6 +814,10 @@ def main(argv=None, *, shared_profile=False, selection=None):
     mode.add_argument("--install-command", action="store_true", help="Link this checkout as ~/.local/bin/plex")
     parser.add_argument("--yes", action="store_true", help="Apply without prompts; requires --client and --project for project scope")
     args = parser.parse_args(argv)
+    if args.dev is not None and args.install_command:
+        parser.error("--dev configures a project, not the user-wide command shortcut")
+    if args.dev is not None and args.action != "setup":
+        parser.error("--dev/--no-dev apply to setup; status and uninstall detect development mode automatically")
     if args.action in {"status", "uninstall", "update"}:
         try:
             if args.action == "update":
@@ -704,22 +851,35 @@ def main(argv=None, *, shared_profile=False, selection=None):
             install_command()
             return 0
         heading("pNet Plex  /  Setup")
-        print("One setup: shared Plex plugin + your selected team. No model calls.")
-        print("The plugin supplies shared skills; team scope controls where roles and instructions are written.")
+        if args.dev:
+            print("Development setup: this checkout supplies project-local Plex skills. No model calls.")
+        else:
+            print("One setup: shared Plex plugin + your selected team. No model calls.")
+            print("The plugin supplies shared skills; team scope controls where roles and instructions are written.")
         clients = list(dict.fromkeys(([args.host] if args.host else []) + (args.clients or [])))
         if args.clients or not args.host or args.model_profile in CONFIG.PROFILE_TIERS:
             shared_profile = True
         if not clients:
             clients = choose_clients()
+        if args.dev is not None and (clients != ["codex"] or args.scope == "user" or args.instructions is False):
+            raise ValueError("--dev/--no-dev require one Codex client, project scope and managed instructions")
         if len(clients) > 1:
             return setup_clients(args, clients, interactive)
         args.host = clients[0]
 
-        # Fail before configuration menus when the required host is unavailable.
-        if not args.roles_only and not args.dry_run and not shutil.which(host_cli(args.host)):
-            raise ValueError(f"{host_cli(args.host)} CLI not found. Install it or use --roles-only.")
-        shortcut = command_destination(keep_existing=True) if not args.roles_only and args.command else None
         project = select_target(args, interactive)
+        if args.dev is not None and args.scope != "project":
+            raise ValueError("--dev/--no-dev require project scope")
+        dev_receipt = CONFIG._ensure_safe_project_path(project, ".plex/dev.json") if args.scope == "project" else None
+        dev_enabled = args.host == "codex" and (args.dev if args.dev is not None else bool(dev_receipt and dev_receipt.exists()))
+        dev_plan = plan_dev(project, dev_enabled) if args.host == "codex" and args.scope == "project" and (dev_enabled or dev_receipt.exists()) else None
+        if dev_enabled and args.instructions is False:
+            raise ValueError("Development mode requires the managed AGENTS.md block")
+
+        # Fail before configuration menus when the required host is unavailable.
+        if not dev_enabled and not args.roles_only and not args.dry_run and not shutil.which(host_cli(args.host)):
+            raise ValueError(f"{host_cli(args.host)} CLI not found. Install it or use --roles-only.")
+        shortcut = command_destination(keep_existing=True) if not dev_enabled and not args.roles_only and args.command else None
         config_root = CONFIG.installation_root(project, args.host, args.scope)
 
         # Reuse the core path checks before reading or planning any managed file.
@@ -728,6 +888,21 @@ def main(argv=None, *, shared_profile=False, selection=None):
         existing = tomllib.loads(source_bytes.decode("utf-8")) if source_bytes is not None else None
         if existing is not None:
             CONFIG.resolve(existing)
+        receipt_path = CONFIG._ensure_safe_project_path(config_root, ".plex/applied.json")
+        receipt = CONFIG._validate_receipt_structure(json.loads(receipt_path.read_text()), args.scope) if receipt_path.is_file() else {"hosts": {}}
+        installed = receipt["hosts"].get(args.host)
+        if installed and interactive and setup_mode is None:
+            changing = any(value is not None for value in (
+                args.team, args.model_profile, args.interaction, args.max_agents, args.instructions, args.dev))
+            setup_mode = choose("Existing Plex installation", {
+                "refresh": "Update managed files; keep saved settings (explicit CLI overrides still apply)",
+                "configure": "Reconfigure team, profile, interaction and concurrency",
+            }, "configure" if changing else "refresh")
+        if installed and not interactive and setup_mode is None:
+            setup_mode = "refresh"
+        configure_interactively = interactive and setup_mode != "refresh"
+        if installed and setup_mode == "refresh" and args.instructions is None:
+            args.instructions = dev_enabled or bool(installed.get("instructions"))
         def saved_profile(config):
             return config.get("model_profile", "inherit")
 
@@ -738,7 +913,7 @@ def main(argv=None, *, shared_profile=False, selection=None):
             )
 
         catalog = CONFIG.list_catalog()
-        if interactive:
+        if configure_interactively:
             if args.team is None:
                 choices = {
                     name: ("Standalone" if name == "pnet" else "Requires BMad skills + project runtime")
@@ -752,7 +927,7 @@ def main(argv=None, *, shared_profile=False, selection=None):
                 selected = choose("Work mode", choices, current)
                 args.team = None if selected in {"keep-custom", current} and existing else selected
         preview_profile = args.model_profile
-        if interactive and preview_profile is None and existing:
+        if configure_interactively and preview_profile is None and existing:
             selected_team = args.team or CONFIG.resolve(existing)["team"] or (
                 "bmad" if existing.get("process") == "bmad" else "pnet")
             if saved_profile(existing) not in catalog["model_profiles"][selected_team]:
@@ -770,7 +945,8 @@ def main(argv=None, *, shared_profile=False, selection=None):
             if action is None and interactive:
                 action = choose("BMad project runtime is missing or incomplete", {
                     "init": "Initialize with installed official BMad setup (no model calls)",
-                    "pnet": "Use pnet without BMad", "cancel": "Cancel without changes",
+                    **({"pnet": "Use pnet without BMad"} if setup_mode != "refresh" else {}),
+                    "cancel": "Cancel without changes",
                 }, "init")
             if action == "cancel":
                 if selection is not None:
@@ -805,7 +981,7 @@ def main(argv=None, *, shared_profile=False, selection=None):
                     "or run the official bmad skill's 'bmad setup' in this project.\n"
                     "Choose team pnet to use Plex without BMad."
                 )
-        if interactive:
+        if configure_interactively:
             if args.model_profile is None:
                 choices = {}
                 profile_team = team_config.get("team") or ("bmad" if team_config.get("process") == "bmad" else "pnet")
@@ -852,9 +1028,20 @@ def main(argv=None, *, shared_profile=False, selection=None):
         candidate = build_candidate(args.model_profile,
                                              max_agents=args.max_agents, host_overrides=host_overrides)
         resolved = CONFIG.resolve(tomllib.loads(candidate))
-        if shared_profile and resolved["model_profile"] not in ("inherit", *CONFIG.PROFILE_TIERS):
+        if (shared_profile and resolved["model_profile"] not in ("inherit", *CONFIG.PROFILE_TIERS)
+                and not (setup_mode == "refresh" and existing
+                         and resolved["model_profile"] == saved_profile(existing))):
             raise ValueError("Choose one shared profile: inherit, basic, plus, pro or pro-plus; client-specific profiles remain available through legacy --host setup")
-        if interactive and args.max_agents is None:
+        if configure_interactively and args.interaction is None:
+            args.interaction = choose("Interaction mode", {
+                "interactive": "Ask about meaningful choices; collaborate step by step",
+                "balanced": "Resolve routine choices; ask only for consequential decisions (recommended)",
+                "auto": "Do not wait for answers; report blockers and continue independent work",
+            }, resolved["interaction"])
+            candidate = build_candidate(args.model_profile,
+                                        max_agents=args.max_agents, host_overrides=host_overrides)
+            resolved = CONFIG.resolve(tomllib.loads(candidate))
+        if configure_interactively and args.max_agents is None:
             print("\nOne shared limit for concurrent Plex assignments across all roles. Client limits still apply.")
             while True:
                 answer = ask_text("Parallel agents", str(resolved["max_agents"])).strip()
@@ -896,9 +1083,11 @@ def main(argv=None, *, shared_profile=False, selection=None):
             receipt_path = CONFIG._ensure_safe_project_path(config_root, ".plex/applied.json")
             receipt = CONFIG._validate_receipt_structure(json.loads(receipt_path.read_text()), args.scope) if receipt_path.is_file() else {"hosts": {}}
             record = receipt["hosts"].get(args.host, {}).get("instructions")
-            instruction_plan = CONFIG.plan_instructions(config_root, args.host, args.scope, record)
+            instruction_plan = CONFIG.plan_instructions(config_root, args.host, args.scope, record, dev=dev_enabled)
 
         heading("Plan")
+        if setup_mode == "refresh":
+            print("  Update existing installation; saved settings retained unless explicitly overridden.")
         print(f"  Client        {args.host}\n  Team scope    {args.scope}\n  Settings      {config_root / '.plex'}")
         if args.scope == "project":
             print(f"  Project       {project}")
@@ -918,7 +1107,7 @@ def main(argv=None, *, shared_profile=False, selection=None):
                 print("  Existing project configuration/roles may override user defaults; they will be preserved.")
         if instruction_plan:
             print(f"  Instructions {instruction_plan['path']} (Plex block only)")
-            print(CONFIG.instruction_block().decode())
+            print(CONFIG.instruction_block(dev=dev_enabled).decode())
         print(f"  Mode     {resolved['team'] or 'custom'}\n  Profile  {resolved['model_profile']}")
         if len(refresh_clients) > 1:
             print(f"  Shared team/profile: refresh configured clients {', '.join(refresh_clients)}")
@@ -932,7 +1121,13 @@ def main(argv=None, *, shared_profile=False, selection=None):
         for role in state["hosts"][args.host].get("installed_roles", []):
             if role not in rendered:
                 print(f"  Archive  plex-{role}")
-        commands = [] if args.roles_only else plugin_commands(args.host, args.scope)
+        commands = [] if args.roles_only or dev_enabled else plugin_commands(args.host, args.scope)
+        if dev_enabled:
+            print(f"  Development source: {ROOT}")
+            print("  Project skills: .agents/skills/plex, .agents/skills/plex-setup (live symlinks)")
+            print("  Shared Plex plugin: disabled only in this trusted project; other projects unchanged.")
+        elif dev_plan:
+            print("  Leave development mode: remove owned links and restore project plugin discovery.")
         if commands:
             print("\n  Shared plugin: installed for this user/client profile; skills are not copied into the project.")
             print(f"  Shared source: {ROOT} (keep this directory after installation)")
@@ -944,7 +1139,7 @@ def main(argv=None, *, shared_profile=False, selection=None):
         if resolved["process"] == "bmad":
             print("  BMad: verify runtime and active skills in each working project before use.")
         if selection is not None:
-            selection.update(team=resolved["team"], max_agents=resolved["max_agents"], model_profile=resolved["model_profile"], interaction=resolved["interaction"])
+            selection.update(setup_mode=setup_mode, instructions=args.instructions, team=resolved["team"], max_agents=resolved["max_agents"], model_profile=resolved["model_profile"], interaction=resolved["interaction"])
         if bmad_init:
             print(f"  BMad init {bmad_init['skill']} -> {project / '_bmad'} (official setup)")
         if args.dry_run:
@@ -974,8 +1169,9 @@ def main(argv=None, *, shared_profile=False, selection=None):
             plugin_started = True
             for command in commands:
                 run(command, project)
-            verify_plugin(args.host, project)
-            print("  OK: shared plugin installed and enabled.")
+            if not dev_plan:
+                verify_plugin(args.host, project)
+            print("  OK: shared plugin installed.")
         heading(f"2 / 2  Apply {args.scope} roles" if commands else f"Apply {args.scope} roles")
         if (preset.read_bytes() if preset.is_file() else None) != source_bytes:
             raise ValueError("Project settings changed after preview; review the new settings and retry.")
@@ -983,15 +1179,19 @@ def main(argv=None, *, shared_profile=False, selection=None):
             current = instruction_plan["path"].read_bytes() if instruction_plan["path"].is_file() else None
             if current != instruction_plan["before"]:
                 raise ValueError("Instruction file changed after preview; review and retry.")
-        result = CONFIG.apply_project(project, args.host, args.team, args.model_profile,
-                                      max_agents=args.max_agents, host_overrides=host_overrides, interaction=args.interaction,
-                                      scope=args.scope, instructions=args.instructions)
+        with apply_dev(dev_plan) if dev_plan else nullcontext():
+            result = CONFIG.apply_project(project, args.host, args.team, args.model_profile,
+                                          max_agents=args.max_agents, host_overrides=host_overrides, interaction=args.interaction,
+                                          scope=args.scope, instructions=args.instructions)
         for client in refresh_clients:
             if client != args.host:
-                CONFIG.apply_project(project, client, scope=args.scope, instructions=args.instructions)
+                other_instructions = bool(receipt["hosts"][client].get("instructions")) if setup_mode == "refresh" else args.instructions
+                CONFIG.apply_project(project, client, scope=args.scope, instructions=other_instructions)
         for client in refresh_clients:
             if CONFIG.check_project(project, client, args.scope)["status"] != "in_sync":
                 raise ValueError(f"Post-install check failed for client {client}")
+        if commands and dev_plan:
+            verify_plugin(args.host, project)
         print(f"  OK: {len(result['installed_roles'])} roles; configuration in sync.")
         if result["backup_dir"]:
             print(f"  Backups: {config_root / result['backup_dir']}")

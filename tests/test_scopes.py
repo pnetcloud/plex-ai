@@ -8,6 +8,7 @@ from pathlib import Path
 import subprocess
 import sys
 import tempfile
+import tomllib
 import unittest
 from contextlib import redirect_stdout
 from unittest.mock import patch
@@ -47,6 +48,7 @@ class ScopeTests(unittest.TestCase):
                              {'plex-pm', 'plex-explorer', 'plex-researcher', 'plex-dev', 'plex-reviewer', 'plex-qa'})
             self.assertTrue((root / '.plex/preset.toml').is_file())
             self.assertEqual(result['scope'], 'user')
+            self.assertEqual(tomllib.loads((root / '.plex/preset.toml').read_text())['interaction'], 'balanced')
             state = C.check_project(self.project, host, scope='auto')
             self.assertEqual(state['status'], 'in_sync')
             self.assertEqual(state['scope'], 'user')
@@ -74,6 +76,38 @@ class ScopeTests(unittest.TestCase):
                     template.write_bytes(block)
                     with self.assertRaises(ValueError):
                         C.instruction_block()
+
+    def test_legacy_instruction_markers_migrate_or_uninstall_using_receipt(self):
+        for action in ("refresh", "uninstall"):
+            with self.subTest(action=action):
+                project = self.base / action
+                project.mkdir()
+                file = project / "AGENTS.md"
+                file.write_bytes(b"# Personal\r\nPreserve exactly.\r\n")
+                C.apply_project(project, "codex", instructions=True)
+                content = file.read_bytes()
+                start, end = C.instruction_span(content)
+                legacy = content[start:end].replace(C.PLEX_START, C.LEGACY_PLEX_MARKERS[0]).replace(C.PLEX_END, C.LEGACY_PLEX_MARKERS[1])
+                file.write_bytes(content[:start] + legacy + content[end:])
+                receipt_path = project / ".plex/applied.json"
+                receipt = json.loads(receipt_path.read_text())
+                receipt["hosts"]["codex"]["instructions"]["sha256"] = C.sha256_bytes(legacy)
+                receipt_path.write_text(json.dumps(receipt))
+                if action == "refresh":
+                    self.assertEqual(C.check_project(project, "codex")["status"], "needs_refresh")
+                    C.apply_project(project, "codex", instructions=True)
+                    self.assertEqual(file.read_bytes(), content)
+                    self.assertEqual(C.check_project(project, "codex")["status"], "in_sync")
+                else:
+                    C.uninstall_project(project, "codex")
+                    self.assertTrue(file.read_bytes().startswith(b"# Personal\r\nPreserve exactly.\r\n"))
+                    self.assertIsNone(C.instruction_span(file.read_bytes()))
+
+    def test_mixed_instruction_marker_formats_are_rejected(self):
+        for block in (C.PLEX_START + C.LEGACY_PLEX_MARKERS[1],
+                      C.instruction_block() + C.LEGACY_PLEX_MARKERS[0] + C.LEGACY_PLEX_MARKERS[1]):
+            with self.subTest(block=block), self.assertRaisesRegex(ValueError, "Mixed"):
+                C.instruction_span(block)
 
     def test_instruction_updates_preserve_outside_bytes_and_back_up_original(self):
         file = self.project / 'AGENTS.md'
@@ -185,7 +219,7 @@ class ScopeTests(unittest.TestCase):
                                cwd=self.project, capture_output=True, text=True, timeout=60)
         self.assertEqual(prompt.returncode, 0, prompt.stderr)
         visible = json.dumps(json.loads(prompt.stdout))
-        self.assertIn('plex:start', visible)
+        self.assertIn('plex:managed:start', visible)
         self.assertIn('PROJECT_PERSONAL_RULE_PRESERVED', visible)
 
     @unittest.skipUnless(shutil.which('agy'), 'Antigravity CLI unavailable')

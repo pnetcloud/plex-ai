@@ -1,8 +1,8 @@
-<!-- plex:start -->
+<!-- plex:managed:start -->
 ## Plex agent coordination
 This block is managed by the Plex installer; keep personal/project rules outside it.
 Use the installed `plex` skill only when the user invokes Plex or explicitly requests coordinated multi-agent work. It is intended for complex tasks that benefit from specialist assignments; complexity alone does not activate it.
 Otherwise, handle the task normally without loading a Plex coordinator. Even with Plex active, keep small, clear work local and delegate only useful assignments.
 Use `plex-setup` to configure or refresh the team; configuration does not activate coordination.
 Follow the project's instructions, required verification and human decision gates. BMad work requires its installed skills and runtime in the actual working project.
-<!-- plex:end -->
+<!-- plex:managed:end -->

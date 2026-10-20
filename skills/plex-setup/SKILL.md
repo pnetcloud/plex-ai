@@ -29,7 +29,9 @@ only when explicitly selected; it applies to that host's user profile.
 
 ## 2. Inspect and preview
 
-`<plugin-root>` is two directories above this skill folder. The examples below use
+`<plugin-root>` is two directories above this skill folder after resolving its
+symlinks. In development mode this is the working checkout, including its `teams/`.
+The examples below use
 Codex; replace `codex` with `claude` or `antigravity` for the selected host.
 
 ```sh

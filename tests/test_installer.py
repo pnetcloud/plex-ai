@@ -32,6 +32,113 @@ class InstallerTests(unittest.TestCase):
             for host in ("codex", "claude"):
                 self.assertEqual(installer.CONFIG.check_project(Path(temp), host)["status"], "in_sync")
 
+    def test_interactive_interaction_is_selected_once_shared_and_reused(self):
+        spec = importlib.util.spec_from_file_location("plex_mode_installer", ROOT / "setup.py")
+        installer = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(installer)
+        with tempfile.TemporaryDirectory() as temp, redirect_stdout(io.StringIO()):
+            options = ["--project", temp, "--scope", "project", "--roles-only", "--no-instructions",
+                       "--team", "pnet", "--model-profile", "plus", "--max-agents", "2",
+                       "--client", "codex", "--client", "claude"]
+            for expected_default in ("balanced", "auto"):
+                def choose(label, choices, default):
+                    if label == "Interaction mode":
+                        self.assertEqual(default, expected_default)
+                        self.assertEqual(set(choices), set(installer.CONFIG.INTERACTIONS))
+                        return "auto"
+                    return "yes" if label == "Apply this plan?" else default
+                with patch.object(installer.sys.stdin, "isatty", return_value=True), \
+                        patch.object(installer, "choose", side_effect=choose) as menu:
+                    self.assertEqual(installer.main(options), 0)
+                self.assertEqual(sum(call.args[0] == "Interaction mode" for call in menu.call_args_list), 1)
+                self.assertEqual(tomllib.loads((Path(temp) / ".plex/preset.toml").read_text())["interaction"], "auto")
+                for host in ("codex", "claude"):
+                    state = installer.CONFIG.check_project(Path(temp), host)
+                    self.assertEqual(state["resolved"]["interaction"], "auto")
+                    self.assertEqual(state["status"], "in_sync")
+            with patch.object(installer.sys.stdin, "isatty", return_value=True), \
+                    patch.object(installer, "choose", return_value="yes") as menu:
+                self.assertEqual(installer.main([*options, "--interaction", "interactive"]), 0)
+                self.assertNotIn("Interaction mode", [call.args[0] for call in menu.call_args_list])
+            self.assertEqual(tomllib.loads((Path(temp) / ".plex/preset.toml").read_text())["interaction"], "interactive")
+
+    def test_existing_installation_refresh_skips_menus_preserves_legacy_profile_and_instruction_choices(self):
+        spec = importlib.util.spec_from_file_location("plex_refresh_installer", ROOT / "setup.py")
+        installer = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(installer)
+        with tempfile.TemporaryDirectory() as temp, redirect_stdout(io.StringIO()):
+            project = Path(temp).resolve()
+            installer.CONFIG.apply_project(project, "codex", team="pnet", model_profile="openai-plus",
+                                           interaction="auto", max_agents=2,
+                                           host_overrides={"codex": {"dev": {"reasoning": "high"}}})
+            installer.CONFIG.apply_project(project, "claude", instructions=True)
+            preset = project / ".plex/preset.toml"
+            before = preset.read_bytes()
+            def choose(label, choices, default):
+                if label == "Existing Plex installation":
+                    self.assertEqual(default, "refresh")
+                    return "refresh"
+                self.assertEqual(label, "Apply this plan?")
+                return "yes"
+            with patch.object(installer.sys.stdin, "isatty", return_value=True), \
+                    patch.object(installer, "choose", side_effect=choose) as menu, \
+                    patch.object(installer, "ask_text", side_effect=AssertionError("Unexpected settings question")):
+                self.assertEqual(installer.main(["--project", temp, "--scope", "project", "--roles-only",
+                                                 "--client", "codex", "--client", "claude"]), 0)
+            self.assertEqual(sum(call.args[0] == "Existing Plex installation" for call in menu.call_args_list), 1)
+            self.assertEqual(preset.read_bytes(), before)
+            self.assertFalse((project / "AGENTS.md").exists())
+            self.assertTrue((project / "CLAUDE.md").is_file())
+            for host in ("codex", "claude"):
+                self.assertEqual(installer.CONFIG.check_project(project, host)["status"], "in_sync")
+
+    def test_refresh_applies_compatibility_fixes_and_retains_overrides(self):
+        spec = importlib.util.spec_from_file_location("plex_upgrade_installer", ROOT / "setup.py")
+        installer = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(installer)
+        with tempfile.TemporaryDirectory() as temp, redirect_stdout(io.StringIO()):
+            project = Path(temp).resolve()
+            installer.CONFIG.apply_project(project, "codex", team="pnet", model_profile="plus",
+                                           host_overrides={"codex": {"dev": {"reasoning": "high"}}}, instructions=True)
+            preset = project / ".plex/preset.toml"
+            preset.write_text(preset.read_text().replace('interaction = "balanced"\n', ''))
+            file = project / "AGENTS.md"
+            content = file.read_bytes()
+            start, end = installer.CONFIG.instruction_span(content)
+            legacy = content[start:end].replace(installer.CONFIG.PLEX_START, b"<!-- plex:start -->").replace(installer.CONFIG.PLEX_END, b"<!-- plex:end -->")
+            file.write_bytes(b"Personal instructions.\n" + legacy + b"\n")
+            receipt_path = project / ".plex/applied.json"
+            receipt = json.loads(receipt_path.read_text())
+            receipt["hosts"]["codex"]["instructions"]["sha256"] = installer.CONFIG.sha256_bytes(legacy)
+            receipt_path.write_text(json.dumps(receipt))
+            with patch.object(installer.sys.stdin, "isatty", return_value=True), \
+                    patch.object(installer, "choose", side_effect=lambda label, choices, default: "refresh" if label == "Existing Plex installation" else "yes"):
+                self.assertEqual(installer.main(["--project", temp, "--scope", "project", "--client", "codex", "--roles-only"]), 0)
+            saved = tomllib.loads(preset.read_text())
+            self.assertEqual(saved["interaction"], "balanced")
+            self.assertEqual(saved["codex"]["dev"], {"reasoning": "high"})
+            self.assertTrue(file.read_bytes().startswith(b"Personal instructions.\n"))
+            self.assertIn(installer.CONFIG.PLEX_START, file.read_bytes())
+            self.assertNotIn(b"<!-- plex:start -->", file.read_bytes())
+            self.assertEqual(installer.CONFIG.check_project(project, "codex")["status"], "in_sync")
+
+    def test_unknown_receipt_format_stops_before_plugin_or_role_writes(self):
+        spec = importlib.util.spec_from_file_location("plex_future_installer", ROOT / "setup.py")
+        installer = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(installer)
+        with tempfile.TemporaryDirectory() as temp, redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()):
+            project = Path(temp).resolve()
+            installer.CONFIG.apply_project(project, "codex")
+            receipt_path = project / ".plex/applied.json"
+            receipt = json.loads(receipt_path.read_text())
+            receipt["future_format"] = 999
+            receipt_path.write_text(json.dumps(receipt))
+            before = {p: p.read_bytes() for p in project.rglob("*") if p.is_file()}
+            with patch.object(installer, "build_plugin") as build:
+                self.assertEqual(installer.main(["--project", temp, "--client", "codex", "--roles-only", "--yes"]), 1)
+                build.assert_not_called()
+            self.assertEqual(before, {p: p.read_bytes() for p in project.rglob("*") if p.is_file()})
+
     def test_preview_and_roles_only_do_not_build_plugins(self):
         spec = importlib.util.spec_from_file_location("plex_installer", ROOT / "setup.py")
         installer = importlib.util.module_from_spec(spec)
@@ -197,7 +304,7 @@ class InstallerTests(unittest.TestCase):
         spec.loader.exec_module(installer)
         with tempfile.TemporaryDirectory() as temp, redirect_stdout(io.StringIO()) as output:
             with patch.object(installer.sys.stdin, "isatty", return_value=True), \
-                    patch("builtins.input", side_effect=["invalid", "pnet", "inherit", "0", "bad", "", "no"]):
+                    patch("builtins.input", side_effect=["invalid", "pnet", "inherit", "balanced", "0", "bad", "", "no"]):
                 result = installer.main(["--scope", "project", "--no-instructions", "--project", temp, "--host", "codex", "--roles-only"])
             self.assertEqual(result, 0)
             self.assertIn("Choose a listed name", output.getvalue())
@@ -217,7 +324,10 @@ class InstallerTests(unittest.TestCase):
             common = ["--project", temp, "--host", "codex", "--roles-only", "--scope", "project", "--no-instructions"]
             for default in ("3", "6"):
                 with patch.object(installer.sys.stdin, "isatty", return_value=True), \
-                        patch.object(installer, "choose", side_effect=["pnet", "inherit", "yes"]), \
+                        patch.object(installer, "choose", side_effect=lambda label, choices, default: {
+                            "Existing Plex installation": "configure", "Work mode": "pnet",
+                            "Model profile": "inherit", "Interaction mode": "balanced", "Apply this plan?": "yes",
+                        }.get(label, default)), \
                         patch.object(installer, "ask_text", return_value="6") as prompt:
                     self.assertEqual(installer.main(common), 0)
                 prompt.assert_called_once_with("Parallel agents", default)

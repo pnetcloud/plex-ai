@@ -426,26 +426,35 @@ def _ensure_safe_project_path(project_root: Path, relpath: str) -> Path:
     return target
 
 
-PLEX_START = b"<!-- plex:start -->"
-PLEX_END = b"<!-- plex:end -->"
+PLEX_START = b"<!-- plex:managed:start -->"
+PLEX_END = b"<!-- plex:managed:end -->"
+LEGACY_PLEX_MARKERS = (b"<!-- plex:start -->", b"<!-- plex:end -->")
 
 
-def instruction_block() -> bytes:
+def instruction_block(dev=False) -> bytes:
     block = (ROOT / "skills/plex-setup/assets/AGENTS.md.template").read_bytes().removesuffix(b"\n")
+    if dev:
+        extra = (ROOT / "skills/plex-setup/assets/AGENTS.dev.md.template").read_bytes().strip()
+        block = block.replace(PLEX_END, b"\n" + extra + b"\n" + PLEX_END)
     if instruction_span(block) != (0, len(block)):
         raise ValueError("AGENTS.md.template must contain exactly one complete Plex block and no outside text")
     return block
 
 
 def instruction_span(data: bytes):
-    if not data.count(PLEX_START) and not data.count(PLEX_END):
+    pairs = [(start, end) for start, end in ((PLEX_START, PLEX_END), LEGACY_PLEX_MARKERS)
+             if start in data or end in data]
+    if not pairs:
         return None
-    if data.count(PLEX_START) != 1 or data.count(PLEX_END) != 1:
+    if len(pairs) != 1:
+        raise ValueError("Mixed legacy and managed Plex instruction markers")
+    start_marker, end_marker = pairs[0]
+    if data.count(start_marker) != 1 or data.count(end_marker) != 1:
         raise ValueError("Duplicate or unbalanced Plex instruction markers")
-    start, end = data.index(PLEX_START), data.index(PLEX_END)
+    start, end = data.index(start_marker), data.index(end_marker)
     if end < start:
         raise ValueError("Reversed Plex instruction markers")
-    return start, end + len(PLEX_END)
+    return start, end + len(end_marker)
 
 
 def instruction_relpath(root: Path, host: str, scope: str) -> str:
@@ -473,14 +482,16 @@ def instruction_relpath(root: Path, host: str, scope: str) -> str:
     return default
 
 
-def plan_instructions(root: Path, host: str, scope: str, record=None) -> dict:
+def plan_instructions(root: Path, host: str, scope: str, record=None, dev=None) -> dict:
     relpath = instruction_relpath(root, host, scope)
     path = _ensure_safe_project_path(root, relpath)
     before = path.read_bytes() if path.exists() else None
     data = before or b""
     span = instruction_span(data)
     current = data[slice(*span)] if span else None
-    block = instruction_block()
+    if dev is None:
+        dev = host == "codex" and scope == "project" and _ensure_safe_project_path(root, ".plex/dev.json").is_file()
+    block = instruction_block(dev=dev)
     if record:
         if record["relpath"] != relpath:
             raise ValueError("Managed Plex instructions are masked by another instruction file")
@@ -806,7 +817,7 @@ def build_preset_toml(
     if host_overrides is not None:
         keys(table(host_overrides, "host overrides"), set(HOSTS), "host overrides")
         config.update(host_overrides)
-    resolve(config)
+    config.setdefault("interaction", resolve(config)["interaction"])
 
     lines = []
     if "team" in config:
@@ -978,6 +989,7 @@ def _apply_project(
 
     if (
         existing_preset_bytes is not None
+        and "interaction" in existing_config
         and team is None
         and model_profile is None
         and max_agents is None

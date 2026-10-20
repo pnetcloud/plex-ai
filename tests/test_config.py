@@ -39,6 +39,21 @@ class ConfigTests(unittest.TestCase):
             with self.subTest(value=value), self.assertRaisesRegex(ValueError, "interaction"):
                 resolve({"team": "pnet", "interaction": value})
 
+    def test_default_interaction_is_written_for_new_and_legacy_presets(self):
+        for host in MODULE.HOSTS:
+            with self.subTest(host=host), tempfile.TemporaryDirectory() as temp:
+                project = Path(temp).resolve()
+                apply_project(project, host)
+                preset = project / ".plex/preset.toml"
+                self.assertEqual(tomllib.loads(preset.read_text())["interaction"], "balanced")
+                preset.write_text(preset.read_text().replace('interaction = "balanced"\n', '')
+                                  + f'\n[{host}.dev]\nreasoning = "high"\n')
+                apply_project(project, host)
+                config = tomllib.loads(preset.read_text())
+                self.assertEqual(config["interaction"], "balanced")
+                self.assertEqual(config[host]["dev"], {"reasoning": "high"})
+                self.assertEqual(check_project(project, host)["status"], "in_sync")
+
     def test_apply_interaction_change_preserves_roles_and_survives_team_switch(self):
         with tempfile.TemporaryDirectory() as temp:
             project = Path(temp).resolve()

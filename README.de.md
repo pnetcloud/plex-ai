@@ -8,7 +8,7 @@ Plex ist ein **Agent Harness für Multi-Agent-Orchestrierung und Koordination** 
 OpenAI Codex, Anthropic Claude Code und Google Antigravity. Ein wiederverwendbares
 Team installieren, Modellprofil wählen und Plex mit Umsetzung, Review und Prüfung beauftragen.
 
-**[v0.4.0 Preview](https://github.com/pnetcloud/plex-ai/releases/tag/v0.4.0)** — Open Source, MIT. Zum Ausprobieren; Schnittstellen können sich ändern.
+**[v0.5.0 Preview](https://github.com/pnetcloud/plex-ai/releases/tag/v0.5.0)** — Open Source, MIT. Zum Ausprobieren; Schnittstellen können sich ändern.
 
 ## Schnellstart
 
@@ -30,10 +30,15 @@ Der Installer öffnet ein interaktives Menü:
 1. Clients mit **Leertaste** auswählen, mit **Enter** fortfahren (ohne uv per Nummerneingabe).
 2. Für diesen Test **Project** beibehalten und den Projektordner bestätigen.
 3. Das eigenständige Team **pnet** und **Inherit** für die Modelleinstellungen der Sitzung wählen.
-4. Den Installationsplan jedes Clients prüfen und bestätigen.
+4. **Balanced** für normale Zusammenarbeit wählen, alternativ **Interactive** / **Auto**.
+5. Den Installationsplan jedes Clients prüfen und bestätigen.
 
 Das installiert das gemeinsame Plugin, native Teamrollen und einen verwalteten Anweisungsblock.
 Denselben Befehl erneut ausführen, um Updates zu laden und Setup zu öffnen.
+
+[Installation und alle Optionen](readme/translations/de/installation.md).
+
+Für bereits eingerichtete Clients im gewählten Bereich: **Update only** behält Einstellungen; **Reconfigure** öffnet die Setup-Menüs erneut.
 
 ## Erste Aufgabe ausprobieren
 
@@ -72,7 +77,7 @@ Zum Ändern der Einstellungen oder Einrichten eines anderen Projekts **im Termin
 ```
 
 Dieser Befehl öffnet Setup; die Plex-Anfrage im Client startet Koordination.
-Updates, Benutzerbereich, Flags und Overrides: [Konfiguration](docs/translations/de/configuration.md).
+Team-/Profil-Overrides: [Konfiguration](docs/translations/de/configuration.md).
 
 ## Prüfen, aktualisieren oder entfernen
 
@@ -84,6 +89,18 @@ plex uninstall --dry-run
 
 `plex uninstall` zum Bestätigen starten. Falls `plex` nicht im PATH liegt, `~/.local/bin/plex` verwenden.
 Installation und Updates wählen veröffentlichte Versionen einschließlich Vorschauen.
+
+## Plex lokal entwickeln
+
+Aus dem Plex-Arbeitsverzeichnis ein Codex-Testprojekt verbinden:
+
+```sh
+./setup.sh --dev --client codex --project /path/to/test-project
+```
+
+Live-Links verwenden diesen Checkout; der verwaltete Anweisungsblock verlangt die projektlokalen Plex-Skills. Das gemeinsame Plugin wird nur in diesem Projekt deaktiviert. Mit `--no-dev` zur normalen Installation zurückkehren. Codex nach Änderungen neu öffnen.
+
+[Installation und alle Optionen](readme/translations/de/installation.md).
 
 ## Weiterführend
 

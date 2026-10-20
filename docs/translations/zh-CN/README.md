@@ -7,12 +7,14 @@ Plex 在 Codex、Claude Code 和 Antigravity 中配置并协调智能体团队�
 | 指南 | 内容 |
 |---|---|
 | [关于 Plex](product.md) | 目标、原则和范围 |
-| [配置](configuration.md) | 安装、团队、配置档、更新和覆盖设置 |
+| [安装与所有参数](../../../readme/translations/zh-CN/installation.md) | 安装、开发模式与所有 CLI 参数 |
+| [配置](configuration.md) | 团队、模型配置与覆盖设置 |
 | [兼容性](host-compatibility.md) | 原生集成、模型限制和验证范围 |
 | [架构](architecture.md) | 配置、安装与协调 |
 | [角色契约](role-contracts.md) | 职责和执行指令 |
 | [开发](development.md) | 源码布局与检查 |
 | [测试与效率](testing.md) | 实测结果、token、成本和质量观察 |
+| [发布说明](releases/v0.5.0.md) | v0.5.0 预览版：内容、安装和限制 |
 | [发布说明](releases/v0.4.0.md) | v0.4.0 预览版：内容、安装和限制 |
 | [发布说明](releases/v0.3.1.md) | v0.3.1 预览版：内容、安装和限制 |
 | [发布说明](releases/v0.3.0.md) | v0.3.0 预览版：内容、安装和限制 |
