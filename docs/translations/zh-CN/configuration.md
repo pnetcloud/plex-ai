@@ -70,6 +70,23 @@ plex uninstall
 来自其他副本的现有命令、外部文件或失效链接会保留并提示，不会阻止正常安装。
 安装器会显示自己的启动路径。显式 `--install-command` 仍拒绝覆盖无关命令。
 
+项目范围的 `bmad` 团队缺少运行时时，安装器提供官方初始化、切换到 `pnet` 或取消。
+缺少 BMad setup 技能时，另行提供用户范围的依赖安装。必须明确批准：选中的用户技能
+可能被替换，并由其他项目共享。现有插件保持不变。
+
+`--install-bmad` 授权安装和项目初始化；`--init-bmad` 使用已安装技能。
+`--yes` 接受显示的模块默认值，`--dry-run` 不写入任何文件。确认计划后运行官方 BMad setup，
+只询问未回答的模块问题。后续步骤失败时，已创建运行时和依赖仍会保留。
+
+新安装使用 `skills@1.7.4` 和官方 BMad 修订 `495ef6e0996d07b23359cc4d6c73a1aa2f3ba5ad`，
+仅选择团队入口和工作流技能、`bmad` hub 及两个模块记录。包含当前插件 marketplace 尚未提供的 PO。
+需要 Node.js/npm 和 `uv`。官方 Skills CLI 支持 Codex、Claude Code 和 Antigravity。
+
+发现时优先使用项目和用户的直接技能目录。也支持已安装且启用的 Codex/Claude Toolbox 插件；
+不能仅凭缓存目录认定已安装。可用 `--bmad-skill /path/to/installed/bmad` 明确指定 hub。
+用户范围角色仍要求每个工作项目具备运行时。
+
+
 ## 团队与配置档
 
 | 团队 | 角色 | 工作方式 |

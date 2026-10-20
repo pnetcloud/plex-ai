@@ -38,7 +38,7 @@ BMad owns their planning, implementation, review and applicable checkpoints.
 
 ## Scope
 
-Plex has no separate daemon or UI. It does not install BMad, replace its workflows,
+Plex has no separate daemon or UI. It installs selected BMad skill dependencies only with explicit authorization. It does not replace BMad workflows,
 deploy applications or guarantee model routing for workflow-owned children.
 Gemini models through Antigravity do not imply Gemini CLI support.
 

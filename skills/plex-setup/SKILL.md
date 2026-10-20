@@ -55,7 +55,10 @@ skills from the host's active inventory. Project-scoped setup also requires a
 working BMad runtime in that project; use its installed configuration resolver to
 verify it before applying. User-scoped role registration does not require a runtime
 in the user's home; verify each working project before BMad execution.
-Report missing or ambiguous prerequisites; do not install BMad or silently change teams.
+Report missing or ambiguous prerequisites. Offer the checkout installer's official
+BMad selected-skill installation/initialization flow only with explicit authorization
+(`--install-bmad` / `--init-bmad`); disclose shared user-skill scope and possible replacement of selected files. Do not silently
+change teams, upgrade BMad generations or invent another runtime bootstrap.
 
 ## 3. Apply and verify
 

@@ -31,7 +31,7 @@ harness 提供可复用的配置。
 
 ## 范围
 
-Plex 没有独立守护进程或界面，不安装 BMad、不替换其工作流、不部署应用，也不保证工作流内部子智能体的模型路由。
+Plex 没有独立守护进程或界面，仅在明确授权后安装 所选 BMad 技能依赖，不替换其工作流、不部署应用，也不保证工作流内部子智能体的模型路由。
 通过 Antigravity 使用 Gemini 模型不代表支持 Gemini CLI。
 
 参见[配置](configuration.md)、[兼容性](host-compatibility.md)和[实测结果](testing.md)。

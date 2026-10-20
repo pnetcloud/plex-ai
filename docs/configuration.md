@@ -62,18 +62,42 @@ Project scope is the default. The host CLI must be available.
 
 Full setup installs the shared Plex plugin and configures native roles/instructions.
 The plugin remains shared; project skills are not duplicated. Keep its source/export
-available while a local marketplace refers to it. BMad project setup requires an
-existing BMad runtime and the appropriate installed skills.
+available while a local marketplace refers to it. BMad project setup requires the appropriate installed skills and project runtime;
+the installer can initialize missing runtime through installed official BMad setup.
 
 Rerun setup to refresh or switch team/profile. Existing overrides are preserved;
 new definitions reach installed roles only after refresh. Start a fresh host session
 to load changed skills/roles. A shared project-profile change refreshes already
 configured clients; a client without a receipt is not installed implicitly.
 
+For a project-scoped `bmad` team without runtime, setup offers official
+initialization, switching to `pnet`, or cancellation. If the BMad setup skill is
+missing, it offers a separate user-wide dependency installation. Explicit approval
+is required: selected user skill files may be replaced and other projects share
+them. Existing plugins are left unchanged.
+
+`--install-bmad` authorizes that installation and project initialization;
+`--init-bmad` initializes from already installed skills. With `--yes`, displayed
+module defaults are accepted. `--dry-run` writes nothing. Setup invokes BMad's
+official script after plan confirmation, asking only unanswered module questions.
+Runtime and installed dependencies remain if a later step fails.
+
+Fresh installations use `skills@1.7.4` and the official BMad revision
+`495ef6e0996d07b23359cc4d6c73a1aa2f3ba5ad`, selecting only the team's entry/workflow
+skills, the `bmad` hub and two module records. This includes PO, which the current
+plugin marketplace lacks. Node.js/npm and `uv` are required. Codex, Claude Code and
+Antigravity are supported by the official Skills CLI.
+
+Direct project/user skills are preferred during discovery. Enabled installed
+Codex/Claude Toolbox plugins are also supported; arbitrary cache folders are not
+installation evidence. Use `--bmad-skill /path/to/installed/bmad` for an explicit
+hub. User-scoped roles still require runtime in every working project.
+
+
 | Option | Behavior |
 |---|---|
 | `--dry-run` | Preview without writes |
-| `--roles-only` | Apply roles/state without native plugin installation |
+| `--roles-only` | Skip Plex plugin installation; explicit BMad dependency flags still apply |
 | `--no-instructions` | Skip managed instruction integration |
 | `--no-command` | Skip the `~/.local/bin/plex` shortcut |
 | `--install-command` | Install only that checkout shortcut |
@@ -85,6 +109,7 @@ An existing command from another checkout, a foreign file or a broken link is
 kept with a notice; it does not block normal setup. The installer prints its own
 entrypoint when the existing command is retained. Explicit `--install-command`
 still refuses to overwrite an unrelated command.
+
 
 ## Teams and profiles
 

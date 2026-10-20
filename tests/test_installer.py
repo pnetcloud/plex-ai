@@ -230,19 +230,166 @@ class InstallerTests(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertEqual(tomllib.loads(source.read_text())["max_agents"], 2)
 
-    def test_interactive_bmad_without_runtime_stops_before_model_selection(self):
+    def test_missing_bmad_can_switch_to_pnet_without_initialization(self):
+        spec = importlib.util.spec_from_file_location("plex_bmad_fallback", ROOT / "setup.py")
+        installer = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(installer)
+        def choose(label, choices, default):
+            if "runtime" in label:
+                return "pnet"
+            return "yes" if label == "Apply this plan?" else default
+        with tempfile.TemporaryDirectory() as temp, redirect_stdout(io.StringIO()), \
+                patch.object(installer.sys.stdin, "isatty", return_value=True), \
+                patch.object(installer, "choose", side_effect=choose), \
+                patch.object(installer, "ask_text", side_effect=lambda label, default: default), \
+                patch.object(installer, "plan_bmad_init") as plan:
+            self.assertEqual(installer.main(["--project", temp, "--host", "codex", "--scope", "project",
+                                             "--team", "bmad", "--roles-only", "--no-instructions"]), 0)
+            plan.assert_not_called()
+            self.assertFalse((Path(temp) / "_bmad").exists())
+            self.assertEqual(json.loads((Path(temp) / ".plex/resolved.json").read_text())["team"], "pnet")
+
+    def test_bmad_init_dry_run_never_discovers_or_writes_runtime(self):
+        spec = importlib.util.spec_from_file_location("plex_bmad_preview", ROOT / "setup.py")
+        installer = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(installer)
+        with tempfile.TemporaryDirectory() as temp, redirect_stdout(io.StringIO()), \
+                patch.object(installer, "plan_bmad_init") as plan:
+            self.assertEqual(installer.main(["--project", temp, "--host", "codex", "--scope", "project",
+                                             "--team", "bmad", "--init-bmad", "--dry-run"]), 0)
+            plan.assert_not_called()
+            self.assertEqual(list(Path(temp).iterdir()), [])
+
+    def test_bmad_dependency_installation_is_selected_and_verified_for_each_client(self):
+        spec = importlib.util.spec_from_file_location("plex_bmad_dependencies", ROOT / "setup.py")
+        installer = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(installer)
+        for host, agent in installer.BMAD_AGENTS.items():
+            with self.subTest(host=host), tempfile.TemporaryDirectory() as temp, redirect_stdout(io.StringIO()):
+                root = Path(temp)
+                def run(command, project):
+                    self.assertIn(installer.BMAD_SKILLS_SOURCE, command)
+                    self.assertEqual(command[command.index("--agent") + 1], agent)
+                    self.assertIn("bmad-agent-po", command)
+                    self.assertNotIn("*", command)
+                    for name in installer.bmad_required_skills():
+                        path = root / name / "SKILL.md"
+                        path.parent.mkdir(parents=True, exist_ok=True)
+                        path.write_text("fixture")
+                with patch.object(installer.shutil, "which", return_value="npx"), \
+                        patch.object(installer, "bmad_user_skills", return_value=root), \
+                        patch.object(installer, "run", side_effect=run):
+                    installer.install_bmad_dependencies(ROOT, host)
+                (root / "bmad-agent-po/SKILL.md").unlink()
+                with patch.object(installer.shutil, "which", return_value="npx"), \
+                        patch.object(installer, "bmad_user_skills", return_value=root), \
+                        patch.object(installer, "run"):
+                    with self.assertRaisesRegex(ValueError, "bmad-agent-po"):
+                        installer.install_bmad_dependencies(ROOT, host)
+
+    def test_missing_bmad_plugins_offer_installation_or_clean_cancel(self):
+        spec = importlib.util.spec_from_file_location("plex_bmad_offer", ROOT / "setup.py")
+        installer = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(installer)
+        for answer in ("yes", "no"):
+            with self.subTest(answer=answer), tempfile.TemporaryDirectory() as temp, \
+                    redirect_stdout(io.StringIO()):
+                project = Path(temp).resolve()
+                plan = {"skill": project / "installed/bmad", "command": [], "answers": {}}
+                def choose(label, choices, default):
+                    if label == "Install required official BMad skills for this user?":
+                        return answer
+                    return "yes" if label == "Apply this plan?" else default
+                def initialize(project, plan):
+                    scripts = project / "_bmad/scripts"
+                    scripts.mkdir(parents=True)
+                    for name in installer.BMAD_RUNTIME_SCRIPTS:
+                        (scripts / name).write_text("print('{}')")
+                with patch.object(installer.sys.stdin, "isatty", return_value=True), \
+                        patch.object(installer, "choose", side_effect=choose), \
+                        patch.object(installer, "ask_text", side_effect=lambda label, default: default), \
+                        patch.object(installer, "plan_bmad_init", side_effect=[installer.BMadNotInstalled("missing"), plan]), \
+                        patch.object(installer, "install_bmad_dependencies") as install, \
+                        patch.object(installer, "initialize_bmad", side_effect=initialize):
+                    self.assertEqual(installer.main(["--project", str(project), "--scope", "project", "--host", "codex",
+                                                     "--team", "bmad", "--roles-only", "--no-instructions"]), 0)
+                    if answer == "yes":
+                        install.assert_called_once_with(project, "codex")
+                        self.assertEqual(len(list((project / ".codex/agents").glob("plex-*.toml"))), 7)
+                    else:
+                        install.assert_not_called()
+                        self.assertEqual(list(project.iterdir()), [])
+
+    def test_bmad_init_plan_asks_only_official_questions_and_cleans_answer_file(self):
+        spec = importlib.util.spec_from_file_location("plex_bmad_init", ROOT / "setup.py")
+        installer = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(installer)
+        with tempfile.TemporaryDirectory() as temp, redirect_stdout(io.StringIO()):
+            project = Path(temp).resolve()
+            skill = project / "installed/bmad"
+            questions = [{"module": "method", "key": "output.folder", "prompt": "Output folder?",
+                          "default": "docs"}]
+            def run(command, cwd):
+                if "--list-config-questions" in command:
+                    return json.dumps(questions)
+                answers = Path(command[command.index("--module-answers") + 1])
+                parsed = tomllib.loads(answers.read_text())
+                self.assertEqual(parsed, {"modules": {"method": {"output.folder": 'a"b\nc'}}})
+                runtime = project / "_bmad/scripts"
+                runtime.mkdir(parents=True)
+                for name in installer.BMAD_RUNTIME_SCRIPTS:
+                    (runtime / name).write_text("# official fixture")
+                paths.append(answers)
+                return ""
+            paths = []
+            with patch.object(installer, "find_bmad_skill", return_value=skill), \
+                    patch.object(installer.shutil, "which", return_value="uv"), \
+                    patch.object(installer, "ask_text", return_value='a"b\nc') as ask, \
+                    patch.object(installer, "run", side_effect=run):
+                plan = installer.plan_bmad_init(project, "codex", None, True)
+                ask.assert_called_once_with("Output folder?", "docs")
+                self.assertFalse((project / "_bmad").exists())
+                installer.initialize_bmad(project, plan)
+            self.assertTrue(installer.bmad_runtime_ready(project))
+            self.assertFalse(paths[0].exists())
+
+    def test_bmad_setup_discovery_requires_enabled_installed_codex_plugin(self):
+        spec = importlib.util.spec_from_file_location("plex_bmad_discovery", ROOT / "setup.py")
+        installer = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(installer)
+        with tempfile.TemporaryDirectory() as temp:
+            home = Path(temp).resolve()
+            project = home / "project"
+            project.mkdir()
+            skill = home / ".codex/plugins/cache/bmad/bmad-toolbox/1.0.0/skills/bmad"
+            for name in ("SKILL.md", "module-manifest.toml", "scripts/setup.py", "assets/config.template.toml"):
+                target = skill / name
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_text("fixture")
+            entry = {"name": "bmad-toolbox", "installed": True, "enabled": True,
+                     "marketplaceName": "bmad", "version": "1.0.0"}
+            with patch.dict(os.environ, {"HOME": str(home), "CODEX_HOME": str(home / ".codex")}), \
+                    patch.object(installer, "run", return_value=json.dumps({"installed": [entry]})):
+                self.assertEqual(installer.find_bmad_skill(project, "codex"), skill)
+            for inventory in ({"installed": []}, {"installed": [{**entry, "enabled": False}]}):
+                with patch.dict(os.environ, {"HOME": str(home), "CODEX_HOME": str(home / ".codex")}), \
+                        patch.object(installer, "run", return_value=json.dumps(inventory)):
+                    with self.assertRaisesRegex(ValueError, "Install the official BMad Toolbox"):
+                        installer.find_bmad_skill(project, "codex")
+
+    def test_interactive_bmad_init_can_be_cancelled_without_writes(self):
         spec = importlib.util.spec_from_file_location("plex_installer", ROOT / "setup.py")
         installer = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(installer)
         with tempfile.TemporaryDirectory() as temp, redirect_stdout(io.StringIO()) as output, \
                 redirect_stderr(io.StringIO()) as errors:
             with patch.object(installer.sys.stdin, "isatty", return_value=True), \
-                    patch("builtins.input", side_effect=["bmad"]), \
+                    patch("builtins.input", side_effect=["bmad", "cancel"]), \
                     patch.object(installer, "run") as run, \
                     patch.object(installer.shutil, "which", return_value="/mock/codex"):
                 result = installer.main(["--scope", "project", "--no-instructions", "--project", temp, "--host", "codex"])
-            self.assertEqual(result, 1)
-            self.assertIn("bmad setup", errors.getvalue())
+            self.assertEqual(result, 0)
+            self.assertEqual(errors.getvalue(), "")
             self.assertNotIn("Model profile", output.getvalue())
             run.assert_not_called()
             self.assertEqual(list(Path(temp).resolve().iterdir()), [])

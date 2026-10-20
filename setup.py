@@ -324,6 +324,165 @@ def install_command():
         print('Add this to your shell configuration: export PATH="$HOME/.local/bin:$PATH"')
 
 
+# This official skills revision includes PO; the plugin marketplace still lags it.
+BMAD_SKILLS_SOURCE = "https://github.com/bmad-code-org/BMAD-METHOD/tree/495ef6e0996d07b23359cc4d6c73a1aa2f3ba5ad/skills"
+SKILLS_CLI = "skills@1.7.4"
+BMAD_AGENTS = {"codex": "codex", "claude": "claude-code", "antigravity": "antigravity"}
+
+
+class BMadNotInstalled(ValueError):
+    pass
+
+
+def bmad_plugin_inventory(project, host):
+    data = json.loads(run([host_cli(host), "plugin", "list", "--json"], project))
+    entries = data.get("installed") if host == "codex" and isinstance(data, dict) else data
+    if not isinstance(entries, list):
+        raise ValueError(f"Unsupported {host} plugin inventory for BMad discovery")
+    return [item for item in entries if isinstance(item, dict)]
+
+
+def bmad_plugin_id(item, host):
+    return (f"{item.get('name')}@{item.get('marketplaceName')}" if host == "codex"
+            else item.get("id"))
+
+
+def bmad_required_skills():
+    team = CONFIG.named_file("teams", "bmad")
+    names = {"bmad", "bmod-method", "bmod-core-tools"}
+    names.update(name for bindings in team["skills"].values() for name in bindings)
+    names.update(entry["skill"] for entries in team["workflows"].values() for entry in entries)
+    return sorted(names)
+
+
+def bmad_install_commands(host):
+    return [["npx", "--yes", SKILLS_CLI, "add", BMAD_SKILLS_SOURCE, "--global",
+             "--agent", BMAD_AGENTS[host], "--skill", *bmad_required_skills(), "--yes"]]
+
+
+def bmad_user_skills(host):
+    if host == "codex":
+        return Path.home() / ".agents/skills"
+    if host == "antigravity":
+        return Path.home() / ".gemini/antigravity/skills"
+    return CONFIG.user_root(host) / "skills"
+
+
+def install_bmad_dependencies(project, host):
+    if not shutil.which("npx"):
+        raise ValueError("Installing official BMad skills requires Node.js/npm (npx). Install them and retry.")
+    print("Installing the selected official BMad skills for this user. Existing selected "
+          "user skill files may be replaced; other projects share them. Installed plugins "
+          "are not changed. These changes remain after cancellation or later failure.")
+    for command in bmad_install_commands(host):
+        print("  " + shlex.join(command))
+        run(command, project)
+    root = bmad_user_skills(host)
+    missing = [name for name in bmad_required_skills() if not (root / name / "SKILL.md").is_file()]
+    if missing:
+        raise ValueError(f"Official BMad installation is incomplete: {', '.join(missing)}")
+
+
+BMAD_RUNTIME_SCRIPTS = ("resolve_config.py", "resolve_customization.py", "render_skill.py")
+
+
+def bmad_runtime_ready(project):
+    return all((project / "_bmad/scripts" / name).is_file() for name in BMAD_RUNTIME_SCRIPTS)
+
+
+def find_bmad_skill(project, host, explicit=None):
+    def usable(path):
+        return (all((path / name).is_file() for name in
+                    ("SKILL.md", "scripts/setup.py", "assets/config.template.toml"))
+                and any((path / name).is_file() for name in ("module-manifest.toml", "bmod.toml")))
+
+    if explicit is not None:
+        path = explicit.expanduser().resolve()
+        if not usable(path):
+            raise ValueError(f"Not a BMad setup skill: {path}")
+        return path
+    # Prefer project skills, then user skills; do not scan arbitrary cached versions.
+    for roots in ((project / ".agents/skills", project / CONFIG.host_dotdir(host) / "skills"),
+                  (bmad_user_skills(host), Path.home() / ".agents/skills", CONFIG.user_root(host) / "skills")):
+        candidates = {root.resolve() / "bmad" for root in roots if usable(root / "bmad")}
+        if len(candidates) == 1:
+            return candidates.pop()
+        if candidates:
+            raise ValueError("Multiple BMad setup skills found; select one with --bmad-skill PATH")
+    if host in {"codex", "claude"}:
+        candidates = set()
+        for item in bmad_plugin_inventory(project, host):
+            identity = bmad_plugin_id(item, host)
+            if identity != "bmad-toolbox@bmad" or not item.get("enabled") or item.get("errors"):
+                continue
+            if host == "codex" and not item.get("installed"):
+                continue
+            if host == "claude" and item.get("scope") != "user":
+                continue
+            version = item.get("version")
+            if not isinstance(version, str) or version in {"", ".", ".."} or "/" in version or "\\" in version:
+                raise ValueError("Invalid BMad plugin inventory path")
+            path = CONFIG.user_root(host) / "plugins/cache/bmad/bmad-toolbox" / version / "skills/bmad"
+            if host == "claude" and isinstance(item.get("installPath"), str):
+                path = Path(item["installPath"]) / "skills/bmad"
+            if usable(path):
+                candidates.add(path.resolve())
+        if len(candidates) == 1:
+            return candidates.pop()
+        if candidates:
+            raise ValueError("Multiple enabled BMad Toolbox copies; select one with --bmad-skill PATH")
+    raise BMadNotInstalled(
+        "BMad setup skill is not available. Install the official BMad Toolbox for your client, "
+        "or rerun with --install-bmad to install the required official user skills and initialize this project.\n"
+        "For an existing installation, use --bmad-skill PATH; or choose team pnet without BMad."
+    )
+
+
+def plan_bmad_init(project, host, explicit, interactive):
+    if not shutil.which("uv"):
+        raise ValueError("BMad setup requires uv. Install uv, then rerun setup.")
+    skill = find_bmad_skill(project, host, explicit)
+    command = ["uv", "run", "--no-cache", str(skill / "scripts/setup.py"),
+               "--project-root", str(project), "--skill", str(skill)]
+    questions = json.loads(run([*command, "--list-config-questions"], project))
+    if not isinstance(questions, list):
+        raise ValueError("Unsupported BMad setup question response")
+    answers = {}
+    for question in questions:
+        if not isinstance(question, dict) or any(not isinstance(question.get(key), str)
+                for key in ("module", "key", "prompt", "default")):
+            raise ValueError("Malformed BMad setup question")
+        identity = (question["module"], question["key"])
+        if identity in answers:
+            raise ValueError("Duplicate BMad setup question")
+        if interactive:
+            answer = ask_text(question["prompt"], question["default"])
+        else:
+            answer = question["default"]
+            print(f"  BMad default: {question['prompt']} = {answer}")
+        answers[identity] = answer
+    return {"command": command, "answers": answers, "skill": skill}
+
+
+def initialize_bmad(project, plan):
+    # Let the official setup own materialization and preservation of BMad config.
+    with tempfile.TemporaryDirectory(prefix="plex-bmad-answers-") as temp:
+        command = list(plan["command"])
+        if plan["answers"]:
+            sections = {}
+            for (module, key), value in plan["answers"].items():
+                sections.setdefault(module, []).append(f"{json.dumps(key)} = {json.dumps(value)}")
+            text = "\n\n".join(f"[modules.{json.dumps(module)}]\n" + "\n".join(values)
+                                 for module, values in sections.items()) + "\n"
+            answers_path = Path(temp) / "answers.toml"
+            answers_path.write_text(text)
+            command += ["--module-answers", str(answers_path)]
+        run(command, project)
+    if not bmad_runtime_ready(project):
+        raise ValueError("Official BMad setup did not produce the required runtime; inspect its output before retrying")
+    print("  BMad runtime initialized by its official setup. It remains if a later Plex step fails.")
+
+
 def verify_plugin(host, project):
     data = json.loads(run([host_cli(host), "plugin", "list", "--json"], project))
     entries = data.get("installed", []) if host == "codex" and isinstance(data, dict) else data
@@ -383,6 +542,12 @@ def setup_clients(args, clients, interactive):
                               ("--yes", args.yes), ("--no-command", not args.command)):
             if enabled:
                 options.append(flag)
+        if args.install_bmad:
+            options.append("--install-bmad")
+        if args.init_bmad:
+            options.append("--init-bmad")
+        if args.bmad_skill is not None:
+            options.extend(["--bmad-skill", str(args.bmad_skill)])
         if args.instructions is not None:
             options.append("--instructions" if args.instructions else "--no-instructions")
         selection = {}
@@ -495,6 +660,9 @@ def main(argv=None, *, shared_profile=False, selection=None):
     parser.add_argument("--interaction", choices=CONFIG.INTERACTIONS,
                         help="Interaction mode: interactive, balanced (default), auto; preserve saved selection")
     parser.add_argument("--max-agents", type=int, help="Shared limit of concurrent Plex assignments (positive integer)")
+    parser.add_argument("--install-bmad", action="store_true", help="Install the selected official BMad user skills; may replace selected skill files; project scope also initializes runtime")
+    parser.add_argument("--init-bmad", action="store_true", help="Initialize missing project runtime using installed official BMad setup; --yes accepts module defaults")
+    parser.add_argument("--bmad-skill", type=Path, help="Installed bmad setup skill directory; otherwise discover supported installed sources")
     parser.add_argument("--roles-only", action="store_true", help="Configure roles without installing the plugin")
     parser.add_argument("--command", action=argparse.BooleanOptionalAction, default=True,
                         help="Create ~/.local/bin/plex during full installation (default: enabled)")
@@ -592,15 +760,51 @@ def main(argv=None, *, shared_profile=False, selection=None):
                 preview_profile = "inherit"
         candidate = build_candidate(preview_profile, max_agents=args.max_agents)
         team_config = tomllib.loads(candidate)
-        if CONFIG.resolve(team_config)["process"] == "bmad" and args.scope == "project" and not args.dry_run:
-            for name in ("resolve_config.py", "resolve_customization.py", "render_skill.py"):
-                if not (project / "_bmad/scripts" / name).is_file():
-                    raise ValueError(
-                        "BMad runtime is missing or incomplete. No changes made.\n"
-                        f"Open {args.host} in {project} and ask the official bmad-toolbox bmad skill "
-                        "to run 'bmad setup', then rerun plex.\n"
-                        "Or choose work mode 'pnet' to use Plex without BMad."
-                    )
+        bmad_init = None
+        if CONFIG.resolve(team_config)["process"] == "bmad" and args.install_bmad and not args.dry_run:
+            plugin_started = True
+            install_bmad_dependencies(project, args.host)
+        if (CONFIG.resolve(team_config)["process"] == "bmad" and args.scope == "project"
+                and not args.dry_run and not bmad_runtime_ready(project)):
+            action = "init" if args.init_bmad or args.install_bmad else None
+            if action is None and interactive:
+                action = choose("BMad project runtime is missing or incomplete", {
+                    "init": "Initialize with installed official BMad setup (no model calls)",
+                    "pnet": "Use pnet without BMad", "cancel": "Cancel without changes",
+                }, "init")
+            if action == "cancel":
+                if selection is not None:
+                    selection["cancelled"] = True
+                print("Cancelled. No changes.")
+                return 0
+            if action == "pnet":
+                args.team = "pnet"
+                candidate = build_candidate(preview_profile, max_agents=args.max_agents)
+                team_config = tomllib.loads(candidate)
+            elif action == "init":
+                try:
+                    bmad_init = plan_bmad_init(project, args.host, args.bmad_skill, interactive)
+                except BMadNotInstalled:
+                    if not interactive or args.install_bmad:
+                        raise
+                    print("Official BMad setup is missing. Install the selected user skills; this may replace selected skill files and affects other projects. Existing plugins remain unchanged.")
+                    if choose("Install required official BMad skills for this user?", {
+                        "yes": "Install the team skill set, then initialize this project",
+                        "no": "Cancel; keep user skills and project unchanged",
+                    }, "yes") != "yes":
+                        if selection is not None:
+                            selection["cancelled"] = True
+                        return 0
+                    plugin_started = True
+                    install_bmad_dependencies(project, args.host)
+                    bmad_init = plan_bmad_init(project, args.host, args.bmad_skill, interactive)
+            else:
+                raise ValueError(
+                    "BMad runtime is missing or incomplete. No changes made.\n"
+                    "Rerun with --init-bmad to initialize it using installed official BMad setup, "
+                    "or run the official bmad skill's 'bmad setup' in this project.\n"
+                    "Choose team pnet to use Plex without BMad."
+                )
         if interactive:
             if args.model_profile is None:
                 choices = {}
@@ -741,7 +945,15 @@ def main(argv=None, *, shared_profile=False, selection=None):
             print("  BMad: verify runtime and active skills in each working project before use.")
         if selection is not None:
             selection.update(team=resolved["team"], max_agents=resolved["max_agents"], model_profile=resolved["model_profile"], interaction=resolved["interaction"])
+        if bmad_init:
+            print(f"  BMad init {bmad_init['skill']} -> {project / '_bmad'} (official setup)")
         if args.dry_run:
+            if resolved["process"] == "bmad" and args.install_bmad:
+                print("  BMad selected user-skill installation plan (existing selected skill files may be replaced):")
+                for command in bmad_install_commands(args.host):
+                    print("    " + shlex.join(command))
+            if resolved["process"] == "bmad" and args.scope == "project" and not bmad_runtime_ready(project):
+                print("  BMad runtime is missing: normal setup will offer official initialization.")
             print("\nPreview only. No files or plugins changed.")
             return 0
 
@@ -751,6 +963,8 @@ def main(argv=None, *, shared_profile=False, selection=None):
             print("Cancelled. No changes.")
             return 0
 
+        if bmad_init:
+            initialize_bmad(project, bmad_init)
         if resolved["process"] == "bmad" and args.scope == "project":
             run([sys.executable, str(project / "_bmad/scripts/resolve_config.py"),
                  "--project-root", str(project)], project)
@@ -794,7 +1008,7 @@ def main(argv=None, *, shared_profile=False, selection=None):
     except (OSError, ValueError, subprocess.TimeoutExpired) as error:
         print(f"\nSetup stopped: {error}", file=sys.stderr)
         if plugin_started:
-            print("Native manager may have changed marketplace/plugin state; inspect it before retrying.", file=sys.stderr)
+            print("Shared dependencies or native plugin state may have changed; inspect before retrying.", file=sys.stderr)
         return 1
     except (EOFError, KeyboardInterrupt):
         print("\nSetup interrupted. Check project state if application had started.", file=sys.stderr)

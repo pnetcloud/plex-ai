@@ -8,7 +8,7 @@ Plex is an **agent harness for multi-agent orchestration and coordination** in
 OpenAI Codex, Anthropic Claude Code and Google Antigravity. Install a reusable team,
 choose its model profile, and ask Plex to organize implementation, review and verification.
 
-**[v0.3.1 Preview](https://github.com/pnetcloud/plex-ai/releases/tag/v0.3.1)** — open source, MIT. Ready to try; interfaces may change.
+**[v0.4.0 Preview](https://github.com/pnetcloud/plex-ai/releases/tag/v0.4.0)** — open source, MIT. Ready to try; interfaces may change.
 
 ## Quick start
 
@@ -60,7 +60,7 @@ Remove secrets from any attached logs.
 | Team | Use it for |
 |---|---|
 | **pnet** | General development with PM, explorer, researcher, dev, reviewer and QA; no BMad required |
-| **bmad** | Existing BMad skills/workflows with role-specific models; requires separately installed BMad and project runtime |
+| **bmad** | BMad skills/workflows with role-specific models; setup offers selected skill installation and project initialization |
 
 Choose **Inherit, Basic, Plus, Pro or Pro+**. One tier applies across selected clients;
 per-role overrides are available. Plex only manages its marked instruction block,

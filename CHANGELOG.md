@@ -3,6 +3,14 @@
 Important changes retained in Plex, grouped by release. The releases below are
 previews; interfaces and configuration may change before 1.0.
 
+## [0.4.0] — 2026-10-20
+
+- Offer explicit user-wide installation of selected official BMad skills for Codex,
+  Claude Code and Antigravity, using a verified revision that includes PO; keep existing
+  plugins unchanged and verify all required skills after installation.
+- Offer official BMad project initialization when its runtime is missing, with
+  module questions, explicit unattended flags and a pnet/cancel alternative.
+
 ## [0.3.1] — 2026-10-20
 
 - Continue setup when the optional `plex` command belongs to another checkout or
@@ -58,6 +66,7 @@ First public preview.
   qualitative findings with their limitations.
 - Release under the MIT license with third-party attribution notices.
 
+[0.4.0]: https://github.com/pnetcloud/plex-ai/compare/v0.3.1...v0.4.0
 [0.3.1]: https://github.com/pnetcloud/plex-ai/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/pnetcloud/plex-ai/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/pnetcloud/plex-ai/compare/v0.1.0...v0.2.0

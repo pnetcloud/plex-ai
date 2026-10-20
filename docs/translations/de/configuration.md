@@ -86,6 +86,30 @@ defekter Link bleibt mit Hinweis erhalten und blockiert Setup nicht. Der Install
 zeigt seinen eigenen Einstiegspunkt. Explizites `--install-command` überschreibt
 weiterhin keinen fremden Befehl.
 
+Fehlt beim projektbezogenen Team `bmad` die Runtime, bietet Setup offizielle
+Initialisierung, Wechsel zu `pnet` oder Abbruch. Ohne BMad-Setup-Skill wird eine
+separate Benutzerinstallation angeboten. Sie benötigt ausdrückliche Zustimmung:
+ausgewählte Benutzer-Skills können ersetzt werden und gelten für andere Projekte.
+Vorhandene Plugins bleiben unverändert.
+
+`--install-bmad` erlaubt Installation und Projektinitialisierung; `--init-bmad`
+verwendet vorhandene Skills. `--yes` akzeptiert angezeigte Modulstandards.
+`--dry-run` schreibt nichts. Nach Planbestätigung läuft das offizielle BMad-Setup
+mit nur unbeantworteten Modulfragen. Runtime und Abhängigkeiten bleiben bei
+späteren Fehlern erhalten.
+
+Neue Installationen nutzen `skills@1.7.4` und die offizielle BMad-Revision
+`495ef6e0996d07b23359cc4d6c73a1aa2f3ba5ad`: nur Einstieg-/Workflow-Skills des Teams,
+den Hub `bmad` und zwei Moduldatensätze. PO ist enthalten, im aktuellen Plugin-
+Marketplace jedoch noch nicht. Node.js/npm und `uv` sind erforderlich. Der offizielle
+Skills CLI unterstützt Codex, Claude Code und Antigravity.
+
+Direkte Projekt-/Benutzerskills haben Vorrang. Aktivierte installierte Codex/Claude-
+Toolbox-Plugins werden ebenfalls erkannt; Cache-Ordner allein reichen nicht.
+`--bmad-skill /path/to/installed/bmad` wählt einen Hub ausdrücklich. Benutzerrollen
+benötigen weiterhin Runtime in jedem Arbeitsprojekt.
+
+
 ## Teams und Profile
 
 | Team | Rollen | Ablauf |

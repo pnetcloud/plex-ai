@@ -8,7 +8,7 @@ Plex ist ein **Agent Harness für Multi-Agent-Orchestrierung und Koordination** 
 OpenAI Codex, Anthropic Claude Code und Google Antigravity. Ein wiederverwendbares
 Team installieren, Modellprofil wählen und Plex mit Umsetzung, Review und Prüfung beauftragen.
 
-**[v0.3.1 Preview](https://github.com/pnetcloud/plex-ai/releases/tag/v0.3.1)** — Open Source, MIT. Zum Ausprobieren; Schnittstellen können sich ändern.
+**[v0.4.0 Preview](https://github.com/pnetcloud/plex-ai/releases/tag/v0.4.0)** — Open Source, MIT. Zum Ausprobieren; Schnittstellen können sich ändern.
 
 ## Schnellstart
 
@@ -60,7 +60,7 @@ Geheimnisse vor dem Anhängen aus Logs entfernen.
 | Team | Einsatz |
 |---|---|
 | **pnet** | Allgemeine Entwicklung mit PM, explorer, researcher, dev, reviewer und QA; kein BMad nötig |
-| **bmad** | Vorhandene BMad-Skills/Workflows mit Rollenmodellen; separat installiertes BMad und Projekt-Runtime nötig |
+| **bmad** | BMad-Skills/Workflows mit Rollenmodellen; Setup bietet Installation ausgewählter Skills und Projektinitialisierung |
 
 Profile: **Inherit, Basic, Plus, Pro, Pro+**. Eine Stufe gilt für alle gewählten Clients;
 Rollen-Overrides sind möglich. Plex verwaltet nur den markierten Block und erhält umgebende Projektanweisungen.

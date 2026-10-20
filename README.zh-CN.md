@@ -7,7 +7,7 @@
 Plex 是用于 **多智能体编排与协调的 agent harness**，集成 OpenAI Codex、Anthropic Claude Code
 和 Google Antigravity。安装可复用团队，选择模型配置档，再让 Plex 组织实现、审查和验证。
 
-**[v0.3.1 Preview](https://github.com/pnetcloud/plex-ai/releases/tag/v0.3.1)** — 开源，MIT。可试用；接口仍可能变化。
+**[v0.4.0 Preview](https://github.com/pnetcloud/plex-ai/releases/tag/v0.4.0)** — 开源，MIT。可试用；接口仍可能变化。
 
 ## 快速开始
 
@@ -58,7 +58,7 @@ Plex 会选择适用角色、实现页面并协调审查与验证。
 | 团队 | 用途 |
 |---|---|
 | **pnet** | 通用开发：PM、explorer、researcher、dev、reviewer 和 QA；无需 BMad |
-| **bmad** | 已有 BMad 技能和工作流及按角色模型；需另行安装 BMad 和项目运行时 |
+| **bmad** | BMad 技能和工作流及按角色模型；安装器提供所需技能安装和项目初始化 |
 
 配置档包括 **Inherit、Basic、Plus、Pro、Pro+**。同一档位应用于所有所选客户端，可按角色覆盖。
 Plex 仅管理带标记的指令块，保留周围项目指令。

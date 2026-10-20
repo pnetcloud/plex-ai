@@ -36,7 +36,7 @@ BMad steuert Planung, Umsetzung, Reviews und anwendbare Freigaben.
 
 ## Grenzen
 
-Plex hat keinen eigenen Daemon oder UI. Es installiert BMad nicht, ersetzt dessen
+Plex hat keinen eigenen Daemon oder UI. Ausgewählte BMad-Skills werden nur mit ausdrücklicher Zustimmung installiert. Plex ersetzt dessen
 Workflows nicht, deployt keine Anwendungen und garantiert kein Modellrouting für
 Workflow-Kinder. Gemini-Modelle über Antigravity bedeuten keine Gemini-CLI-Unterstützung.
 

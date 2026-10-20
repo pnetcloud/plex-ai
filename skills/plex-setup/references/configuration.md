@@ -88,6 +88,14 @@ and copies this assignment catalog to the resolved snapshot; it is not another
 entry-skill binding. Do not load all catalog skills or install them during setup.
 Workflow instructions and availability belong to the installed BMad version.
 
+The checkout installer initializes missing BMad runtime after an explicit menu choice
+or `--init-bmad`, delegating to the official installed setup. When the hub is absent,
+it offers user-wide installation of the team's selected official skills from a pinned
+revision through Skills CLI (`--install-bmad` authorizes this unattended). Selected
+user skill files may be replaced; existing plugins are not changed. Do not copy skills
+into the project or emulate BMad materialization. `--bmad-skill PATH` selects an
+installed hub; `--yes` accepts displayed module defaults.
+
 ## Native roles & receipt lifecycle
 
 Read role sources from `<plugin-root>/teams/<team>/agents/<role>.md`: Markdown
