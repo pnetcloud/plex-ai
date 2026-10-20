@@ -10,6 +10,12 @@ A task does not need all seven agents. Analyst is manual or explicitly approved 
 
 ## Roles and workflow mapping
 
+The maintained assignment catalog is [team.toml](team.toml): entry skills are in
+`[skills]`, workflow descriptions and optional internal menu codes in
+`[[workflows.<role>]]`. The resolver copies this catalog to the applied snapshot;
+the coordinator selects an operation there and passes it explicitly to the subagent.
+Only the selected workflow is loaded; its procedures remain in installed BMad.
+
 | Plex subagent | BMad persona | Assignment | Workflows |
 | --- | --- | --- | --- |
 | `analyst` | Mary — `bmad-agent-analyst` | Manual or explicitly approved research, option comparison and concept work | `bmad-deep-recon`, `bmad-product-brief`, `bmad-prfaq`, `bmad-brainstorming`; project agent instructions through `bmad-project-context` |

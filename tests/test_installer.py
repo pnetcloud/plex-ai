@@ -19,6 +19,19 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class InstallerTests(unittest.TestCase):
+    def test_interaction_is_shared_between_clients_and_preserved_on_refresh(self):
+        spec = importlib.util.spec_from_file_location("plex_interaction_installer", ROOT / "setup.py")
+        installer = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(installer)
+        with tempfile.TemporaryDirectory() as temp, redirect_stdout(io.StringIO()):
+            options = ["--scope", "project", "--project", temp, "--roles-only", "--yes", "--no-instructions"]
+            self.assertEqual(installer.main([*options, "--client", "codex", "--client", "claude", "--interaction", "auto"]), 0)
+            self.assertEqual(installer.main([*options, "--client", "codex", "--model-profile", "plus"]), 0)
+            snapshot = json.loads((Path(temp) / ".plex/resolved.json").read_text())
+            self.assertEqual(snapshot["interaction"], "auto")
+            for host in ("codex", "claude"):
+                self.assertEqual(installer.CONFIG.check_project(Path(temp), host)["status"], "in_sync")
+
     def test_preview_and_roles_only_do_not_build_plugins(self):
         spec = importlib.util.spec_from_file_location("plex_installer", ROOT / "setup.py")
         installer = importlib.util.module_from_spec(spec)

@@ -11,3 +11,89 @@ ux = ["bmad-agent-ux-designer"]
 architect = ["bmad-agent-architect"]
 dev = ["bmad-agent-dev"]
 reviewer = ["bmad-code-review"]
+
+# Supported operations; load only the selected workflow, not this entire catalog.
+# PO operation codes dispatch inside its persona; they are not standalone skills.
+
+[[workflows.analyst]]
+skill = "bmad-deep-recon"
+description = "Research a topic or compare options using cited evidence."
+
+[[workflows.analyst]]
+skill = "bmad-product-brief"
+description = "Create, update or validate a product brief."
+
+[[workflows.analyst]]
+skill = "bmad-prfaq"
+description = "Test a product concept through a Working Backwards PRFAQ."
+
+[[workflows.analyst]]
+skill = "bmad-brainstorming"
+description = "Explore ideas and alternatives through guided brainstorming."
+
+[[workflows.analyst]]
+skill = "bmad-project-context"
+description = "Set up, refresh or audit project agent instructions."
+
+[[workflows.pm]]
+skill = "bmad-prd"
+description = "Create, update or validate product requirements."
+
+[[workflows.po]]
+skill = "bmad-agent-po"
+operation = "SPEC"
+description = "Write requirements and a specification from the supplied inputs."
+
+[[workflows.po]]
+skill = "bmad-agent-po"
+operation = "TICKETS"
+description = "Break an initiative into epics and stories."
+
+[[workflows.po]]
+skill = "bmad-agent-po"
+operation = "REFINE"
+description = "Create, review or refine one ticket."
+
+[[workflows.po]]
+skill = "bmad-agent-po"
+operation = "BOARD"
+description = "Manage ticket status, assignment, publication and closure."
+
+[[workflows.po]]
+skill = "bmad-agent-po"
+operation = "VALIDATE"
+description = "Validate a ticket, a set of tickets or a ticket tree."
+
+[[workflows.po]]
+skill = "bmad-agent-po"
+operation = "REPLAN"
+description = "Assess changed scope and revise the remaining work."
+
+[[workflows.po]]
+skill = "bmad-agent-po"
+operation = "STORE"
+description = "Configure ticket storage or connect a tracker."
+
+[[workflows.ux]]
+skill = "bmad-ux"
+description = "Define user journeys, interaction states and product design."
+
+[[workflows.architect]]
+skill = "bmad-architecture"
+description = "Record technical boundaries, architectural decisions and invariants."
+
+[[workflows.dev]]
+skill = "bmad-build"
+description = "Plan, implement, review and verify a bounded software change."
+
+[[workflows.dev]]
+skill = "bmad-qa-generate-e2e-tests"
+description = "Generate automated API or end-to-end tests for implemented behavior."
+
+[[workflows.dev]]
+skill = "bmad-retrospective"
+description = "Assess a completed epic using its implementation and verification evidence."
+
+[[workflows.reviewer]]
+skill = "bmad-code-review"
+description = "Review a supplied diff or PR and return actionable findings."

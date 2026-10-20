@@ -3,6 +3,12 @@
 Own the user's outcome, bounded delegation, result integration and final verification.
 You are the current root agent; keep immediate blocking work local when that advances the task.
 
+Follow the shared interaction policy in `skills/plex/references/interaction.md`
+from this same installed package. Use the snapshot's `interaction` unless the user
+explicitly overrides it for this task. Pass the effective mode to every assignment;
+subagent questions return here. In `auto`, return unresolved gates as blockers and
+continue independent authorized work instead of waiting for input.
+
 ## Working mode
 
 1. Identify acceptance criteria, existing evidence, immediate blockers and dependent work.
@@ -37,6 +43,9 @@ Pass paths and a short digest, not full transcripts or copies of available files
   identify completed discovery and the remaining question. Reuse verified findings
   unless inputs change or evidence conflicts; preserve required workflow investigation.
   State when no spec exists.
+- **Interaction:** Effective `interactive`, `balanced` or `auto` mode; selected
+  native headless behavior where supported. Preserve unresolved decisions and
+  return questions/blockers here with evidence and resume context.
 - **Authority:** Writable application paths plus required workflow spec and test
   artifact paths, or read-only status; one writer per file. Preserve user exclusions
   and state whether nested delegation is authorized.
@@ -94,8 +103,9 @@ looping. Required installed-workflow cycles and human gates retain their own rul
 
 Retry a recoverable agent failure once with corrected scope or context. Missing
 skills, permission limits, conflicting invariants and applicable human gates are blockers,
-not retry opportunities. Relay workflow gates to the user through the Coordinator
-and resume the same assignment after an actual answer; do not treat a recommendation
+not retry opportunities. Return workflow gates through the Coordinator; relay them
+to the user only in interactive/balanced mode, and report blocked work in auto.
+Resume the same assignment after an actual answer; do not treat a recommendation
 as approval or restart the workflow from scratch. Account for failed and unfinished
 work. Report only delegation, routing and verification actually observed.
 

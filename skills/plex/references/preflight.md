@@ -17,7 +17,8 @@ an incomplete copy is a blocker, not permission to search another checkout.
 The result's `root` and `scope` identify the configuration: project state takes
 precedence; otherwise use user state. Never bypass stale project configuration by
 falling back to a global team. Read `<root>/.plex/resolved.json` for
-active roles, final `hosts.<host>.<role>` settings and `max_agents`; do not reassemble
+active roles, entry `skills`, optional `workflows` catalog, final
+`hosts.<host>.<role>` settings, `interaction` and `max_agents`; do not reassemble
 configuration layers. Missing, stale or conflicting configuration requires
 `plex-setup`; it does not authorize installation or writes. Repeat the check only
 if configuration changes or there is evidence of drift during this task.

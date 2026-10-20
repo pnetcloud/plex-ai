@@ -25,6 +25,94 @@ apply_project = MODULE.apply_project
 
 
 class ConfigTests(unittest.TestCase):
+    def test_interaction_defaults_validation_and_preset_round_trip(self):
+        for team in ("pnet", "bmad"):
+            self.assertEqual(resolve({"team": team})["interaction"], "balanced")
+            for mode in MODULE.INTERACTIONS:
+                original = {"team": team, "interaction": mode}
+                text = MODULE.build_preset_toml(original, model_profile="plus")
+                self.assertEqual(tomllib.loads(text)["interaction"], mode)
+                self.assertEqual(resolve(tomllib.loads(text))["interaction"], mode)
+                changed = MODULE.build_preset_toml(original, interaction="auto")
+                self.assertEqual(tomllib.loads(changed)["interaction"], "auto")
+        for value in ("autonomous", "", True, [], None):
+            with self.subTest(value=value), self.assertRaisesRegex(ValueError, "interaction"):
+                resolve({"team": "pnet", "interaction": value})
+
+    def test_apply_interaction_change_preserves_roles_and_survives_team_switch(self):
+        with tempfile.TemporaryDirectory() as temp:
+            project = Path(temp).resolve()
+            apply_project(project, "codex", team="pnet")
+            before = {p.name: p.read_bytes() for p in (project / ".codex/agents").iterdir()}
+            apply_project(project, "codex", interaction="auto")
+            self.assertEqual(check_project(project, "codex")["status"], "in_sync")
+            self.assertEqual(before, {p.name: p.read_bytes() for p in (project / ".codex/agents").iterdir()})
+            self.assertEqual(json.loads((project / ".plex/resolved.json").read_text())["interaction"], "auto")
+            apply_project(project, "codex", team="bmad")
+            self.assertEqual(tomllib.loads((project / ".plex/preset.toml").read_text())["interaction"], "auto")
+            apply_project(project, "codex", interaction="interactive")
+            self.assertEqual(check_project(project, "codex")["resolved"]["interaction"], "interactive")
+
+    def test_team_workflow_catalog_is_resolved_without_eager_skill_activation(self):
+        team = tomllib.loads((ROOT / "teams/bmad/team.toml").read_text())
+        resolved = resolve({"team": "bmad"})
+        self.assertEqual(resolved["workflows"], team["workflows"])
+        self.assertEqual(set(resolved["workflows"]), set(team["roles"]))
+        self.assertEqual(resolve({"team": "pnet"})["workflows"], {})
+        self.assertEqual(resolved["skills"]["analyst"], ["bmad-agent-analyst"])
+        self.assertEqual({item["operation"] for item in resolved["workflows"]["po"]},
+                         {"SPEC", "TICKETS", "REFINE", "BOARD", "VALIDATE", "REPLAN", "STORE"})
+        self.assertTrue(all(item["skill"] == "bmad-agent-po" for item in resolved["workflows"]["po"]))
+        for host in MODULE.HOSTS:
+            text = MODULE.render_role(resolved, host, "analyst")
+            self.assertNotIn("bmad-product-brief", text)
+            self.assertNotIn("bmad-prfaq", text)
+
+    def test_invalid_workflow_catalog_is_rejected(self):
+        valid = {"skill": "bmad-build", "description": "Implement a change."}
+        cases = [
+            {"unknown": [valid]}, {"dev": []}, {"dev": "bmad-build"},
+            {"dev": [valid, valid]}, {"dev": ["bmad-build"]},
+            {"dev": [{"skill": "../other", "description": "Change."}]},
+            {"dev": [{"skill": "bmad-build", "description": " "}]},
+            {"dev": [{**valid, "operation": []}]},
+            {"dev": [{**valid, "operation": ""}]},
+            {"dev": [{**valid, "extra": True}]},
+        ]
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp).resolve()
+            shutil.copytree(ROOT / "teams", root / "teams")
+            team = tomllib.loads((root / "teams/pnet/team.toml").read_text())
+            original = MODULE.named_file
+            for workflows in cases:
+                def named_file(directory, name, team_name=None):
+                    if directory == "teams" and name == "pnet":
+                        return {**team, "workflows": workflows}
+                    return original(directory, name, team_name)
+                with self.subTest(workflows=workflows), patch.object(MODULE, "ROOT", root), \
+                        patch.object(MODULE, "named_file", side_effect=named_file):
+                    with self.assertRaisesRegex(ValueError, "workflows"):
+                        resolve({"team": "pnet"})
+
+    def test_catalog_change_requires_snapshot_refresh_without_rewriting_native_roles(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp).resolve()
+            shutil.copytree(ROOT / "teams", root / "teams")
+            project = root / "project"
+            project.mkdir()
+            with patch.object(MODULE, "ROOT", root):
+                apply_project(project, "codex", team="bmad", model_profile="inherit")
+                roles_before = {p.name: p.read_bytes() for p in (project / ".codex/agents").iterdir()}
+                team_path = root / "teams/bmad/team.toml"
+                team_path.write_text(team_path.read_text().replace(
+                    "Research a topic or compare options using cited evidence.", "Research with cited sources."))
+                self.assertEqual(check_project(project, "codex")["status"], "needs_refresh")
+                apply_project(project, "codex")
+                self.assertEqual(check_project(project, "codex")["status"], "in_sync")
+                self.assertEqual(roles_before, {p.name: p.read_bytes() for p in (project / ".codex/agents").iterdir()})
+                snapshot = json.loads((project / ".plex/resolved.json").read_text())
+                self.assertEqual(snapshot["workflows"]["analyst"][0]["description"], "Research with cited sources.")
+
     def test_shared_tiers_reuse_each_clients_vendor_settings(self):
         for team in ('pnet', 'bmad'):
             for tier in MODULE.PROFILE_TIERS:
@@ -389,7 +477,8 @@ class ConfigTests(unittest.TestCase):
 
     def test_legacy_full_presets_remain_supported(self):
         for path in (ROOT / "teams").glob("*/team.toml"):
-            config = tomllib.loads(path.read_text())
+            config = {key: value for key, value in tomllib.loads(path.read_text()).items()
+                      if key in {"process", "roles", "skills", "max_agents"}}
             config["codex"] = {"model": "custom-model"}
             self.assertEqual(resolve(config)["hosts"]["codex"]["reviewer"], {"model": "custom-model"})
         plain_team = resolve({"roles": ["pm", "dev", "reviewer"], "process": "plain"})

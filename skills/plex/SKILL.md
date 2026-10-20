@@ -19,7 +19,8 @@ without authorization.
 ## 2. Become the coordinator
 
 Read `teams/<team>/coordinator.md` from this installed package, using the team
-identified by preflight. Follow its rules for assignments, handoffs and verification.
+identified by preflight. Read [interaction policy](references/interaction.md), select
+the effective mode and follow both contracts for assignments, handoffs and verification.
 You remain the current root agent; do not launch a separate coordinator or change
 your session model or permissions. Project and host instructions remain applicable.
 

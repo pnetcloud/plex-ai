@@ -113,10 +113,60 @@ Definitions live in `teams/<team>/team.toml`, `agents/*.md` and `profiles/*.toml
 Vendor files declare one host and independent tier blocks; profiles have no include chain.
 Exact model IDs and effort settings belong there, not in duplicated documentation tables.
 
+`[skills]` binds each role to its entry skill. Optional `[[workflows.<role>]]`
+entries list the team's supported assignments: required `skill` and `description`,
+plus an optional `operation` menu code for dispatch inside a persona. For example:
+
+```toml
+[[workflows.analyst]]
+skill = "bmad-deep-recon"
+description = "Research a topic or compare options using cited evidence."
+
+[[workflows.po]]
+skill = "bmad-agent-po"
+operation = "SPEC"
+description = "Write requirements and a specification from the supplied inputs."
+```
+
+The resolver validates this catalog and includes it in `.plex/resolved.json`.
+The coordinator selects by description and passes explicit intent and parameters;
+the subagent checks installed dispatch and loads only the selected workflow.
+Catalog entries do not eagerly activate skills, install BMad or grant approval.
+Workflow procedures remain in installed BMad. Edit the team catalog and refresh
+setup after changes; existing snapshots do not update automatically.
+
 Vendor-specific IDs such as `openai-plus` or `google-anthropic-plus` are available
 through single-client `--host` setup and the resolver. Multi-client `--client` setup
 uses shared tiers. The single-client custom menu edits per-role overrides on a named
 profile; `custom` itself is not a saved profile. Model availability remains host/provider-dependent.
+
+## Interaction
+
+Set `interaction = "balanced"` at the root of `.plex/preset.toml`, or pass
+`--interaction interactive|balanced|auto` to setup or resolver `apply`.
+Omitting it preserves the saved value; new configurations default to `balanced`.
+The plan shows the effective mode. It is shared across clients and survives team
+and profile changes. Refresh setup after editing the preset.
+
+| Mode | Behavior |
+|---|---|
+| `interactive` | Collaborative discovery and meaningful user choices |
+| `balanced` | Resolve routine choices; ask only for consequential unresolved decisions or applicable checkpoints |
+| `auto` | No questions or waiting; complete authorized work and return partial results or blockers |
+
+An explicit user mode for one task overrides the saved mode without changing
+configuration. The coordinator passes it to all assignments. Subagents return
+questions to the coordinator; it reuses existing answers, groups necessary questions
+in balanced mode and continues independent work. In auto, unresolved gates block
+dependent work and are reported instead of waiting indefinitely.
+
+For bounded artifact work, balanced/auto request native BMad headless execution
+where supported, using the installed workflow's contract. Unsupported routes keep
+their real checkpoints; auto returns a blocker when no authorized path can proceed.
+Modes do not skip reviews/tests or grant extra permissions, publication authority
+or analyst approval. Partial artifacts with unresolved requirements are not approved
+inputs for dependent implementation. This is an instruction policy, not a guarantee
+of unattended completion for every BMad workflow.
 
 ## Project and user scope
 

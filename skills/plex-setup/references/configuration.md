@@ -50,6 +50,7 @@ model_profile = "inherit"
 ```
 
 Use the user's requested team/profile instead when specified. Optional project
+`interaction` (`interactive`, `balanced`, `auto`; default `balanced`),
 `max_agents`, `[codex]`, `[codex.<role>]`, `[claude]`, `[claude.<role>]`,
 `[antigravity]`, and `[antigravity.<role>]` are personal
 overrides. During interactive setup ask once for the shared positive-integer
@@ -80,6 +81,12 @@ The resolver validates settings and native output, not provider availability.
 Antigravity rendering accepts only its supported tier aliases; catalogued exact
 model IDs without native routing support fail rather than silently substituting.
 Report unsupported configuration without claiming live model execution was verified.
+
+Team files may define `[[workflows.<role>]]` entries with `skill`, `description`
+and an optional persona-internal `operation` menu code. The resolver validates
+and copies this assignment catalog to the resolved snapshot; it is not another
+entry-skill binding. Do not load all catalog skills or install them during setup.
+Workflow instructions and availability belong to the installed BMad version.
 
 ## Native roles & receipt lifecycle
 

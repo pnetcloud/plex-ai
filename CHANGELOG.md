@@ -5,6 +5,11 @@ previews; interfaces and configuration may change before 1.0.
 
 ## Unreleased
 
+- Add `interactive`, `balanced` (default) and `auto` interaction modes with saved
+  configuration and setup flags. Route questions through the coordinator and use
+  supported BMad headless contracts without bypassing required checks or authority.
+- Add a described, per-role BMad workflow catalog in `team.toml` and resolved
+  snapshots, including internal PO operation codes, for explicit coordinator dispatch.
 - Keep one Markdown source per agent within each team. Compile native Codex,
   Claude Code and Antigravity roles during setup, preserving instructions, model
   settings and tool permissions without maintaining three copies.

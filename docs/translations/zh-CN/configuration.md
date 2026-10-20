@@ -97,9 +97,38 @@ reasoning = "max"
 定义位于 `teams/<team>/team.toml`、`agents/*.md` 和 `profiles/*.toml`。
 供应商文件声明客户端和独立档位，不使用 include 链。精确模型 ID 和推理强度以源文件为准，避免在文档中重复维护。
 
+`[skills]` 将角色绑定到入口技能。可选的 `[[workflows.<role>]]` 条目包含必填的
+`skill` 和简短的 `description`，以及可选的角色内部菜单代码 `operation`。
+例如 analyst 使用 `skill = "bmad-deep-recon"`；PO 使用 `skill = "bmad-agent-po"`
+和 `operation = "SPEC"`。每个条目都需要结果说明。
+
+解析器验证目录并将其保存到 `.plex/resolved.json`。协调者根据描述选择操作并传递明确意图和参数；
+子智能体验证已安装版本的分派规则，仅加载选定工作流。目录不会提前激活所有技能、安装 BMad 或代替批准。
+具体流程仍由已安装的 BMad 提供。修改团队目录后请刷新安装；现有快照不会自动更新。
+
 `openai-plus`、`google-anthropic-plus` 等供应商配置 ID 可通过单客户端 `--host` 模式或解析器使用。
 多客户端 `--client` 模式使用共享档位。单客户端的 custom 菜单编辑已有命名配置档的角色覆盖；
 `custom` 不是保存的配置档。模型可用性取决于客户端和供应商。
+
+## 交互模式
+
+在 `.plex/preset.toml` 顶层设置 `interaction = "balanced"`，或向安装器及解析器
+`apply` 传递 `--interaction interactive|balanced|auto`。省略参数会保留已保存值；
+默认是 `balanced`。安装计划显示有效模式。模式由客户端共享，切换团队或配置档时保留。
+手动修改后请刷新安装。
+
+- `interactive`：共同探索，并就重要选择与用户讨论。
+- `balanced`：自行解决常规问题，仅询问重要未决事项或适用检查点。
+- `auto`：不提问或等待；完成已授权工作，返回部分结果及阻塞原因。
+
+用户明确指定的单次任务模式覆盖保存值，但不改写配置。协调者将模式传递给所有执行者。
+子智能体向协调者返回问题；协调者复用已知答案，在 balanced 中合并必要问题，并继续独立工作。
+auto 中未决事项只阻塞依赖它的工作。
+
+对于范围明确的产物任务，balanced/auto 在支持时使用 BMad 原生 headless 合约；
+不支持时仍遵守实际检查点。auto 无法在授权范围内继续时返回阻塞状态。
+这些模式不跳过测试或审查，不扩大权限，也不授予发布或分析师研究许可。
+带有未决需求的部分产物不能作为已批准的后续实现输入。这不是所有工作流均可无人值守完成的保证。
 
 ## 项目与用户范围
 

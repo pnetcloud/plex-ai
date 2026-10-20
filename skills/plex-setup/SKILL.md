@@ -42,7 +42,7 @@ For an explicit setup or refresh, check the selected `project` or `user` scope;
 never use a global fallback to bypass stale or conflicting project configuration.
 
 Present common tiers by default; vendor-specific recipes are a compatibility path.
-Show the target, scope, team, profile, effective role settings and changes before
+Show the target, scope, team, profile, effective interaction mode, role settings and changes before
 applying. The editable source is `<root>/.plex/preset.toml`; inspect the selected
 team and its own profiles under `<plugin-root>/teams/<team>/`.
 Use `resolve <preset-file>` and `render <preset-file> --host codex` for read-only

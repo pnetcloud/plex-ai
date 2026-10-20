@@ -372,7 +372,7 @@ def setup_clients(args, clients, interactive):
         heading(f"Configure client: {client}")
         options = ["--host", client, "--scope", args.scope, "--project", str(project)]
         for flag, value in (("--team", args.team), ("--model-profile", args.model_profile),
-                            ("--max-agents", args.max_agents)):
+                            ("--max-agents", args.max_agents), ("--interaction", args.interaction)):
             if value is not None:
                 options.extend([flag, str(value)])
         for flag, enabled in (("--roles-only", args.roles_only), ("--dry-run", args.dry_run),
@@ -391,6 +391,8 @@ def setup_clients(args, clients, interactive):
             args.team = selection["team"]
         if args.max_agents is None:
             args.max_agents = selection["max_agents"]
+        if args.interaction is None:
+            args.interaction = selection["interaction"]
         if args.model_profile is None:
             args.model_profile = selection["model_profile"]
     if not args.dry_run:
@@ -486,6 +488,8 @@ def main(argv=None, *, shared_profile=False, selection=None):
                         help="Add/update the managed Plex block in the native instruction file (default: enabled)")
     parser.add_argument("--team", help="Work mode (role set); preserve current selection if omitted")
     parser.add_argument("--model-profile", help="Model profile; preserve current selection if omitted")
+    parser.add_argument("--interaction", choices=CONFIG.INTERACTIONS,
+                        help="Interaction mode: interactive, balanced (default), auto; preserve saved selection")
     parser.add_argument("--max-agents", type=int, help="Shared limit of concurrent Plex assignments (positive integer)")
     parser.add_argument("--roles-only", action="store_true", help="Configure roles without installing the plugin")
     parser.add_argument("--command", action=argparse.BooleanOptionalAction, default=True,
@@ -557,7 +561,7 @@ def main(argv=None, *, shared_profile=False, selection=None):
 
         def build_candidate(profile, **overrides):
             return CONFIG.build_preset_toml(
-                existing, args.team, profile,
+                existing, args.team, profile, interaction=args.interaction,
                 **overrides,
             )
 
@@ -710,6 +714,7 @@ def main(argv=None, *, shared_profile=False, selection=None):
         print(f"  Mode     {resolved['team'] or 'custom'}\n  Profile  {resolved['model_profile']}")
         if len(refresh_clients) > 1:
             print(f"  Shared team/profile: refresh configured clients {', '.join(refresh_clients)}")
+        print(f"  Interaction {resolved['interaction']}")
         print(f"  Limit    {resolved['max_agents']} concurrent assignments")
         for role, settings in resolved["hosts"][args.host].items():
             print(f"  plex-{role:<12} {settings.get('model', 'inherit'):<18} "
@@ -731,7 +736,7 @@ def main(argv=None, *, shared_profile=False, selection=None):
         if resolved["process"] == "bmad":
             print("  BMad: verify runtime and active skills in each working project before use.")
         if selection is not None:
-            selection.update(team=resolved["team"], max_agents=resolved["max_agents"], model_profile=resolved["model_profile"])
+            selection.update(team=resolved["team"], max_agents=resolved["max_agents"], model_profile=resolved["model_profile"], interaction=resolved["interaction"])
         if args.dry_run:
             print("\nPreview only. No files or plugins changed.")
             return 0
@@ -761,7 +766,7 @@ def main(argv=None, *, shared_profile=False, selection=None):
             if current != instruction_plan["before"]:
                 raise ValueError("Instruction file changed after preview; review and retry.")
         result = CONFIG.apply_project(project, args.host, args.team, args.model_profile,
-                                      max_agents=args.max_agents, host_overrides=host_overrides,
+                                      max_agents=args.max_agents, host_overrides=host_overrides, interaction=args.interaction,
                                       scope=args.scope, instructions=args.instructions)
         for client in refresh_clients:
             if client != args.host:

@@ -113,11 +113,50 @@ Definitionen liegen in `teams/<team>/team.toml`, `agents/*.md` und `profiles/*.t
 Anbieterdateien deklarieren einen Client und unabhängige Stufen, ohne Include-Ketten.
 Genaue Modell-IDs und Effort-Werte gehören dorthin, nicht in duplizierte Dokumentationstabellen.
 
+`[skills]` bindet jede Rolle an ihren Einstiegsskill. Optionale Einträge
+`[[workflows.<role>]]` enthalten `skill` und eine kurze `description` sowie optional
+`operation` als Menücode innerhalb einer Persona. Beispiel: Analyst verwendet
+`skill = "bmad-deep-recon"`; PO verwendet `skill = "bmad-agent-po"` mit
+`operation = "SPEC"`. Jeder Eintrag benötigt eine Ergebnisbeschreibung.
+
+Der Resolver validiert den Katalog und speichert ihn in `.plex/resolved.json`.
+Der Koordinator wählt anhand der Beschreibung und übergibt Absicht und Parameter;
+der Subagent prüft den installierten Dispatch und lädt nur den gewählten Workflow.
+Der Katalog aktiviert nicht alle Skills, installiert kein BMad und ersetzt keine
+Freigabe. Die Abläufe bleiben im installierten BMad. Nach Katalogänderungen Setup
+aktualisieren; vorhandene Snapshots ändern sich nicht automatisch.
+
 Anbieterspezifische IDs wie `openai-plus` oder `google-anthropic-plus` sind über
 Einzelclient-Setup mit `--host` und den Resolver verfügbar. Multi-Client-Setup mit
 `--client` nutzt gemeinsame Stufen. Das Einzelclient-Custom-Menü bearbeitet Rollen-
 Overrides eines benannten Profils; `custom` ist kein gespeichertes Profil.
 Modellverfügbarkeit hängt vom Client und Provider ab.
+
+## Interaktion
+
+`interaction = "balanced"` steht auf oberster Ebene in `.plex/preset.toml`.
+Alternativ `--interaction interactive|balanced|auto` an Setup oder Resolver-`apply`
+übergeben. Ohne Option bleibt der gespeicherte Wert; Standard ist `balanced`.
+Der Plan zeigt den Modus. Er gilt für alle Clients und bleibt bei Team-/Profilwechsel
+bestehen. Nach manuellen Änderungen Setup aktualisieren.
+
+- `interactive`: gemeinsame Ausarbeitung und wesentliche Entscheidungen mit dem Nutzer.
+- `balanced`: Routineentscheidungen selbst lösen; nur bei wesentlichen offenen
+  Entscheidungen oder geltenden Checkpoints fragen.
+- `auto`: keine Fragen und kein Warten; erlaubte Arbeit abschließen, Teilergebnisse
+  und Blocker zurückgeben.
+
+Eine ausdrückliche Wahl für einen Auftrag überschreibt den Modus ohne Speicherung.
+Der Koordinator übergibt ihn an alle Ausführenden. Subagenten melden Fragen an ihn;
+er nutzt bekannte Antworten, bündelt nötige Fragen in balanced und setzt unabhängige
+Arbeit fort. In auto blockiert ein offener Punkt nur abhängige Arbeit.
+
+Bei begrenzten Artefaktaufträgen nutzen balanced/auto natives BMad-Headless, soweit
+unterstützt. Sonst gelten echte Checkpoints; auto meldet einen Blocker, wenn ohne
+Antwort kein autorisierter Weg besteht. Tests/Reviews, Berechtigungen, Veröffentlichungs-
+und Analystenfreigaben bleiben erhalten. Unvollständige Anforderungen sind keine
+freigegebenen Implementierungseingaben. Eine unbeaufsichtigte Ausführung jedes
+Workflows ist damit nicht garantiert.
 
 ## Projekt- und Benutzerebene
 

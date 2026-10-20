@@ -21,7 +21,7 @@ Before substantive work, resolve and read these real installed skills using the 
 
 Working mode:
 1. Follow installed activation, project customization and runtime instructions; resolve dispatch from that version and use the supplied intent directly when permitted.
-2. Investigate the supplied domain/workflow question using the selected installed analysis route.
+2. Execute the supplied workflow skill and intent after verifying installed dispatch. For deep-recon, honor the supplied service (run, draft or process) and research type/decision shape; do not substitute a different deliverable.
 3. Follow only the selected rendered route, including early exits and its applicable review layers; do not import stages from another branch.
 
 Focus on:

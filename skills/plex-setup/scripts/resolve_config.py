@@ -15,6 +15,7 @@ import tomllib
 
 ROOT = Path(__file__).resolve().parents[3]
 HOSTS = ("codex", "claude", "antigravity")
+INTERACTIONS = ("interactive", "balanced", "auto")
 PROFILE_TIERS = ("basic", "plus", "pro", "pro-plus")
 EFFORTS = {"minimal", "low", "medium", "high", "xhigh", "max", "ultra"}
 CLAUDE_EFFORTS = {"low", "medium", "high", "xhigh", "max"}
@@ -176,7 +177,7 @@ def load_role(process: str, role: str, team_name=None) -> dict:
 
 def resolve(config):
     config = table(config, "project")
-    keys(config, {"team", "model_profile", "process", "roles", "skills", "max_agents", *HOSTS}, "project")
+    keys(config, {"team", "model_profile", "process", "roles", "skills", "max_agents", "interaction", *HOSTS}, "project")
     team_name = config.get("team")
     if team_name == "default":
         team_name = "pnet"
@@ -184,7 +185,7 @@ def resolve(config):
         if {"process", "roles", "skills"} & config.keys():
             raise ValueError("Choose team OR legacy process/roles/skills, not both")
         team = named_file("teams", team_name)
-        keys(team, {"process", "roles", "skills", "max_agents"}, "team")
+        keys(team, {"process", "roles", "skills", "workflows", "max_agents", "interaction"}, "team")
     else:
         team = {k: config[k] for k in ("process", "roles", "skills", "max_agents") if k in config}
     process = team.get("process", "plain")
@@ -198,6 +199,9 @@ def resolve(config):
     max_agents = config.get("max_agents", team.get("max_agents", 4))
     if type(max_agents) is not int or max_agents < 1:
         raise ValueError("max_agents must be a positive integer")
+    interaction = config.get("interaction", team.get("interaction", "balanced"))
+    if not isinstance(interaction, str) or interaction not in INTERACTIONS:
+        raise ValueError(f"interaction must be one of {INTERACTIONS}")
     known_roles = discover_known_roles()
     if set(roles) - known_roles:
         raise ValueError(f"Unknown roles: {sorted(set(roles) - known_roles)}")
@@ -210,6 +214,30 @@ def resolve(config):
                 or any(not isinstance(n, str) or not n.strip() for n in names)
                 or len(names) != len(set(names))):
             raise ValueError(f"skills.{role}: expected unique nonblank skill names")
+    workflows = table(team.get("workflows", {}), "workflows")
+    keys(workflows, set(roles), "workflows")
+    for role, entries in workflows.items():
+        label = f"workflows.{role}"
+        if not isinstance(entries, list) or not entries:
+            raise ValueError(f"{label}: expected a nonempty list of workflow entries")
+        seen = set()
+        for entry in entries:
+            entry = table(entry, label)
+            keys(entry, {"skill", "description", "operation"}, label)
+            skill = entry.get("skill")
+            if not isinstance(skill, str) or not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", skill):
+                raise ValueError(f"{label}: invalid workflow skill")
+            description = entry.get("description")
+            if not isinstance(description, str) or not description.strip():
+                raise ValueError(f"{label}: expected a nonblank description")
+            operation = entry.get("operation")
+            if "operation" in entry and (not isinstance(operation, str)
+                    or not re.fullmatch(r"[A-Z][A-Z0-9_-]*", operation)):
+                raise ValueError(f"{label}: invalid menu operation code")
+            identity = (skill, operation)
+            if identity in seen:
+                raise ValueError(f"{label}: duplicate workflow operation {identity}")
+            seen.add(identity)
     if process == "bmad":
         required = named_file("teams", "bmad")["skills"]
         for role in roles:
@@ -234,6 +262,8 @@ def resolve(config):
         "team": team_name, "model_profile": profile_name,
         "process": process, "roles": list(roles),
         "skills": {role: list(names) for role, names in bindings.items()},
+        "workflows": {role: [dict(entry) for entry in entries] for role, entries in workflows.items()},
+        "interaction": interaction,
         "max_agents": max_agents, "hosts": hosts, "inactive_overrides": inactive,
     }
 
@@ -745,6 +775,7 @@ def build_preset_toml(
     max_agents: int | None = None,
     reset_overrides: bool = False,
     host_overrides: dict | None = None,
+    interaction: str | None = None,
 ) -> str:
     config = dict(existing_config) if existing_config else {}
     if reset_overrides:
@@ -769,6 +800,9 @@ def build_preset_toml(
     if max_agents is not None:
         config["max_agents"] = max_agents
 
+    if interaction is not None:
+        config["interaction"] = interaction
+
     if host_overrides is not None:
         keys(table(host_overrides, "host overrides"), set(HOSTS), "host overrides")
         config.update(host_overrides)
@@ -779,6 +813,8 @@ def build_preset_toml(
         lines.append(f'team = {json.dumps(config["team"])}')
     if "model_profile" in config:
         lines.append(f'model_profile = {json.dumps(config["model_profile"])}')
+    if "interaction" in config:
+        lines.append(f'interaction = {json.dumps(config["interaction"])}')
     if "process" in config:
         lines.append(f'process = {json.dumps(config["process"])}')
     if "roles" in config:
@@ -893,7 +929,7 @@ class _ApplyTransaction:
 
 
 def apply_project(project_root, host, team=None, model_profile=None, max_agents=None, reset_overrides=False,
-                  host_overrides=None, scope="project", instructions=False):
+                  host_overrides=None, scope="project", instructions=False, interaction=None):
     project_root = installation_root(Path(project_root), host, scope)
     lock = _ensure_safe_project_path(project_root, ".plex/.apply.lock")
     lock.parent.mkdir(parents=True, exist_ok=True)
@@ -903,7 +939,7 @@ def apply_project(project_root, host, team=None, model_profile=None, max_agents=
     except FileExistsError:
         raise ValueError("Another apply holds .plex/.apply.lock; inspect the owning process before recovery") from None
     try:
-        return _apply_project(project_root, host, team, model_profile, max_agents, reset_overrides, host_overrides, scope, instructions)
+        return _apply_project(project_root, host, team, model_profile, max_agents, reset_overrides, host_overrides, scope, instructions, interaction)
     finally:
         lock.unlink()
 
@@ -918,6 +954,7 @@ def _apply_project(
     host_overrides: dict | None = None,
     scope="project",
     instructions=False,
+    interaction: str | None = None,
 ) -> dict:
     if host not in HOSTS:
         raise ValueError(f"Unknown host: {host!r}")
@@ -944,6 +981,7 @@ def _apply_project(
         and team is None
         and model_profile is None
         and max_agents is None
+        and interaction is None
         and not reset_overrides
         and host_overrides is None
     ):
@@ -956,6 +994,7 @@ def _apply_project(
             max_agents=max_agents,
             reset_overrides=reset_overrides,
             host_overrides=host_overrides,
+            interaction=interaction,
         )
         candidate_preset_bytes = candidate_text.encode("utf-8")
 
@@ -1275,6 +1314,7 @@ def main(argv=None):
     apply_parser.add_argument("--host", choices=HOSTS, required=True, help="Target host to configure")
     apply_parser.add_argument("--team", default=None, help="Named team preset to select")
     apply_parser.add_argument("--model-profile", default=None, help="Named model profile to select")
+    apply_parser.add_argument("--interaction", choices=INTERACTIONS, help="Interaction mode; preserve current selection if omitted")
     apply_parser.add_argument("--max-agents", type=int, default=None, help="Optional max_agents override")
     apply_parser.add_argument(
         "--reset-overrides", action="store_true", help="Clear personal overrides in .plex/preset.toml"
@@ -1306,6 +1346,7 @@ def main(argv=None):
                 team=args.team,
                 model_profile=args.model_profile,
                 max_agents=args.max_agents,
+                interaction=args.interaction,
                 reset_overrides=args.reset_overrides,
                 scope=args.scope,
                 instructions=args.instructions,
