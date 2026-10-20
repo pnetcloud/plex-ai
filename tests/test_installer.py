@@ -122,6 +122,37 @@ class InstallerTests(unittest.TestCase):
             self.assertEqual(list(project.iterdir()), [])
             self.assertFalse((Path(temp).resolve() / "home/.local/bin/plex").exists())
 
+    def test_existing_other_checkout_or_foreign_command_does_not_block_setup(self):
+        spec = importlib.util.spec_from_file_location("plex_existing_command", ROOT / "setup.py")
+        installer = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(installer)
+        for kind in ("other-checkout", "foreign-file", "broken-link"):
+            with self.subTest(kind=kind), tempfile.TemporaryDirectory() as temp, \
+                    redirect_stdout(io.StringIO()) as output:
+                root = Path(temp).resolve()
+                home, project = root / "home", root / "project"
+                project.mkdir()
+                command = home / ".local/bin/plex"
+                command.parent.mkdir(parents=True)
+                if kind == "foreign-file":
+                    command.write_text("personal command")
+                else:
+                    target = root / "other/setup.sh"
+                    if kind == "other-checkout":
+                        target.parent.mkdir()
+                        target.write_text("existing Plex checkout")
+                    command.symlink_to(target)
+                before = os.readlink(command) if command.is_symlink() else command.read_text()
+                inventory = json.dumps([{"id": "pnet-plex@pnet-plex", "scope": "user", "enabled": True}])
+                with patch.dict(os.environ, {"HOME": str(home)}), \
+                        patch.object(installer, "build_plugin"), \
+                        patch.object(installer.shutil, "which", return_value="/bin/claude"), \
+                        patch.object(installer, "run", return_value=inventory):
+                    self.assertEqual(installer.main(["--host", "claude", "--project", str(project), "--yes"]), 0)
+                self.assertEqual(before, os.readlink(command) if command.is_symlink() else command.read_text())
+                self.assertEqual(installer.CONFIG.check_project(project, "claude")["status"], "in_sync")
+                self.assertIn("Keeping existing command", output.getvalue())
+
     def test_user_command_upgrades_this_checkouts_previous_shortcut(self):
         with tempfile.TemporaryDirectory() as temp:
             command = Path(temp).resolve() / ".local/bin/plex"

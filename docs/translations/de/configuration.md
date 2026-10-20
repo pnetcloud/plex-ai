@@ -81,6 +81,11 @@ aktualisieren bereits konfigurierte Clients; Clients ohne Receipt werden nicht i
 
 Pluginmanager-Änderungen und abgeschlossene Clientinstallationen werden bei einem späteren Fehler nicht zurückgerollt.
 
+Ein vorhandener Befehl aus einem anderen Checkout, eine fremde Datei oder ein
+defekter Link bleibt mit Hinweis erhalten und blockiert Setup nicht. Der Installer
+zeigt seinen eigenen Einstiegspunkt. Explizites `--install-command` überschreibt
+weiterhin keinen fremden Befehl.
+
 ## Teams und Profile
 
 | Team | Rollen | Ablauf |

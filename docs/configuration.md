@@ -81,6 +81,11 @@ configured clients; a client without a receipt is not installed implicitly.
 
 Plugin-manager changes and completed client installations are not rolled back if a later client fails.
 
+An existing command from another checkout, a foreign file or a broken link is
+kept with a notice; it does not block normal setup. The installer prints its own
+entrypoint when the existing command is retained. Explicit `--install-command`
+still refuses to overwrite an unrelated command.
+
 ## Teams and profiles
 
 | Team | Roles | Workflow |

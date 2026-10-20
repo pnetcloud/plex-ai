@@ -298,11 +298,15 @@ def run(command, project):
     return result.stdout
 
 
-def command_destination():
+def command_destination(*, keep_existing=False):
     destination = Path.home() / ".local/bin/plex"
     if destination.is_symlink() and destination.resolve() in {ROOT / "setup.py", ROOT / "setup.sh"}:
         return destination
     if destination.exists() or destination.is_symlink():
+        if keep_existing:
+            print(f"Keeping existing command: {destination}. Setup continues without replacing it.")
+            print(f"To use this checkout directly: {ROOT / 'setup.sh'}")
+            return None
         raise ValueError(f"Command already exists; left unchanged: {destination}. Use --no-command to keep it.")
     return destination
 
@@ -546,7 +550,7 @@ def main(argv=None, *, shared_profile=False, selection=None):
         # Fail before configuration menus when the required host is unavailable.
         if not args.roles_only and not args.dry_run and not shutil.which(host_cli(args.host)):
             raise ValueError(f"{host_cli(args.host)} CLI not found. Install it or use --roles-only.")
-        shortcut = command_destination() if not args.roles_only and args.command else None
+        shortcut = command_destination(keep_existing=True) if not args.roles_only and args.command else None
         project = select_target(args, interactive)
         config_root = CONFIG.installation_root(project, args.host, args.scope)
 
