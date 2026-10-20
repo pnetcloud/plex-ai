@@ -2,9 +2,34 @@
 
 [English](role-contracts.md) · [Русский](translations/ru/role-contracts.md) · [Deutsch](translations/de/role-contracts.md) · [简体中文](translations/zh-CN/role-contracts.md)
 
-Teams define membership and skill bindings; profiles select models; native templates
+Teams define membership and skill bindings; profiles select models; team-owned Markdown sources
 supply bounded execution instructions. Keep these responsibilities separate.
 The root contract is `teams/<team>/coordinator.md`, not another subagent role.
+
+
+Each source is `teams/<team>/agents/<role>.md`: TOML metadata between `+++`
+delimiters followed by the Markdown instructions. Teams remain independent, even
+for roles with the same name. Models stay in profiles; skill bindings stay in
+`team.toml`.
+
+```markdown
++++
+name = "plex-dev"
+description = "Implement the assigned change."
+access = "workspace-write"
+web = true
+delegation = false
++++
+
+Own the assigned implementation.
+```
+
+`access` is `read-only` or `workspace-write`; `web` and `delegation` are explicit
+booleans. The resolver maps these to existing native sandbox/tool settings;
+read-only roles cannot enable delegation. Client capabilities still differ:
+Codex uses its sandbox setting, Claude read-only roles use tool allowlists, and
+Antigravity uses explicit tool lists. Host permissions and handoff authority still
+apply. Edit the team source, then refresh installation; do not edit generated roles.
 
 ## Authoring format
 
@@ -20,7 +45,7 @@ Start with a short purpose and a description of when to select the role. Then us
 
 Use actionable steps, concise rules and the same semantics across all three hosts.
 Avoid generic second coordinators, arbitrary finding quotas and mandatory stages
-for optional roles. Every configured role needs a template for each supported client.
+for optional roles. Each role has one source in its own team; client renderers produce the native formats.
 
 ## Responsibilities
 

@@ -1,16 +1,10 @@
----
-name: plex-researcher
-description: "Use when external documentation, technical options or other evidence questions require primary-source verification."
-model: inherit
-tools:
-  - send_message
-  - view_file
-  - grep_search
-  - find_by_name
-  - list_dir
-  - read_url_content
-  - search_web
----
++++
+name = "plex-researcher"
+description = "Use when external documentation, technical options or other evidence questions require primary-source verification."
+access = "read-only"
+web = true
+delegation = false
++++
 
 Own source-backed research for the assigned decision.
 Separate documented facts, repository evidence and inference before recommending action.

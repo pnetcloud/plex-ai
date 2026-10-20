@@ -28,17 +28,6 @@ def read_json(path):
     return json.loads(path.read_text())
 
 
-def read_role(path, host):
-    text = path.read_text()
-    if host == "codex":
-        return tomllib.loads(text)
-    return yaml.safe_load(text.split("---", 2)[1])
-
-
-def selected_assets(team_path, preset, host):
-    extension = "toml" if host == "codex" else "md"
-    for role in preset["roles"]:
-        yield role, team_path.parent / "agents" / host / f"{role}.{extension}"
 
 
 class PackageTests(unittest.TestCase):
@@ -118,65 +107,58 @@ class PackageTests(unittest.TestCase):
         self.assertEqual((ROOT / native_source).resolve(), packages[0])
         self.assertEqual((ROOT / claude_source).resolve(), packages[1])
 
-    def test_team_role_catalog_matches_definition_for_all_hosts(self):
+    def test_team_role_catalog_matches_definition(self):
         all_roles = set()
         for team in (ROOT / "teams").glob("*/team.toml"):
             roles = set(tomllib.loads(team.read_text())["roles"])
             all_roles.update(roles)
-            for host in ("codex", "claude", "antigravity"):
-                extension = "toml" if host == "codex" else "md"
-                assets = team.parent / "agents" / host
-                self.assertEqual({p.stem for p in assets.glob(f"*.{extension}")}, roles)
+            assets = team.parent / "agents"
+            self.assertEqual({p.stem for p in assets.glob("*.md")}, roles)
+            self.assertFalse(any(p.is_dir() for p in assets.iterdir()))
         self.assertEqual(all_roles, set(ALL_ROLES))
 
     def test_role_instructions_match_across_hosts(self):
         for team in (ROOT / "teams").glob("*/team.toml"):
-            base = team.parent / "agents"
-            for role in tomllib.loads(team.read_text())["roles"]:
+            resolved = INSTALLER.CONFIG.resolve({"team": team.parent.name})
+            for role in resolved["roles"]:
                 with self.subTest(team=team.parent.name, role=role):
-                    codex = read_role(base / "codex" / f"{role}.toml", "codex")
-                    claude = (base / "claude" / f"{role}.md").read_text().split("---", 2)[2].strip()
-                    antigravity = (base / "antigravity" / f"{role}.md").read_text().split("---", 2)[2].strip()
-                    self.assertEqual(claude, codex["developer_instructions"].strip())
-                    self.assertEqual(antigravity, codex["developer_instructions"].strip())
+                    codex = tomllib.loads(INSTALLER.CONFIG.render_role(resolved, "codex", role))
+                    for host in ("claude", "antigravity"):
+                        body = INSTALLER.CONFIG.render_role(resolved, host, role).split("---", 2)[2].strip()
+                        self.assertEqual(body, codex["developer_instructions"].strip())
 
-    def test_each_preset_has_native_roles_for_both_hosts(self):
+    def test_each_team_renders_native_roles_for_all_hosts(self):
         for path in (ROOT / "teams").glob("*/team.toml"):
             preset = tomllib.loads(path.read_text())
-            with self.subTest(preset=path.name):
+            resolved = INSTALLER.CONFIG.resolve({"team": path.parent.name})
+            with self.subTest(team=path.parent.name):
                 self.assertIn(preset.get("process", "plain"), ("plain", "bmad"))
                 self.assertIs(type(preset["max_agents"]), int)
                 self.assertGreater(preset["max_agents"], 0)
                 self.assertTrue(preset["roles"])
                 self.assertEqual(len(preset["roles"]), len(set(preset["roles"])))
-                for host in ("codex", "claude", "antigravity"):
-                    for role, asset in selected_assets(path, preset, host):
+                for host in INSTALLER.CONFIG.HOSTS:
+                    for role in preset["roles"]:
                         with self.subTest(host=host, role=role):
-                            self.assertTrue(asset.is_file(), asset)
-                            data = read_role(asset, host)
+                            text = INSTALLER.CONFIG.render_role(resolved, host, role)
+                            data = tomllib.loads(text) if host == "codex" else yaml.safe_load(text.split("---", 2)[1])
                             self.assertEqual(data["name"], f"plex-{role}")
                             self.assertTrue(data["description"])
                             if host == "codex":
                                 self.assertTrue(data["developer_instructions"])
                                 self.assertNotIn("model", data)
                                 self.assertNotIn("model_reasoning_effort", data)
+                                for skill in preset.get("skills", {}).get(role, []):
+                                    self.assertIn(skill, data["developer_instructions"])
                             else:
                                 self.assertEqual(data["model"], "inherit")
                                 if host == "antigravity":
                                     self.assertIsInstance(data["tools"], list)
                 if preset["process"] == "bmad":
                     self.assertEqual(set(preset["skills"]), set(preset["roles"]))
-                    for role, bindings in preset["skills"].items():
+                    for bindings in preset["skills"].values():
                         self.assertTrue(bindings)
                         self.assertEqual(len(bindings), len(set(bindings)))
-                        codex_asset = path.parent / f"agents/codex/{role}.toml"
-                        codex_data = read_role(codex_asset, "codex")
-                        for skill_name in bindings:
-                            self.assertIn(skill_name, codex_data["developer_instructions"])
-                        for md_host in ("claude", "antigravity"):
-                            md_asset = path.parent / f"agents/{md_host}/{role}.md"
-                            md_body = md_asset.read_text().split("---", 2)[2].strip()
-                            self.assertEqual(md_body, codex_data["developer_instructions"].strip())
 
     @unittest.skipUnless(shutil.which("codex"), "Codex CLI is not installed")
     def test_native_codex_install_contains_presets_skills_and_assets(self):

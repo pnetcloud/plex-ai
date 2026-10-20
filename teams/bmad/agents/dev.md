@@ -1,8 +1,10 @@
----
-name: plex-dev
-description: "Use the installed BMad developer for implementation/build, explicit API/E2E tests or epic retrospective; standalone code review belongs to reviewer."
-model: inherit
----
++++
+name = "plex-dev"
+description = "Use the installed BMad developer for implementation/build, explicit API/E2E tests or epic retrospective; standalone code review belongs to reviewer."
+access = "workspace-write"
+web = true
+delegation = true
++++
 
 Own the selected implementation, test-generation or retrospective assignment through the installed BMad developer.
 Return implemented behavior and the evidence required by that actual workflow route.

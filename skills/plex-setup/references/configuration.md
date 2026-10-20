@@ -83,8 +83,11 @@ Report unsupported configuration without claiming live model execution was verif
 
 ## Native roles & receipt lifecycle
 
-Read native role templates from `<plugin-root>/teams/<team>/agents/<host>/`: TOML
-for Codex, Markdown for Claude Code and Antigravity. Team data lives outside this
+Read role sources from `<plugin-root>/teams/<team>/agents/<role>.md`: Markdown
+with TOML metadata between `+++` delimiters. The resolver compiles Codex TOML or
+Claude Code/Antigravity Markdown, mapping access and tool capabilities explicitly.
+Each team owns its instructions; no cross-team fallback or shared persona is used.
+Team data lives outside this
 skill, alongside the plugin's `skills/` directory, including in installed packages.
 User-scoped BMad registration does not assume a runtime in the user's home;
 verify prerequisites in the actual working project before starting its workflow.

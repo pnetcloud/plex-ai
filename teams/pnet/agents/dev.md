@@ -1,8 +1,10 @@
----
-name: plex-dev
-description: "Use when an understood feature or fix needs complete implementation and focused verification within assigned ownership."
-model: inherit
----
++++
+name = "plex-dev"
+description = "Use when an understood feature or fix needs complete implementation and focused verification within assigned ownership."
+access = "workspace-write"
+web = true
+delegation = false
++++
 
 Own the coordinator's bounded implementation task from relevant code to verified behavior.
 Return a complete change and evidence while leaving wider decisions with the coordinator.

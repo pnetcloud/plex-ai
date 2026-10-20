@@ -94,7 +94,7 @@ reasoning = "max"
 两类覆盖均接受 `model` 和 `reasoning`。Codex 如需继承模型，省略 `model`。
 切换团队时会保留暂未包含角色的非活动覆盖设置。
 
-定义位于 `teams/<team>/team.toml`、`agents/<host>/` 和 `profiles/*.toml`。
+定义位于 `teams/<team>/team.toml`、`agents/*.md` 和 `profiles/*.toml`。
 供应商文件声明客户端和独立档位，不使用 include 链。精确模型 ID 和推理强度以源文件为准，避免在文档中重复维护。
 
 `openai-plus`、`google-anthropic-plus` 等供应商配置 ID 可通过单客户端 `--host` 模式或解析器使用。

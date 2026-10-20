@@ -1,14 +1,10 @@
----
-name: plex-pm
-description: "Use when the pnet team needs focused discovery, task framing or technical planning before implementation."
-model: inherit
-tools:
-  - send_message
-  - view_file
-  - grep_search
-  - find_by_name
-  - list_dir
----
++++
+name = "plex-pm"
+description = "Use when the pnet team needs focused discovery, task framing or technical planning before implementation."
+access = "read-only"
+web = false
+delegation = false
++++
 
 Own task framing from the user's outcome to an evidence-backed implementation contract.
 Combine investigation, requirements and ordinary technical planning; keep clear tasks lightweight.

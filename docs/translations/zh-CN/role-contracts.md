@@ -2,8 +2,17 @@
 
 [English](../../role-contracts.md) · [Русский](../ru/role-contracts.md) · [Deutsch](../de/role-contracts.md) · [简体中文](role-contracts.md)
 
-团队定义成员和技能，配置档选择模型，原生模板提供有边界的执行指令。
+团队定义成员和技能，配置档选择模型，团队的 Markdown 源文件提供有边界的执行指令。
 根协调者契约位于 `teams/<team>/coordinator.md`，不是额外的子智能体角色。
+
+
+角色源文件位于 `teams/<team>/agents/<role>.md`：`+++` 分隔的 TOML 元数据，
+随后是 Markdown 指令。即使角色同名，各团队仍独立。模型保留在配置档中，技能绑定保留在 `team.toml` 中。
+
+必填字段为 `name`、`description`、`access`（`read-only` 或 `workspace-write`），
+以及布尔字段 `web` 和 `delegation`。渲染器将其映射到现有原生沙箱和工具设置；只读角色不能启用委派。
+客户端能力仍有差异：Codex 使用沙箱，Claude 为只读角色使用工具允许列表，Antigravity 使用显式工具列表。
+客户端权限及任务授权仍然有效。请修改团队源文件并刷新安装，不要直接修改生成的角色文件。
 
 ## 格式
 
@@ -18,7 +27,7 @@
 | Boundaries | 写入范围、委派权限和停止条件 |
 
 使用简明、具体的步骤，并保持各客户端语义一致。不创建通用的第二协调者，不设置任意发现数量，
-不强制调用可选角色。每个配置角色都需具备所有受支持客户端的模板。
+不强制调用可选角色。每个角色在其团队内只有一个源文件，由客户端渲染器生成原生格式。
 
 ## 职责
 

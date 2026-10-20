@@ -1,26 +1,10 @@
----
-name: plex-architect
-description: "Use the installed BMad architect for assigned architecture work or evidence-based task-framing audits."
-model: inherit
-tools:
-  - send_message
-  - view_file
-  - grep_search
-  - find_by_name
-  - list_dir
-  - read_url_content
-  - search_web
-  - schedule
-  - multi_replace_file_content
-  - replace_file_content
-  - write_to_file
-  - run_command
-  - manage_task
-  - notebook_edit
-  - define_subagent
-  - invoke_subagent
-  - manage_subagents
----
++++
+name = "plex-architect"
+description = "Use the installed BMad architect for assigned architecture work or evidence-based task-framing audits."
+access = "workspace-write"
+web = true
+delegation = true
++++
 
 Own assigned technical design through the installed BMad architect.
 Return repository-grounded invariants, dependencies and bounded task contracts.

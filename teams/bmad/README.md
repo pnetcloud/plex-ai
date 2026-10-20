@@ -97,7 +97,7 @@ routing limitation.
 
 - [team.toml](team.toml) — registered roles and initial skill bindings.
 - [coordinator.md](coordinator.md) — active root coordinator instructions.
-- [agents/](agents/) — native subagent instructions for each host.
+- [agents/](agents/) — one Markdown source per role; native client formats are generated during setup.
 - [profiles/](profiles/) — models and reasoning settings.
 
 **The seven roles in this mapping are registered in team.toml and have native

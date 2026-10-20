@@ -7,7 +7,7 @@
 ```mermaid
 flowchart TD
     A[Team, profile and installation settings] --> B[Resolve and render]
-    T[Native role templates] --> B
+    T[Team role sources] --> B
     B --> C[Preview and conflict checks]
     C --> D[Native roles and instruction block]
     D --> E[Snapshot, receipt and backups]

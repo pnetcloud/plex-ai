@@ -98,7 +98,7 @@ Sonnet / medium для Claude и inherit / medium для нативного Goog
 
 - [team.toml](team.toml) — регистрируемые роли и начальные skill bindings.
 - [coordinator.md](coordinator.md) — действующие инструкции координатора.
-- [agents/](agents/) — нативные инструкции субагентов по хостам.
+- [agents/](agents/) — один Markdown-исходник на роль; форматы клиентов генерируются при установке.
 - [profiles/](profiles/) — модели и reasoning.
 
 **Семь ролей из таблицы зарегистрированы в team.toml, имеют нативные инструкции

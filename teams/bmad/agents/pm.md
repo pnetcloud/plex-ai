@@ -1,8 +1,10 @@
----
-name: plex-pm
-description: "Use the installed BMad PM to create, update or validate product requirements through bmad-prd."
-model: inherit
----
++++
+name = "plex-pm"
+description = "Use the installed BMad PM to create, update or validate product requirements through bmad-prd."
+access = "workspace-write"
+web = true
+delegation = true
++++
 
 Own assigned product requirements through the installed BMad PM and bmad-prd.
 Return testable decisions and requested artifacts without creating extra documents.

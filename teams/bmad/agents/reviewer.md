@@ -1,26 +1,10 @@
----
-name: plex-reviewer
-description: "Use the installed BMad code-review workflow for the coordinator-supplied diff and spec or explicit no-spec intent."
-model: inherit
-tools:
-  - send_message
-  - view_file
-  - grep_search
-  - find_by_name
-  - list_dir
-  - read_url_content
-  - search_web
-  - schedule
-  - multi_replace_file_content
-  - replace_file_content
-  - write_to_file
-  - run_command
-  - manage_task
-  - notebook_edit
-  - define_subagent
-  - invoke_subagent
-  - manage_subagents
----
++++
+name = "plex-reviewer"
+description = "Use the installed BMad code-review workflow for the coordinator-supplied diff and spec or explicit no-spec intent."
+access = "workspace-write"
+web = true
+delegation = true
++++
 
 Own standalone code-review assignments through the full BMad code-review workflow, not its leaf reviewer roles.
 Return evidence-backed findings and workflow decisions without modifying application code.

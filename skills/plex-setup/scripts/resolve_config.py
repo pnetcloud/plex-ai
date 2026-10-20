@@ -144,15 +144,34 @@ def discover_known_roles():
             for role in tomllib.loads(path.read_text(encoding="utf-8"))["roles"]}
 
 
-def select_asset_path(process: str, host: str, role: str, team_name=None) -> Path:
-    if host not in HOSTS:
-        raise ValueError(f"Unknown host: {host!r}")
+def select_asset_path(process: str, role: str, team_name=None) -> Path:
     team_name = team_name or ("bmad" if process == "bmad" else "pnet")
-    extension = "toml" if host == "codex" else "md"
-    candidate = ROOT / "teams" / team_name / "agents" / host / f"{role}.{extension}"
+    candidate = ROOT / "teams" / team_name / "agents" / f"{role}.md"
     if candidate.is_file() and not any(path.is_symlink() for path in (candidate, *candidate.parents) if path != ROOT):
         return candidate
-    raise ValueError(f"No {host} asset for team {team_name}/{role}")
+    raise ValueError(f"No agent source for team {team_name}/{role}")
+
+
+def load_role(process: str, role: str, team_name=None) -> dict:
+    path = select_asset_path(process, role, team_name)
+    raw = path.read_text(encoding="utf-8")
+    header, separator, body = raw.removeprefix("+++\n").partition("\n+++\n")
+    if not raw.startswith("+++\n") or not separator or not body.strip():
+        raise ValueError(f"Malformed agent source: {path}")
+    data = tomllib.loads(header)
+    keys(data, {"name", "description", "access", "web", "delegation"}, str(path))
+    if data.get("name") != f"plex-{role}":
+        raise ValueError(f"Invalid agent name: {path}")
+    if not isinstance(data.get("description"), str) or not data["description"].strip():
+        raise ValueError(f"Missing agent description: {path}")
+    if not isinstance(data.get("access"), str) or data["access"] not in {"read-only", "workspace-write"}:
+        raise ValueError(f"Invalid agent access: {path}")
+    for field in ("web", "delegation"):
+        if type(data.get(field)) is not bool:
+            raise ValueError(f"{path}: {field} must be a boolean")
+    if data["delegation"] and data["access"] == "read-only":
+        raise ValueError(f"Read-only agents cannot delegate: {path}")
+    return {**data, "instructions": body.lstrip("\n")}
 
 
 def resolve(config):
@@ -182,9 +201,8 @@ def resolve(config):
     known_roles = discover_known_roles()
     if set(roles) - known_roles:
         raise ValueError(f"Unknown roles: {sorted(set(roles) - known_roles)}")
-    for host in HOSTS:
-        for role in roles:
-            select_asset_path(process, host, role, team_name)
+    for role in roles:
+        load_role(process, role, team_name)
     bindings = table(team.get("skills", {}), "skills")
     keys(bindings, set(roles), "skills")
     for role, names in bindings.items():
@@ -251,35 +269,25 @@ def render_role(resolved: dict, host: str, role: str) -> str:
         raise ValueError(f"Unknown host: {host!r}")
     if role not in resolved["roles"]:
         raise ValueError(f"Role {role!r} is not active in resolved configuration")
-    asset_path = select_asset_path(resolved["process"], host, role, resolved.get("team"))
-    raw = asset_path.read_text(encoding="utf-8")
-    role_skills = resolved.get("skills", {}).get(role, [])
+    source = load_role(resolved["process"], role, resolved.get("team"))
+    instructions = _inject_skill_bindings(source["instructions"], resolved.get("skills", {}).get(role, []))
     role_settings = resolved["hosts"][host][role]
 
     if host == "codex":
-        parsed = tomllib.loads(raw)
-        instructions = _inject_skill_bindings(parsed["developer_instructions"], role_skills)
         lines = [
-            f'name = {json.dumps(parsed["name"])}',
-            f'description = {json.dumps(parsed["description"])}',
+            f'name = {json.dumps(source["name"])}',
+            f'description = {json.dumps(source["description"])}',
         ]
         if "model" in role_settings:
             lines.append(f'model = {json.dumps(role_settings["model"])}')
         if "reasoning" in role_settings:
             lines.append(f'model_reasoning_effort = {json.dumps(role_settings["reasoning"])}')
-        if "sandbox_mode" in parsed:
-            lines.append(f'sandbox_mode = {json.dumps(parsed["sandbox_mode"])}')
+        lines.append(f'sandbox_mode = {json.dumps(source["access"])}')
         lines.append(f"developer_instructions = {toml_multiline(instructions)}")
         rendered = "\n".join(lines) + "\n"
         tomllib.loads(rendered)
         return rendered
 
-    parts = raw.split("---", 2)
-    if len(parts) < 3:
-        raise ValueError(f"Malformed {host} role asset: {asset_path}")
-    frontmatter_lines = parts[1].strip("\n").splitlines()
-    body = parts[2].lstrip("\n")
-    body = _inject_skill_bindings(body, role_skills)
     model_value = role_settings.get("model", "inherit")
     if host == "antigravity" and model_value not in ANTIGRAVITY_NATIVE_MODELS:
         raise ValueError(
@@ -287,19 +295,31 @@ def render_role(resolved: dict, host: str, role: str) -> str:
             "choose a supported tier or explicitly choose inherit for the current session model. "
             "No model substitution was applied."
         )
-    updated_frontmatter = []
-    replaced_model = False
-    for line in frontmatter_lines:
-        if line.startswith("model:"):
-            updated_frontmatter.append(f"model: {json.dumps(model_value)}")
-            replaced_model = True
-        else:
-            updated_frontmatter.append(line)
-    if not replaced_model:
-        updated_frontmatter.append(f"model: {json.dumps(model_value)}")
+    lines = [f'name: {source["name"]}', f'description: {json.dumps(source["description"])}']
+    # Preserve the native tool restrictions; omitting Claude tools inherits host permissions.
+    tools = ["Read", "Glob", "Grep"]
+    if host == "claude" and source["access"] == "read-only":
+        if source["web"]:
+            tools += ["WebSearch", "WebFetch"]
+        tool_line = "tools: " + ", ".join(tools)
+    elif host == "antigravity":
+        tools = ["send_message", "view_file", "grep_search", "find_by_name", "list_dir"]
+        if source["web"]:
+            tools += ["read_url_content", "search_web"]
+        if source["access"] == "workspace-write":
+            tools += ["schedule", "multi_replace_file_content", "replace_file_content",
+                      "write_to_file", "run_command", "manage_task", "notebook_edit"]
+        if source["delegation"]:
+            tools += ["define_subagent", "invoke_subagent", "manage_subagents"]
+        tool_line = "tools:\n" + "\n".join(f"  - {tool}" for tool in tools)
+    else:
+        tool_line = None
+    lines.append(f"model: {json.dumps(model_value)}")
+    if tool_line:
+        lines.append(tool_line)
     if "reasoning" in role_settings:
-        updated_frontmatter.append(f"effort: {role_settings['reasoning']}")
-    return "---\n" + "\n".join(updated_frontmatter) + "\n---\n\n" + body.rstrip("\n") + "\n"
+        lines.append(f"effort: {role_settings['reasoning']}")
+    return "---\n" + "\n".join(lines) + "\n---\n\n" + instructions.rstrip("\n") + "\n"
 
 
 def host_dotdir(host: str) -> str:

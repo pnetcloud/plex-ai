@@ -109,7 +109,7 @@ Clienttabellen heißen `[codex]`, `[claude]`, `[antigravity]`; Rollentabellen er
 Rollennamen. Beide akzeptieren `model` und `reasoning`. Für Codex-Vererbung `model`
 weglassen. Teamwechsel bewahren inaktive Overrides für derzeit nicht enthaltene Rollen.
 
-Definitionen liegen in `teams/<team>/team.toml`, `agents/<host>/` und `profiles/*.toml`.
+Definitionen liegen in `teams/<team>/team.toml`, `agents/*.md` und `profiles/*.toml`.
 Anbieterdateien deklarieren einen Client und unabhängige Stufen, ohne Include-Ketten.
 Genaue Modell-IDs und Effort-Werte gehören dorthin, nicht in duplizierte Dokumentationstabellen.
 

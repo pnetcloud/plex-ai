@@ -109,7 +109,7 @@ Host tables are `[codex]`, `[claude]`, `[antigravity]`; role tables add the role
 Both accept `model` and `reasoning`. For Codex inheritance, omit `model`.
 Team switches preserve inactive overrides for roles absent from the selected team.
 
-Definitions live in `teams/<team>/team.toml`, `agents/<host>/` and `profiles/*.toml`.
+Definitions live in `teams/<team>/team.toml`, `agents/*.md` and `profiles/*.toml`.
 Vendor files declare one host and independent tier blocks; profiles have no include chain.
 Exact model IDs and effort settings belong there, not in duplicated documentation tables.
 

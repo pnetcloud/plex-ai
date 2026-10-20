@@ -58,8 +58,8 @@ class ConfigTests(unittest.TestCase):
         for process in ('plain', 'bmad'):
             resolved = resolve({'team': 'pnet' if process == 'plain' else 'bmad'})
             for role, item in render_host_roles(resolved, 'codex').items():
-                asset = tomllib.loads(MODULE.select_asset_path(process, 'codex', role).read_text())
-                expected = MODULE._inject_skill_bindings(asset['developer_instructions'],
+                asset = MODULE.load_role(process, role)
+                expected = MODULE._inject_skill_bindings(asset['instructions'],
                                                          resolved['skills'].get(role, []))
                 self.assertIn('developer_instructions = """\n', item['content'])
                 self.assertEqual(tomllib.loads(item['content'])['developer_instructions'], expected)
@@ -205,17 +205,54 @@ class ConfigTests(unittest.TestCase):
             root = Path(temp).resolve()
             shutil.copytree(ROOT / "teams", root / "teams")
             shutil.copytree(root / "teams/pnet", root / "teams/focused")
-            asset = root / "teams/focused/agents/codex/dev.toml"
+            asset = root / "teams/focused/agents/dev.md"
             asset.write_text(asset.read_text().replace("Working mode:", "Selected team marker\n\nWorking mode:"))
             with patch.object(MODULE, "ROOT", root):
                 resolved = resolve({"team": "focused"})
-                self.assertIn("Selected team marker", MODULE.render_role(resolved, "codex", "dev"))
+                for host in MODULE.HOSTS:
+                    self.assertIn("Selected team marker", MODULE.render_role(resolved, host, "dev"))
+                    self.assertNotIn("Selected team marker", MODULE.render_role(resolve({"team": "pnet"}), host, "dev"))
+
+    def test_invalid_source_metadata_is_rejected_before_apply(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp).resolve()
+            shutil.copytree(ROOT / "teams", root / "teams")
+            asset = root / "teams/pnet/agents/dev.md"
+            original = asset.read_text()
+            for before, after in (
+                ('access = "workspace-write"', 'access = "full-access"'),
+                ('web = true', 'web = "true"'),
+                ('delegation = false', 'delegation = []'),
+                ('name = "plex-dev"', 'name = "other"'),
+                ('+++', '---'),
+                ('web = true', 'web = true\nunknown = true'),
+                ('access = "workspace-write"', 'access = []'),
+            ):
+                with self.subTest(after=after), patch.object(MODULE, "ROOT", root):
+                    asset.write_text(original.replace(before, after))
+                    with self.assertRaises(ValueError):
+                        resolve({"team": "pnet"})
+
+    def test_render_preserves_native_access_and_tools(self):
+        plain = resolve({"team": "pnet"})
+        bmad = resolve({"team": "bmad"})
+        self.assertEqual(tomllib.loads(MODULE.render_role(plain, "codex", "explorer"))["sandbox_mode"], "read-only")
+        self.assertEqual(tomllib.loads(MODULE.render_role(bmad, "codex", "dev"))["sandbox_mode"], "workspace-write")
+        self.assertIn("tools: Read, Glob, Grep\n", MODULE.render_role(plain, "claude", "explorer"))
+        self.assertIn("tools: Read, Glob, Grep, WebSearch, WebFetch\n", MODULE.render_role(plain, "claude", "researcher"))
+        self.assertNotIn("tools:", MODULE.render_role(bmad, "claude", "dev"))
+        for team, role, expected in ((plain, "explorer", False), (plain, "researcher", False),
+                                     (plain, "dev", True), (bmad, "dev", True)):
+            text = MODULE.render_role(team, "antigravity", role)
+            self.assertEqual("  - write_to_file\n" in text, expected)
+            self.assertEqual("  - define_subagent\n" in text, team is bmad)
+            self.assertEqual("  - search_web\n" in text, role != "explorer")
 
     def test_missing_team_template_never_falls_back(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp).resolve()
             shutil.copytree(ROOT / "teams", root / "teams")
-            (root / "teams/bmad/agents/codex/reviewer.toml").unlink()
+            (root / "teams/bmad/agents/reviewer.md").unlink()
             with patch.object(MODULE, "ROOT", root):
                 with self.assertRaisesRegex(ValueError, "team bmad/reviewer"):
                     resolve({"team": "bmad"})

@@ -2,9 +2,22 @@
 
 [English](../../role-contracts.md) · [Русский](../ru/role-contracts.md) · [Deutsch](role-contracts.md) · [简体中文](../zh-CN/role-contracts.md)
 
-Teams definieren Mitglieder/Skills; Profile wählen Modelle; native Vorlagen liefern
+Teams definieren Mitglieder/Skills; Profile wählen Modelle; Markdown-Quelldateien des Teams liefern
 begrenzte Ausführungsanweisungen. Der Root-Vertrag ist `teams/<team>/coordinator.md`,
 keine zusätzliche Subagentenrolle.
+
+
+Die Quelle liegt unter `teams/<team>/agents/<role>.md`: TOML-Metadaten zwischen
+`+++`, gefolgt von Markdown-Anweisungen. Teams bleiben auch bei gleichen Rollennamen
+unabhängig. Modelle bleiben in Profilen, Skill-Bindungen in `team.toml`.
+
+Pflichtfelder: `name`, `description`, `access` (`read-only` oder `workspace-write`)
+sowie die booleschen Felder `web` und `delegation`. Der Renderer bildet sie auf die
+bestehenden nativen Sandbox-/Werkzeugeinstellungen ab. Schreibgeschützte Rollen
+dürfen nicht delegieren. Codex nutzt die Sandbox, Claude Werkzeuglisten für
+schreibgeschützte Rollen, Antigravity explizite Werkzeuglisten. Client-Berechtigungen
+und Auftragsbefugnisse gelten weiterhin. Team-Quellen bearbeiten und die Installation
+aktualisieren; generierte Rollen nicht direkt ändern.
 
 ## Format
 
@@ -20,7 +33,7 @@ Mit kurzem Zweck und Auswahlbeschreibung beginnen, danach:
 
 Konkrete, kurze Schritte mit gleicher Semantik für alle Clients verwenden.
 Keine generischen zweiten Koordinatoren, willkürlichen Befundquoten oder Pflichtaufrufe
-optionaler Rollen. Jede konfigurierte Rolle braucht Vorlagen für alle unterstützten Clients.
+optionaler Rollen. Jede Rolle hat eine Quelle innerhalb ihres Teams; Client-Renderer erzeugen die nativen Formate.
 
 ## Verantwortung
 
