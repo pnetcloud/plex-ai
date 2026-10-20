@@ -13,6 +13,7 @@ Plex 在 Codex、Claude Code 和 Antigravity 中配置并协调智能体团队�
 | [角色契约](role-contracts.md) | 职责和执行指令 |
 | [开发](development.md) | 源码布局与检查 |
 | [测试与效率](testing.md) | 实测结果、token、成本和质量观察 |
+| [发布说明](releases/v0.3.0.md) | v0.3.0 预览版：内容、安装和限制 |
 | [发布说明](releases/v0.2.0.md) | v0.2.0 预览版：内容、安装和限制 |
 | [发布说明](releases/v0.1.0.md) | v0.1.0 预览版：内容、安装和限制 |
 

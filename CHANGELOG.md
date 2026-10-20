@@ -1,9 +1,9 @@
 # Changelog
 
-Important changes retained in Plex, grouped by release. Both releases below are
+Important changes retained in Plex, grouped by release. The releases below are
 previews; interfaces and configuration may change before 1.0.
 
-## Unreleased
+## [0.3.0] — 2026-10-20
 
 - Add `interactive`, `balanced` (default) and `auto` interaction modes with saved
   configuration and setup flags. Route questions through the coordinator and use
@@ -53,5 +53,6 @@ First public preview.
   qualitative findings with their limitations.
 - Release under the MIT license with third-party attribution notices.
 
+[0.3.0]: https://github.com/pnetcloud/plex-ai/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/pnetcloud/plex-ai/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/pnetcloud/plex-ai/releases/tag/v0.1.0
