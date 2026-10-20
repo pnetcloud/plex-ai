@@ -3,6 +3,14 @@
 Important changes retained in Plex, grouped by release. The releases below are
 previews; interfaces and configuration may change before 1.0.
 
+## [0.5.1] — 2026-10-20
+
+- Restyle CLI setup, status, source updates, removal and help with consistent
+  sections, model tables, command highlights and terminal-aware colors. Keep
+  redirected/NO_COLOR output plain and JSON responses free of decoration.
+- Show compact instruction-file summaries instead of dumping the full template;
+  make removal output human-readable by default, with `--json` for automation.
+
 ## [0.5.0] — 2026-10-20
 
 - Detect existing team installations and offer update-only or reconfiguration;

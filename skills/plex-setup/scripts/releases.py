@@ -5,6 +5,7 @@
 """Select a published Plex release and update a dedicated source checkout."""
 import argparse
 import json
+import os
 from pathlib import Path
 import re
 import subprocess
@@ -15,6 +16,14 @@ import urllib.request
 
 REPOSITORY = "https://github.com/pnetcloud/plex-ai.git"
 API = "https://api.github.com/repos/pnetcloud/plex-ai/releases"
+
+
+def message(text, *, error=False):
+    stream = sys.stderr if error else sys.stdout
+    label = "ERROR" if error else "SOURCE"
+    if stream.isatty() and "NO_COLOR" not in os.environ and os.environ.get("TERM") != "dumb":
+        label = f"\033[{'1;31' if error else '1;36'}m{label}\033[0m"
+    print(f"\n  [{label}] {text}", file=stream, flush=True)
 
 
 def published_release(version=None):
@@ -57,21 +66,24 @@ def update_checkout(checkout, version=None, development=False, dry_run=False):
         if git(checkout, "status", "--porcelain"):
             raise ValueError("Checkout has local changes; commit or move them before updating")
         if dry_run:
-            print(f"Would update {checkout} to {target}")
+            message(f"Would update {checkout} to {target}")
             return target
+        message(f"Fetching {target} → {checkout}")
         git(checkout, "fetch", "origin", *(["main"] if development else ["tag", target]))
         git(checkout, "checkout", "--detach", "FETCH_HEAD" if development else target)
     else:
         if dry_run:
-            print(f"Would install {target} in {checkout}")
+            message(f"Would install {target} in {checkout}")
             return target
         checkout.parent.mkdir(parents=True, exist_ok=True)
-        result = subprocess.run(["git", "clone", "--branch", target, REPOSITORY, str(checkout)], timeout=120)
+        message(f"Downloading {target} → {checkout}")
+        result = subprocess.run(["git", "clone", "--branch", target, REPOSITORY, str(checkout)],
+                                capture_output=True, text=True, timeout=120)
         if result.returncode:
-            raise ValueError("Could not download Plex")
+            raise ValueError("Could not download Plex: " + (result.stderr.strip() or result.stdout.strip()))
         if development:
             git(checkout, "checkout", "--detach", "HEAD")
-    print(f"Plex source: {target} ({git(checkout, 'rev-parse', '--short', 'HEAD')})", flush=True)
+    message(f"Plex source: {target} ({git(checkout, 'rev-parse', '--short', 'HEAD')})")
     return target
 
 
@@ -88,7 +100,7 @@ def main(argv=None):
             return 0
         return subprocess.call([str(args.checkout / "setup.sh"), *setup_args])
     except (OSError, ValueError, subprocess.TimeoutExpired) as error:
-        print(f"Plex update stopped: {error}", file=sys.stderr)
+        message(f"Plex update stopped: {error}", error=True)
         return 1
 
 

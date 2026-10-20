@@ -23,6 +23,7 @@ import shlex
 import shutil
 import subprocess
 import tempfile
+import textwrap
 import tomllib
 
 
@@ -40,14 +41,66 @@ MENU_STYLE = [
     ("selected", "fg:#22c55e noreverse"),
     ("highlighted", "fg:default bg:default noreverse"),
     ("text", "fg:default bg:default noreverse"),
-    ("answer", "fg:#06b6d4"),
+    ("choice-title", "bold"),
+    ("description", "fg:#808080"),
+    ("answer", "fg:#06b6d4 bold"),
+    ("question", "bold"),
     ("instruction", "fg:#808080"),
 ]
 
 
+def style(text, tone="bold", *, file=None):
+    stream = sys.stdout if file is None else file
+    colors = {"title": "1;36", "bold": "1", "muted": "2", "ok": "1;32",
+              "warn": "1;33", "error": "1;31", "command": "36"}
+    if stream.isatty() and "NO_COLOR" not in os.environ and os.environ.get("TERM") != "dumb":
+        return f"\033[{colors[tone]}m{text}\033[0m"
+    return str(text)
+
+
 def heading(text):
-    color = sys.stdout.isatty() and "NO_COLOR" not in os.environ
-    print(f"\n\033[1;36m{text}\033[0m" if color else f"\n{text}", flush=True)
+    width = min(64, max(20, shutil.get_terminal_size().columns - 2))
+    print("\n" + style(text, "title") + "\n" + style("─" * width, "muted"), flush=True)
+
+
+def field(label, value, tone="bold"):
+    value = str(value).replace("\n", "\n" + " " * 16)
+    print("  " + style(f"{label:<14}", "muted") + style(value, tone))
+
+
+def notice(text, tone="muted", *, file=None):
+    stream = sys.stdout if file is None else file
+    labels = {"ok": "OK", "warn": "WARN", "error": "ERROR", "muted": "INFO"}
+    prefix = f"[{labels[tone]}] "
+    width = max(16, shutil.get_terminal_size().columns - len(prefix) - 2)
+    lines = "\n".join(textwrap.fill(line, width=width, break_long_words=False,
+                                  break_on_hyphens=False) for line in str(text).splitlines())
+    print("  " + style(prefix, tone, file=stream) + lines.replace("\n", "\n  " + " " * len(prefix)), file=stream)
+
+
+def show_command(command):
+    text = shlex.join(command) if isinstance(command, (list, tuple)) else command
+    print("    " + style("$ ", "muted") + style(text, "command"))
+
+
+def role_table(roles):
+    rows = [(f"plex-{role}", values.get("model", "inherit"), values.get("reasoning", "session default"))
+            for role, values in roles.items()]
+    widths = [max(len(row[i]) for row in [("AGENT", "MODEL", "REASONING"), *rows]) for i in range(3)]
+    print()
+    if sum(widths) + 8 > shutil.get_terminal_size().columns:
+        for name, model, reasoning in rows:
+            print("  " + style(name) + "\n    " + style(f"{model} / {reasoning}", "command"))
+    else:
+        print("  " + style("  ".join(value.ljust(width) for value, width in zip(("AGENT", "MODEL", "REASONING"), widths)), "muted"))
+        for name, model, reasoning in rows:
+            print("  " + style(name.ljust(widths[0])) + "  " + style(model.ljust(widths[1]), "command")
+                  + "  " + style(reasoning, "muted"))
+
+
+class HelpFormatter(argparse.RawDescriptionHelpFormatter):
+    def start_section(self, heading):
+        super().start_section(style(heading, "title"))
 
 
 def choose(label, choices, default):
@@ -56,7 +109,10 @@ def choose(label, choices, default):
         labels = {"__default__": "Default", "__manual__": "Other model…", "__done__": "Done",
                   "inherit": "Inherit session settings", "custom": "Custom",
                   "basic": "Basic", "plus": "Plus", "pro": "Pro", "pro-plus": "Pro+",
-                  "refresh": "Update only", "configure": "Reconfigure"}
+                  "refresh": "Update only", "configure": "Reconfigure",
+                  "project": "Project (recommended)", "user": "User-wide",
+                  "pnet": "pnet · Standalone", "bmad": "bmad · BMad workflows",
+                  "interactive": "Interactive", "balanced": "Balanced (recommended)", "auto": "Auto"}
         if label == "Model profile":
             for name in choices:
                 if name in CONFIG.PROFILE_TIERS:
@@ -73,21 +129,22 @@ def choose(label, choices, default):
                         labels[name] = f"{title} · " + ("Pro+" if tier == "pro-plus" else tier.title())
                         break
         return ui.select(label, choices=[ui.Choice(
-            [("class:text", labels.get(name, name) if label == "Model profile" else f"{labels.get(name, name)}  {detail}")],
-            value=name, description=detail if label == "Model profile" else None)
+            [("class:choice-title", labels.get(name, name))],
+            value=name, description=detail.replace("; ", "\n"))
                                         for name, detail in choices.items()], default=default,
-                         pointer="›", style=ui.Style(MENU_STYLE)).unsafe_ask()
+                         pointer="›", style=ui.Style(MENU_STYLE),
+                         instruction="↑/↓ move · Enter confirm").unsafe_ask()
     heading(label)
     names = list(choices)
     for index, name in enumerate(names, 1):
         print(f"  {index}. {name:<16} {choices[name]}")
     while True:
-        answer = input(f"Choice [{default}]: ").strip() or default
+        answer = input(style(f"Choice [{default}]: ", "command")).strip() or default
         if answer.isdigit() and 1 <= int(answer) <= len(names):
             answer = names[int(answer) - 1]
         if answer in choices:
             return answer
-        print("Choose a listed name or number.")
+        notice("Choose a listed name or number.", "warn")
 
 
 def choose_clients():
@@ -114,11 +171,12 @@ def choose_clients():
                     for item in selected]
         if selected and all(item in choices for item in selected):
             return list(dict.fromkeys(selected))
-        print("Select at least one listed client, for example 1,2.")
+        notice("Select at least one listed client, for example 1,2.", "warn")
 
 
 def terminal_ui():
-    if sys.stdin.isatty() and sys.stdout.isatty():
+    if (sys.stdin.isatty() and sys.stdout.isatty()
+            and "NO_COLOR" not in os.environ and os.environ.get("TERM") != "dumb"):
         try:
             import questionary
             return questionary
@@ -130,8 +188,8 @@ def terminal_ui():
 def ask_text(label, default=""):
     ui = terminal_ui()
     if ui:
-        return ui.text(label, default=default).unsafe_ask()
-    return input(f"{label} [{default}]: ").strip() or default
+        return ui.text(label, default=default, style=ui.Style(MENU_STYLE)).unsafe_ask()
+    return input(style(f"{label} [{default}]: ", "command")).strip() or default
 
 
 def model_catalog(host, project):
@@ -139,7 +197,7 @@ def model_catalog(host, project):
         return {name: {} for name in ("sonnet", "opus", "haiku", "fable", "inherit")}
     if host == "antigravity":
         return {name: {} for name in CONFIG.ANTIGRAVITY_NATIVE_MODELS}
-    print("\nReading the active Codex model catalog…", flush=True)
+    notice("Reading the active Codex model catalog…")
     try:
         result = subprocess.run(["codex", "debug", "models"], cwd=project,
                                 capture_output=True, text=True, timeout=15)
@@ -148,7 +206,7 @@ def model_catalog(host, project):
         return {item["slug"]: item for item in json.loads(result.stdout)["models"]
                 if item.get("visibility", "list") == "list"}
     except (OSError, ValueError, KeyError, TypeError, subprocess.TimeoutExpired):
-        print("Codex catalog unavailable. Using packaged suggestions; availability is unverified.")
+        notice("Codex catalog unavailable. Using packaged suggestions; availability is unverified.", "warn")
         models = {}
         for profiles in CONFIG.list_catalog()["model_profiles"].values():
             for profile in profiles.values():
@@ -163,8 +221,10 @@ def customize_roles(config, host, project):
     config = copy.deepcopy(config)
     resolved = CONFIG.resolve(config)
     models = model_catalog(host, project)
-    print(f"\nCustom overrides on {resolved['model_profile']}. Default uses profile/project settings.")
-    print("Model availability depends on your provider and account.")
+    heading("Custom model overrides")
+    field("Base profile", resolved["model_profile"])
+    notice("Default uses profile/project settings.")
+    notice("Model availability depends on your provider and account.")
     host_config = config.setdefault(host, {})
     while True:
         effective = CONFIG.resolve(config)["hosts"][host]
@@ -203,7 +263,7 @@ def customize_roles(config, host, project):
         choices.update({effort: descriptions.get(effort, "") for effort in efforts})
         current = values.get("reasoning", "__default__")
         if current not in choices:
-            print(f"  Previous reasoning {current!r} is not listed for this model; choose a supported level.")
+            notice(f"Previous reasoning {current!r} is not listed for this model; choose a supported level.", "warn")
             current = "__default__"
         selected = choose(f"plex-{role} · Reasoning", choices, current)
         if selected == "__default__":
@@ -306,8 +366,8 @@ def command_destination(*, keep_existing=False):
         return destination
     if destination.exists() or destination.is_symlink():
         if keep_existing:
-            print(f"Keeping existing command: {destination}. Setup continues without replacing it.")
-            print(f"To use this checkout directly: {ROOT / 'setup.sh'}")
+            notice(f"Keeping existing command: {destination}. Setup continues without replacing it.", "warn")
+            show_command([str(ROOT / "setup.sh")])
             return None
         raise ValueError(f"Command already exists; left unchanged: {destination}. Use --no-command to keep it.")
     return destination
@@ -321,9 +381,12 @@ def install_command():
         destination.unlink()  # Upgrade this checkout's previous shortcut.
     if not destination.is_symlink():
         destination.symlink_to(source)
-    print(f"Command ready: {destination}\nRun plex from any project directory.")
+    heading("Plex command")
+    notice(f"Command ready: {destination}", "ok")
+    show_command("plex")
     if str(destination.parent) not in os.environ.get("PATH", "").split(os.pathsep):
-        print('Add this to your shell configuration: export PATH="$HOME/.local/bin:$PATH"')
+        notice("Add this to your shell configuration:", "warn")
+        show_command('export PATH="$HOME/.local/bin:$PATH"')
 
 
 # This official skills revision includes PO; the plugin marketplace still lags it.
@@ -373,11 +436,12 @@ def bmad_user_skills(host):
 def install_bmad_dependencies(project, host):
     if not shutil.which("npx"):
         raise ValueError("Installing official BMad skills requires Node.js/npm (npx). Install them and retry.")
-    print("Installing the selected official BMad skills for this user. Existing selected "
-          "user skill files may be replaced; other projects share them. Installed plugins "
-          "are not changed. These changes remain after cancellation or later failure.")
+    heading("Install BMad dependencies")
+    notice("Installing the selected official BMad skills for this user. Existing selected "
+           "user skill files may be replaced; other projects share them. Installed plugins "
+           "are not changed. These changes remain after cancellation or later failure.", "warn")
     for command in bmad_install_commands(host):
-        print("  " + shlex.join(command))
+        show_command(command)
         run(command, project)
     root = bmad_user_skills(host)
     missing = [name for name in bmad_required_skills() if not (root / name / "SKILL.md").is_file()]
@@ -461,7 +525,7 @@ def plan_bmad_init(project, host, explicit, interactive):
             answer = ask_text(question["prompt"], question["default"])
         else:
             answer = question["default"]
-            print(f"  BMad default: {question['prompt']} = {answer}")
+            field("BMad default", f"{question['prompt']} = {answer}")
         answers[identity] = answer
     return {"command": command, "answers": answers, "skill": skill}
 
@@ -482,7 +546,7 @@ def initialize_bmad(project, plan):
         run(command, project)
     if not bmad_runtime_ready(project):
         raise ValueError("Official BMad setup did not produce the required runtime; inspect its output before retrying")
-    print("  BMad runtime initialized by its official setup. It remains if a later Plex step fails.")
+    notice("BMad runtime initialized by its official setup. It remains if a later Plex step fails.", "ok")
 
 
 def verify_plugin(host, project):
@@ -531,7 +595,7 @@ def setup_clients(args, clients, interactive):
         if missing:
             raise ValueError(f"Missing client CLI: {', '.join(missing)}. Install it or use --roles-only.")
     project = select_target(args, interactive)
-    print("One profile is shared by all clients. Each installation has a plan to confirm; stopping preserves completed clients.")
+    notice("One profile is shared by all clients. Each installation has a plan to confirm; stopping preserves completed clients.")
     completed = []
     setup_mode = None
     instruction_choices = {}
@@ -557,7 +621,7 @@ def setup_clients(args, clients, interactive):
         selection = {}
         status = main(options, shared_profile=True, selection=selection, setup_mode=setup_mode)
         if status or selection.get("cancelled"):
-            print(f"Stopped at {client}. Completed clients: {', '.join(completed) or 'none'}. Rerun to continue.")
+            notice(f"Stopped at {client}. Completed clients: {', '.join(completed) or 'none'}. Rerun to continue.", "warn")
             return status
         completed.append(client)
         setup_mode = selection["setup_mode"]
@@ -577,7 +641,7 @@ def setup_clients(args, clients, interactive):
         for client in clients:
             if CONFIG.check_project(project, client, args.scope)["status"] != "in_sync":
                 raise ValueError(f"Final check failed for client {client}; rerun setup")
-        print(f"All selected clients are in sync: {', '.join(completed)}.")
+        notice(f"All selected clients are in sync: {', '.join(completed)}.", "ok")
     return 0
 
 
@@ -732,6 +796,28 @@ def plex_status(project, clients, scope=None):
     return {"version": version, "source": str(ROOT), "clients": reports}
 
 
+def removal_report(results, preview=False):
+    heading("Plex · Removal preview" if preview else "Plex · Uninstall complete")
+    for item in results:
+        print("\n  " + style(f"{item['host']} · {item['scope']}"))
+        field("Status", item["status"], "muted" if preview else "ok")
+        if item.get("root"):
+            field("Root", item["root"], "muted")
+        roles = item["removed_roles"]
+        field("Remove roles" if preview else "Removed roles", len(roles))
+        if roles:
+            notice(", ".join(f"plex-{role}" for role in roles))
+        if item.get("instruction_block_removed"):
+            field("Instructions", "Remove managed block only" if preview else "Managed block removed")
+        if item.get("remove_dev_links_and_override"):
+            field("Dev mode", "Remove owned links and plugin override")
+        if item.get("backup_dir"):
+            field("Backups", Path(item["root"]) / item["backup_dir"], "muted")
+    if preview:
+        print()
+        notice("Preview only. No files or plugins changed.", "ok")
+
+
 def maintenance(args):
     project = (args.project or Path.cwd()).expanduser().absolute()
     clients = list(dict.fromkeys(([args.host] if args.host else []) + (args.clients or []))) or list(CONFIG.HOSTS)
@@ -740,16 +826,23 @@ def maintenance(args):
         if args.json:
             print(json.dumps(result, indent=2))
         else:
-            print(f"Plex {result['version']}\nSource: {result['source']}")
+            heading(f"Plex {result['version']} · Status")
+            field("Source", result["source"], "muted")
             for item in result["clients"]:
-                print(f"\n{item['client']} ({item['scope']}): {item['status']}")
-                print(f"  Team/profile: {item['team'] or '—'} / {item['profile'] or '—'}; plugin: {item['plugin']}")
-                print(f"  Root: {item['root']}; native roles: {len(item['roles'])}")
+                heading(f"{item['client']} · {item['scope']}")
+                healthy = item["status"] == "in_sync" and item["plugin"] in {"enabled", "development"}
+                tone = "ok" if healthy else "muted" if item["status"] == "unconfigured" else "warn"
+                field("Status", item["status"], tone)
+                field("Team / profile", f"{item['team'] or '—'} / {item['profile'] or '—'}")
+                field("Plugin", item["plugin"], tone)
+                field("Root", item["root"], "muted")
+                field("Native roles", len(item["roles"]))
                 if item["dev_source"]:
-                    print(f"  Development source: {item['dev_source']}")
+                    field("Dev source", item["dev_source"], "command")
                 for conflict in item["conflicts"]:
-                    print(f"  Conflict: {conflict}")
-            print("\nConfiguration/plugin checks only; runtime model routing is not verified.")
+                    notice(f"Conflict: {conflict}", "error")
+            print()
+            notice("Configuration/plugin checks only; runtime model routing is not verified.")
         return int(any(item["conflicts"] or item["configured"] and
                        (item["status"] != "in_sync" or item["plugin"] not in {"enabled", "development"})
                        for item in result["clients"]))
@@ -762,57 +855,79 @@ def maintenance(args):
             if plan["host"] == "codex":
                 plan["remove_dev_links_and_override"] = True
     if args.dry_run:
-        print(json.dumps(plans, indent=2))
+        if args.json:
+            print(json.dumps(plans, indent=2))
+        else:
+            removal_report(plans, preview=True)
         return 0
     if not args.yes:
         if not sys.stdin.isatty():
             raise ValueError("Use uninstall --dry-run to preview or uninstall --yes to confirm")
-        for plan in plans:
-            print(f"{plan['host']} ({scope}): {len(plan['removed_roles'])} owned roles")
-        if input("Remove these Plex roles and owned instruction blocks? [y/N] ").strip().lower() not in {"y", "yes"}:
-            print("Uninstall cancelled.")
+        if not args.json:
+            removal_report(plans, preview=True)
+        question = "Remove these Plex roles and owned instruction blocks? [y/N] "
+        if args.json:
+            print(question, end="", file=sys.stderr, flush=True)
+            answer = input()
+        else:
+            answer = input(question)
+        if answer.strip().lower() not in {"y", "yes"}:
+            if args.json:
+                print("[]")
+            else:
+                notice("Uninstall cancelled.")
             return 0
     results = []
     for client in clients:
         with apply_dev(dev_plan) if dev_plan and client == "codex" else nullcontext():
             results.append(CONFIG.uninstall_project(project, client, scope))
-    print(json.dumps(results, indent=2))
-    if not args.json:
-        print("Shared plugins, source checkout, preset preferences and backups were retained.")
+    if args.json:
+        print(json.dumps(results, indent=2))
+    else:
+        removal_report(results)
+        notice("Shared plugins, source checkout, preset preferences and backups were retained.")
     return 0
 
 
 def main(argv=None, *, shared_profile=False, selection=None, setup_mode=None):
     argv = list(sys.argv[1:] if argv is None else argv)
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(
+        prog="plex", usage="%(prog)s [command] [options]",
+        description="Plex · Configure and inspect your agent team.", formatter_class=HelpFormatter,
+        epilog="Examples:\n  plex                             Open setup\n  plex status --client codex        Check this project\n  plex update                       Download and refresh\n  plex uninstall --dry-run          Preview removal\n  plex --dev --client codex         Use this checkout's skills")
+    target_options = parser.add_argument_group("Clients and scope")
+    team_options = parser.add_argument_group("Team and models")
+    bmad_options = parser.add_argument_group("BMad dependencies")
+    output_options = parser.add_argument_group("Execution and output")
+    update_options = parser.add_argument_group("Source updates")
     parser.add_argument("action", nargs="?", choices=("setup", "status", "update", "uninstall"), default="setup")
-    parser.add_argument("--json", action="store_true", help="Machine-readable status")
-    parser.add_argument("--release", help="Published tag for update; defaults to newest published release")
-    parser.add_argument("--development", action="store_true", help="Explicitly update to main")
-    parser.add_argument("--project", type=Path, help="Existing target project directory")
-    parser.add_argument("--client", dest="clients", action="append", choices=CONFIG.HOSTS,
+    output_options.add_argument("--json", action="store_true", help="Machine-readable status or uninstall output (no styling)")
+    update_options.add_argument("--release", help="Published tag for update; defaults to newest published release")
+    update_options.add_argument("--development", action="store_true", help="Explicitly update to main")
+    target_options.add_argument("--project", type=Path, help="Existing target project directory")
+    target_options.add_argument("--client", dest="clients", action="append", choices=CONFIG.HOSTS,
                         help="Client to configure; repeat to select several")
-    parser.add_argument("--host", choices=CONFIG.HOSTS, help="Compatibility alias for one --client")
-    parser.add_argument("--scope", choices=("project", "user"), help="Role installation scope; default: project (recommended)")
-    parser.add_argument("--instructions", action=argparse.BooleanOptionalAction, default=None,
+    target_options.add_argument("--host", choices=CONFIG.HOSTS, help="Compatibility alias for one --client")
+    target_options.add_argument("--scope", choices=("project", "user"), help="Role installation scope; default: project (recommended)")
+    target_options.add_argument("--instructions", action=argparse.BooleanOptionalAction, default=None,
                         help="Add/update the managed Plex block in the native instruction file (default: enabled)")
-    parser.add_argument("--team", help="Work mode (role set); preserve current selection if omitted")
-    parser.add_argument("--model-profile", help="Model profile; preserve current selection if omitted")
-    parser.add_argument("--interaction", choices=CONFIG.INTERACTIONS,
+    team_options.add_argument("--team", help="Work mode (role set); preserve current selection if omitted")
+    team_options.add_argument("--model-profile", help="Model profile; preserve current selection if omitted")
+    team_options.add_argument("--interaction", choices=CONFIG.INTERACTIONS,
                         help="Interaction mode: interactive, balanced (default), auto; preserve saved selection")
-    parser.add_argument("--max-agents", type=int, help="Shared limit of concurrent Plex assignments (positive integer)")
-    parser.add_argument("--install-bmad", action="store_true", help="Install the selected official BMad user skills; may replace selected skill files; project scope also initializes runtime")
-    parser.add_argument("--init-bmad", action="store_true", help="Initialize missing project runtime using installed official BMad setup; --yes accepts module defaults")
-    parser.add_argument("--bmad-skill", type=Path, help="Installed bmad setup skill directory; otherwise discover supported installed sources")
-    parser.add_argument("--dev", action=argparse.BooleanOptionalAction, default=None,
+    team_options.add_argument("--max-agents", type=int, help="Shared limit of concurrent Plex assignments (positive integer)")
+    bmad_options.add_argument("--install-bmad", action="store_true", help="Install the selected official BMad user skills; may replace selected skill files; project scope also initializes runtime")
+    bmad_options.add_argument("--init-bmad", action="store_true", help="Initialize missing project runtime using installed official BMad setup; --yes accepts module defaults")
+    bmad_options.add_argument("--bmad-skill", type=Path, help="Installed bmad setup skill directory; otherwise discover supported installed sources")
+    target_options.add_argument("--dev", action=argparse.BooleanOptionalAction, default=None,
                         help="Codex project: link this checkout as local Plex skills; --no-dev restores shared plugin discovery")
-    parser.add_argument("--roles-only", action="store_true", help="Configure roles without installing the plugin")
-    parser.add_argument("--command", action=argparse.BooleanOptionalAction, default=True,
+    output_options.add_argument("--roles-only", action="store_true", help="Configure roles without installing the plugin")
+    output_options.add_argument("--command", action=argparse.BooleanOptionalAction, default=True,
                         help="Create ~/.local/bin/plex during full installation (default: enabled)")
-    mode = parser.add_mutually_exclusive_group()
+    mode = output_options.add_mutually_exclusive_group()
     mode.add_argument("--dry-run", action="store_true", help="Show planned commands and roles without writes")
     mode.add_argument("--install-command", action="store_true", help="Link this checkout as ~/.local/bin/plex")
-    parser.add_argument("--yes", action="store_true", help="Apply without prompts; requires --client and --project for project scope")
+    output_options.add_argument("--yes", action="store_true", help="Apply without prompts; requires --client and --project for project scope")
     args = parser.parse_args(argv)
     if args.dev is not None and args.install_command:
         parser.error("--dev configures a project, not the user-wide command shortcut")
@@ -829,10 +944,10 @@ def main(argv=None, *, shared_profile=False, selection=None, setup_mode=None):
                 return release.main(["--checkout", str(ROOT), *forwarded])
             return maintenance(args)
         except (OSError, ValueError, subprocess.TimeoutExpired) as error:
-            print(f"Plex {args.action} stopped: {error}", file=sys.stderr)
+            notice(f"Plex {args.action} stopped: {error}", "error", file=sys.stderr)
             return 1
         except (EOFError, KeyboardInterrupt):
-            print("Plex maintenance interrupted; inspect the last reported state.", file=sys.stderr)
+            notice("Plex maintenance interrupted; inspect the last reported state.", "warn", file=sys.stderr)
             return 130
     if args.release or args.development:
         parser.error("--release and --development require plex update")
@@ -852,10 +967,9 @@ def main(argv=None, *, shared_profile=False, selection=None, setup_mode=None):
             return 0
         heading("pNet Plex  /  Setup")
         if args.dev:
-            print("Development setup: this checkout supplies project-local Plex skills. No model calls.")
+            notice("Development setup: this checkout supplies project-local Plex skills. No model calls.")
         else:
-            print("One setup: shared Plex plugin + your selected team. No model calls.")
-            print("The plugin supplies shared skills; team scope controls where roles and instructions are written.")
+            notice("Shared Plex skills + your selected team. No model calls.")
         clients = list(dict.fromkeys(([args.host] if args.host else []) + (args.clients or [])))
         if args.clients or not args.host or args.model_profile in CONFIG.PROFILE_TIERS:
             shared_profile = True
@@ -931,7 +1045,7 @@ def main(argv=None, *, shared_profile=False, selection=None, setup_mode=None):
             selected_team = args.team or CONFIG.resolve(existing)["team"] or (
                 "bmad" if existing.get("process") == "bmad" else "pnet")
             if saved_profile(existing) not in catalog["model_profiles"][selected_team]:
-                print("The saved model profile is unavailable in the selected team. Choose a profile below.")
+                notice("The saved model profile is unavailable in the selected team. Choose a profile below.", "warn")
                 preview_profile = "inherit"
         candidate = build_candidate(preview_profile, max_agents=args.max_agents)
         team_config = tomllib.loads(candidate)
@@ -951,7 +1065,7 @@ def main(argv=None, *, shared_profile=False, selection=None, setup_mode=None):
             if action == "cancel":
                 if selection is not None:
                     selection["cancelled"] = True
-                print("Cancelled. No changes.")
+                notice("Cancelled. No changes.")
                 return 0
             if action == "pnet":
                 args.team = "pnet"
@@ -963,7 +1077,7 @@ def main(argv=None, *, shared_profile=False, selection=None, setup_mode=None):
                 except BMadNotInstalled:
                     if not interactive or args.install_bmad:
                         raise
-                    print("Official BMad setup is missing. Install the selected user skills; this may replace selected skill files and affects other projects. Existing plugins remain unchanged.")
+                    notice("Official BMad setup is missing. Install the selected user skills; this may replace selected skill files and affects other projects. Existing plugins remain unchanged.", "warn")
                     if choose("Install required official BMad skills for this user?", {
                         "yes": "Install the team skill set, then initialize this project",
                         "no": "Cancel; keep user skills and project unchanged",
@@ -1006,7 +1120,7 @@ def main(argv=None, *, shared_profile=False, selection=None, setup_mode=None):
                             label += " / " + values["reasoning"]
                         groups.setdefault(label, []).append(role)
                     choices[name] = "; ".join(f"{', '.join(roles)}: {label}" for label, roles in groups.items())
-                print("\nProfile defaults for this team and client; existing project overrides still apply.")
+                notice("Profile defaults for this team and client; existing project overrides still apply.")
                 if not shared_profile:
                     choices["custom"] = "Choose model and reasoning for each agent"
                 current_profile = saved_profile(existing) if existing else "inherit"
@@ -1042,7 +1156,7 @@ def main(argv=None, *, shared_profile=False, selection=None, setup_mode=None):
                                         max_agents=args.max_agents, host_overrides=host_overrides)
             resolved = CONFIG.resolve(tomllib.loads(candidate))
         if configure_interactively and args.max_agents is None:
-            print("\nOne shared limit for concurrent Plex assignments across all roles. Client limits still apply.")
+            notice("One shared limit for concurrent Plex assignments across all roles. Client limits still apply.")
             while True:
                 answer = ask_text("Parallel agents", str(resolved["max_agents"])).strip()
                 try:
@@ -1051,7 +1165,7 @@ def main(argv=None, *, shared_profile=False, selection=None, setup_mode=None):
                         break
                 except ValueError:
                     pass
-                print("Enter a positive whole number.")
+                notice("Enter a positive whole number.", "warn")
             args.max_agents = limit
             candidate = build_candidate(args.model_profile,
                                                  max_agents=limit, host_overrides=host_overrides)
@@ -1085,80 +1199,87 @@ def main(argv=None, *, shared_profile=False, selection=None, setup_mode=None):
             record = receipt["hosts"].get(args.host, {}).get("instructions")
             instruction_plan = CONFIG.plan_instructions(config_root, args.host, args.scope, record, dev=dev_enabled)
 
-        heading("Plan")
+        heading("Installation plan")
         if setup_mode == "refresh":
-            print("  Update existing installation; saved settings retained unless explicitly overridden.")
-        print(f"  Client        {args.host}\n  Team scope    {args.scope}\n  Settings      {config_root / '.plex'}")
+            notice("Update existing installation; saved settings retained unless explicitly overridden.")
+        field("Client", args.host)
+        field("Team scope", args.scope)
+        field("Settings", config_root / ".plex", "muted")
         if args.scope == "project":
-            print(f"  Project       {project}")
-        print(f"  Agent files   {config_root / CONFIG.host_agents_relpath(args.host, args.scope)}")
+            field("Project", project, "command")
+        field("Agent files", config_root / CONFIG.host_agents_relpath(args.host, args.scope), "muted")
         if shortcut:
-            print(f"  Command       {shortcut}")
+            field("Command", shortcut, "command")
         if state.get("resolved"):
             for other in CONFIG.HOSTS:
                 other_state = state["hosts"][other]
                 if other not in refresh_clients and (other_state.get("installed_roles") or other_state.get("outdated_roles")):
                     if (state["resolved"]["hosts"][other] != resolved["hosts"][other]
                             or state["resolved"]["roles"] != resolved["roles"]):
-                        print(f"  Warning: shared team/profile changes also affect {other}; its files are not refreshed by this run.")
+                        notice(f"Shared team/profile changes also affect {other}; its files are not refreshed by this run.", "warn")
         if args.scope == "user":
             local = CONFIG.check_project(project, args.host)
             if local.get("preset_exists") or local.get("hosts", {}).get(args.host, {}).get("installed_roles") or local.get("conflicts"):
-                print("  Existing project configuration/roles may override user defaults; they will be preserved.")
+                notice("Existing project configuration/roles may override user defaults; they will be preserved.", "warn")
         if instruction_plan:
-            print(f"  Instructions {instruction_plan['path']} (Plex block only)")
-            print(CONFIG.instruction_block(dev=dev_enabled).decode())
-        print(f"  Mode     {resolved['team'] or 'custom'}\n  Profile  {resolved['model_profile']}")
+            field("Instructions", instruction_plan["path"], "muted")
+            notice("Only the managed Plex block is updated; surrounding instructions are preserved.")
+        field("Team", resolved["team"] or "custom")
+        field("Profile", resolved["model_profile"], "command")
         if len(refresh_clients) > 1:
-            print(f"  Shared team/profile: refresh configured clients {', '.join(refresh_clients)}")
-        print(f"  Interaction {resolved['interaction']}")
-        print(f"  Limit    {resolved['max_agents']} concurrent assignments")
-        for role, settings in resolved["hosts"][args.host].items():
-            print(f"  plex-{role:<12} {settings.get('model', 'inherit'):<18} "
-                  f"{settings.get('reasoning', '')}")
+            field("Refresh", ", ".join(refresh_clients))
+        field("Interaction", resolved["interaction"], "command")
+        field("Concurrency", f"{resolved['max_agents']} assignments")
+        role_table(resolved["hosts"][args.host])
         if resolved["inactive_overrides"][args.host]:
-            print("  Inactive overrides: " + ", ".join(resolved["inactive_overrides"][args.host]))
+            notice("Inactive overrides: " + ", ".join(resolved["inactive_overrides"][args.host]))
         for role in state["hosts"][args.host].get("installed_roles", []):
             if role not in rendered:
-                print(f"  Archive  plex-{role}")
+                field("Archive", f"plex-{role}", "warn")
         commands = [] if args.roles_only or dev_enabled else plugin_commands(args.host, args.scope)
+        heading("Skills and dependencies")
         if dev_enabled:
-            print(f"  Development source: {ROOT}")
-            print("  Project skills: .agents/skills/plex, .agents/skills/plex-setup (live symlinks)")
-            print("  Shared Plex plugin: disabled only in this trusted project; other projects unchanged.")
+            field("Dev source", ROOT, "command")
+            field("Project skills", ".agents/skills/plex, .agents/skills/plex-setup", "muted")
+            notice("Live symlinks follow this working checkout.")
+            notice("Shared Plex plugin: disabled only in this trusted project; other projects unchanged.")
         elif dev_plan:
-            print("  Leave development mode: remove owned links and restore project plugin discovery.")
+            notice("Leave development mode: remove owned links and restore project plugin discovery.")
+        if args.roles_only and not dev_enabled:
+            notice("Roles only: shared plugin installation is skipped.")
         if commands:
-            print("\n  Shared plugin: installed for this user/client profile; skills are not copied into the project.")
-            print(f"  Shared source: {ROOT} (keep this directory after installation)")
-            print("  Native plugin installation:")
+            notice("Shared plugin: installed for this user/client profile; skills are not copied into the project.")
+            field("Plugin source", ROOT, "muted")
+            print("\n  " + style("Native plugin commands", "bold"))
             for command in commands:
-                print("    " + shlex.join(command))
+                show_command(command)
 
-        print("  Roles, instructions, snapshot and receipt use the existing backup/rollback mechanism.")
+        notice("Managed changes use backups and rollback.")
         if resolved["process"] == "bmad":
-            print("  BMad: verify runtime and active skills in each working project before use.")
+            notice("BMad: verify runtime and active skills in each working project before use.")
         if selection is not None:
             selection.update(setup_mode=setup_mode, instructions=args.instructions, team=resolved["team"], max_agents=resolved["max_agents"], model_profile=resolved["model_profile"], interaction=resolved["interaction"])
         if bmad_init:
-            print(f"  BMad init {bmad_init['skill']} -> {project / '_bmad'} (official setup)")
+            field("BMad setup", bmad_init["skill"], "muted")
+            field("BMad runtime", project / "_bmad", "command")
         if args.dry_run:
             if resolved["process"] == "bmad" and args.install_bmad:
-                print("  BMad selected user-skill installation plan (existing selected skill files may be replaced):")
+                notice("BMad selected user-skill installation plan (existing selected skill files may be replaced):", "warn")
                 for command in bmad_install_commands(args.host):
-                    print("    " + shlex.join(command))
+                    show_command(command)
             if resolved["process"] == "bmad" and args.scope == "project" and not bmad_runtime_ready(project):
-                print("  BMad runtime is missing: normal setup will offer official initialization.")
-            print("\nPreview only. No files or plugins changed.")
+                notice("BMad runtime is missing: normal setup will offer official initialization.", "warn")
+            notice("Preview only. No files or plugins changed.", "ok")
             return 0
 
         if interactive and choose("Apply this plan?", {"no": "Cancel without changes", "yes": "Apply"}, "no") != "yes":
             if selection is not None:
                 selection["cancelled"] = True
-            print("Cancelled. No changes.")
+            notice("Cancelled. No changes.")
             return 0
 
         if bmad_init:
+            heading("Initialize BMad project")
             initialize_bmad(project, bmad_init)
         if resolved["process"] == "bmad" and args.scope == "project":
             run([sys.executable, str(project / "_bmad/scripts/resolve_config.py"),
@@ -1171,7 +1292,7 @@ def main(argv=None, *, shared_profile=False, selection=None, setup_mode=None):
                 run(command, project)
             if not dev_plan:
                 verify_plugin(args.host, project)
-            print("  OK: shared plugin installed.")
+            notice("Shared plugin installed.", "ok")
         heading(f"2 / 2  Apply {args.scope} roles" if commands else f"Apply {args.scope} roles")
         if (preset.read_bytes() if preset.is_file() else None) != source_bytes:
             raise ValueError("Project settings changed after preview; review the new settings and retry.")
@@ -1192,26 +1313,31 @@ def main(argv=None, *, shared_profile=False, selection=None, setup_mode=None):
                 raise ValueError(f"Post-install check failed for client {client}")
         if commands and dev_plan:
             verify_plugin(args.host, project)
-        print(f"  OK: {len(result['installed_roles'])} roles; configuration in sync.")
+        notice(f"{len(result['installed_roles'])} roles; configuration in sync.", "ok")
         if result["backup_dir"]:
-            print(f"  Backups: {config_root / result['backup_dir']}")
+            field("Backups", config_root / result["backup_dir"], "muted")
         others = [client for client in result.get("other_hosts_needing_refresh", []) if client not in refresh_clients]
         if others:
-            print(f"  Refresh the other clients: {', '.join(others)}")
+            notice(f"Refresh the other clients: {', '.join(others)}", "warn")
         if resolved["process"] == "bmad":
-            print("  BMad roles registered; run plex-setup in the host to verify active skill bindings.")
+            notice("BMad roles registered; run plex-setup in the host to verify active skill bindings.")
         if shortcut:
             install_command()
-        print("\nSetup complete. No separate plex-setup step is needed for this team configuration.")
-        print("Reload the host's plugins/agents. Invoke the plex skill when you want coordinated work.")
+        heading("Setup complete")
+        notice("No separate plex-setup step is needed for this team configuration.", "ok")
+        notice("Open a new client session, then invoke the plex skill for coordinated work.")
+        print("\n  " + style("Next commands", "bold"))
+        launcher = ["plex"] if shortcut and str(shortcut.parent) in os.environ.get("PATH", "").split(os.pathsep) else [str(ROOT / "setup.sh")]
+        show_command([*launcher, "status", "--client", args.host])
+        show_command(launcher)
         return 0
     except (OSError, ValueError, subprocess.TimeoutExpired) as error:
-        print(f"\nSetup stopped: {error}", file=sys.stderr)
+        notice(f"Setup stopped: {error}", "error", file=sys.stderr)
         if plugin_started:
-            print("Shared dependencies or native plugin state may have changed; inspect before retrying.", file=sys.stderr)
+            notice("Shared dependencies or native plugin state may have changed; inspect before retrying.", "warn", file=sys.stderr)
         return 1
     except (EOFError, KeyboardInterrupt):
-        print("\nSetup interrupted. Check project state if application had started.", file=sys.stderr)
+        notice("Setup interrupted. Check project state if application had started.", "warn", file=sys.stderr)
         return 130
 
 

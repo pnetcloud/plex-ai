@@ -135,6 +135,25 @@ BMad 仍为单独安装的依赖。请保留工作副本。
 `.plex/dev.json` 记录本地源及覆盖区块的所有权，请勿提交此机器专用状态。
 `--dry-run` 仅预览。`--dev` 与选择 `main` 的 `plex update --development` 相互独立。
 
+## 终端输出
+
+安装、状态、源码更新和卸载使用统一的标题、对齐设置、智能体/模型表格和突出显示的命令。
+绿色表示成功，黄色表示警告，红色表示错误；路径和说明使用较弱的显示样式。
+安装计划显示托管指令文件，不再输出完整模板。窄终端会逐项显示智能体设置，避免挤压表格。
+
+颜色和强调仅用于终端。重定向输出保持纯文本；`NO_COLOR=1` 或 `TERM=dumb`
+也会启用纯文本和数字菜单。`--help` 按用途分组参数。状态和卸载支持 `--json`，
+包括卸载预览；此时 stdout 只包含 JSON，不含装饰或进度信息。
+
+```sh
+plex --help
+plex status
+plex status --json
+plex uninstall --dry-run
+plex uninstall --dry-run --json
+NO_COLOR=1 plex status
+```
+
 ## 命令
 
 | 命令 | 行为 |
@@ -170,7 +189,7 @@ BMad 仍为单独安装的依赖。请保留工作副本。
 | `--install-command` | 仅安装指向此工作副本的命令，不覆盖其他命令。不能与 --dev 组合。 |
 | `--dry-run` | 仅预览，不写入；不能与 --install-command 组合。 |
 | `--yes` | 无提示执行；须指定客户端和项目路径（使用 --scope user 时可省略路径）。BMad 初始化采用显示的默认值。 |
-| `--json` | 以机器可读格式输出 status。 |
+| `--json` | 以机器可读格式输出 status 或 uninstall。 |
 | `-h / --help` | 显示可用参数。 |
 
 ## 下载与更新参数
@@ -178,7 +197,7 @@ BMad 仍为单独安装的依赖。请保留工作副本。
 指定发布标签：`plex update --release TAG`；使用 `main`：`plex update --development`。GitHub 引导安装程序接受相同的源选项及 `--checkout PATH`（默认 `~/.local/share/plex-ai`）；`--checkout` 不属于 setup 选项。引导安装/update 的 `--dry-run` 仅预览源选择，其余安装参数会传递给 setup。示例：
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/pnetcloud/plex-ai/main/install.sh | bash -s -- --release v0.5.0
+curl -fsSL https://raw.githubusercontent.com/pnetcloud/plex-ai/main/install.sh | bash -s -- --release v0.5.1
 ```
 
 配置优先级与托管文件见[配置](../../../docs/translations/zh-CN/configuration.md)。

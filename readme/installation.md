@@ -170,6 +170,28 @@ is preserved. `.plex/dev.json` records the local source and override ownership;
 do not commit that machine-specific state. `--dry-run` previews without writes.
 `--dev` is independent of `plex update --development`, which selects `main`.
 
+## Terminal output
+
+Setup, status, source updates and removal use consistent headings, aligned settings,
+agent/model tables and highlighted shell commands. Green marks success, yellow marks
+warnings, red marks errors, and muted text separates paths and explanatory details.
+The installation plan shows the managed instruction file without printing its full template.
+Narrow terminals stack agent settings instead of squeezing a table.
+
+Colors and emphasis are enabled only for a terminal. Redirected output stays plain;
+`NO_COLOR=1` or `TERM=dumb` also selects plain output and numbered menu prompts.
+`--help` groups options by purpose. Machine-readable status and removal use `--json`,
+including removal previews; JSON stdout contains no decoration or progress messages.
+
+```sh
+plex --help
+plex status
+plex status --json
+plex uninstall --dry-run
+plex uninstall --dry-run --json
+NO_COLOR=1 plex status
+```
+
 ## Commands
 
 | Command | Behavior |
@@ -205,7 +227,7 @@ Interactive setup asks for the mode once for all selected clients, with the save
 | `--install-command` | Install only the shortcut to this checkout; refuses foreign commands. Cannot combine with --dev. |
 | `--dry-run` | Preview without writes; incompatible with --install-command. |
 | `--yes` | Apply without prompts; specify a client and a project path (the path may be omitted with --scope user). BMad initialization uses displayed defaults. |
-| `--json` | Machine-readable status output. |
+| `--json` | Machine-readable status or uninstall output. |
 | `-h / --help` | Show available arguments. |
 
 ## Download and update options
@@ -213,7 +235,7 @@ Interactive setup asks for the mode once for all selected clients, with the save
 Use `plex update --release TAG` for a published tag, or `plex update --development` for `main`. The GitHub bootstrap accepts the same source options and `--checkout PATH` (default `~/.local/share/plex-ai`); `--checkout` is a bootstrap option, not a setup option. Bootstrap/update `--dry-run` previews source selection only. Other setup flags are forwarded. Example:
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/pnetcloud/plex-ai/main/install.sh | bash -s -- --release v0.5.0
+curl -fsSL https://raw.githubusercontent.com/pnetcloud/plex-ai/main/install.sh | bash -s -- --release v0.5.1
 ```
 
 See [configuration](../docs/configuration.md) for team/profile precedence and managed files.

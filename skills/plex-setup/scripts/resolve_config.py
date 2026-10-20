@@ -1366,7 +1366,10 @@ def main(argv=None):
         else:
             raise ValueError(f"Unknown subcommand: {args.subcommand}")
     except (OSError, UnicodeError, ValueError) as error:
-        print(f"Plex configuration error: {error}", file=sys.stderr)
+        label = "ERROR"
+        if sys.stderr.isatty() and "NO_COLOR" not in os.environ and os.environ.get("TERM") != "dumb":
+            label = "\033[1;31mERROR\033[0m"
+        print(f"[{label}] Plex configuration error: {error}", file=sys.stderr)
         return 1
 
     print(json.dumps(output, indent=2, sort_keys=True))
