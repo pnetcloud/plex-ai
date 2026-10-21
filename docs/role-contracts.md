@@ -49,6 +49,26 @@ Use actionable steps, concise rules and the same semantics across all three host
 Avoid generic second coordinators, arbitrary finding quotas and mandatory stages
 for optional roles. Each role has one source in its own team; client renderers produce the native formats.
 
+## Task intake and routing
+
+Every new Plex task starts with a short route: outcome, needed roles, execution
+order and completion check. The root coordinates; it delegates substantial
+planning and implementation to the owning roles. The skill's
+[task flows](../skills/plex/references/task-flows.md) define four routes:
+
+| Task | Route |
+|---|---|
+| Bounded change with clear goal and acceptance | dev → required verification → coordinator |
+| Substantial new work with missing decisions | needed PM/PO/UX/architect assignments → dev → verification → coordinator |
+| Unexplained failure | bounded investigation → fix → verification → coordinator |
+| Review request | reviewer → coordinator |
+
+Only the selected team's roles apply: pnet PM also owns technical planning;
+BMad separates PM, PO, UX and architect. Reuse accepted plans, skip resolved
+questions and consult the relevant specialist again when scope or assumptions
+change. Flow selection adds no user approval gate; installed workflow checks
+and analyst authorization still apply. A small mechanical task can stay local.
+
 ## Responsibilities
 
 | Role | Outcome |
@@ -68,6 +88,17 @@ Only the selected team's roles are available. One writer owns each changed file.
 Returns distinguish completed checks, assumptions, harness failures and remaining gaps.
 Reuse valid evidence; rerun affected checks after changes. Additional full review needs
 new risk, a material change or an explicit request.
+
+## BMad startup
+
+- Persona roles: execute entry activation, then dispatch the selected operation.
+- Reviewer: activate the review workflow directly.
+- Workflow leaves: follow the supplied recipe; do not restart the parent workflow.
+- Startup and final return cite the resolved skill path, activation evidence,
+  selected workflow/operation and reached step. A greeting or role name is insufficient.
+- The coordinator reports requested activation as pending until evidence is available.
+- Bounded changes go to Build without a mandatory external planning chain. Build
+  retains its own investigation, implementation plan, review and fixes.
 
 ## BMad contracts
 

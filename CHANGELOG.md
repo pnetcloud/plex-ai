@@ -4,6 +4,20 @@ Important changes retained in Plex, grouped by release. Interfaces and configura
 may change before 1.0. Releases through v0.5.4 were previews; v0.5.5 and later are
 regular releases.
 
+## [0.5.6] — 2026-10-21
+
+- Require BMad entry activation and workflow-entry evidence in role startup and
+  final returns. Distinguish persona owners, direct review and workflow-owned leaves.
+- Keep Build's investigation, planning and review inside Build; consult planning
+  specialists for unresolved upstream decisions instead of duplicating its pipeline.
+- Record concise, explicit instruction-authoring rules in the tracked AGENTS.md.
+- Rewrite Plex skill guidance as short rules, steps and tables; preserve activation,
+  native-role routing, task flows, interaction modes and configuration safeguards.
+- Require a visible task-flow selection at Plex intake; provide routes for bounded
+  changes, substantial new work, diagnosis and standalone review. Delegate missing
+  requirements, specifications and architecture to their owning roles before dev,
+  while reusing accepted decisions and preserving workflow-owned verification.
+
 ## [0.5.5] — 2026-10-21
 
 - Publish regular GitHub releases without the prerelease flag or Preview title.

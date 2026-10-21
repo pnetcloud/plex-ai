@@ -37,6 +37,27 @@ Konkrete, kurze Schritte mit gleicher Semantik für alle Clients verwenden.
 Keine generischen zweiten Koordinatoren, willkürlichen Befundquoten oder Pflichtaufrufe
 optionaler Rollen. Jede Rolle hat eine Quelle innerhalb ihres Teams; Client-Renderer erzeugen die nativen Formate.
 
+## Aufgabenaufnahme und Routing
+
+Jede neue Plex-Aufgabe beginnt mit einer kurzen Route: Ergebnis, benötigte Rollen,
+Reihenfolge und Abschlussprüfung. Root koordiniert; umfangreiche Planung und
+Umsetzung gehören den zuständigen Rollen. Der Skill definiert vier verbindliche
+[Arbeitsrouten](../../../skills/plex/references/task-flows.md):
+
+| Aufgabe | Route |
+|---|---|
+| Begrenzte Änderung mit klarem Ziel und Abnahme | dev → erforderliche Prüfungen → Koordinator |
+| Umfangreiche neue Arbeit mit offenen Entscheidungen | benötigte PM/PO/UX/architect-Aufträge → dev → Prüfung → Koordinator |
+| Ungeklärter Fehler | begrenzte Diagnose → Korrektur → Prüfung → Koordinator |
+| Review angefordert | reviewer → Koordinator |
+
+Nur Rollen des gewählten Teams verwenden: Im pnet-Team übernimmt PM auch die
+technische Planung; BMad trennt PM, PO, UX und architect. Akzeptierte Pläne
+wiederverwenden, geklärte Fragen überspringen und bei geändertem Umfang oder
+Annahmen den zuständigen Spezialisten erneut einbeziehen. Die Routenwahl schafft
+keine weitere Benutzerfreigabe; Workflowprüfungen und Analystenfreigabe bleiben
+gültig. Kleine mechanische Aufgaben können lokal bleiben.
+
 ## Verantwortung
 
 | Rolle | Ergebnis |
@@ -56,6 +77,17 @@ Nur Teamrollen sind verfügbar. Pro geänderter Datei ein Besitzer. Rückgaben u
 Prüfungen, Annahmen, Harnessfehler und Lücken. Gültige Belege wiederverwenden und
 betroffene Prüfungen nach Änderungen wiederholen. Weitere Vollreviews benötigen neues
 Risiko, wesentliche Änderung oder ausdrücklichen Wunsch.
+
+## BMad-Start
+
+- Persona-Rollen: Einstiegsskill aktivieren, dann die zugewiesene Operation starten.
+- Reviewer: Review-Workflow direkt aktivieren.
+- Workflow-Unteraufträge: geliefertes Rezept ausführen; Elternworkflow nicht neu starten.
+- Startmeldung und Rückgabe nennen Skillpfad, Aktivierungsbelege,
+  Workflow/Operation und erreichten Schritt. Gruß oder Rollenname reichen nicht.
+- Der Koordinator bestätigt Aktivierung erst anhand der Ausführungsbelege.
+- Begrenzte Änderungen gehen ohne externe Pflichtplanung an Build. Build behält
+  Untersuchung, Implementierungsplan, Review und Korrekturen.
 
 ## BMad-Verträge
 

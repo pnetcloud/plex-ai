@@ -1,44 +1,61 @@
-# Plex configuration preflight
+# Configuration preflight
 
-Read this only after the user invokes Plex coordination.
+Run only after Plex activation, before first delegation. This check is read-only.
 
-Resolve this skill directory's symlinks before deriving `<plugin-root>` (two
-directories above the real skill folder). In development mode the project skill
-links point into the working checkout; its `teams/` and `skills/` form one package.
+## 1. Locate the package
 
-## Check the applied configuration once
+- Resolve the skill directory's symlinks.
+- `<plugin-root>` is two directories above the real skill folder.
+- In dev mode, the project skill links into the working checkout.
+- Use this package's checker and `teams/` definitions. An incomplete package is a blocker; do not borrow another checkout.
 
-Run the read-only check before the first delegation:
+## 2. Check configuration
 
 ```sh
 python3 <plugin-root>/skills/plex-setup/scripts/resolve_config.py check <project> --host <codex|claude|antigravity> --scope auto
 ```
 
-Read the JSON result; proceed only when its overall status and the selected host
-are `in_sync`. A zero process exit or matching hand-checked hashes is not a substitute.
-Use the installed package's checker, with team definitions and model profiles under its package root's `teams/`;
-an incomplete copy is a blocker, not permission to search another checkout.
-This checks installed configuration, not the current session's available role
-choices or actual model routing. Before dispatch, verify that the host exposes the
-selected native role; follow the entry skill's delegation contract on mismatch.
-The result's `root` and `scope` identify the configuration: project state takes
-precedence; otherwise use user state. Never bypass stale project configuration by
-falling back to a global team. Read `<root>/.plex/resolved.json` for
-active roles, entry `skills`, optional `workflows` catalog, final
-`hosts.<host>.<role>` settings, `interaction` and `max_agents`; do not reassemble
-configuration layers. Missing, stale or conflicting configuration requires
-`plex-setup`; it does not authorize installation or writes. Repeat the check only
-if configuration changes or there is evidence of drift during this task.
+Proceed only when the JSON reports both:
 
-## Load the selected team's root coordinator
+- Overall `status = "in_sync"`.
+- Selected host `status = "in_sync"`.
 
-From the verified snapshot, use its `team` to read
-`<plugin-root>/teams/<team>/coordinator.md` before planning or launching delegated work.
-Read it from the same installed package as this skill and its checker. Never load
-instructions from the target project's similarly named directory or another checkout.
-Read the coordinator separately; recover any truncated sections before delegating.
-For legacy snapshots with `team = null`, use `pnet` for `process = "plain"` and
-`bmad` for `process = "bmad"`. The former team ID `default` means `pnet`.
-A missing coordinator document, unknown process or team/process mismatch is a blocker;
-do not borrow another team's coordinator. Use the selected package's `team.toml`
-to check the process when needed; do not reconstruct effective role/model settings.
+Exit code zero or manually compared hashes are insufficient.
+
+- `root` and `scope` identify the applied configuration.
+- Project configuration takes precedence; otherwise use user configuration.
+- Never bypass stale project state with a global fallback.
+- Missing, stale or conflicting setup requires `plex-setup`; the check grants no installation or write authority.
+- Repeat only after configuration changes or evidence of drift.
+
+## 3. Read the snapshot
+
+Read `<root>/.plex/resolved.json`; do not reconstruct configuration layers.
+
+| Field | Use |
+|---|---|
+| `team`, `process` | Selected team |
+| `roles` | Active roles |
+| `skills`, optional `workflows` | Entry skills and assignment catalog |
+| `hosts.<host>.<role>` | Effective model/effort |
+| `interaction`, `max_agents` | Interaction mode and assignment limit |
+
+The check proves configuration consistency. Before dispatch, separately verify
+that the session exposes the selected native role. On mismatch, follow the
+skill's delegation rules; do not claim actual routing from installed files.
+
+## 4. Load the coordinator
+
+- Read `<plugin-root>/teams/<team>/coordinator.md` before planning or delegation.
+- Use the same installed package as the skill and checker, not the target project's similarly named files.
+- Read the coordinator separately; recover truncated sections.
+- Check `team.toml` for process consistency when needed; do not rebuild effective role/model settings.
+- Missing coordinator, unknown process or team/process mismatch: stop that route. Do not borrow another team's coordinator.
+
+Legacy snapshots:
+
+| Value | Team |
+|---|---|
+| `team = null`, `process = "plain"` | `pnet` |
+| `team = null`, `process = "bmad"` | `bmad` |
+| `team = "default"` | `pnet` |

@@ -12,8 +12,13 @@ Return the requested ticket artifacts, stable identifiers, dependencies and unre
 Skill activation:
 Before substantive work, resolve and read these real installed skills using the host active skill inventory: bmad-agent-po. If missing or ambiguous, report the blocker; do not invent a replacement.
 
+1. Complete the installed entry skill's activation: customization, persona, facts, configuration and hooks. Reading alone is insufficient.
+2. Report `BMad activated: <entry skill>` after activation. Cite its path and executed commands/results or supported resolution evidence.
+3. Enter the assigned workflow/operation. Report `BMad workflow entered: <workflow or operation>` with the reached step and execution evidence.
+4. Send startup evidence once available; include it in the final return. Do not wait for acknowledgement. Activate a shared entry/workflow skill once.
+
 Working mode:
-1. Follow installed persona activation, customization and runtime instructions; resolve its actual internal workflow dispatch from that version.
+1. Resolve the assigned internal operation from the activated persona and project customization.
 2. Select only the requested PO operation: SPEC for requirements/specification; TICKETS for slicing; REFINE for one ticket; BOARD for tracking/closure; VALIDATE for ticket checks; REPLAN for changed scope; STORE for tracker setup.
 3. Use supplied PRD, brief, research or ticket references rather than repeating discovery. Preserve requirement/ticket IDs and established evidence when the owning workflow requires it.
 4. Follow the selected workflow's validation, human gates, publication rules and resume behavior; return when the assigned operation is complete.
@@ -30,6 +35,7 @@ Quality checks:
 - do not start analyst research without a direct user request or explicit user approval
 
 Return:
+- activated entry skill, selected workflow/operation, reached step and activation/entry evidence
 - created/updated requirement and ticket artifacts with stable references
 - dependencies, readiness/status evidence and validation results
 - unresolved decisions and affected downstream work

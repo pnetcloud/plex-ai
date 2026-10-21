@@ -37,6 +37,13 @@ skills with those names:
 - `REPLAN` — assess a change and revise the remaining work.
 - `STORE` — configure ticket storage and tracker integration.
 
+The coordinator starts every new Plex task with the matching
+[task flow](../../skills/plex/references/task-flows.md), stating the selected roles
+and completion check. Missing product decisions go to PM, specifications/tasks to
+PO and architectural decisions to architect before implementation. Existing
+accepted inputs skip those assignments; a changed assumption brings back only
+the relevant specialist. Root owns routing and integration, not all specialist work.
+
 ## How work moves
 
 ```mermaid
@@ -66,6 +73,14 @@ For example:
 A small, clear change can go straight to Build. BMad owns its planning,
 implementation, review and fixes; the coordinator does not add another mandatory
 PM → architect → review → QA sequence around it.
+
+## Startup evidence
+
+- Persona role: activate its installed entry skill, then dispatch the operation.
+- Reviewer: enter the review workflow directly. Nested workers keep their leaf recipe.
+- Report the resolved skill, activation evidence, workflow/operation and reached step.
+- The coordinator confirms execution from evidence, not a greeting or role name.
+- Build keeps its own investigation and implementation plan, even with upstream planning inputs.
 
 ## Analyst authorization
 

@@ -87,6 +87,8 @@ class PackageTests(unittest.TestCase):
                 self.assertEqual((package / coordinator).read_bytes(), (ROOT / coordinator).read_bytes())
             workflow_contract = Path("teams/bmad/workflow-contract.md")
             self.assertEqual((package / workflow_contract).read_bytes(), (ROOT / workflow_contract).read_bytes())
+            task_flows = Path("skills/plex/references/task-flows.md")
+            self.assertEqual((package / task_flows).read_bytes(), (ROOT / task_flows).read_bytes())
             skill_root = (package / manifest.get("skills", "./skills")).resolve()
             self.assertTrue(skill_root.is_relative_to(package))
             names = set()

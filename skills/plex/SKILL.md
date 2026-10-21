@@ -1,62 +1,64 @@
 ---
 name: plex
-description: Coordinate a team of coding agents when the user explicitly invokes Plex or asks for coordinated multi-agent work. Best suited to complex tasks with useful specialist assignments.
+description: Coordinate coding agents when the user invokes Plex or explicitly requests coordinated multi-agent work. Select roles, delegate bounded tasks and verify results.
 ---
 
 # Plex
 
-Activate only when the user invokes this skill or explicitly requests coordinated
-multi-agent work. Task size, complexity or the number of files alone does not
-activate Plex. Otherwise, handle the task normally without loading a team coordinator.
+## Activation
 
-## Delegation contract
+- Start only on explicit Plex invocation or a request for coordinated multi-agent work.
+- Task size, complexity and file count do not activate Plex.
+- Otherwise work normally; do not load the coordinator.
 
-For every Plex-owned assignment, select the checked native `plex-<role>` so its
-instructions and model settings apply. On Codex, use that registered name as
-`agent_type` when the tool exposes it. On Claude Code, use it as the Agent tool's
-`subagent_type`; keep the configured model/effort unless the user overrides them.
-A task label does not select a role.
-Do not silently substitute a generic agent or infer routing from installed files.
-If the current session cannot select the role or honor an explicit user override,
-report the mismatch and continue independent authorized work locally; do not
-invent a fallback or change setup. Preserve the root's session model.
+## Roles and delegation
 
-Where the host supports task names, use `plex_<role>_<short_task>`, with the role
-from the checked team and a concise task label. Include role and current task in
-every handoff, and ask the executor to use `[plex:<role>:<short_task>]` in its
-progress and final return. Use these labels in the coordinator's own updates too.
-Runner nicknames are not role identities. When reusing an agent, retain its
-thread identity but supply the new current-task label; do not imply its original
-name changed or launch another agent solely to rename it. For workflow-owned
-children, preserve the workflow's launch recipe and context contract.
+- Root is the coordinator: intake, routing, handoffs, integration and final checks.
+- Delegate substantial planning, design and implementation to the selected roles.
+- Keep brief intake, integration and small mechanical work local.
+- Keep the root's session model and permissions; do not spawn another coordinator.
+- Follow project instructions and host permissions.
 
-On Claude Code, put the task label in `description` and the handoff; omit the Agent
-tool's `name`. With Agent Teams enabled, `name` can launch a teammate instead of a
-subagent. Do not change execution mode merely to label work.
+Select the checked native `plex-<role>` for each Plex-owned assignment:
 
-On continuation, retain a compact checkpoint: role, current task, explicit user
-overrides, verified package paths, write ownership, evidence and next acceptance
-gate. Reuse these facts unless inputs change or a concrete gap requires discovery.
+| Client | Role selection |
+|---|---|
+| Codex | `agent_type = "plex-<role>"` when exposed |
+| Claude Code | Agent tool: `subagent_type = "plex-<role>"` |
+| Other hosts | Use the exposed native role selector |
 
-## 1. Check the selected team
+- Preserve configured model/effort unless the user overrides them.
+- Verify the role is available in this session. Installed files do not prove routing.
+- Missing role or unsupported user override: report the mismatch; continue independent authorized work locally.
+- Do not substitute a generic agent, invent a fallback or change setup.
 
-Before delegating, follow [configuration preflight](references/preflight.md) once.
-Use the verified configuration's roles, model settings and concurrency limit.
-Missing or conflicting setup requires `plex-setup`; do not install or repair it
-without authorization.
+## Assignment labels
 
-## 2. Become the coordinator
+| Where | Format |
+|---|---|
+| Task name, where supported | `plex_<role>_<short_task>` |
+| Handoff, progress and final return | `[plex:<role>:<short_task>]` |
 
-Read `teams/<team>/coordinator.md` from this installed package, using the team
-identified by preflight. Read [interaction policy](references/interaction.md), select
-the effective mode and follow both contracts for assignments, handoffs and verification.
-Read each instruction document separately from configuration dumps or other skills.
-Truncated output is incomplete: retrieve the missing sections before acting on it.
-You remain the current root agent; do not launch a separate coordinator or change
-your session model or permissions. Project and host instructions remain applicable.
+- Use a role from the checked team and a concise task label.
+- Include role and current task in every handoff. Require executor labels in progress/final returns; label coordinator updates too.
+- A task label or runner nickname does not select or identify a native role.
+- Reuse an agent's identity with a new current-task label. Do not spawn another just to rename it.
+- Claude: put the task label in `description` and the handoff; omit `name`. With Agent Teams enabled, `name` can launch a teammate instead of a subagent.
+- Workflow-owned children retain the workflow's launch recipe and context contract.
 
-## 3. Coordinate only useful work
+## Execution
 
-Keep clear, small work local. Delegate bounded assignments with ready inputs and
-explicit ownership, integrate the results and verify the outcome. An invoked
-coordinator does not require every role or a fixed sequence of agents.
+1. **Check setup.** Follow [preflight](references/preflight.md) before first delegation. Use the checked roles, model settings and concurrency limit. Setup changes require authorization.
+2. **Load the coordinator.** Read `teams/<team>/coordinator.md` from the verified package. Read [interaction policy](references/interaction.md); apply its effective mode.
+3. **Select a flow.** Read [task flows](references/task-flows.md). State the outcome, roles, order and completion check. Follow that route; do not run every role by default.
+4. **Execute and integrate.** Delegate ready assignments with explicit ownership. Collect results and verify the outcome.
+
+Read each instruction document separately from other skills and configuration dumps.
+Recover truncated sections before acting on them.
+
+## Continuation
+
+- Keep a compact checkpoint: role, current task, user overrides, verified package paths, write ownership, evidence and next acceptance gate.
+- Reuse verified facts and the selected flow.
+- Reconsider routing when scope, evidence or technical assumptions change.
+- Flow selection adds no user approval gate.

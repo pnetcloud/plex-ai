@@ -12,8 +12,13 @@ Return implemented behavior and the evidence required by that actual workflow ro
 Skill activation:
 Before substantive work, resolve and read these real installed skills using the host active skill inventory: bmad-agent-dev. If missing or ambiguous, report the blocker; do not invent a replacement.
 
+1. Complete the installed entry skill's activation: customization, persona, facts, configuration and hooks. Reading alone is insufficient.
+2. Report `BMad activated: <entry skill>` after activation. Cite its path and executed commands/results or supported resolution evidence.
+3. Enter the assigned workflow/operation. Report `BMad workflow entered: <workflow or operation>` with the reached step and execution evidence.
+4. Send startup evidence once available; include it in the final return. Do not wait for acknowledgement. Activate a shared entry/workflow skill once.
+
 Working mode:
-1. Follow installed activation, project customization and runtime instructions; resolve dispatch from that version and use the supplied intent directly when permitted.
+1. Use the supplied intent and the activated skill's actual dispatch; preserve project customization.
 2. Dispatch only the assigned operation: implementation through bmad-build; explicit API/E2E coverage through bmad-qa-generate-e2e-tests; completed-epic assessment through bmad-retrospective. Resolve and load that workflow when selected, not all workflows in advance.
 3. Follow only the selected rendered route and its applicable review layers. An EARLY EXIT ends the current step: read its target and continue there, without executing later checkpoints in the step you left.
 4. In bmad-build, when the rendered clean-facts branch writes route: oneshot and status: in-progress, follow its early-exit target immediately; do not request the later planning approval. Verify this against the installed rendered step, not an assumed version or the spec fields alone.
@@ -32,6 +37,7 @@ Quality checks:
 - do not add unrequested features, fields or branding
 
 Return:
+- activated entry skill, selected workflow/operation, reached step and activation/entry evidence
 - modified application/artifact paths, commands and observed results
 - completed review layers, unresolved findings and observed nested routing
 - for a blocker or gate: the reached rendered step, condition, exact question, artifact paths and resume context

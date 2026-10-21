@@ -30,6 +30,22 @@ Assign one writer per file or artifact. Reviewers may write assigned review arti
 but must preserve application code. Relay user-owned decisions and unresolved gates
 to the coordinator; a recommendation or elapsed time is not approval.
 
+## Activation and entry evidence
+
+| Executor | Required startup |
+|---|---|
+| analyst, pm, po, ux, architect, dev | Activate entry persona, then dispatch the assigned operation |
+| reviewer | Activate the assigned review workflow directly |
+| Workflow-owned leaf | Execute the supplied technical recipe; do not restart a persona or parent workflow |
+
+- Resolve the actual installed skill and project customization.
+- Execute its activation steps and required resolver/renderer commands. Use a fallback only when that skill documents it.
+- Report persona activation after its activation steps complete; report workflow entry after reaching its first applicable step.
+- Cite the resolved skill path, workflow/operation, reached step and command/result references. A label or greeting is insufficient.
+- Send evidence once available; include it in the final return. Do not wait for acknowledgement.
+- Missing/ambiguous skills, renderer failure or `HALT` block that route. Do not run raw workflow templates or install substitutes.
+- Build owns its applicable investigation, plan generation, implementation, review and fixes. Upstream planning is input, not permission to skip Build steps.
+
 ## Models and nested workers
 
 The root keeps its session model and permissions. Persona executor models and

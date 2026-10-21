@@ -3,6 +3,7 @@
 
 # Public root files.
 !/.gitignore
+!/AGENTS.md
 !/LICENSE
 !/THIRD_PARTY_NOTICES.md
 !/EVALUATION.md
