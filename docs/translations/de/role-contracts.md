@@ -40,6 +40,15 @@ optionaler Rollen. Jede Rolle hat eine Quelle innerhalb ihres Teams; Client-Rend
 
 Koordinatoren verwenden Markdown-Überschriften; Zweck und Blöcke entsprechen den Rollenquellen. Routing und Integration als Root-Verantwortung ausweisen. Der Plex-Skill lädt den Koordinator; er wird nicht als zusätzlicher nativer Subagent registriert.
 
+## Verbindliche Aufgabenbewertung
+
+Nach Plex-Aktivierung geht jede neue Aufgabe und ungeplante Teilaufgabe zuerst an die native Rolle `plex-pm` für eine kurze Bewertung. Root entscheidet nicht selbst über Komplexität oder Umsetzungsreife. PM liefert Ziel/Ausschlüsse, fehlende Entscheidungen, Rollen/Reihenfolge, Aufgabenformat und Referenz, Dev-Vertrag mit Prüfungen sowie `ready`, `needs-specialist` oder `blocked`.
+
+Im BMad-Team aktiviert diese rolleninterne Bewertung weder Persona noch Menü, PRD oder Build. Echte BMad-Aufträge behalten ihre Aktivierungspflichten. Anforderungen folgen dem vorhandenen Tracker-, Issue-, Spec- oder Story-Verfahren des Projekts; installierte PO-/Spec-Operationen verwenden, soweit unterstützt. Kein universelles `bmad-spec` voraussetzen und keine parallele Aufgabenablage einführen.
+
+Nötige technische Entscheidungen gehen vor Dev an architect in BMad oder PM in pnet. Ausführliche Anforderungen oder ein kleiner Diff beweisen keine Designreife. Bewertungen für abgedeckte Schritte und unveränderte Fortsetzung wiederverwenden; neue Entscheidungen gehen zurück an PM. Fehlende/abgelehnte Pflichtrollen blockieren ihren Auftrag: Root darf begrenzten Kontext sammeln und Status berichten, aber nicht deren Entwurf oder Umsetzung übernehmen. Dies verlangt ein Fachresultat, keine neue Benutzerfreigabe.
+
+
 ## Aufgabenaufnahme und Routing
 
 Jede neue Plex-Aufgabe beginnt mit einer kurzen Route: Ergebnis, benötigte Rollen,
@@ -49,10 +58,10 @@ Umsetzung gehören den zuständigen Rollen. Der Skill definiert vier verbindlich
 
 | Aufgabe | Route |
 |---|---|
-| Begrenzte Änderung mit klarem Ziel und Abnahme | dev → erforderliche Prüfungen → Koordinator |
-| Umfangreiche neue Arbeit mit offenen Entscheidungen | benötigte PM/PO/UX/architect-Aufträge → dev → Prüfung → Koordinator |
-| Ungeklärter Fehler | begrenzte Diagnose → Korrektur → Prüfung → Koordinator |
-| Review angefordert | reviewer → Koordinator |
+| Begrenzte Änderung mit klarem Ziel und Abnahme | PM-Bewertung → dev → erforderliche Prüfungen → Koordinator |
+| Umfangreiche neue Arbeit mit offenen Entscheidungen | PM-Bewertung → benötigte PM/PO/UX/architect-Aufträge → dev → Prüfung → Koordinator |
+| Ungeklärter Fehler | PM-Bewertung → begrenzte Diagnose → Korrektur → Prüfung → Koordinator |
+| Review angefordert | PM-Bewertung → reviewer → Koordinator |
 
 Nur Rollen des gewählten Teams verwenden: Im pnet-Team übernimmt PM auch die
 technische Planung; BMad trennt PM, PO, UX und architect. Akzeptierte Pläne

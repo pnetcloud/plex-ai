@@ -34,6 +34,7 @@ Englisch ist die gepflegte Quelle; Übersetzungen spiegeln die Dateinamen.
 
 | Version | Änderungen |
 |---|---|
+| [Versionshinweise](releases/v0.6.1.md) | v0.6.1: Verbindliche Fachbewertung vor Routing und Umsetzung. |
 | [Versionshinweise](releases/v0.6.0.md) | v0.6.0: Auto, native Codex-Rollen und Plex-AI-Präsentation. |
 | [Versionshinweise](releases/v0.5.11.md) | v0.5.11: Stabile macOS-CI, Delegation und Setup-Vorgaben. |
 | [Versionshinweise](releases/v0.5.9.md) | v0.5.9: Nur aktive Teamrollen und optionale Bereinigung alter Agenten. |

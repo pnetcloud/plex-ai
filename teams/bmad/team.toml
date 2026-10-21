@@ -5,6 +5,7 @@ max_agents = 4
 
 [skills]
 analyst = ["bmad-agent-analyst"]
+# PM also handles role-local Plex intake; it is not a BMad workflow.
 pm = ["bmad-agent-pm"]
 po = ["bmad-agent-po"]
 ux = ["bmad-agent-ux-designer"]

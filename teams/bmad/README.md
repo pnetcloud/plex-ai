@@ -4,6 +4,8 @@
 
 **The coordinator selects a subagent. That subagent runs the appropriate BMad workflow and returns the result.**
 
+Every new task first receives a short `plex-pm` intake assessment, without BMad activation or a PRD. Its route determines subsequent specialist and dev assignments. Use the project's existing task/spec format; required roles cannot be replaced by root.
+
 Six Plex subagents correspond to BMad personas; a seventh, `reviewer`, owns independent code-review workflows. We configure its model,
 reasoning and assignment boundaries; BMad supplies the workflow and its procedures.
 A task does not need all seven agents. Analyst is manual or explicitly approved only.

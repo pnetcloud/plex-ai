@@ -10,4 +10,4 @@ The owner supplied the raster for this project's presentation; no external stock
 ## Checksums (SHA-256)
 
 - `hero.webp`: `9c832235ee110b0c4d8468080d5d99af8d9627c5edd4f8f2a63a634031102292`
-- `workflow.svg`: `c0d16405e824fb7eaa5fe49c696cdbc3bf8de870baef4a7bb32b3c69258f18a7`
+- `workflow.svg`: `0e667bb59f30a9815631f350a72ffb7fd5d2800a7de5523476057f8086cbf006`

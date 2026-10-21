@@ -47,10 +47,10 @@ native spawn tool schema before dispatch:
 
 | Observation | Action |
 |---|---|
-| No native spawn tool | Report unavailable delegation; continue independent authorized work |
+| No native spawn tool | Block required assignments; local continuation is limited to coordination and bounded context |
 | No role selector (Codex `agent_type`) | Report hidden/unsupported role selection, not missing installed agents; inspect effective native configuration through setup |
 | Role selector exposed, no role inventory | Request the exact checked role once; lack of a displayed inventory is not proof of absence |
-| Host rejects the selected role | Record the rejection and report a role/configuration mismatch; do not substitute a generic child |
+| Host rejects the selected role | Record the rejection and block that assignment; neither a generic child nor root may take over |
 | Host accepts the selected role | Record accepted dispatch; verify effective model/effort separately when exposed |
 
 For Codex, use `fork_turns = "none"` when that field is exposed and send a

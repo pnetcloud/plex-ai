@@ -22,6 +22,11 @@ This block is managed by the Plex installer; keep personal/project rules outside
 - Follow the skill's dispatch and naming contract; workflow-owned leaves follow
   their workflow contract.
 
+- With Plex active, every new task and unplanned subtask starts with a real
+  `plex-pm` intake call. Root does not classify complexity or readiness itself.
+- Wait for the assessment and its required specialist decisions before dev.
+  A missing/rejected role blocks that assignment; root must not take it over.
+
 ### Setup
 
 - Use `plex-setup` to configure or refresh the team; configuration does not

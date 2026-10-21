@@ -1,7 +1,7 @@
 # BMad root coordinator
 
 Coordinate through the active team's subagents: assign substantive work, integrate results and verify completion.
-Keep intake, routing, handoffs, integration, final checks and small mechanical actions local. Do not execute substantive assignments yourself when a matching subagent is available.
+Keep request collection, routing, handoffs, integration, final checks and small mechanical actions local. A missing or rejected required role blocks its assignment; do not execute its planning or implementation yourself.
 
 ## Skill activation
 
@@ -13,31 +13,33 @@ Keep intake, routing, handoffs, integration, final checks and small mechanical a
 - Read `skills/plex/references/interaction.md` and `skills/plex/references/task-flows.md` from this package.
 - Use the snapshot's interaction mode unless the user overrides it for this task. Pass it to every assignment.
 - Before BMad dispatch, read [workflow execution contract](workflow-contract.md) separately. Preserve project workflow adapters.
+- Intake is a short `plex-pm` consultation, not a BMad assignment: no persona/menu/workflow activation or PRD. Activation evidence below applies to subsequent BMad assignments.
 - Read instructions separately; recover truncated sections before acting.
 
 ## Working mode
 
-1. Identify the outcome, acceptance checks, existing decisions and blockers.
-2. Select a task flow; state the needed roles, order and completion check.
-3. Select ready assignments from the checked workflow catalog. Reuse accepted inputs.
-4. Set ownership, dependencies, inputs, authority and checks before launch.
-5. Launch native roles; identify the requested entry skill and workflow. Activation is pending.
-6. Collect startup evidence and results. Continue independent work while assignments run.
-7. Resolve conflicts, integrate outputs and verify the outcome.
+1. Collect the request, constraints, existing decisions and references; check host authority.
+2. Call `plex-pm` for short intake of every new task and unplanned subtask. Do not classify its complexity or readiness yourself.
+3. Follow the returned route; obtain required specialist decisions before dev. State roles, order and completion checks.
+4. Select ready assignments from the checked workflow catalog. Reuse accepted inputs.
+5. Set ownership, dependencies, inputs, authority and checks before launch.
+6. Launch native roles; identify the requested entry skill and workflow. Activation is pending.
+7. Collect startup evidence and results. Continue independent work while assignments run.
+8. Resolve conflicts, integrate outputs and verify the outcome.
 
 ### Role selection
 
 | Role | Assignment |
 |---|---|
 | `analyst` | Bounded research; direct request or explicit approval required |
-| `pm` | Product requirements |
+| `pm` | Mandatory short task intake; assigned product requirements |
 | `po` | Specifications, tickets, tracking and replanning |
 | `ux` | User journeys, interaction states and design |
 | `architect` | Technical boundaries, invariants and architectural decisions |
 | `dev` | Build, explicit test generation or retrospective |
 | `reviewer` | Standalone code review |
 
-- These are capabilities, not mandatory stages. A bounded change can go directly to dev.
+- PM intake is mandatory for every new task; other specialists follow its assessment. A bounded change reaches dev only after that assessment.
 - Build owns its investigation, implementation plan, review and fixes. Do not add a competing planning process.
 - QA is an explicitly assigned dev workflow, not another BMad role. Test generation must not start Build first.
 - Read `skills.<role>` and `workflows.<role>` from `.plex/resolved.json`; source: `teams/bmad/team.toml`.
@@ -56,6 +58,7 @@ Pass paths and a short digest, not full transcripts or copied files.
 |---|---|
 | Outcome | Requested result, entry skill, workflow, optional operation; existing spec/story or explicit no-spec intent |
 | Inputs | Target files/diff, exclusions, verified skill roots, environment facts, completed discovery and remaining question |
+| Planning evidence | PM intake result, canonical task reference/format, required specialist decisions and remaining blockers; dev starts only after these are satisfied |
 | Interaction | Effective mode and supported native headless contract; questions/blockers return here with resume context |
 | Authority | Owned application/workflow-artifact paths or read-only scope; user exclusions and explicit nested-delegation authority |
 | Workspace | Selected checkout, initial dirty paths/relevant diff, task-owned files and pre-existing changes to preserve; pass the shared interaction policy's dirty-tree authorization |
@@ -117,7 +120,7 @@ Pass paths and a short digest, not full transcripts or copied files.
 ## Boundaries
 
 - Follow project instructions and host authority. This contract grants no extra write, tool or delegation permissions.
-- Keep small, clear tasks local unless delegation is requested or independent verification is useful. File count alone does not require a team.
+- Root may perform a mechanical step only when assigned by PM intake; it cannot classify a new task as a local shortcut.
 - Use only active roles from the checked snapshot. Unknown process or missing/ambiguous skill/activation is a blocker for that assignment.
 - Stale registration requires `plex-setup`; a package update alone does not refresh project/user roles.
 - Missing PO or workflow: report the version/prerequisite mismatch. Do not substitute PM, root, invented skills or another process; do not install/update BMad as a side effect.

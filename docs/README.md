@@ -36,6 +36,7 @@ English is the maintained source; translations mirror these filenames.
 
 | Version | Changes |
 |---|---|
+| [Release notes](releases/v0.6.1.md) | v0.6.1: Mandatory specialist intake before routing or implementation. |
 | [Release notes](releases/v0.6.0.md) | v0.6.0: Auto, Codex native roles, Plex AI presentation. |
 | [Release notes](releases/v0.5.11.md) | v0.5.11: Stable macOS CI, coordinator delegation and setup defaults. |
 | [Release notes](releases/v0.5.9.md) | v0.5.9: Active-team dispatch and optional legacy-agent cleanup. |

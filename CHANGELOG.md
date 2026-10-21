@@ -4,6 +4,18 @@ Important changes retained in Plex, grouped by release. Interfaces and configura
 may change before 1.0. Releases through v0.5.4 were previews; v0.5.5 and later are
 regular releases.
 
+## [0.6.1] — 2026-10-21
+
+- Require a real `plex-pm` intake assessment for every new Plex task and unplanned
+  subtask. Root collects inputs and schedules the assessed route; it does not judge
+  complexity or implementation readiness, or replace missing specialists locally.
+- Keep intake short and role-local in both teams. It does not activate BMad, a
+  persona menu or a PRD; assigned BMad domain work retains its activation contract.
+- Use the project's existing task/spec/issue format. Collect required specialist
+  decisions before dev; reuse assessments for covered steps and unchanged continuation.
+- Update coordinator handoffs, PM role sources, managed instructions and four-language
+  documentation to make the planning result a prerequisite, not a user approval gate.
+
 ## [0.6.0] — 2026-10-21
 
 - Continue authorized work in dirty trees while preserving pre-existing changes,

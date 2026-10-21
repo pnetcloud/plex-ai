@@ -1,6 +1,9 @@
 # BMad workflow execution contract
 
-Plex coordinates bounded assignments using actual installed BMad skills. Resolve
+Plex coordinates bounded assignments using actual installed BMad skills.
+Every new task starts with a short `plex-pm` intake assessment. This role-local
+consultation does not activate BMad or create a PRD; activation below applies to
+actual BMad assignments after intake. Resolve
 skills through the host's active inventory; missing or tied copies are blockers.
 
 Use the checked team's workflow catalog to select the persona and requested workflow. A persona

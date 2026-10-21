@@ -52,11 +52,12 @@ are preserved. BMad mode offers its selected dependencies and project initializa
 
 ## How it works
 
-**Your current chat remains the coordinator and keeps its model.** It selects the installed
-team's roles, assigns bounded work, integrates their results and verifies the outcome.
-Independent assignments can run concurrently; small tasks can stay in the main chat.
+**Your current chat remains the coordinator and keeps its model.** Every new task first goes to
+`plex-pm` for a short assessment. The coordinator follows that assessment, collects
+required specialist decisions, then assigns implementation and verifies the result.
+Independent assignments can run concurrently; covered steps reuse the assessment.
 
-![Task flows to the current chat coordinator, selected specialists, then an integrated and verified result. Small tasks can go directly to verification.](docs/assets/readme/workflow.svg)
+![Task flows through the current chat, mandatory PM assessment, needed specialists and a verified result.](docs/assets/readme/workflow.svg)
 
 The diagram illustrates the workflow, not a separate application interface. A team is a toolbox,
 not a pipeline that must run every role. Plex works within your client's permissions.

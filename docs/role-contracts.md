@@ -52,6 +52,15 @@ for optional roles. Each role has one source in its own team; client renderers p
 
 Coordinators use Markdown headings; their purpose and blocks match the role sources. Keep root-only routing and integration responsibilities explicit. A coordinator is loaded by the Plex skill, not registered as an additional native subagent.
 
+## Mandatory intake
+
+After Plex activation, every new task and unplanned subtask first goes to the native `plex-pm` role for a short assessment. Root does not classify complexity or implementation readiness itself. PM returns outcome/non-goals, missing decisions, needed roles/order, the project's task format and reference, a dev contract with checks, and readiness (`ready`, `needs-specialist`, `blocked`).
+
+In the BMad team, this role-local intake does not activate a persona, menu, PRD or Build. Actual BMad assignments still follow their activation contracts. Task/spec authoring uses the project's existing tracker, issue, spec or story conventions; use installed PO/spec operations where supported. Do not require `bmad-spec` across all BMad versions or create a parallel task store.
+
+Required technical decisions go to architect in BMad or PM in pnet before dev. A detailed request or small diff does not prove design readiness. Reuse an assessment for covered workflow steps and unchanged continuation; new decisions outside it return to PM. Missing/rejected required roles block their assignments: root may report status and gather bounded context but cannot take over their design or implementation. This adds a specialist-result prerequisite, not another user approval prompt.
+
+
 ## Task intake and routing
 
 Every new Plex task starts with a short route: outcome, needed roles, execution
@@ -61,10 +70,10 @@ planning and implementation to the owning roles. The skill's
 
 | Task | Route |
 |---|---|
-| Bounded change with clear goal and acceptance | dev → required verification → coordinator |
-| Substantial new work with missing decisions | needed PM/PO/UX/architect assignments → dev → verification → coordinator |
-| Unexplained failure | bounded investigation → fix → verification → coordinator |
-| Review request | reviewer → coordinator |
+| Bounded change with clear goal and acceptance | PM intake → dev → required verification → coordinator |
+| Substantial new work with missing decisions | PM intake → needed PM/PO/UX/architect assignments → dev → verification → coordinator |
+| Unexplained failure | PM intake → bounded investigation → fix → verification → coordinator |
+| Review request | PM intake → reviewer → coordinator |
 
 Only the selected team's roles apply: pnet PM also owns technical planning;
 BMad separates PM, PO, UX and architect. Reuse accepted plans, skip resolved

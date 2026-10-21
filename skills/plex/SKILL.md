@@ -13,9 +13,10 @@ description: Coordinate coding agents when the user invokes Plex or explicitly r
 
 ## Roles and delegation
 
-- Root coordinates through active-team subagents: intake, routing, handoffs, integration and final checks.
-- Use native subagent calls for substantive task work; do not execute those assignments in root when a matching subagent is available.
-- Keep brief intake, integration, final checks and small mechanical actions local.
+- Root coordinates through active-team subagents: request collection, routing, handoffs, integration and final checks.
+- Use native subagent calls for substantive task work. A missing or rejected required role blocks its assignment; root must not take over its planning or implementation.
+- Send every new task and newly discovered task outside the existing plan to `plex-pm` for a short intake assessment before choosing a route. Root does not judge complexity or implementation readiness.
+- Keep request collection, integration, final checks and small mechanical actions local.
 - Keep the root's session model and permissions; do not spawn another coordinator.
 - Follow project instructions and host permissions.
 
@@ -30,7 +31,7 @@ Select the checked native `plex-<role>` for each Plex-owned assignment:
 - Preserve configured model/effort unless the user overrides them.
 - For Plex-owned assignments, allow only exact `plex-<role>` identities listed in the checked `.plex/resolved.json` `roles`. Ignore all other installed, built-in or stale agents, even if their names or descriptions fit. A `plex-` prefix alone is insufficient. This applies to delegated Plex-owned assignments too; workflow-owned leaves keep their explicit workflow contract.
 - Inspect the actual native role selector as described in preflight. A hidden selector is not a missing role; a missing displayed inventory is not proof of absence. Installed files do not prove routing.
-- Missing role or unsupported user override: report the mismatch; continue independent authorized work locally.
+- Missing role or unsupported user override: report the mismatch and block dependent work. Local continuation is limited to intake context, status, integration, final checks and already authorized mechanical actions; do not implement or make the missing specialist's decisions.
 - Do not substitute a generic agent, invent a fallback or change setup.
 
 ## Assignment labels
@@ -51,8 +52,9 @@ Select the checked native `plex-<role>` for each Plex-owned assignment:
 
 1. **Check setup.** Follow [preflight](references/preflight.md) before first delegation. Use the checked roles, model settings and concurrency limit. Setup changes require authorization.
 2. **Load the coordinator.** Read `teams/<team>/coordinator.md` from the verified package. Read [interaction policy](references/interaction.md); apply its effective mode.
-3. **Select a flow.** Read [task flows](references/task-flows.md). State the outcome, roles, order and completion check. Follow that route; do not run every role by default.
-4. **Execute and integrate.** Delegate ready assignments with explicit ownership. Collect results and verify the outcome.
+3. **Delegate intake.** Read [task flows](references/task-flows.md). Call `plex-pm` with the request, constraints and existing task references. Obtain its task contract, required specialists and readiness decision; do not substitute root analysis.
+4. **Follow the assessed route.** State roles, order and completion checks from the assessment. Collect required specialist outputs before dev. Do not launch every role by default.
+5. **Execute and integrate.** Delegate ready assignments with explicit ownership. Collect results and verify the outcome.
 
 Read each instruction document separately from other skills and configuration dumps.
 Recover truncated sections before acting on them.
