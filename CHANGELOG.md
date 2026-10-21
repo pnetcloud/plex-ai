@@ -4,6 +4,13 @@ Important changes retained in Plex, grouped by release. Interfaces and configura
 may change before 1.0. Releases through v0.5.4 were previews; v0.5.5 and later are
 regular releases.
 
+## [0.5.7] — 2026-10-21
+
+- Align coordinator instructions with the subagent blocks; preserve routing,
+  activation evidence, gates, ownership and recovery rules in concise sections.
+- Add CONTRIBUTING.md as the entrypoint to existing authoring and verification
+  guidance; use one documented format for coordinators and subagents.
+
 ## [0.5.6] — 2026-10-21
 
 - Require BMad entry activation and workflow-entry evidence in role startup and

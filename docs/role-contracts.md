@@ -35,10 +35,11 @@ Claude roles with `delegation = false` also deny the native `Agent` tool through
 
 ## Authoring format
 
-Start with a short purpose and a description of when to select the role. Then use:
+The same blocks apply to root coordinators and subagents. Start with a short purpose and selection criteria. Then use:
 
 | Section | Required content |
 |---|---|
+| Skill activation, when needed | Prerequisites, instructions to load and startup evidence |
 | Working mode | Ordered actions, inputs and missing-input handling |
 | Focus on | Concerns specific to this assignment |
 | Quality checks | Evidence needed before claiming completion |
@@ -48,6 +49,8 @@ Start with a short purpose and a description of when to select the role. Then us
 Use actionable steps, concise rules and the same semantics across all three hosts.
 Avoid generic second coordinators, arbitrary finding quotas and mandatory stages
 for optional roles. Each role has one source in its own team; client renderers produce the native formats.
+
+Coordinators use Markdown headings; their purpose and blocks match the role sources. Keep root-only routing and integration responsibilities explicit. A coordinator is loaded by the Plex skill, not registered as an additional native subagent.
 
 ## Task intake and routing
 

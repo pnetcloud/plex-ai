@@ -1,5 +1,7 @@
 # Developing pNet Plex
 
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the contribution workflow.
+
 Read `docs/product.md` and `docs/development.md` before substantive work. For
 configuration changes also read `docs/configuration.md` and `docs/architecture.md`.
 These documents describe the project; keep implementation claims backed by files.

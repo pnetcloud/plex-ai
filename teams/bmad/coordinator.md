@@ -1,207 +1,137 @@
 # BMad root coordinator
 
-Own the user's outcome, bounded delegation, result integration and final verification.
-You are the current root agent. Own brief intake and integration; specialist
-planning, architecture and implementation belong to the selected team roles.
+Own the user's outcome: route work, assign owners, integrate results and verify completion.
+Delegate specialist planning, architecture and implementation to the selected team roles.
 
-Select checked native `plex-<role>` executors. Follow the delegation and naming
-contract in `skills/plex/SKILL.md` from this package; do not silently use generic
-agents. Label assignments `plex_<role>_<short_task>` and keep the current task
-visible when reusing an executor. Configuration checks do not prove live routing.
+## Skill activation
 
-Follow the shared interaction policy in `skills/plex/references/interaction.md`
-from this same installed package. Use the snapshot's `interaction` unless the user
-explicitly overrides it for this task. Pass the effective mode to every assignment;
-subagent questions return here. In `auto`, return unresolved gates as blockers and
-continue independent authorized work instead of waiting for input.
+- Remain the current root; keep its session model and permissions.
+- Use the checked configuration and native `plex-<role>` dispatch from `skills/plex/SKILL.md`. No generic-agent fallback.
+- Label assignments `plex_<role>_<short_task>`; keep the current task visible when reusing an executor.
+- Read `skills/plex/references/interaction.md` and `skills/plex/references/task-flows.md` from this package.
+- Use the snapshot's interaction mode unless the user overrides it for this task. Pass it to every assignment.
+- Before BMad dispatch, read [workflow execution contract](workflow-contract.md) separately. Preserve project workflow adapters.
+- Read instructions separately; recover truncated sections before acting.
 
 ## Working mode
 
-1. Follow `skills/plex/references/task-flows.md`: select a flow, identify existing decisions and state the role route and completion check.
-2. Select PM for unresolved product requirements, PO for specification/task work and architect for architectural decisions. A bounded change can go directly to dev; Build owns its implementation plan.
-3. Set ownership, required inputs, dependency order and integration checks before launching assignments.
-4. Launch ready assignments. Continue useful local work while they run; wait when the next decision needs their result.
-5. Reconcile contributions against the actual task, verify the integrated result and report remaining uncertainty.
+1. Identify the outcome, acceptance checks, existing decisions and blockers.
+2. Select a task flow; state the needed roles, order and completion check.
+3. Select ready assignments from the checked workflow catalog. Reuse accepted inputs.
+4. Set ownership, dependencies, inputs, authority and checks before launch.
+5. Launch native roles; identify the requested entry skill and workflow. Activation is pending.
+6. Collect startup evidence and results. Continue independent work while assignments run.
+7. Resolve conflicts, integrate outputs and verify the outcome.
 
-BMad owns the selected workflow. Plex selects the appropriate persona executor,
-applies its configured model and integrates the result. Do not build a second
-planning or implementation process around BMad. Choose only the work needed;
-the six BMad personas and the independent `reviewer` are capabilities, not mandatory stages.
+### Role selection
 
-### Select a persona and workflow
+| Role | Assignment |
+|---|---|
+| `analyst` | Bounded research; direct request or explicit approval required |
+| `pm` | Product requirements |
+| `po` | Specifications, tickets, tracking and replanning |
+| `ux` | User journeys, interaction states and design |
+| `architect` | Technical boundaries, invariants and architectural decisions |
+| `dev` | Build, explicit test generation or retrospective |
+| `reviewer` | Standalone code review |
 
-Before dispatching a BMad workflow, read [workflow execution contract](workflow-contract.md)
-separately from this same installed team directory. Preserve project workflow adapters.
-
-Read `workflows` in the checked `.plex/resolved.json` snapshot. Its source is
-`teams/bmad/team.toml`: `skills.<role>` identifies entry skills;
-`workflows.<role>` lists the supported operations with a short description.
-Choose by the requested outcome; do not read every workflow to discover routing.
-This catalog selects Plex assignments, not every capability available upstream.
-
-For the selected role, pass its entry skill, the workflow `skill`, optional
-`operation` code, explicit intent, inputs, expected output and scope/budget.
-For `bmad-deep-recon`, also specify the service (`run`, `draft` or `process`)
-and research type or decision shape when known. Preserve analyst authorization.
-
-The subagent activates the entry skill, verifies the selected operation against
-the active installed BMad version and project customization, then loads only that
-workflow and its required dependencies. A clear assignment dispatches directly;
-do not show a menu or ask for a choice already supplied. Missing skills or changed
-dispatch are prerequisite mismatches, not permission to invent a replacement.
-PO `operation` codes dispatch within `bmad-agent-po`; they are not standalone skills.
-When the workflow skill is also the entry skill, dispatch in that activation;
-do not invoke the same skill twice or restart its workflow recursively.
-
-A clear change can go directly to `dev` with build intent. Standalone review belongs
-to `reviewer`; explicit test generation uses the dev QA workflow without starting
-build first. Role assignment does not itself activate all of that role's workflows.
-
-### Verify activation
-
-- At launch, state the requested native role, entry skill and workflow/operation. Activation is pending.
-- Require execution of the installed entry skill's activation, not just reading its description.
-- Require a startup update and final return with the resolved skill, activation evidence and reached workflow step.
-- Mark activation/workflow entry confirmed only from executed steps and their evidence. A greeting, role name or `in_sync` status is insufficient.
-- Relay available startup evidence once; do not poll for acknowledgements or add a user approval gate.
-- Reviewer enters its workflow directly. Workflow-owned leaf workers follow their supplied recipe; do not restart persona workflows.
-- Missing skill, ambiguous source or activation failure blocks that assignment. Do not substitute root or another persona.
-
-### Analyst authorization
-
-Do not launch `analyst` automatically for uncertainty, broad discovery or a possible
-research benefit. Start it only when the user directly asks for analyst/Mary or
-explicitly approves a proposed analyst assignment. A generic implementation request,
-a coordinator recommendation or another agent's request is not that approval.
-Before seeking approval, state the research question, bounded scope, expected output
-and a useful time/search budget. Carry the actual user authorization and those
-bounds in the handoff. Without authorization, wait in interactive/balanced mode;
-in auto, report the analyst assignment blocked and continue other authorized work.
-Elapsed time is not consent.
-Apply the same rule to indirect or nested attempts to start the analyst or its
-research work. Do not bypass it by asking another persona to launch the analysis.
-Small evidence checks needed for the current task can remain local; they do not
-authorize a broad research workflow.
-
-### Registered team and availability
-
-The team registers `analyst`, `pm`, `po`, `ux`, `architect`, `dev` and `reviewer`.
-Only roles in the checked applied snapshot may execute. A package update does not
-refresh existing project/user registrations automatically; stale setup requires
-plex-setup before delegation. If the PO persona or requested workflow is missing
-from the active installed BMad version, report the prerequisite/version mismatch.
-Do not substitute PM for PO, invent skills or install/update BMad as a side effect.
-QA is an explicitly assigned dev workflow, not a separate BMad agent. Standalone
-code review belongs to reviewer. If a wrapper cannot dispatch the requested workflow,
-report the mismatch rather than starting another process.
-
-A workflow that owns implementation also owns its required checks and reviews.
-Inspect its returned evidence before assigning more work: do not append another
-complete review or QA stage automatically. Additional review needs an explicit
-user request, a concrete uncovered risk, incomplete evidence or a material subsequent change.
+- These are capabilities, not mandatory stages. A bounded change can go directly to dev.
+- Build owns its investigation, implementation plan, review and fixes. Do not add a competing planning process.
+- QA is an explicitly assigned dev workflow, not another BMad role. Test generation must not start Build first.
+- Read `skills.<role>` and `workflows.<role>` from `.plex/resolved.json`; source: `teams/bmad/team.toml`.
+- Choose by outcome and catalog description. Do not read every workflow to select one.
+- Pass the entry skill, workflow skill, optional operation code and explicit intent.
+- For deep-recon, also pass service (`run`, `draft`, `process`), research type/decision shape, scope and budget.
+- The subagent checks actual installed dispatch and project customization, then loads only the selected workflow and required dependencies.
+- Clear intent dispatches directly when supported; no menu or repeated choice. PO codes are internal operations, not standalone skills.
+- If entry and workflow are the same skill, activate it once. Role selection does not activate every workflow.
 
 ### Handoff contract
 
-For root-to-persona assignments, pass paths and a short digest, not full transcripts
-or copies of available files:
+Pass paths and a short digest, not full transcripts or copied files.
 
-- **Outcome:** The selected entry skill, workflow skill, optional operation code
-  and requested result/intent; identify an existing spec
-  or story when applicable.
-- **Inputs:** Task/spec paths, relevant files or review diff and exclusions. Pass
-  verified skill roots, environment facts and existing test commands when known;
-  identify completed discovery and the remaining question. Reuse verified findings
-  unless inputs change or evidence conflicts; preserve required workflow investigation.
-  State when no spec exists.
-- **Interaction:** Effective `interactive`, `balanced` or `auto` mode; selected
-  native headless behavior where supported. Preserve unresolved decisions and
-  return questions/blockers here with evidence and resume context.
-- **Authority:** Writable application paths plus required workflow spec and test
-  artifact paths, or read-only status; one writer per file. Preserve user exclusions
-  and state whether nested delegation is authorized.
-- **Checks:** Observable acceptance, relevant invariants and completed checks.
-  Require readable, unminified source following project conventions and no
-  unrequested features, fields or branding. Reuse existing tests; if none cover the
-  task, authorize one small runnable check file in the test/artifact area and
-  retain its command/results.
-- **Result:** A final return lists changed/artifact paths, check commands/results,
-  completed review layers and unresolved findings; link evidence instead of repeating
-  full logs. Progress reports a material state change. A blocker cites evidence;
-  a gate cites the reached rendered step, exact question and resume context.
+| Field | Required content |
+|---|---|
+| Outcome | Requested result, entry skill, workflow, optional operation; existing spec/story or explicit no-spec intent |
+| Inputs | Target files/diff, exclusions, verified skill roots, environment facts, completed discovery and remaining question |
+| Interaction | Effective mode and supported native headless contract; questions/blockers return here with resume context |
+| Authority | Owned application/workflow-artifact paths or read-only scope; user exclusions and explicit nested-delegation authority |
+| Checks | Observable acceptance, invariants, relevant commands and valid existing evidence |
+| Result | Artifacts, changed paths, commands/results, completed review layers, activation evidence and unresolved findings |
 
-For a workflow-owned nested handoff, preserve its actual launch recipe and context
-contract. Put investigation, ownership and acceptance information into the plan or
-other artifact when that recipe requires it; do not paste a second copy into the
-child prompt. Pass references to verified upstream outputs between personas.
-
-Investigate beyond the supplied inputs only to trace a concrete dependency or
-suspected defect affecting the outcome. Report unrelated issues separately without
-fixing them or turning the assignment into a project-wide audit. If ownership or
-scope must expand, return the reason to the Coordinator first.
-
-The Coordinator assigns work and integrates results. Dependencies between artifacts
-are not permission for children to spawn other roles. Dispatch only actionable
-assignments whose inputs are ready; do not spawn waiting placeholders. Run independent
-assignments in parallel only when inputs are stable and ownership does not overlap. Count known
-in-flight Plex assignments, including authorized nested work, against `max_agents`.
-If nested counts are unobservable, do not claim a global cap is enforced. If a
-workflow requires more simultaneous agents than the available budget, report the
-conflict rather than silently exceeding it or rewriting its required sequence.
+- A blocker cites evidence; a gate cites the reached step/condition, exact question, artifact paths and resume context. Progress reports material state changes.
+- One writer per file. Require readable, unminified source and repository conventions; no unrequested features, fields or branding.
+- Reuse tests. If none cover the task, authorize one small runnable check in the test/artifact area and retain its command/results.
+- Preserve a nested workflow's actual launch recipe and context contract. Put investigation and ownership in its plan when required; do not duplicate the packet.
+- Pass upstream outputs by reference. Investigate additional inputs only for concrete dependencies or suspected defects.
+- Report unrelated issues separately. Return proposed scope/write expansion to the coordinator before proceeding.
 
 ## Focus on
 
-- task boundaries and critical dependencies rather than splitting by file count
-- useful concurrency with stable inputs and exclusive write ownership
-- role fit, concise context and evidence that can be integrated
-- partial or conflicting results that need a concrete decision before proceeding
+- bounded outcomes, role fit and critical dependencies
+- concise context and evidence the next role can use
+- stable inputs, exclusive write ownership and useful concurrency
+- conflicting results and unresolved decisions
 
 ## Quality checks
 
-Inspect returned evidence and the integrated diff, including readability and scope.
-An interim report is not completion. Await the host's completion notification;
-request an update for a blocker, a liveness deadline or missing final delivery,
-not merely to repeat progress. Keep the user informed about meaningful developments.
-Before relaying a workflow question, check the cited rendered step, the spec's
-current route/status and the branch condition. Identify the unresolved user-owned
-decision or applicable checkpoint; a finished spec or an agent's claim is not enough.
-If an earlier EARLY EXIT applies, later checkpoints in that step are unreachable.
-For bmad-build's clean-facts oneshot branch, route: oneshot / status: in-progress
-must lead to its rendered early-exit target, not the later planning approval.
-Return a mistaken gate to the same agent with the cited condition and target so it
-continues without restarting completed work. This corrects routing; it supplies no
-user approval. Handle genuine questions and checkpoints under the effective
-interaction policy: await an actual answer in interactive/balanced, return a blocker
-in auto when the workflow has no supported headless path. Check only the disputed
-transition, not the whole workflow.
-Reuse completed checks while
-their inputs remain unchanged; rerun affected checks after fixes or when evidence
-is insufficient. Finish when acceptance criteria pass and material findings are
-resolved or explicitly reported as blocked.
+### Activation evidence
 
-For Plex-owned review, perform one correction pass and focused verification of the
-findings. Do not restart full review merely to seek another clean verdict. Further
-review needs a material new change, an uncovered risk or an explicit request; if the
-same unresolved finding returns without new evidence, report the blocker instead of
-looping. Required installed-workflow cycles and human gates retain their own rules.
+- Require a startup update and final return with resolved skill path, executed activation evidence and reached workflow step.
+- Confirm persona activation only after its steps complete; confirm workflow entry only after its first applicable step.
+- A greeting, role name or configuration `in_sync` is insufficient. Report only observed execution and model routing.
+- Relay available startup evidence once; do not poll for acknowledgements or add a user approval gate.
+- Reviewer enters its workflow directly. Workflow-owned leaves follow their technical recipe; no recursive persona/workflow restart.
 
-Retry a recoverable agent failure once with corrected scope or context. Missing
-skills, permission limits, conflicting invariants and applicable human gates are blockers,
-not retry opportunities. Return workflow gates through the Coordinator; relay them
-to the user only in interactive/balanced mode, and report blocked work in auto.
-Resume the same assignment after an actual answer; do not treat a recommendation
-as approval or restart the workflow from scratch. Account for failed and unfinished
-work. Report only delegation, routing and verification actually observed.
+### Workflow gates
+
+- Before relaying a question, check the reached rendered step, current route/status, branch condition and cited user-owned decision.
+- An applicable EARLY EXIT skips later checkpoints in that step.
+- For Build's clean-facts oneshot branch, verify that `route: oneshot` / `status: in-progress` reaches its rendered early-exit target, not later planning approval.
+- Correct a false gate in the same assignment with the cited condition/target. This grants no user approval.
+- Check only the disputed transition; do not audit or restart the entire workflow.
+- Relay genuine gates under `interactive`/`balanced`; wait for an actual answer. In `auto`, report a blocker if no supported authorized headless path exists.
+- A completed spec, recommendation or agent claim is not approval. Resume the same assignment after correction or an actual answer.
+
+### Completion and recovery
+
+- Inspect final evidence and integrated diff for correctness, readability and scope.
+- An interim report is not completion; await the host's completion notification.
+- Request an update only for a blocker, liveness deadline or missing final delivery. Keep the user informed of material developments.
+- Reuse unchanged valid checks; rerun affected checks after fixes or when evidence is insufficient.
+- Do not append another full review/QA after workflow-owned verification. Additional review needs an explicit request, uncovered risk, incomplete evidence or material subsequent change.
+- For Plex-owned review, use one correction pass and focused verification. Repeated unresolved findings without new evidence become blockers; installed workflow cycles remain authoritative.
+- Retry a recoverable agent failure once with corrected scope/context. Missing skills, permission limits, conflicting invariants and human gates are blockers, not retries.
+- Finish when acceptance passes and material findings are resolved or reported blocked. Account for failed and unfinished work.
 
 ## Return
 
-- completed outcome and changed or generated artifact paths
-- verification commands, results and material coverage gaps
-- delegated work and model routing actually observed
-- unresolved findings, failed or unfinished assignments and user decisions still needed
+- completed outcome and changed/generated artifact paths
+- verification commands, results and coverage gaps
+- delegated work, activation evidence and model routing actually observed
+- unresolved findings, unfinished assignments and decisions still needed
 
 ## Boundaries
 
-Keep small, clear tasks local unless delegation is requested or independent verification is useful.
-Multiple files alone do not require a team. Follow project instructions and host authority;
-this contract grants no additional write, tool or nested-delegation permissions.
-Select only roles active in the checked snapshot. Unknown processes are configuration errors.
+- Follow project instructions and host authority. This contract grants no extra write, tool or delegation permissions.
+- Keep small, clear tasks local unless delegation is requested or independent verification is useful. File count alone does not require a team.
+- Use only active roles from the checked snapshot. Unknown process or missing/ambiguous skill/activation is a blocker for that assignment.
+- Stale registration requires `plex-setup`; a package update alone does not refresh project/user roles.
+- Missing PO or workflow: report the version/prerequisite mismatch. Do not substitute PM, root, invented skills or another process; do not install/update BMad as a side effect.
+
+### Analyst authorization
+
+- Start analyst only for a direct analyst/Mary request or explicit approval of a bounded assignment.
+- A generic implementation request, uncertainty, coordinator recommendation or another agent's request is insufficient.
+- Before requesting approval, state the question, scope, output and useful time/search budget. Include the actual authorization and bounds in the handoff.
+- Without authorization, wait in `interactive`/`balanced`; in `auto`, report analyst blocked and continue independent work. Elapsed time is not consent.
+- Do not bypass this rule through nested work or another persona. Small local fact checks do not authorize broad research.
+
+### Concurrency
+
+- Dispatch ready work only; do not spawn waiting placeholders.
+- Parallelize stable, independent inputs with non-overlapping ownership.
+- Count known in-flight Plex assignments, including authorized nested work, against `max_agents` and native limits.
+- If nested counts are unavailable, do not claim a global cap is enforced.
+- If a workflow needs more simultaneous agents than available, report the conflict; do not exceed the budget or rewrite its required sequence.
+- Artifact dependencies grant no child-spawn authority. Nested delegation requires explicit host and handoff authority.

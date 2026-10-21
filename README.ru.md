@@ -8,7 +8,7 @@ Plex — **agent harness для оркестрации и координации
 OpenAI Codex, Anthropic Claude Code и Google Antigravity. Установите готовую команду,
 выберите профиль моделей и поручите Plex организовать реализацию, ревью и проверку.
 
-**[v0.5.6](https://github.com/pnetcloud/plex-ai/releases/tag/v0.5.6)** — открытый проект, MIT. Можно пробовать; интерфейсы ещё могут меняться.
+**[v0.5.7](https://github.com/pnetcloud/plex-ai/releases/tag/v0.5.7)** — открытый проект, MIT. Можно пробовать; интерфейсы ещё могут меняться.
 
 ## Установка
 
@@ -117,6 +117,7 @@ codex plugin remove pnet-plex@pnet-plex
 
 - [Сообщить о проблеме](https://github.com/pnetcloud/plex-ai/issues).
 - [Документация](docs/translations/ru/README.md) — подробности настройки и использования.
+- [Участие в разработке](CONTRIBUTING.md).
 - [О Plex](docs/translations/ru/product.md) — назначение и принципы.
 - [Совместимость](docs/translations/ru/host-compatibility.md) — живые тесты Codex и отдельных конфигураций Antigravity; нативный Claude Code пока не проверен на живых задачах.
 - [Тестирование и эффективность](docs/translations/ru/testing.md) — методика, измерения токенов/стоимости и субъективная оценка качества.

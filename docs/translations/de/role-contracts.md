@@ -23,10 +23,11 @@ Claude-Rollen mit `delegation = false` sperren außerdem das native Werkzeug `Ag
 
 ## Format
 
-Mit kurzem Zweck und Auswahlbeschreibung beginnen, danach:
+Für Root-Koordinatoren und Subagenten dieselben Blöcke verwenden. Mit kurzem Zweck und Auswahlkriterien beginnen, danach:
 
 | Abschnitt | Inhalt |
 |---|---|
+| Skill activation, falls nötig | Voraussetzungen, zu ladende Anweisungen und Startbelege |
 | Working mode | Reihenfolge, Eingaben und fehlende Voraussetzungen |
 | Focus on | Auftragsspezifische Schwerpunkte |
 | Quality checks | Abschlussbelege |
@@ -36,6 +37,8 @@ Mit kurzem Zweck und Auswahlbeschreibung beginnen, danach:
 Konkrete, kurze Schritte mit gleicher Semantik für alle Clients verwenden.
 Keine generischen zweiten Koordinatoren, willkürlichen Befundquoten oder Pflichtaufrufe
 optionaler Rollen. Jede Rolle hat eine Quelle innerhalb ihres Teams; Client-Renderer erzeugen die nativen Formate.
+
+Koordinatoren verwenden Markdown-Überschriften; Zweck und Blöcke entsprechen den Rollenquellen. Routing und Integration als Root-Verantwortung ausweisen. Der Plex-Skill lädt den Koordinator; er wird nicht als zusätzlicher nativer Subagent registriert.
 
 ## Aufgabenaufnahme und Routing
 

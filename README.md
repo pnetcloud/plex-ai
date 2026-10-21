@@ -8,7 +8,7 @@ Plex is an **agent harness for multi-agent orchestration and coordination** in
 OpenAI Codex, Anthropic Claude Code and Google Antigravity. Install a reusable team,
 choose its model profile, and ask Plex to organize implementation, review and verification.
 
-**[v0.5.6](https://github.com/pnetcloud/plex-ai/releases/tag/v0.5.6)** — open source, MIT. Ready to try; interfaces may change.
+**[v0.5.7](https://github.com/pnetcloud/plex-ai/releases/tag/v0.5.7)** — open source, MIT. Ready to try; interfaces may change.
 
 ## Install
 
@@ -117,6 +117,7 @@ For other clients and user-wide team removal, see [uninstallation](readme/instal
 
 - [Report a problem](https://github.com/pnetcloud/plex-ai/issues).
 - [Documentation](docs/README.md) — setup and usage details.
+- [Contributing](CONTRIBUTING.md).
 - [About Plex](docs/product.md) — purpose and working principles.
 - [Compatibility](docs/host-compatibility.md) — Codex and selected Antigravity live trials; native Claude Code live execution remains unverified.
 - [Testing and efficiency](docs/testing.md) — methodology, measured token/cost results and subjective quality observations.
