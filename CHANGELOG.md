@@ -3,6 +3,16 @@
 Important changes retained in Plex, grouped by release. The releases below are
 previews; interfaces and configuration may change before 1.0.
 
+## [0.5.3] — 2026-10-21
+
+- Separate the main-chat coordinator recommendation from subagent settings in
+  setup; read tier-specific recommendations from model profiles, keep the root
+  model under the user's control and shorten profile menus.
+- Recommend Codex coordinators by profile: Basic Luna/high, Plus Sol/low,
+  Pro Sol/medium and Pro+ Sol/high; leave `inherit` to the session choice.
+- Fix spacing between CLI labels and values; explain coordinator responsibilities
+  and model selection in all four documentation languages.
+
 ## [0.5.2] — 2026-10-20
 
 - Simplify Quick start to standard and Codex `--dev` installation commands; remove

@@ -526,12 +526,30 @@ class ConfigTests(unittest.TestCase):
     def test_profile_roles_match_their_team(self):
         for name, team in MODULE.list_catalog()["teams"].items():
             for profile in MODULE.load_model_profiles(name).values():
-                for settings in profile.values():
+                for host, settings in profile.items():
+                    if host == "coordinator":
+                        continue
                     roles = set(settings) - {"model", "reasoning"}
                     if roles:
                         self.assertLessEqual(roles, set(team["roles"]))
                         if "model" not in settings:
                             self.assertEqual(roles, set(team["roles"]))
+
+    def test_invalid_coordinator_recommendations_are_rejected(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            folder = root / "teams/pnet/profiles"
+            folder.mkdir(parents=True)
+            (folder.parent / "team.toml").write_text('roles = ["dev"]\n')
+            for recommendation in ('[coordinator.unknown]\nmodel = "test"',
+                                   '[coordinator.basic]\nmodel = "two words"',
+                                   '[coordinator.basic]\nreasoning = "invalid"',
+                                   '[coordinator.basic]\nextra = true'):
+                with self.subTest(recommendation=recommendation), patch.object(MODULE, "ROOT", root):
+                    (folder / "openai.toml").write_text(
+                        'host = "codex"\n[profiles.basic]\nmodel = "test"\n' + recommendation)
+                    with self.assertRaises(ValueError):
+                        MODULE.load_model_profiles("pnet")
 
     def test_invalid_settings_are_rejected(self):
         cases = [

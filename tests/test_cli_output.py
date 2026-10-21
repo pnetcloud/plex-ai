@@ -46,6 +46,9 @@ class OutputTests(unittest.TestCase):
             self.assertIn("AGENT", text)
             self.assertIn("REASONING", text)
             self.assertIn("plex-dev", text)
+            self.assertIn("Root coordinator · your main chat", text)
+            self.assertIn("gpt-6.1-sol / low", text)
+            self.assertLess(text.index("Root coordinator"), text.index("SUBAGENT"))
             self.assertIn("$ codex plugin marketplace add", text)
             self.assertNotIn("<!-- plex:managed:start -->", text)
             self.assertNotIn("\033[", text)
@@ -53,6 +56,34 @@ class OutputTests(unittest.TestCase):
         with redirect_stdout(io.StringIO()) as output:
             S.show_command(["plex", "--project", "/a path/with spaces"])
         self.assertIn("$ plex --project '/a path/with spaces'", output.getvalue())
+
+    def test_coordinator_guidance_follows_profile_without_becoming_a_role(self):
+        expected = {"basic": "gpt-6-luna / high", "plus": "gpt-6.1-sol / low",
+                    "pro": "gpt-6.1-sol / medium", "pro-plus": "gpt-6.1-sol / high"}
+        for team in ("pnet", "bmad"):
+            for tier, text in expected.items():
+                for profile in (tier, f"openai-{tier}"):
+                    with self.subTest(team=team, profile=profile), redirect_stdout(io.StringIO()) as output:
+                        resolved = S.CONFIG.resolve({"team": team, "model_profile": profile})
+                        S.coordinator_summary(resolved, "codex")
+                        self.assertIn(text, output.getvalue())
+                        self.assertIn("Plex keeps your session model", " ".join(output.getvalue().split()))
+                        self.assertNotIn("coordinator", resolved["roles"])
+                        self.assertNotIn("coordinator", S.CONFIG.render_host_roles(resolved, "codex"))
+        for host in S.CONFIG.HOSTS:
+            with self.subTest(host=host), redirect_stdout(io.StringIO()) as output:
+                S.coordinator_summary(S.CONFIG.resolve({"team": "pnet"}), host)
+                self.assertIn("no profile recommendation", output.getvalue())
+
+    def test_fields_separate_long_labels_and_align_continuation_lines(self):
+        with redirect_stdout(io.StringIO()) as output:
+            S.field("Project skills", ".agents/skills/plex\n.agents/skills/plex-setup")
+            S.field("A longer field label", "value\ncontinued")
+        lines = output.getvalue().splitlines()
+        self.assertIn("Project skills  .agents/skills/plex", lines[0])
+        self.assertEqual(lines[0].index(".agents"), lines[1].index(".agents"))
+        self.assertIn("A longer field label  value", lines[2])
+        self.assertEqual(lines[2].index("value"), lines[3].index("continued"))
 
     def test_status_json_stays_clean_even_on_a_color_terminal(self):
         with tempfile.TemporaryDirectory() as temp:

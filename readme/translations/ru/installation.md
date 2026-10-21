@@ -20,6 +20,9 @@ curl -fsSL https://raw.githubusercontent.com/pnetcloud/plex-ai/main/install.sh |
 
 Выберите клиента, область, команду и профиль, затем подтвердите план. Рекомендуется область **Project**. После установки откройте новую сессию клиента.
 
+Профиль настраивает субагентов. Модель root coordinator выбирайте в основном чате;
+план показывает рекомендацию. Подробнее: [основной чат и команда](../../../docs/translations/ru/product.md#основной-чат-и-команда).
+
 ## Основные команды
 
 Если команды `plex` нет — например, после первой dev-установки — используйте `~/.local/share/plex-ai/setup.sh` вместо `plex` в командах ниже.
@@ -114,7 +117,7 @@ curl -fsSL https://raw.githubusercontent.com/pnetcloud/plex-ai/main/install.sh |
 
 | Параметр | Назначение |
 |---|---|
-| `--release TAG` | Использовать тег релиза, например v0.5.2. |
+| `--release TAG` | Использовать тег релиза, например v0.5.3. |
 | `--development` | Использовать main; не включает --dev. |
 | `--checkout PATH` | Только GitHub-установщик; по умолчанию ~/.local/share/plex-ai. |
 

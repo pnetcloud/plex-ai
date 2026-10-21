@@ -311,9 +311,9 @@ class InstallerTests(unittest.TestCase):
             self.assertIn("Cancelled", output.getvalue())
             self.assertIn("Enter a positive whole number", output.getvalue())
             self.assertLess(output.getvalue().index("1. inherit"), output.getvalue().index("openai-basic"))
-            self.assertIn("user/session default model and reasoning", output.getvalue())
-            self.assertIn("gpt-6.1-sol /", output.getvalue())
-            self.assertIn("dev: gpt-6-luna /", output.getvalue())
+            self.assertIn("Use client defaults for subagent models and reasoning", output.getvalue())
+            self.assertIn("Mixed models for execution, planning and review", output.getvalue())
+            self.assertIn("Root coordinator", output.getvalue())
             self.assertEqual(list(Path(temp).resolve().iterdir()), [])
 
     def test_shared_concurrency_prompt_persists_and_cli_can_override(self):

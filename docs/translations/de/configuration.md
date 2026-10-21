@@ -27,6 +27,14 @@ max_agents = 3
 reasoning = "max"
 ```
 
+Optionale Tabellen `[coordinator.<tier>]` in den Herstellerprofilen enthalten
+Empfehlungen für den Hauptchat (`model`, `reasoning`). Sie bleiben von den
+Rolleneinstellungen getrennt und erscheinen als `coordinator` im aufgelösten
+Snapshot. Setup zeigt die Empfehlung des gewählten Profils, ändert aber weder
+den Client noch installiert es eine Koordinatorrolle. Ohne Empfehlung, auch
+bei `inherit`, wählt der Benutzer das Modell.
+
+
 Priorität je Feld: **Profilstandard → Profilrolle → Client-Override → Rollen-Override**.
 Clienttabellen heißen `[codex]`, `[claude]`, `[antigravity]`; Rollentabellen ergänzen den
 Rollennamen. Beide akzeptieren `model` und `reasoning`. Für Codex-Vererbung `model`

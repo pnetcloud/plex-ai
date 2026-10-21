@@ -27,6 +27,13 @@ max_agents = 3
 reasoning = "max"
 ```
 
+Optional `[coordinator.<tier>]` tables in vendor profile files hold main-chat
+recommendations (`model`, `reasoning`). They are separate from role settings and
+appear as `coordinator` in the resolved snapshot. Setup displays the selected
+profile's recommendation; it never applies it to the client or installs a coordinator
+role. A missing recommendation, including `inherit`, leaves the choice to the user.
+
+
 Per field: **profile default → profile role → host override → role override**.
 Host tables are `[codex]`, `[claude]`, `[antigravity]`; role tables add the role name.
 Both accept `model` and `reasoning`. For Codex inheritance, omit `model`.

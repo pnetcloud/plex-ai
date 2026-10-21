@@ -64,8 +64,9 @@ def heading(text):
 
 
 def field(label, value, tone="bold"):
-    value = str(value).replace("\n", "\n" + " " * 16)
-    print("  " + style(f"{label:<14}", "muted") + style(value, tone))
+    prefix = f"  {label:<14}  "
+    value = str(value).replace("\n", "\n" + " " * len(prefix))
+    print(style(prefix, "muted") + style(value, tone))
 
 
 def notice(text, tone="muted", *, file=None):
@@ -86,16 +87,28 @@ def show_command(command):
 def role_table(roles):
     rows = [(f"plex-{role}", values.get("model", "inherit"), values.get("reasoning", "session default"))
             for role, values in roles.items()]
-    widths = [max(len(row[i]) for row in [("AGENT", "MODEL", "REASONING"), *rows]) for i in range(3)]
+    headers = ("SUBAGENT", "MODEL", "REASONING")
+    widths = [max(len(row[i]) for row in [headers, *rows]) for i in range(3)]
     print()
     if sum(widths) + 8 > shutil.get_terminal_size().columns:
         for name, model, reasoning in rows:
             print("  " + style(name) + "\n    " + style(f"{model} / {reasoning}", "command"))
     else:
-        print("  " + style("  ".join(value.ljust(width) for value, width in zip(("AGENT", "MODEL", "REASONING"), widths)), "muted"))
+        print("  " + style("  ".join(value.ljust(width) for value, width in zip(headers, widths)), "muted"))
         for name, model, reasoning in rows:
             print("  " + style(name.ljust(widths[0])) + "  " + style(model.ljust(widths[1]), "command")
                   + "  " + style(reasoning, "muted"))
+
+
+def coordinator_summary(resolved, host):
+    recommendation = resolved["coordinator"].get(host, {})
+    print("\n  " + style("Root coordinator · your main chat"))
+    if recommendation:
+        field("Suggested", " / ".join(recommendation[key] for key in ("model", "reasoning") if key in recommendation), "command")
+        field("For profile", resolved["model_profile"], "muted")
+    else:
+        field("Model", "Your session choice; no profile recommendation", "muted")
+    notice("Choose the main-chat model in your client. Plex keeps your session model.")
 
 
 class HelpFormatter(argparse.RawDescriptionHelpFormatter):
@@ -1112,15 +1125,16 @@ def main(argv=None, *, shared_profile=False, selection=None, setup_mode=None):
                         for v in settings["hosts"][args.host].values()
                     ):
                         continue
-                    groups = {}
-                    for role, values in settings["hosts"][args.host].items():
-                        model = values.get("model", "inherit")
-                        label = "user/session default model and reasoning" if model == "inherit" else model
-                        if values.get("reasoning"):
-                            label += " / " + values["reasoning"]
-                        groups.setdefault(label, []).append(role)
-                    choices[name] = "; ".join(f"{', '.join(roles)}: {label}" for label, roles in groups.items())
-                notice("Profile defaults for this team and client; existing project overrides still apply.")
+                    tier = next((tier for tier in sorted(CONFIG.PROFILE_TIERS, key=len, reverse=True)
+                                 if name == tier or name.endswith(f"-{tier}")), "inherit")
+                    choices[name] = {
+                        "inherit": "Use client defaults for subagent models and reasoning",
+                        "basic": "Lightweight defaults with team-specific overrides",
+                        "plus": "Mixed models for execution, planning and review",
+                        "pro": "More capable settings for demanding assignments",
+                        "pro-plus": "Strongest configured role settings",
+                    }[tier]
+                notice("Profiles configure subagents. The final plan shows effective models, including project overrides.")
                 if not shared_profile:
                     choices["custom"] = "Choose model and reasoning for each agent"
                 current_profile = saved_profile(existing) if existing else "inherit"
@@ -1230,6 +1244,8 @@ def main(argv=None, *, shared_profile=False, selection=None, setup_mode=None):
             field("Refresh", ", ".join(refresh_clients))
         field("Interaction", resolved["interaction"], "command")
         field("Concurrency", f"{resolved['max_agents']} assignments")
+        coordinator_summary(resolved, args.host)
+        print("\n  " + style(f"Subagents · {len(resolved['roles'])} roles"))
         role_table(resolved["hosts"][args.host])
         if resolved["inactive_overrides"][args.host]:
             notice("Inactive overrides: " + ", ".join(resolved["inactive_overrides"][args.host]))

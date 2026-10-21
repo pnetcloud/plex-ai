@@ -1,6 +1,6 @@
 {
   "name": "pnet-plex",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "description": "Coordinate specialized coding agents with project presets.",
   "skills": "./skills"
 }

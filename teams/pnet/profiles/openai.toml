@@ -87,3 +87,21 @@ host = "codex"
 [profiles.pro-plus.qa]
   model     = "gpt-6.1-sol"
   reasoning = "high"
+
+# Main-chat recommendations only; never applied to client settings.
+
+[coordinator.basic]
+model = "gpt-6-luna"
+reasoning = "high"
+
+[coordinator.plus]
+model = "gpt-6.1-sol"
+reasoning = "low"
+
+[coordinator.pro]
+model = "gpt-6.1-sol"
+reasoning = "medium"
+
+[coordinator.pro-plus]
+model = "gpt-6.1-sol"
+reasoning = "high"

@@ -76,20 +76,29 @@ def load_model_profiles(team_name):
         if path.stem == "inherit":
             profiles["inherit"] = document
             continue
-        keys(document, {"host", "profiles"}, str(path))
+        keys(document, {"host", "profiles", "coordinator"}, str(path))
         host = document.get("host")
         if host not in HOSTS:
             raise ValueError(f"{path.name}: host must be one of {HOSTS}")
-        for tier, config in table(document.get("profiles", {}), f"{path.name}.profiles").items():
+        configs = table(document.get("profiles", {}), f"{path.name}.profiles")
+        recommendations = table(document.get("coordinator", {}), f"{path.name}.coordinator")
+        keys(recommendations, set(configs), f"{path.name}.coordinator")
+        for tier, config in configs.items():
             name = f"{path.stem}-{tier}"
             if not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", name):
                 raise ValueError(f"Invalid model profile ID: {name!r}")
             profiles[name] = {host: table(config, name)}
+            if tier in recommendations:
+                profiles[name]["coordinator"] = {
+                    host: settings(recommendations[tier], host, f"{name}.coordinator")}
     for tier in PROFILE_TIERS:
         sources = {"codex": f"openai-{tier}", "claude": f"anthropic-{tier}",
                    "antigravity": f"google-{tier}"}
         if all(name in profiles and host in profiles[name] for host, name in sources.items()):
             profiles[tier] = {host: profiles[name][host] for host, name in sources.items()}
+            profiles[tier]["coordinator"] = {
+                host: profiles[name]["coordinator"][host]
+                for host, name in sources.items() if "coordinator" in profiles[name]}
     return profiles
 
 
@@ -246,7 +255,7 @@ def resolve(config):
     profile_name = config.get("model_profile", "inherit")
     profile_team = team_name or ("bmad" if process == "bmad" else "pnet")
     profile = named_file("profiles", profile_name, profile_team)
-    keys(profile, set(HOSTS), "model profile")
+    keys(profile, {*HOSTS, "coordinator"}, "model profile")
     hosts = {}
     inactive = {}
     for host in HOSTS:
@@ -260,6 +269,7 @@ def resolve(config):
         inactive[host] = sorted(local_roles.keys() - set(roles))
     return {
         "team": team_name, "model_profile": profile_name,
+        "coordinator": profile.get("coordinator", {}),
         "process": process, "roles": list(roles),
         "skills": {role: list(names) for role, names in bindings.items()},
         "workflows": {role: [dict(entry) for entry in entries] for role, entries in workflows.items()},

@@ -34,6 +34,30 @@ Abhängigkeiten; Koordination stimmt die Beiträge ab; der Harness stellt die Ko
 `pnet` arbeitet eigenständig. `bmad` aktiviert vorhandene BMad-Personas und Workflows;
 BMad steuert Planung, Umsetzung, Reviews und anwendbare Freigaben.
 
+## Hauptchat und Team
+
+Der **Root-Koordinator ist der aktuelle Chat**. Dort `plex` mit Aufgabe,
+Rahmenbedingungen und erwartetem Ergebnis aufrufen. Er wählt sinnvolle Aufträge,
+liefert Kontext, ordnet Abhängigkeiten und integriert geprüfte Ergebnisse.
+Subagenten bearbeiten begrenzte Aufträge; der PM übernimmt Planungsaufgaben,
+statt den Root-Koordinator zu ersetzen. Die Rollen sind ein Werkzeugkasten,
+keine Pflichtstationen für jede Aufgabe.
+
+Das Modell des Hauptchats wird im Client gewählt. Setup zeigt die Empfehlung
+des gewählten Profils für die Koordination, stellt dieses Modell aber nicht ein.
+Je nach Profil können Modell und Denkaufwand abweichen. Bei `inherit` bleibt
+die Sitzungswahl ohne konkrete Empfehlung bestehen.
+Leichtere Modelle können die Umsetzung übernehmen, während der Root koordiniert.
+
+Das Profil konfiguriert **nur Subagenten**. Der Installationsplan trennt die
+Empfehlung für den Hauptchat von den effektiven Rolleneinstellungen einschließlich
+lokaler Overrides. Eine Rolle mit `inherit` folgt den Client-/Sitzungsvorgaben;
+die Wahl im Hauptchat kann daher auch diese Kinder beeinflussen. Empfehlungen
+sind Ausgangspunkte, kein gemessenes Optimum für Qualität oder Kosten.
+
+Siehe [Rollenzuständigkeiten](role-contracts.md) und
+[Installation](../../../readme/translations/de/installation.md).
+
 ## Grenzen
 
 Plex hat keinen eigenen Daemon oder UI. Ausgewählte BMad-Skills werden nur mit ausdrücklicher Zustimmung installiert. Plex ersetzt dessen

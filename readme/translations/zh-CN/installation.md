@@ -20,6 +20,9 @@ curl -fsSL https://raw.githubusercontent.com/pnetcloud/plex-ai/main/install.sh |
 
 选择客户端、范围、团队和模型配置，确认计划。推荐 **Project** 范围。安装后打开新的客户端会话。
 
+模型配置档用于子智能体。请在主对话中选择根协调者的模型；安装计划会显示建议。
+参见[主对话与团队](../../../docs/translations/zh-CN/product.md#主对话与团队)。
+
 ## 常用命令
 
 若没有可选的 `plex` 命令（例如首次开发模式安装后），下文用 `~/.local/share/plex-ai/setup.sh` 代替 `plex`。
@@ -114,7 +117,7 @@ curl -fsSL https://raw.githubusercontent.com/pnetcloud/plex-ai/main/install.sh |
 
 | 参数 | 用途 |
 |---|---|
-| `--release TAG` | 使用发布标签，例如 v0.5.2。 |
+| `--release TAG` | 使用发布标签，例如 v0.5.3。 |
 | `--development` | 使用 main，不启用 --dev。 |
 | `--checkout PATH` | 仅用于 GitHub 引导安装，默认 ~/.local/share/plex-ai。 |
 

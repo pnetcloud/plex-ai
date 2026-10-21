@@ -26,6 +26,11 @@ max_agents = 3
 reasoning = "max"
 ```
 
+厂商配置文件中可选的 `[coordinator.<tier>]` 表用于主对话建议（`model`、`reasoning`）。
+它与角色设置分开，并作为 `coordinator` 写入解析快照。安装器显示所选配置档的建议，
+但不会应用到客户端，也不会安装协调者角色。没有建议时（包括 `inherit`），由用户选择模型。
+
+
 各字段优先级：**配置档默认值 → 配置档角色值 → 客户端覆盖 → 角色覆盖**。
 客户端表为 `[codex]`、`[claude]`、`[antigravity]`；角色表追加角色名。
 两类覆盖均接受 `model` 和 `reasoning`。Codex 如需继承模型，省略 `model`。

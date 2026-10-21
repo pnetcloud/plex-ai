@@ -36,6 +36,29 @@ roles aligned and integrates their results. The harness supplies their reusable 
 `pnet` works independently. `bmad` activates existing BMad personas and workflows;
 BMad owns their planning, implementation, review and applicable checkpoints.
 
+## The main chat and the team
+
+The **root coordinator is your current chat**. Invoke `plex` there with the task,
+constraints and expected result. It chooses useful assignments, supplies context,
+orders dependencies and integrates verified results. Subagents do bounded work;
+the PM owns planning assignments, rather than replacing the root coordinator.
+Available roles are a toolbox, not a checklist to run for every task.
+
+Choose the main chat's model in your client. Setup shows the selected profile's recommendation
+for coordination; it does not set or switch that model. Recommendations can differ
+in both model and reasoning between tiers. `inherit` keeps the session choice
+without a specific recommendation. Lightweight execution models
+can still do the implementation while the root handles coordination.
+
+The selected profile configures **subagents only**. The installation plan separates
+the main-chat recommendation from their effective model settings, including local
+overrides. A role set to `inherit` follows client/session defaults, so the main-chat
+choice can also affect those children. Recommendations describe a starting setup,
+not a measured optimum for quality or cost.
+
+See [role responsibilities](role-contracts.md#responsibilities) and
+[installation](../readme/installation.md).
+
 ## Scope
 
 Plex has no separate daemon or UI. It installs selected BMad skill dependencies only with explicit authorization. It does not replace BMad workflows,
