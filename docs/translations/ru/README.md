@@ -1,4 +1,8 @@
-# pNet Plex
+<p align="center">
+  <img src="../../assets/readme/hero.webp" width="320" height="163" alt="Plex AI by pNet — Triad">
+</p>
+
+# Plex AI
 
 [English](../../../README.md) · [Русский](README.md) · [Deutsch](../de/README.md) · [简体中文](../zh-CN/README.md)
 
@@ -8,9 +12,13 @@ Plex — **agent harness для оркестрации и координации
 OpenAI Codex, Anthropic Claude Code и Google Antigravity. Установите готовую команду,
 выберите профиль моделей и поручите Plex организовать реализацию, ревью и проверку.
 
-**[v0.5.11](https://github.com/pnetcloud/plex-ai/releases/tag/v0.5.11)** — открытый проект, MIT. Можно пробовать; интерфейсы ещё могут меняться.
+[![Latest Release](https://img.shields.io/github/v/release/pnetcloud/plex-ai?display_name=tag&style=flat-square)](https://github.com/pnetcloud/plex-ai/releases/latest) [![CI](https://github.com/pnetcloud/plex-ai/actions/workflows/ci.yml/badge.svg)](https://github.com/pnetcloud/plex-ai/actions/workflows/ci.yml) [![MIT License](https://img.shields.io/github/license/pnetcloud/plex-ai?style=flat-square)](https://github.com/pnetcloud/plex-ai/blob/main/LICENSE)
 
-## Установка
+**[Начать](#quickstart)** · **[Как это работает](../../../README.md#how-it-works)** · **[Документация](index.md)** · **[Релизы](https://github.com/pnetcloud/plex-ai/releases/latest)** · **[Сообщить о проблеме](https://github.com/pnetcloud/plex-ai/issues)**
+
+<a id="quickstart"></a>
+
+## Быстрый старт
 
 Запустите в папке проекта:
 

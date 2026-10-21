@@ -41,6 +41,8 @@ Plex-Aufträge verwenden ausschließlich exakte `plex-<role>`-Namen des geprüft
 
 Setup zeigt andere `.toml`-Agenten im gewählten Geltungsbereich und bietet **Behalten** (Standard) oder **Ins Backup verschieben** an. Sie bleiben im Client verfügbar und können die Rollenwahl beeinflussen. Geeignete Dateien werden nach `.plex/backups/<timestamp>/codex/other-agents/` verschoben; bei Bedarf manuell daraus wiederherstellen. Andere Geltungsbereiche, Symlinks und explizit in `config.toml` registrierte Dateien bleiben erhalten. Geänderte verwaltete Rollen bleiben Konflikte.
 
+Die native Codex-Rollenauswahl benötigt eine vertrauenswürdige Projektkonfiguration und eine neue Sitzung. Setup verwaltet die nötigen Einstellungen mit Sicherung und Eigentumsprüfung; abweichende persönliche Werte bleiben erhalten. Siehe [Konfiguration](configuration.md).
+
 Für unbeaufsichtigtes Aufräumen `--archive-other-agents --client codex` angeben; `--yes` allein behält andere Agenten. `--dry-run` verschiebt keine Dateien.
 
 ## Häufige Befehle
@@ -175,6 +177,7 @@ Der Bootstrap speichert den gemeinsamen Checkout in `~/.local/share/plex-ai`; ve
 
 ## Dateischutz und Fehlerbehebung
 
+- Unveränderte, per Receipt verwaltete Codex-Routingwerte werden ebenfalls entfernt; bereits vor Setup vorhandene passende Werte bleiben persönlich.
 - Entfernen gilt standardmäßig für das Projekt. Mit `--client codex` begrenzen, mit `--scope user` Benutzerrollen wählen; `--yes` bestätigt ohne Rückfragen.
 - Nur unveränderte eigene Rollen, Anweisungsblöcke und Skill-Links und Dev-Overrides werden entfernt. Gemeinsame Plugins, Quellen, Einstellungen und Backups bleiben; geänderte eigene Dateien oder unbekannte Formate stoppen Änderungen.
 - Quellupdates lehnen veränderte, fremde oder verlinkte Checkouts ab. Plugin-Änderungen und abgeschlossene Client-Installationen sind vom Rollen-Rollback getrennt.

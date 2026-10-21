@@ -1,8 +1,18 @@
+<p align="center">
+  <img src="../../assets/readme/hero.webp" width="320" height="163" alt="Plex AI by pNet — Triad">
+</p>
+
 # Plex 文档
 
 [English](../../README.md) · [Русский](../ru/index.md) · [Deutsch](../de/index.md) · [简体中文](index.md)
 
 Plex 在 Codex、Claude Code 和 Antigravity 中配置并协调智能体团队。
+
+## 从这里开始
+
+1. [安装 Plex](installation.md) — 环境要求、标准模式和开发模式。
+2. [选择团队和配置档](configuration.md) — 模型、交互和并发。
+3. [在聊天中调用 Plex](README.md) — 协调工作并验证结果。
 
 | 指南 | 内容 |
 |---|---|
@@ -14,6 +24,16 @@ Plex 在 Codex、Claude Code 和 Antigravity 中配置并协调智能体团队�
 | [角色契约](role-contracts.md) | 职责和执行指令 |
 | [开发](development.md) | 源码布局与检查 |
 | [测试与效率](testing.md) | 实测结果、token、成本和质量观察 |
+
+实验请使用[评估协议](../../../EVALUATION.md)、[实验计划](templates/experiment-plan.md)
+和[报告模板](templates/evaluation-report.md)。英文是维护源；各语言版本使用相同文件名。
+
+<details>
+<summary>版本归档</summary>
+
+| 版本 | 变更 |
+|---|---|
+| [发布说明](releases/v0.6.0.md) | v0.6.0: Auto、Codex 原生角色与 Plex AI 展示。 |
 | [发布说明](releases/v0.5.11.md) | v0.5.11: 稳定 macOS CI、协调者委派及安装默认值。 |
 | [发布说明](releases/v0.5.9.md) | v0.5.9: 仅使用活动团队角色，并可选择清理旧代理。 |
 | [发布说明](releases/v0.5.8.md) | v0.5.8: 文档整理与 Codex 技能短名称 |
@@ -31,5 +51,4 @@ Plex 在 Codex、Claude Code 和 Antigravity 中配置并协调智能体团队�
 | [发布说明](releases/v0.2.0.md) | v0.2.0 预览版：内容、安装和限制 |
 | [发布说明](releases/v0.1.0.md) | v0.1.0 预览版：内容、安装和限制 |
 
-实验请使用[评估协议](../../../EVALUATION.md)、[实验计划](templates/experiment-plan.md)
-和[报告模板](templates/evaluation-report.md)。英文是维护源；各语言版本使用相同文件名。
+</details>

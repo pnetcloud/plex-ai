@@ -852,6 +852,8 @@ def removal_report(results, preview=False):
             notice(", ".join(f"plex-{role}" for role in roles))
         if item.get("instruction_block_removed"):
             field("Instructions", "Remove managed block only" if preview else "Managed block removed")
+        if item.get("routing_settings_removed"):
+            field("Role selection", "Remove owned Codex routing settings" if preview else "Owned Codex routing settings removed")
         if item.get("remove_dev_links_and_override"):
             field("Dev mode", "Remove owned links and plugin override")
         if item.get("remove_skill_aliases"):
@@ -915,7 +917,7 @@ def maintenance(args):
             raise ValueError("Use uninstall --dry-run to preview or uninstall --yes to confirm")
         if not args.json:
             removal_report(plans, preview=True)
-        question = "Remove these Plex roles and owned instruction blocks? [y/N] "
+        question = "Remove these Plex roles and owned settings? [y/N] "
         if args.json:
             print(question, end="", file=sys.stderr, flush=True)
             answer = input()
@@ -1292,6 +1294,9 @@ def main(argv=None, *, shared_profile=False, selection=None, setup_mode=None):
         if args.scope == "project":
             field("Project", project, "command")
         field("Agent files", config_root / CONFIG.host_agents_relpath(args.host, args.scope), "muted")
+        if args.host == "codex":
+            field("Role selection", "Native Codex role metadata exposed; managed settings in config.toml")
+            notice("Project settings require a trusted project and a new client session; installed files alone do not prove role availability.")
         if shortcut:
             field("Command", shortcut, "command")
         if state.get("resolved"):

@@ -157,3 +157,7 @@ Finish with installed roles, effective model overrides, remaining conflicts and 
 required host reload and inactive overrides. A subsequent `resolve_config.py check`
 must report `in_sync` with no pending changes. Installing configuration does not
 prove that live subagent execution or model routing works.
+
+## Codex role selection
+
+Role application exposes native role metadata through a receipt-owned block in the selected scope's `config.toml`: missing `features.multi_agent_v2.hide_spawn_agent_metadata = false` and `tool_namespace = "agents"`. It preserves personal settings, rejects conflicting values and uses the existing apply/check/backup/rollback/uninstall lifecycle. It does not change models, permissions, concurrency, the selected backend or project trust. Existing matching fields remain user-owned. Use a supported native client, trust the project through Codex, and open a new session. Verify the active spawn schema and actual accepted role separately; setup makes no model calls.

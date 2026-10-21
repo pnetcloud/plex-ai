@@ -154,3 +154,11 @@ Normales Setup aktiviert sie nicht.
 Plex-Aufträge verwenden ausschließlich exakte `plex-<role>`-Namen des geprüften aktiven Teams. Andere installierte oder eingebaute Agenten gehören nicht dazu; Workflow-eigene Ausführende folgen dem jeweiligen Workflow-Vertrag.
 
 Setup zeigt andere `.toml`-Agenten im gewählten Geltungsbereich und bietet **Behalten** (Standard) oder **Ins Backup verschieben** an. Sie bleiben im Client verfügbar und können die Rollenwahl beeinflussen. Geeignete Dateien werden nach `.plex/backups/<timestamp>/codex/other-agents/` verschoben; bei Bedarf manuell daraus wiederherstellen. Andere Geltungsbereiche, Symlinks und explizit in `config.toml` registrierte Dateien bleiben erhalten. Geänderte verwaltete Rollen bleiben Konflikte.
+
+## Arbeitsverzeichnis und native Delegation
+
+Nicht eingecheckte Änderungen allein erfordern keine Bestätigung. Plex erfasst den Ausgangszustand, weist Aufgabendateien zu und bewahrt bestehende Änderungen, auch fremde Abschnitte innerhalb einer zugewiesenen Datei. Diese Erlaubnis wird an Workflows weitergegeben; eine reine Dirty-Tree-Rückfrage ist damit beantwortet. Konflikte blockieren nur betroffene Arbeiten. Plex erstellt keine Worktrees und führt keinen Branchwechsel, Stash, Reset, Clean oder Commit aus, um einen sauberen Zustand herzustellen.
+
+Für Codex ergänzt Setup nur fehlende Werte `hide_spawn_agent_metadata = false` und `tool_namespace = "agents"` unter `[features.multi_agent_v2]`. Sie öffnen die native Rollenauswahl, ohne Backend, Modelle, Berechtigungen oder Parallelität zu ändern. Abweichende persönliche Werte bleiben erhalten und werden als Konflikt gemeldet. Verwaltete Werte nehmen an Sicherung, Konfliktprüfung, Rollback und Deinstallation teil; vorhandene passende Werte werden nicht übernommen. Ein leerer Tabellenkopf kann verbleiben, damit spätere persönliche Einstellungen ihren Geltungsbereich behalten.
+
+Codex muss der Projektkonfiguration vertrauen. Nach Setup eine neue Sitzung öffnen. Preflight unterscheidet fehlendes Spawn-Werkzeug, verborgene Rollenauswahl, abgelehnte Rolle und akzeptierten Aufruf. Ist die Auswahl verfügbar, die genaue Teamrolle anfordern, auch ohne sichtbare Rollenliste; soweit unterstützt mit frischem Kontext und eigenständiger Übergabe. Konfigurationsprüfungen beweisen weder geladene Sitzungsrollen noch das tatsächliche Modell des Kindes.

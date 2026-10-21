@@ -1,4 +1,12 @@
 ### Plex development source
-For Plex, use only this project's `.agents/skills/plex/SKILL.md` and `.agents/skills/plex-setup/SKILL.md`. Do not activate global or cached plugin copies of these two skills, or fall back to them if the project links are missing.
-Resolve these skill symlinks to their real paths first. Their shared checkout root contains `skills/` and `teams/`; read the checker, references, selected coordinator and team resources only from that same checkout. A missing link or incomplete source is a blocker.
-This source restriction applies to Plex's two skills. BMad workflows still use their separately installed official skills and project runtime.
+
+- For Plex, use only this project's `.agents/skills/plex/SKILL.md` and
+  `.agents/skills/plex-setup/SKILL.md`.
+- Do not activate global or cached plugin copies of these two skills, or fall back
+  to them if the project links are missing.
+- Resolve these skill symlinks to their real paths first. Their shared checkout root
+  contains `skills/` and `teams/`; read the checker, references, selected coordinator
+  and team resources only from that same checkout.
+- A missing link or incomplete source is a blocker.
+- This source restriction applies to Plex's two skills. BMad workflows still use
+  their separately installed official skills and project runtime.

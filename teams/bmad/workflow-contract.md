@@ -30,6 +30,14 @@ Assign one writer per file or artifact. Reviewers may write assigned review arti
 but must preserve application code. Relay user-owned decisions and unresolved gates
 to the coordinator; a recommendation or elapsed time is not approval.
 
+## Existing changes and confirmation
+
+- Apply the shared interaction policy's workspace authorization before entering a workflow. Include it and task ownership in the handoff; do not assume a worker remembers the root's context.
+- A checkpoint asking only whether work may proceed in a dirty tree is already answered: preserve existing changes and proceed with the authorized task. Cite the policy and baseline; do not ask the user again, report a dirty-tree-only blocker, or change checkout to make the tree clean.
+- This does not answer a branch mismatch, overlapping ownership, production write restriction, unresolved requirements or a distinct approval. Inspect the actual reached condition rather than ignoring every `HALT`.
+- Review the task's changes against the recorded baseline, not the repository's entire dirty diff. Do not commit or publish existing or task changes without that operation's authorization.
+- Do not modify installed BMad steps or invent customization keys. If a different enforced condition remains unsatisfied, report that specific blocker under the effective interaction mode.
+
 ## Activation and entry evidence
 
 | Executor | Required startup |

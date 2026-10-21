@@ -18,6 +18,10 @@
 !/docs/
 !/docs/**/
 !/docs/**/*.md
+
+# Approved public presentation assets only.
+!/docs/assets/readme/hero.webp
+!/docs/assets/readme/workflow.svg
 !/skills/
 !/skills/**/
 !/skills/**/*.md

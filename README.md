@@ -1,129 +1,153 @@
-# pNet Plex
+<p align="center">
+  <img src="docs/assets/readme/hero.webp" width="320" height="163" alt="Plex AI by pNet — interwoven cyan, teal and amber Triad ribbons">
+</p>
 
-[English](README.md) · [Русский](docs/translations/ru/README.md) · [Deutsch](docs/translations/de/README.md) · [简体中文](docs/translations/zh-CN/README.md)
+# Plex AI
 
 **Compose your team. Coordinate the work.**
 
-Plex is an **agent harness for multi-agent orchestration and coordination** in
-OpenAI Codex, Anthropic Claude Code and Google Antigravity. Install a reusable team,
-choose its model profile, and ask Plex to organize implementation, review and verification.
+An open-source **agent harness for multi-agent orchestration and coordination** in
+OpenAI Codex, Anthropic Claude Code and Google Antigravity. Compose specialist teams,
+choose model profiles, and integrate verified work inside your coding client.
 
-**[v0.5.11](https://github.com/pnetcloud/plex-ai/releases/tag/v0.5.11)** — open source, MIT. Ready to try; interfaces may change.
+[![Latest Release](https://img.shields.io/github/v/release/pnetcloud/plex-ai?display_name=tag&style=flat-square)](https://github.com/pnetcloud/plex-ai/releases/latest) [![CI](https://github.com/pnetcloud/plex-ai/actions/workflows/ci.yml/badge.svg)](https://github.com/pnetcloud/plex-ai/actions/workflows/ci.yml) [![MIT License](https://img.shields.io/github/license/pnetcloud/plex-ai?style=flat-square)](https://github.com/pnetcloud/plex-ai/blob/main/LICENSE)
 
-## Install
+**[Install](#quickstart)** · **[How it works](#how-it-works)** · **[Documentation](docs/README.md)** · **[Releases](https://github.com/pnetcloud/plex-ai/releases/latest)** · **[Report an issue](https://github.com/pnetcloud/plex-ai/issues)**
 
-Run in your project directory:
+[English](README.md) · [Русский](docs/translations/ru/README.md) · [Deutsch](docs/translations/de/README.md) · [简体中文](docs/translations/zh-CN/README.md)
+
+## Quickstart
+
+Run from your project directory. [Review the installer](install.sh) before executing it.
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/pnetcloud/plex-ai/main/install.sh | bash
 ```
 
-**Dev mode · Codex · project-local skills**
-
-```sh
-curl -fsSL https://raw.githubusercontent.com/pnetcloud/plex-ai/main/install.sh | bash -s -- --dev --client codex
-```
-
-Choose clients, scope, team and model profile; confirm the plan. **Project** scope is recommended. Open a new client session afterwards.
-
-The normal installer handles both parts:
-
-- **Shared plugin** — reusable `plex` and `plex-setup` skills for the client.
-- **Team setup** — native agent roles and the managed instruction block, at project or user scope.
-
-Plugin installation alone does not configure a team. Dev mode uses project-local skill links instead of the shared Plex plugin in that project.
-
-[Prerequisites, BMad, dev mode and all options](docs/installation.md).
-
-## How it works
-
-Your current chat stays coordinator and keeps its model. It delegates useful work, integrates results and verifies the outcome. Small tasks can stay local.
-
-```mermaid
-flowchart TD
-    A[Your task] --> B[Current chat coordinates]
-    B --> C[Selected roles do bounded work]
-    C --> D[Coordinator integrates and verifies]
-```
-
-## Use in chat
-
-These are **chat requests, not terminal commands**. Replace the angle-bracket placeholders before sending.
-
-**Coordinate a task · Codex plugin**
+Choose clients, team and model profile; confirm the plan. **Project** scope is recommended.
+Open a new client session, then ask Plex to coordinate a task:
 
 ```text
 $plex Coordinate <task>. Requirements: <requirements>. Verify <acceptance criteria>.
 ```
 
-**Review a change**
+This is a **Codex chat request**, not a shell command. [Other clients](#use-in-chat) use their native skill entry point.
+
+<details>
+<summary><strong>Dev mode · Codex · project-local skills</strong></summary>
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/pnetcloud/plex-ai/main/install.sh | bash -s -- --dev --client codex
+```
+
+Uses live project-local skill links instead of the shared Plex plugin in that project.
+
+</details>
+
+Setup installs the shared skills and configures native team roles with a managed instruction
+block. Plugin installation alone does not configure a team. Existing surrounding instructions
+are preserved. BMad mode offers its selected dependencies and project initialization.
+
+[Prerequisites, installation options and BMad setup →](docs/installation.md)
+
+## How it works
+
+**Your current chat remains the coordinator and keeps its model.** It selects the installed
+team's roles, assigns bounded work, integrates their results and verifies the outcome.
+Independent assignments can run concurrently; small tasks can stay in the main chat.
+
+![Task flows to the current chat coordinator, selected specialists, then an integrated and verified result. Small tasks can go directly to verification.](docs/assets/readme/workflow.svg)
+
+The diagram illustrates the workflow, not a separate application interface. A team is a toolbox,
+not a pipeline that must run every role. Plex works within your client's permissions.
+Installation does not activate coordination: invoke the `plex` skill when you want it.
+
+## What you get
+
+| Capability | What it gives you |
+|---|---|
+| **Specialist teams** | [Planning, exploration, development, review and QA](docs/product.md), selected for the task |
+| **Model profiles** | [Subagent models and reasoning](docs/configuration.md) configured independently of the main chat |
+| **Bounded delegation** | [Clear assignments, context and write ownership](docs/role-contracts.md) |
+| **Review and verification** | [Independent checks and completion evidence](docs/role-contracts.md), with unresolved gaps reported |
+| **Native integration** | [Roles and skills inside your existing client](docs/host-compatibility.md) |
+| **Optional BMad** | [Installed BMad personas and workflows](teams/bmad/README.md), with model-aware delegation |
+
+## Supported coding clients
+
+| Client | Integration | Verification coverage |
+|---|---|---|
+| **OpenAI Codex** | Native plugin, roles and instructions | Installation and selected live trials |
+| **Google Antigravity** | Native skills and role configuration | Installation and selected live trials; host/model restrictions apply |
+| **Anthropic Claude Code** | Native plugin, agents and instructions | Native setup tested; live coding end-to-end execution remains unverified |
+
+[Compatibility, native paths and limitations →](docs/host-compatibility.md)
+Gemini models through Antigravity do not imply Gemini CLI support.
+
+## Teams and model profiles
+
+| Team | Specialists | Best starting point |
+|---|---|---|
+| **pnet** | PM, explorer, researcher, dev, reviewer, QA | General development; no BMad required |
+| **bmad** | Analyst, PM, PO, UX, architect, dev, reviewer | Work using installed BMad workflows |
+
+Profiles: **Inherit · Basic · Plus · Pro · Pro+**. They configure subagents; the
+main-chat model remains your choice. Setup shows a profile-specific coordinator
+recommendation without switching the running chat's model.
+
+Choose interaction and concurrency settings for your project. **Update only** preserves
+settings; **Reconfigure** opens the menus. See [configuration](docs/configuration.md).
+
+## Use in chat
+
+These are **chat requests, not terminal commands**. Replace the placeholders.
+
+**Codex** — the same short names work in standard and dev installations:
 
 ```text
+$plex Coordinate <task>. Requirements: <requirements>. Verify <acceptance criteria>.
 $plex Review <change> against <requirements>. Report findings and verification gaps.
-```
-
-**Check or configure the team**
-
-```text
 $plex-setup Check this project's Plex configuration.
-$plex-setup Configure this project: team <team>, profile <profile>, interaction <mode>.
 ```
 
-**Coordinate a task · Claude Code plugin**
+**Claude Code:**
 
 ```text
 /pnet-plex:plex Coordinate <task>. Requirements: <requirements>. Verify <acceptance criteria>.
 /pnet-plex:plex-setup Check this project's Plex configuration.
 ```
 
-Codex uses `$plex` and `$plex-setup` in both standard and dev installations. Other clients can select the installed skill or explicitly ask: `Use Plex to coordinate <task>.`
-
-Installation does not start coordination automatically. `plex-setup` changes configuration; `plex` coordinates work.
-
-## Teams and models
-
-| Team | Purpose |
-|---|---|
-| **pnet** | General development: PM, explorer, researcher, dev, reviewer and QA; no BMad required |
-| **bmad** | Installed BMad personas and workflows; setup offers selected dependencies and project initialization |
-
-Choose **Inherit, Basic, Plus, Pro or Pro+** for subagents. The main-chat model remains your choice; setup shows a profile-specific recommendation. See [configuration](docs/configuration.md).
+In other clients, select the installed skill or ask: `Use Plex to coordinate <task>.`
+`plex-setup` configures the team; `plex` coordinates its work.
 
 ## Terminal commands
 
-| Task | Command |
+| Command | Purpose |
 |---|---|
-| Configure or refresh this project | `plex` |
-| Check installation | `plex status` |
-| Download an update and open setup | `plex update` |
-| Preview team removal | `plex uninstall --dry-run` |
-| Remove this project's team | `plex uninstall` |
+| `plex` | Configure or refresh this project |
+| `plex status` | Check the installation |
+| `plex update` | Download an update and open setup |
+| `plex uninstall --dry-run` | Preview team removal |
+| `plex uninstall` | Remove this project's managed team |
 
-If the optional `plex` command is absent, use `~/.local/share/plex-ai/setup.sh` instead. During setup, **Update only** keeps settings; **Reconfigure** opens the menus.
+If the optional command is absent, use `~/.local/share/plex-ai/setup.sh`.
+Uninstall preserves surrounding instructions, preferences, backups and the shared plugin.
+[Full CLI reference and shared-plugin removal →](docs/installation.md#uninstall)
 
-## Uninstall
+## Evidence and limitations
 
-Run `plex uninstall` from the project directory. It removes unchanged managed roles, the Plex instruction block and owned skill links and dev overrides; surrounding instructions are preserved. Preferences, backups and the shared plugin remain.
+[Testing and efficiency](docs/testing.md) documents how trials were conducted, measured token
+usage, historical cost estimates and the owner's subjective quality assessments. Early
+single-run comparisons are observations, not statistical proof or a guarantee of savings.
+[Compatibility](docs/host-compatibility.md) separates configuration checks from live model execution.
 
-To also remove the shared **Codex plugin** once other projects no longer need it:
+Plex has no separate daemon or web UI. Interfaces may change as the project develops.
 
-```sh
-codex plugin remove pnet-plex@pnet-plex
-```
+## Documentation and contributing
 
-For other clients and user-wide team removal, see [uninstallation](docs/installation.md#uninstall).
+**[Documentation](docs/README.md)** · **[Architecture](docs/architecture.md)** · **[Contributing](CONTRIBUTING.md)** · **[Changelog](CHANGELOG.md)** · **[Issues](https://github.com/pnetcloud/plex-ai/issues)**
 
-## Learn more
-
-- [Report a problem](https://github.com/pnetcloud/plex-ai/issues).
-- [Documentation](docs/README.md) — setup and usage details.
-- [Contributing](CONTRIBUTING.md).
-- [About Plex](docs/product.md) — purpose and working principles.
-- [Compatibility](docs/host-compatibility.md) — Codex and selected Antigravity live trials; native Claude Code live execution remains unverified.
-- [Testing and efficiency](docs/testing.md) — methodology, measured token/cost results and subjective quality observations.
-- [Architecture](docs/architecture.md) — how configuration and coordination fit together.
-
-## License
-
-[MIT](LICENSE). Agent instructions adapt [Awesome Codex Subagents](https://github.com/VoltAgent/awesome-codex-subagents);
+Plex AI by pNet (previously presented as pNet Plex). CLI and skill names remain `plex`.
+[MIT license](LICENSE). Adapted role instructions credit
+[Awesome Codex Subagents](https://github.com/VoltAgent/awesome-codex-subagents);
 see [third-party notices](THIRD_PARTY_NOTICES.md).

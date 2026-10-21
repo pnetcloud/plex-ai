@@ -1,8 +1,18 @@
+<p align="center">
+  <img src="../../assets/readme/hero.webp" width="320" height="163" alt="Plex AI by pNet — Triad">
+</p>
+
 # Plex-Dokumentation
 
 [English](../../README.md) · [Русский](../ru/index.md) · [Deutsch](index.md) · [简体中文](../zh-CN/index.md)
 
 Plex konfiguriert und koordiniert Agententeams in Codex, Claude Code und Antigravity.
+
+## Hier beginnen
+
+1. [Plex installieren](installation.md) — Voraussetzungen, Standard- und Dev-Modus.
+2. [Team und Profil wählen](configuration.md) — Modelle, Interaktion und Parallelität.
+3. [Plex im Chat verwenden](README.md) — Koordination und Prüfung.
 
 | Anleitung | Inhalt |
 |---|---|
@@ -14,6 +24,17 @@ Plex konfiguriert und koordiniert Agententeams in Codex, Claude Code und Antigra
 | [Rollenverträge](role-contracts.md) | Verantwortlichkeiten und Anweisungen |
 | [Entwicklung](development.md) | Quellstruktur und Prüfungen |
 | [Tests und Effizienz](testing.md) | Ergebnisse, Token, Kosten und Qualitätsbeobachtungen |
+
+Für Experimente: [Prüfprotokoll](../../../EVALUATION.md),
+[Versuchsplan](templates/experiment-plan.md) und [Berichtsvorlage](templates/evaluation-report.md).
+Englisch ist die gepflegte Quelle; Übersetzungen spiegeln die Dateinamen.
+
+<details>
+<summary>Release-Archiv</summary>
+
+| Version | Änderungen |
+|---|---|
+| [Versionshinweise](releases/v0.6.0.md) | v0.6.0: Auto, native Codex-Rollen und Plex-AI-Präsentation. |
 | [Versionshinweise](releases/v0.5.11.md) | v0.5.11: Stabile macOS-CI, Delegation und Setup-Vorgaben. |
 | [Versionshinweise](releases/v0.5.9.md) | v0.5.9: Nur aktive Teamrollen und optionale Bereinigung alter Agenten. |
 | [Versionshinweise](releases/v0.5.8.md) | v0.5.8: Dokumentation und kurze Codex-Skill-Namen |
@@ -31,6 +52,4 @@ Plex konfiguriert und koordiniert Agententeams in Codex, Claude Code und Antigra
 | [Versionshinweise](releases/v0.2.0.md) | Vorschau v0.2.0: Inhalt, Installation und Grenzen |
 | [Versionshinweise](releases/v0.1.0.md) | Vorschau v0.1.0: Inhalt, Installation und Grenzen |
 
-Für Experimente: [Prüfprotokoll](../../../EVALUATION.md),
-[Versuchsplan](templates/experiment-plan.md) und [Berichtsvorlage](templates/evaluation-report.md).
-Englisch ist die gepflegte Quelle; Übersetzungen spiegeln die Dateinamen.
+</details>

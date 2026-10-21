@@ -58,6 +58,7 @@ Pass paths and a short digest, not full transcripts or copied files.
 | Inputs | Target files/diff, exclusions, verified skill roots, environment facts, completed discovery and remaining question |
 | Interaction | Effective mode and supported native headless contract; questions/blockers return here with resume context |
 | Authority | Owned application/workflow-artifact paths or read-only scope; user exclusions and explicit nested-delegation authority |
+| Workspace | Selected checkout, initial dirty paths/relevant diff, task-owned files and pre-existing changes to preserve; pass the shared interaction policy's dirty-tree authorization |
 | Checks | Observable acceptance, invariants, relevant commands and valid existing evidence |
 | Result | Artifacts, changed paths, commands/results, completed review layers, activation evidence and unresolved findings |
 

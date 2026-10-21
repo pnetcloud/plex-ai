@@ -100,6 +100,15 @@ or analyst approval. Partial artifacts with unresolved requirements are not appr
 inputs for dependent implementation. This is an instruction policy, not a guarantee
 of unattended completion for every BMad workflow.
 
+## Workspace and native delegation
+
+Existing uncommitted changes alone do not require confirmation. Plex records the initial state, assigns task-owned files and preserves pre-existing changes, including unrelated hunks inside an assigned file. That authorization is passed to workflows; a dirty-tree-only confirmation is already answered. Conflicting edits block affected work only. Plex does not create worktrees, switch branches, stash, reset, clean or commit to make the tree clean.
+
+For Codex, setup manages only missing `hide_spawn_agent_metadata = false` and `tool_namespace = "agents"` settings under `[features.multi_agent_v2]`. They expose native role selection; they do not force a backend, change models, permissions or concurrency. Conflicting personal values are preserved and reported. Owned settings participate in backup, conflict checks, rollback and uninstall; pre-existing matching values are not adopted. An empty table header may remain after removal so later personal settings keep their scope.
+
+Project configuration must be trusted by Codex. Open a new client session after setup. Preflight distinguishes a missing spawn tool, a hidden role selector, a rejected role and accepted dispatch. When the selector is available, request the checked role even if no inventory is displayed; use a fresh context and a self-contained handoff when supported. File/configuration checks do not prove that an existing session loaded its roles or that the child used the requested model.
+
+
 ## Project and user scope
 
 | Client | Project roles | User root / role directory |

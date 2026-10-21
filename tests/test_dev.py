@@ -54,7 +54,7 @@ class DevTests(unittest.TestCase):
             self.assertFalse((project / ".plex/dev.json").exists())
             self.assertFalse((project / ".agents/skills/plex").is_symlink())
             self.assertNotIn("Plex development source", (project / "AGENTS.md").read_text())
-            self.assertEqual(tomllib.loads(config.read_text()), {"model": "custom", "features": {"some_flag": True}})
+            self.assertEqual(tomllib.loads(config.read_text()), {"model": "custom", "features": {"some_flag": True, "multi_agent_v2": {"hide_spawn_agent_metadata": False, "tool_namespace": "agents"}}})
 
     def test_dry_run_and_unsupported_modes_never_write(self):
         with tempfile.TemporaryDirectory() as temp, redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()):
@@ -93,7 +93,7 @@ class DevTests(unittest.TestCase):
             config.write_text(original)
             self.assertEqual(self.setup_project(project, "--dev"), 0)
             self.assertEqual(I.main(["uninstall", "--project", temp, "--client", "codex", "--yes"]), 0)
-            self.assertEqual(config.read_text(), original)
+            self.assertEqual(config.read_text(), original + "\n[features.multi_agent_v2]\n")
             self.assertFalse((project / ".plex/dev.json").exists())
             self.assertNotIn("plex:managed:start", (project / "AGENTS.md").read_text())
 

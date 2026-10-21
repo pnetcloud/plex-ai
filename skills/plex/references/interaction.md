@@ -13,11 +13,20 @@
 | `balanced` | Resolve routine choices from requirements, code and conventions. Record reversible assumptions. Ask only for unresolved consequential user decisions or applicable checkpoints. |
 | `auto` | Do not ask or wait. Complete authorized work; return assumptions, open decisions, partial results and blockers. Missing answers block dependent work only. |
 
+## Workspace ownership
+
+- Existing uncommitted changes alone do not require confirmation. Work in the selected checkout; record its initial status and relevant pre-existing diff before assigning writes.
+- Assign task files and preserve all pre-existing changes, including unrelated hunks inside assigned files. File ownership does not imply ownership of their entire diff.
+- Pass this authorization, the initial state and write scope to every writer and workflow. A dirty-tree-only confirmation is already answered by this policy; it grants no other approval.
+- Re-read affected files before editing. A conflicting concurrent edit or changes that cannot be separated block only the affected work; continue independent assignments.
+- Do not create worktrees, switch branches, stash, reset, clean or commit to satisfy a clean-tree check without explicit authorization for that operation.
+- Branch mismatches, production restrictions, missing task authority and required reviews remain separate checks.
+
 ## Questions and blockers
 
 1. Subagents return questions to the coordinator with evidence and resume context. No direct user questions or polling.
 2. Check requirements, prior user decisions and the reached workflow branch.
-3. Answer from existing authority. Never fabricate consent.
+3. Answer from existing authority, including the workspace policy above. Cite that authority to the executor; do not ask again for an already authorized action. Never fabricate consent.
 4. In `balanced`, group necessary questions into one concise request with a recommendation.
 5. Continue independent work while an answer is pending.
 6. In `auto`, record unresolved gates as blockers; keep completed artifacts and finish with a clear partial/blocked report.

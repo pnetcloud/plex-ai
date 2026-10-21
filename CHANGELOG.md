@@ -4,6 +4,21 @@ Important changes retained in Plex, grouped by release. Interfaces and configura
 may change before 1.0. Releases through v0.5.4 were previews; v0.5.5 and later are
 regular releases.
 
+## [0.6.0] — 2026-10-21
+
+- Continue authorized work in dirty trees while preserving pre-existing changes,
+  including unrelated hunks in assigned files. Pass this authorization to BMad;
+  retain real scope, production and review restrictions without automatic worktrees,
+  stash, cleanup or commits.
+- Expose native Codex role selection through receipt-owned configuration, with
+  backups, conflict detection, rollback and uninstall. Preserve personal settings.
+- Distinguish hidden role selection from missing roles; request exact native roles
+  with fresh bounded context and verify accepted dispatch separately from models.
+- Structure managed instructions into concise blocks; refresh existing installations
+  and open a new session to load the updated instructions and role controls.
+- Present Plex AI by pNet with the approved Triad reference, live release/CI/license
+  badges, a compact workflow diagram and clearer documentation navigation.
+
 ## [0.5.11] — 2026-10-21
 
 - Pin macOS CI to macos-15-intel after ARM hosted-runner allocation failed before

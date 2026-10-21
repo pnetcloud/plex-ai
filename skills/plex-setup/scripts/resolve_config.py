@@ -520,6 +520,50 @@ def plan_instructions(root: Path, host: str, scope: str, record=None, dev=None) 
             "record": {"relpath": relpath, "sha256": sha256_bytes(block)}}
 
 
+def plan_codex_routing(root, scope, record=None):
+    """Expose native role selection without adopting or replacing personal settings."""
+    relpath = "config.toml" if scope == "user" else ".codex/config.toml"
+    path = _ensure_safe_project_path(root, relpath)
+    before = path.read_bytes() if path.exists() else None
+    text = (before or b"").decode("utf-8")
+    start, end = "# plex-routing:start\n", "# plex-routing:end\n"
+    span = None
+    if start.strip() in text or end.strip() in text:
+        if text.count(start) != 1 or text.count(end) != 1 or text.index(end) < text.index(start):
+            raise ValueError("Invalid Plex routing markers; config preserved")
+        span = (text.index(start), text.index(end) + len(end))
+    if record:
+        if record["relpath"] != relpath or span is None or sha256_bytes(text[slice(*span)].encode()) != record["sha256"]:
+            raise ValueError("Managed Codex routing changed or missing; config preserved")
+    elif span is not None:
+        raise ValueError("Unmanaged Plex routing block; config preserved")
+    config = tomllib.loads(text)
+    features = table(config.get("features", {}), "Codex features")
+    native = table(features.get("multi_agent_v2", {}), "Codex multi_agent_v2")
+    required = {"hide_spawn_agent_metadata": False, "tool_namespace": "agents"}
+    for key, value in required.items():
+        if key in native and (type(native[key]) is not type(value) or native[key] != value):
+            raise ValueError(f"Codex features.multi_agent_v2.{key} conflicts with Plex role selection; personal setting preserved")
+    missing = {key: value for key, value in required.items() if key not in native}
+    if missing:
+        if record:
+            raise ValueError("Managed Codex routing is incomplete; config preserved")
+        block = start + "".join(f"{key} = {json.dumps(value)}\n" for key, value in missing.items()) + end
+        header = re.search(r"(?m)^\[features\.multi_agent_v2\][ \t]*(?:#[^\n]*)?(?:\n|$)", text)
+        if "multi_agent_v2" in features:
+            if header is None:
+                raise ValueError("Codex routing uses inline or quoted tables; configure native role selection explicitly, config preserved")
+            text = text[:header.end()] + ("" if header.group().endswith("\n") else "\n") + block + text[header.end():]
+        else:
+            # Keep the table header outside ownership so later personal keys retain their scope on uninstall.
+            text += ("" if not text or text.endswith("\n") else "\n") + "\n[features.multi_agent_v2]\n" + block
+        record = {"relpath": relpath, "sha256": sha256_bytes(block.encode())}
+        parsed = tomllib.loads(text)["features"]["multi_agent_v2"]
+        if any(parsed.get(key) != value for key, value in required.items()):
+            raise ValueError("Codex routing did not render correctly")
+    return {"path": path, "before": before, "after": text.encode() if text else before, "record": record}
+
+
 def _validate_receipt_structure(data: dict, scope="project") -> dict:
     data = table(data, "applied.json")
     keys(data, {"hosts"}, "applied.json")
@@ -531,7 +575,7 @@ def _validate_receipt_structure(data: dict, scope="project") -> dict:
             record,
             {
                 "host", "team", "model_profile", "process", "roles",
-                "skills", "max_agents", "role_settings", "files", "source_sha256", "instructions",
+                "skills", "max_agents", "role_settings", "files", "source_sha256", "instructions", "routing",
             },
             f"applied.json.hosts.{host}",
         )
@@ -545,6 +589,12 @@ def _validate_receipt_structure(data: dict, scope="project") -> dict:
                 raise ValueError("Invalid managed instruction path")
             if not isinstance(instruction.get("sha256"), str) or not re.fullmatch(r"[0-9a-f]{64}", instruction["sha256"]):
                 raise ValueError("Invalid managed instruction block hash")
+        if "routing" in record:
+            routing = table(record["routing"], "routing")
+            keys(routing, {"relpath", "sha256"}, "routing")
+            expected = "config.toml" if scope == "user" else ".codex/config.toml"
+            if host != "codex" or routing.get("relpath") != expected or not isinstance(routing.get("sha256"), str) or not re.fullmatch(r"[0-9a-f]{64}", routing["sha256"]):
+                raise ValueError("Invalid managed Codex routing receipt")
         files = table(record.get("files", {}), f"applied.json.hosts.{host}.files")
         for role, file_info in files.items():
             if not isinstance(role, str) or not re.fullmatch(r"[a-z][a-z0-9_-]*", role):
@@ -595,6 +645,13 @@ def _inspect_host_state(
         try:
             plan = plan_instructions(project_root, host, scope, receipt_record["instructions"])
             instructions_stale = plan["before"] != plan["after"]
+        except (OSError, ValueError) as error:
+            conflicts.append(str(error))
+    routing_stale = False
+    if host == "codex" and (resolved is not None or receipt_record):
+        try:
+            routing = plan_codex_routing(project_root, scope, (receipt_record or {}).get("routing"))
+            routing_stale = routing["before"] != routing["after"]
         except (OSError, ValueError) as error:
             conflicts.append(str(error))
     existing_plex_files = {}
@@ -676,7 +733,7 @@ def _inspect_host_state(
         status = "conflict"
     elif not receipt_record and not existing_plex_files:
         status = "needs_setup"
-    elif missing_roles or outdated_roles or retire_roles or not receipt_matches_desired or instructions_stale:
+    elif missing_roles or outdated_roles or retire_roles or not receipt_matches_desired or instructions_stale or routing_stale:
         status = "needs_refresh"
     else:
         status = "in_sync"
@@ -1080,6 +1137,7 @@ def _apply_project(
     old_files = old_host_record.get("files", {})
     instruction_plan = (plan_instructions(project_root, host, scope, old_host_record.get("instructions"))
                         if instructions else None)
+    routing_plan = plan_codex_routing(project_root, scope, old_host_record.get("routing")) if host == "codex" else None
     retire_roles = sorted(set(old_files.keys()) - set(resolved["roles"]))
 
     paths = {preset_path, resolved_path, applied_path}
@@ -1088,7 +1146,11 @@ def _apply_project(
         paths.add(instruction_plan["path"])
     for role in set(old_files) | set(rendered_roles):
         paths.add(_ensure_safe_project_path(project_root, host_role_relpath(host, role, scope)))
+    if routing_plan:
+        paths.add(routing_plan["path"])
     transaction = _ApplyTransaction(project_root, paths)
+    if routing_plan and transaction.original[routing_plan["path"]] != routing_plan["before"]:
+        raise ValueError("Codex config changed after planning; review and retry")
     if instruction_plan and transaction.original[instruction_plan["path"]] != instruction_plan["before"]:
         raise ValueError("Instruction file changed after planning; review and retry")
     for path, original in ((preset_path, existing_preset_bytes),
@@ -1186,6 +1248,11 @@ def _apply_project(
                 (bdir / "instructions.before.md").write_bytes(instruction_plan["before"])
             transaction.write(instruction_plan["path"], instruction_plan["after"])
 
+        if routing_plan and routing_plan["before"] != routing_plan["after"]:
+            if routing_plan["before"] is not None:
+                (ensure_backup() / "config.before.toml").write_bytes(routing_plan["before"])
+            transaction.write(routing_plan["path"], routing_plan["after"])
+
         receipt["hosts"][host] = {
             "host": host,
             "team": resolved["team"],
@@ -1198,6 +1265,8 @@ def _apply_project(
             "source_sha256": source_sha256,
             "files": new_files_record,
         }
+        if routing_plan and routing_plan["record"]:
+            receipt["hosts"][host]["routing"] = routing_plan["record"]
         instruction_record = instruction_plan["record"] if instruction_plan else old_host_record.get("instructions")
         if instruction_record:
             receipt["hosts"][host]["instructions"] = instruction_record
@@ -1308,12 +1377,21 @@ def uninstall_project(project_root, host, scope="project", dry_run=False):
             if not shared:
                 instruction_path, instruction_before = path, data
                 instruction_after = data[:span[0]] + data[span[1]:]
+        routing_plan = None
+        if record.get("routing"):
+            routing_plan = plan_codex_routing(root, scope, record["routing"])
+            text = routing_plan["before"].decode("utf-8")
+            start = text.index("# plex-routing:start\n")
+            end = text.index("# plex-routing:end\n") + len("# plex-routing:end\n")
+            routing_plan["after"] = (text[:start] + text[end:]).encode()
         snapshot = _ensure_safe_project_path(root, ".plex/resolved.json")
         paths = {receipt_path, *roles}
         if instruction_path:
             paths.add(instruction_path)
         if not remaining and snapshot.is_file():
             paths.add(snapshot)
+        if routing_plan:
+            paths.add(routing_plan["path"])
         transaction = _ApplyTransaction(root, paths)
         if transaction.original[receipt_path] != before_receipt:
             raise ValueError("Concurrent receipt change; retry uninstall")
@@ -1322,9 +1400,11 @@ def uninstall_project(project_root, host, scope="project", dry_run=False):
                 raise ValueError(f"Concurrent role change: {path}")
         if instruction_path and transaction.original[instruction_path] != instruction_before:
             raise ValueError("Concurrent instruction change; retry uninstall")
+        if routing_plan and transaction.original[routing_plan["path"]] != routing_plan["before"]:
+            raise ValueError("Concurrent Codex config change; retry uninstall")
         result = {"status": "planned" if dry_run else "uninstalled", "host": host, "scope": scope,
                   "root": str(root), "removed_roles": list(record.get("files", {})),
-                  "instruction_block_removed": instruction_path is not None, "backup_dir": None}
+                  "instruction_block_removed": instruction_path is not None, "routing_settings_removed": routing_plan is not None, "backup_dir": None}
         if dry_run:
             return result
         backup = _create_backup_dir(root, host)
@@ -1334,6 +1414,9 @@ def uninstall_project(project_root, host, scope="project", dry_run=False):
             if instruction_path:
                 (backup / "instructions.before.md").write_bytes(instruction_before)
                 transaction.write(instruction_path, instruction_after)
+            if routing_plan:
+                (backup / "config.before.toml").write_bytes(routing_plan["before"])
+                transaction.write(routing_plan["path"], routing_plan["after"])
             for path, digest in roles.items():
                 transaction.archive(path, backup / path.name)
                 if sha256_bytes((backup / path.name).read_bytes()) != digest:

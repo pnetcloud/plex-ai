@@ -41,6 +41,8 @@ Plex-owned assignments use only exact `plex-<role>` names from the checked activ
 
 Setup lists other `.toml` agents found in the selected scope and offers **Keep** (default) or **Move to backup**. They remain available to the client and can affect role selection. Only eligible files move to `.plex/backups/<timestamp>/codex/other-agents/`; restore a file manually from that directory if needed. Other scopes, symlinks and files referenced by explicit `config.toml` registrations are preserved. Edited managed roles remain conflicts.
 
+Native Codex role selection also needs trusted project configuration and a fresh session. Setup manages the required role-selection settings with backups and ownership checks; personal conflicting values are preserved. See [native delegation](configuration.md#workspace-and-native-delegation).
+
 For unattended cleanup, pass `--archive-other-agents --client codex`; `--yes` alone preserves other agents. `--dry-run` never moves files.
 
 ## Common commands
@@ -175,6 +177,7 @@ The bootstrap stores the shared checkout in `~/.local/share/plex-ai`. Keep it av
 
 ## Ownership and troubleshooting
 
+- Uninstall also removes unchanged receipt-owned Codex routing settings; matching settings that existed before setup remain personal.
 - Removal defaults to project scope. Use `--client codex` to limit it, `--scope user` for user roles, or `--yes` for unattended removal.
 - Only unchanged owned roles, instruction blocks and dev links/overrides are removed. Shared plugins, source, preferences and backups remain; edited owned files and unknown formats stop changes.
 - Source updates refuse dirty, unrelated or symlinked checkouts. Native plugin changes and completed client installations are separate from role-file rollback.

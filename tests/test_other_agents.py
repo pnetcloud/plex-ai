@@ -4,6 +4,7 @@ import io
 import os
 from pathlib import Path
 import tempfile
+import tomllib
 import unittest
 from contextlib import redirect_stdout, redirect_stderr
 from unittest.mock import patch
@@ -154,7 +155,8 @@ class OtherAgentTests(unittest.TestCase):
         config.write_text(original)
         self.assertEqual(self.setup_project("--archive-other-agents"), 0, self.output.getvalue())
         self.assertTrue(path.exists())
-        self.assertEqual(config.read_text(), original)
+        self.assertTrue(config.read_text().startswith(original))
+        self.assertEqual(tomllib.loads(config.read_text())["agents"], {"legacy": {"config_file": "agents/legacy.toml"}})
         with self.assertRaises(ValueError):
             C.apply_project(self.project, "codex", archive_agents={".codex/agents/legacy.toml": C.sha256_bytes(path.read_bytes())})
 

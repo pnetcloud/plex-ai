@@ -27,5 +27,5 @@ jobs:
           gh api "repos/$GH_REPO/contents/docs/releases/$GITHUB_REF_NAME.md?ref=$GITHUB_SHA" \
             --jq '.content' | base64 --decode > "$RUNNER_TEMP/release-notes.md"
           gh release create "$GITHUB_REF_NAME" --verify-tag \
-            --title "Plex $GITHUB_REF_NAME" \
+            --title "Plex AI $GITHUB_REF_NAME" \
             --notes-file "$RUNNER_TEMP/release-notes.md"

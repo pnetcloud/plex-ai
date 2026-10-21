@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="390" viewBox="0 0 360 390" role="img" aria-labelledby="title desc">
+<title id="title">From task to verified result</title>
+<desc id="desc">Your current chat coordinates selected specialists and integrates their results. Small tasks may proceed directly to verification.</desc>
+<rect width="360" height="390" rx="20" fill="#092A2E"/>
+<g fill="none" stroke="#25D5D9" stroke-width="2"><path d="M180 81v25m0 65v25m0 65v25"/><path d="m175 100 5 6 5-6m-10 90 5 6 5-6m-10 90 5 6 5-6"/><path d="M310 141h32v180h-32" stroke="#F2B632" stroke-dasharray="5 5"/></g>
+<g font-family="system-ui, sans-serif" text-anchor="middle">
+<g fill="#146D65" stroke="#25D5D9"><rect x="50" y="26" width="260" height="55" rx="12"/><rect x="50" y="106" width="260" height="65" rx="12"/><rect x="50" y="196" width="260" height="65" rx="12"/><rect x="50" y="286" width="260" height="65" rx="12"/></g>
+<g fill="#F6F7F4" font-size="16" font-weight="600"><text x="180" y="61">Your task</text><text x="180" y="134">Current chat coordinates</text><text x="180" y="224">Selected specialists</text><text x="180" y="314">Integrated, verified result</text></g>
+<g fill="#F6F7F4" font-size="13"><text x="180" y="155">Scope · context · ownership</text><text x="180" y="245">Bounded work · useful parallelism</text><text x="180" y="335">Evidence · findings · remaining gaps</text></g>
+<text x="180" y="377" fill="#F2B632" font-size="11">Small tasks can go straight to verification</text>
+</g></svg>

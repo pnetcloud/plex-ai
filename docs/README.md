@@ -1,8 +1,20 @@
-# Plex documentation
+<p align="center">
+  <img src="assets/readme/hero.webp" width="320" height="163" alt="Plex AI by pNet — Triad">
+</p>
+
+# Plex AI documentation
 
 [English](README.md) · [Русский](translations/ru/index.md) · [Deutsch](translations/de/index.md) · [简体中文](translations/zh-CN/index.md)
 
 Plex configures and coordinates agent teams in Codex, Claude Code and Antigravity.
+
+## Start here
+
+1. [Install Plex](installation.md) — standard or dev mode, prerequisites and removal.
+2. [Choose a team and profile](configuration.md) — models, interaction and concurrency.
+3. [Use Plex in chat](../README.md#use-in-chat) — explicit coordination and verification.
+
+## Explore the guides
 
 | Guide | Purpose |
 |---|---|
@@ -14,6 +26,17 @@ Plex configures and coordinates agent teams in Codex, Claude Code and Antigravit
 | [Role contracts](role-contracts.md) | Responsibilities and instruction authoring |
 | [Development](development.md) | Source layout and contributor checks |
 | [Testing and efficiency](testing.md) | Consolidated results, tokens, cost and quality observations |
+
+For new experiments use the [evaluation protocol](../EVALUATION.md),
+[plan template](templates/experiment-plan.md) and [report template](templates/evaluation-report.md).
+English is the maintained source; translations mirror these filenames.
+
+<details>
+<summary>Release archive</summary>
+
+| Version | Changes |
+|---|---|
+| [Release notes](releases/v0.6.0.md) | v0.6.0: Auto, Codex native roles, Plex AI presentation. |
 | [Release notes](releases/v0.5.11.md) | v0.5.11: Stable macOS CI, coordinator delegation and setup defaults. |
 | [Release notes](releases/v0.5.9.md) | v0.5.9: Active-team dispatch and optional legacy-agent cleanup. |
 | [Release notes](releases/v0.5.8.md) | v0.5.8: Documentation and short Codex skill names |
@@ -31,6 +54,4 @@ Plex configures and coordinates agent teams in Codex, Claude Code and Antigravit
 | [Release notes](releases/v0.2.0.md) | v0.2.0 preview: contents, installation and limitations |
 | [Release notes](releases/v0.1.0.md) | v0.1.0 preview: contents, installation and limitations |
 
-For new experiments use the [evaluation protocol](../EVALUATION.md),
-[plan template](templates/experiment-plan.md) and [report template](templates/evaluation-report.md).
-English is the maintained source; translations mirror these filenames.
+</details>

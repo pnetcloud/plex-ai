@@ -1,9 +1,38 @@
 <!-- plex:managed:start -->
 ## Plex agent coordination
+
 This block is managed by the Plex installer; keep personal/project rules outside it.
-Use the installed `plex` skill only when the user invokes Plex or explicitly requests coordinated multi-agent work. It is intended for complex tasks that benefit from specialist assignments; complexity alone does not activate it.
-Otherwise, handle the task normally without loading a Plex coordinator. With Plex active, the root coordinates through native subagent calls for substantive task work; keep intake, integration, final checks and small mechanical actions local.
-When Plex is active, delegate Plex-owned work only to exact `plex-<role>` identities in the checked `.plex/resolved.json` roles; other installed, built-in or stale agents are not part of the team. Follow the skill's dispatch and naming contract; workflow-owned leaves follow their workflow contract.
-Use `plex-setup` to configure or refresh the team; configuration does not activate coordination.
-Follow the project's instructions, required verification and human decision gates. BMad work requires its installed skills and runtime in the actual working project.
+
+### Activation
+
+- Use the installed `plex` skill only when the user invokes Plex or explicitly
+  requests coordinated multi-agent work.
+- It is intended for complex tasks that benefit from specialist assignments;
+  complexity alone does not activate it.
+- Otherwise, handle the task normally without loading a Plex coordinator.
+
+### Working mode
+
+- With Plex active, the root coordinates through native subagent calls for
+  substantive task work.
+- Keep intake, integration, final checks and small mechanical actions local.
+- Delegate Plex-owned work only to exact `plex-<role>` identities in the checked
+  `.plex/resolved.json` roles; other installed, built-in or stale agents are not
+  part of the team.
+- Follow the skill's dispatch and naming contract; workflow-owned leaves follow
+  their workflow contract.
+
+### Setup
+
+- Use `plex-setup` to configure or refresh the team; configuration does not
+  activate coordination.
+
+### Boundaries
+
+- Follow the project's instructions, required verification and human decision gates.
+- BMad work requires its installed skills and runtime in the actual working project.
+- Existing uncommitted changes alone do not require confirmation. Preserve pre-existing
+  changes, work only in task-owned scope, and pass that authorization to subagents
+  and workflows. Do not create worktrees, switch branches, stash, reset, clean or
+  commit merely to obtain a clean tree.
 <!-- plex:managed:end -->
