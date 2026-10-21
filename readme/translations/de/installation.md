@@ -117,7 +117,7 @@ Ausgelassene Einstellungen behalten ihre Werte. Jeder angewendete Preset speiche
 
 | Option | Zweck |
 |---|---|
-| `--release TAG` | Veröffentlichten Tag verwenden, z. B. v0.5.3. |
+| `--release TAG` | Veröffentlichten Tag verwenden, z. B. v0.5.4. |
 | `--development` | main verwenden; aktiviert nicht --dev. |
 | `--checkout PATH` | Nur GitHub-Bootstrap; Standard ~/.local/share/plex-ai. |
 

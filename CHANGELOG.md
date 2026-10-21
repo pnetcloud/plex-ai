@@ -3,6 +3,15 @@
 Important changes retained in Plex, grouped by release. The releases below are
 previews; interfaces and configuration may change before 1.0.
 
+## [0.5.4] — 2026-10-21
+
+- Put native-role dispatch and Plex/role/task labels at the start of coordination
+  instructions; report unavailable routing instead of silently using generic agents.
+- Read instruction documents separately and recover truncated sections before
+  delegation; move detailed BMad workflow rules into a separately loaded contract.
+- Keep current assignment labels visible when reusing agents; task names do not
+  replace native role selection or rename host-assigned nicknames.
+
 ## [0.5.3] — 2026-10-21
 
 - Separate the main-chat coordinator recommendation from subagent settings in

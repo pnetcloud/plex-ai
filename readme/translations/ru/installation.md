@@ -117,7 +117,7 @@ curl -fsSL https://raw.githubusercontent.com/pnetcloud/plex-ai/main/install.sh |
 
 | Параметр | Назначение |
 |---|---|
-| `--release TAG` | Использовать тег релиза, например v0.5.3. |
+| `--release TAG` | Использовать тег релиза, например v0.5.4. |
 | `--development` | Использовать main; не включает --dev. |
 | `--checkout PATH` | Только GitHub-установщик; по умолчанию ~/.local/share/plex-ai. |
 

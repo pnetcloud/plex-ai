@@ -117,7 +117,7 @@ Omitted settings keep their saved values. Interaction is explicitly saved in eve
 
 | Option | Purpose |
 |---|---|
-| `--release TAG` | Use a published tag, for example v0.5.3. |
+| `--release TAG` | Use a published tag, for example v0.5.4. |
 | `--development` | Use main; does not enable --dev mode. |
 | `--checkout PATH` | GitHub bootstrap only; default ~/.local/share/plex-ai. |
 

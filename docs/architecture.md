@@ -32,6 +32,14 @@ Explicit `plex` invocation loads its preflight and the selected team's
 `coordinator.md`. The current root remains coordinator with its session model and
 permissions. The managed instruction block does not activate a team automatically.
 
+The entry skill front-loads native `plex-<role>` dispatch and assignment labels
+`plex_<role>_<short_task>`. Task labels do not select roles; runner nicknames do
+not identify them. Reused agents keep their identity and receive a current-task
+label for handoffs, progress and returns. Configuration consistency does not prove
+live role availability. Unsupported routing is reported instead of silently using
+a generic agent. Instruction documents are read separately and truncated sections
+must be recovered before delegation.
+
 The root assigns ready work with outcome, inputs, authority, checks and return
 expectations. Writers have exclusive file ownership. Independent work may run in
 parallel within the shared assignment limit and native host limits. Role availability
@@ -42,6 +50,8 @@ does not require a fixed stage or automatic specialist call.
 BMad wrappers activate the actual installed skills and resolve their dispatch,
 customization and rendered route. An executing workflow owns its required checks
 and reviews; Plex does not append another full review automatically.
+The coordinator loads the separate [workflow execution contract](../teams/bmad/workflow-contract.md)
+before dispatching BMad work, preserving project workflow adapters.
 
 An early exit ends its current step. The coordinator verifies the reached branch
 before relaying a question; genuine unresolved decisions and applicable checkpoints

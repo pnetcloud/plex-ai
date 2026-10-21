@@ -85,6 +85,8 @@ class PackageTests(unittest.TestCase):
             for team in ("pnet", "bmad"):
                 coordinator = Path("teams") / team / "coordinator.md"
                 self.assertEqual((package / coordinator).read_bytes(), (ROOT / coordinator).read_bytes())
+            workflow_contract = Path("teams/bmad/workflow-contract.md")
+            self.assertEqual((package / workflow_contract).read_bytes(), (ROOT / workflow_contract).read_bytes())
             skill_root = (package / manifest.get("skills", "./skills")).resolve()
             self.assertTrue(skill_root.is_relative_to(package))
             names = set()

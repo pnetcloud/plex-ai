@@ -30,6 +30,14 @@ Explizites `plex` lädt Preflight und `coordinator.md` des Teams. Der aktuelle R
 bleibt Koordinator mit seinen Sitzungsmodellen und Berechtigungen. Der verwaltete Block
 aktiviert das Team nicht automatisch.
 
+Der Einstiegsskill stellt native `plex-<role>`-Auswahl und Auftragsnamen
+`plex_<role>_<short_task>` voran. Auftragsnamen wählen keine Rolle aus;
+Laufzeit-Spitznamen kennzeichnen sie nicht. Wiederverwendete Agenten behalten ihre
+Identität und erhalten eine aktuelle Aufgabenbezeichnung für Übergaben, Fortschritt
+und Rückgaben. Konsistente Dateien beweisen keine verfügbaren Laufzeitrollen.
+Nicht unterstütztes Routing wird gemeldet statt still auf einen generischen Agenten
+auszuweichen. Anweisungen separat lesen und abgeschnittene Abschnitte vor der Delegation nachlesen.
+
 Root vergibt ausführbare Aufträge mit Ergebnis, Eingaben, Befugnissen, Prüfungen und
 Rückgabevertrag. Pro geänderter Datei gibt es einen Schreiber. Unabhängige Arbeit darf
 innerhalb gemeinsamer und nativer Limits parallel laufen. Rollenverfügbarkeit verlangt
@@ -40,6 +48,8 @@ weder feste Stufen noch automatische Spezialistenaufrufe.
 Wrapper aktivieren tatsächlich installierte Skills und bestimmen Dispatch, Anpassungen
 und gerenderte Route. Der ausführende Workflow besitzt seine Pflichtprüfungen/Reviews;
 Plex hängt nicht automatisch ein zweites vollständiges Review an.
+Vor der BMad-Delegation liest der Koordinator den separaten
+[Workflow-Ausführungsvertrag](../../../teams/bmad/workflow-contract.md); Projektadapter bleiben maßgeblich.
 
 Ein früher Ausstieg beendet den aktuellen Schritt. Der Koordinator prüft die erreichte
 Verzweigung vor einer Frage; echte offene Entscheidungen und anwendbare Checkpoints

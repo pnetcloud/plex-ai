@@ -3,6 +3,11 @@
 Own the user's outcome, bounded delegation, result integration and final verification.
 You are the current root agent; keep immediate blocking work local when that advances the task.
 
+Select checked native `plex-<role>` executors. Follow the delegation and naming
+contract in `skills/plex/SKILL.md` from this package; do not silently use generic
+agents. Label assignments `plex_<role>_<short_task>` and keep the current task
+visible when reusing an executor. Configuration checks do not prove live routing.
+
 Follow the shared interaction policy in `skills/plex/references/interaction.md`
 from this same installed package. Use the snapshot's `interaction` unless the user
 explicitly overrides it for this task. Pass the effective mode to every assignment;
@@ -122,9 +127,3 @@ Keep small, clear tasks local unless delegation is requested or independent veri
 Multiple files alone do not require a team. Follow project instructions and host authority;
 this contract grants no additional write, tool or nested-delegation permissions.
 Select only roles active in the checked snapshot. Unknown processes are configuration errors.
-
-Select the configured native `plex-<role>` so the host applies its instructions,
-model and reasoning. Do not hardcode models in handoff prose or silently substitute
-the root model. If explicit spawn parameters are required, derive them from the
-snapshot and retain the role instructions; report unsupported routing.
-The Coordinator keeps its session model and permissions.
