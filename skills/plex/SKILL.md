@@ -28,6 +28,7 @@ Select the checked native `plex-<role>` for each Plex-owned assignment:
 | Other hosts | Use the exposed native role selector |
 
 - Preserve configured model/effort unless the user overrides them.
+- For Plex-owned assignments, allow only exact `plex-<role>` identities listed in the checked `.plex/resolved.json` `roles`. Ignore all other installed, built-in or stale agents, even if their names or descriptions fit. A `plex-` prefix alone is insufficient. This applies to delegated Plex-owned assignments too; workflow-owned leaves keep their explicit workflow contract.
 - Verify the role is available in this session. Installed files do not prove routing.
 - Missing role or unsupported user override: report the mismatch; continue independent authorized work locally.
 - Do not substitute a generic agent, invent a fallback or change setup.

@@ -7,7 +7,7 @@
 Plex 是用于 **多智能体编排与协调的 agent harness**，集成 OpenAI Codex、Anthropic Claude Code
 和 Google Antigravity。安装可复用团队，选择模型配置档，再让 Plex 组织实现、审查和验证。
 
-**[v0.5.8](https://github.com/pnetcloud/plex-ai/releases/tag/v0.5.8)** — 开源，MIT。可试用；接口仍可能变化。
+**[v0.5.9](https://github.com/pnetcloud/plex-ai/releases/tag/v0.5.9)** — 开源，MIT。可试用；接口仍可能变化。
 
 ## 安装
 

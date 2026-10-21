@@ -125,3 +125,9 @@ python3 skills/plex-setup/scripts/resolve_config.py check /path/to/project --hos
 安装器统一提供预览、插件安装和指令集成。
 
 可选 BMad 审查定制参见[审查策略](../../../teams/bmad/review-policy.md)，普通安装不会启用它。
+
+## 其他 Codex 代理
+
+Plex 自有任务只使用已检查的活动团队中准确的 `plex-<role>` 名称。其他已安装或内置代理不属于该团队；工作流内部执行者遵循该工作流的约定。
+
+安装器列出所选范围内的其他 `.toml` 代理，提供**保留**（默认）或**移至备份**。这些代理对客户端仍可用，可能影响角色选择。可处理的文件移至 `.plex/backups/<timestamp>/codex/other-agents/`，需要时可从中手动恢复。其他范围、符号链接及在 `config.toml` 中显式注册的文件会被保留。被修改的托管角色仍会报告冲突。

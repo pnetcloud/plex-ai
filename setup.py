@@ -623,6 +623,8 @@ def setup_clients(args, clients, interactive):
                               ("--yes", args.yes), ("--no-command", not args.command)):
             if enabled:
                 options.append(flag)
+        if args.archive_other_agents and client == "codex":
+            options.append("--archive-other-agents")
         if args.install_bmad:
             options.append("--install-bmad")
         if args.init_bmad:
@@ -973,6 +975,8 @@ def main(argv=None, *, shared_profile=False, selection=None, setup_mode=None):
     bmad_options.add_argument("--bmad-skill", type=Path, help="Installed bmad setup skill directory; otherwise discover supported installed sources")
     target_options.add_argument("--dev", action=argparse.BooleanOptionalAction, default=None,
                         help="Codex project: link this checkout as local Plex skills; --no-dev restores shared plugin discovery")
+    output_options.add_argument("--archive-other-agents", action="store_true",
+                        help="Codex only: back up and remove other unmanaged agent files in the selected scope")
     output_options.add_argument("--roles-only", action="store_true", help="Configure roles without installing the plugin")
     output_options.add_argument("--command", action=argparse.BooleanOptionalAction, default=True,
                         help="Create ~/.local/bin/plex during full installation (default: enabled)")
@@ -1232,7 +1236,30 @@ def main(argv=None, *, shared_profile=False, selection=None, setup_mode=None):
             profile = Path(os.environ["CODEX_HOME"]).expanduser()
             if not profile.is_dir():
                 raise ValueError(f"CODEX_HOME directory does not exist: {profile}. Create the test profile directory first.")
+        archive_agents = {}
+        if args.archive_other_agents and args.host != "codex":
+            raise ValueError("--archive-other-agents requires Codex")
+        if args.host == "codex":
+            others = CONFIG.other_codex_agents(config_root, resolved["roles"], args.scope)
+            if others:
+                heading("Other Codex agents")
+                for name, digest in others.items():
+                    field("Preserved" if digest is None else "Existing", name, "muted")
+                notice("These agents are also available to the coordinator and may affect role selection.", "warn")
+                notice("Only listed files are eligible; explicit config.toml registrations and symlinks are preserved.")
+                eligible = {name: digest for name, digest in others.items() if digest is not None}
+                archive = args.archive_other_agents and bool(eligible)
+                if eligible and interactive and not args.dry_run and not archive:
+                    archive = choose("Other Codex agents", {
+                        "keep": "Keep existing agents (recommended)",
+                        "archive": "Move eligible files to a Plex backup",
+                    }, "keep") == "archive"
+                archive_agents = eligible if archive else {}
+                notice("Move listed agents to backup when applying." if archive else "Keep existing agents; Plex must use only its active team.")
         state = CONFIG.check_project(project, args.host, args.scope)
+        if archive_agents:
+            ignored = {f"Unmanaged file collision: {path} is not owned by .plex/applied.json" for path in archive_agents}
+            state["conflicts"] = [item for item in state["conflicts"] if item not in ignored]
         if state["conflicts"]:
             raise ValueError("\n".join(state["conflicts"]))
 
@@ -1366,7 +1393,7 @@ def main(argv=None, *, shared_profile=False, selection=None, setup_mode=None):
         with apply_skills(dev_plan) if dev_plan else nullcontext():
             result = CONFIG.apply_project(project, args.host, args.team, args.model_profile,
                                           max_agents=args.max_agents, host_overrides=host_overrides, interaction=args.interaction,
-                                          scope=args.scope, instructions=args.instructions)
+                                          scope=args.scope, instructions=args.instructions, archive_agents=archive_agents)
         for client in refresh_clients:
             if client != args.host:
                 other_instructions = bool(receipt["hosts"][client].get("instructions")) if setup_mode == "refresh" else args.instructions
@@ -1377,6 +1404,8 @@ def main(argv=None, *, shared_profile=False, selection=None, setup_mode=None):
         if commands and dev_plan and dev_plan["was_development"]:
             verify_plugin(args.host, project)
         notice(f"{len(result['installed_roles'])} roles; configuration in sync.", "ok")
+        if result.get("archived_other_agents"):
+            notice(f"{len(result['archived_other_agents'])} other agents moved to backup.", "ok")
         if result["backup_dir"]:
             field("Backups", config_root / result["backup_dir"], "muted")
         others = [client for client in result.get("other_hosts_needing_refresh", []) if client not in refresh_clients]

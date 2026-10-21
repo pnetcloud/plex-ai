@@ -157,3 +157,9 @@ handles the preview, plugin installation and instruction integration together.
 
 For optional BMad review customization, follow the team's
 [review policy](../teams/bmad/review-policy.md). Ordinary setup does not enable it.
+
+## Other Codex agents
+
+Plex-owned assignments use only exact `plex-<role>` names from the checked active team. Other installed or built-in agents are outside that team; workflow-owned leaves follow their workflow contract.
+
+Setup lists other `.toml` agents found in the selected scope and offers **Keep** (default) or **Move to backup**. They remain available to the client and can affect role selection. Only eligible files move to `.plex/backups/<timestamp>/codex/other-agents/`; restore a file manually from that directory if needed. Other scopes, symlinks and files referenced by explicit `config.toml` registrations are preserved. Edited managed roles remain conflicts.

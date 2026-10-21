@@ -33,6 +33,14 @@ Standard setup adds `$plex` and `$plex-setup` through symlinks to the shared Ple
 
 Refresh setup once to add the names to an existing installation, then open a new Codex session. Foreign skills are preserved and reported as conflicts. `--roles-only` preserves existing aliases but does not add them to a new installation. Namespaced plugin calls remain available.
 
+## Other Codex agents
+
+Plex-owned assignments use only exact `plex-<role>` names from the checked active team. Other installed or built-in agents are outside that team; workflow-owned leaves follow their workflow contract.
+
+Setup lists other `.toml` agents found in the selected scope and offers **Keep** (default) or **Move to backup**. They remain available to the client and can affect role selection. Only eligible files move to `.plex/backups/<timestamp>/codex/other-agents/`; restore a file manually from that directory if needed. Other scopes, symlinks and files referenced by explicit `config.toml` registrations are preserved. Edited managed roles remain conflicts.
+
+For unattended cleanup, pass `--archive-other-agents --client codex`; `--yes` alone preserves other agents. `--dry-run` never moves files.
+
 ## Common commands
 
 If the optional `plex` shortcut is absent (for example after a fresh dev installation), use `~/.local/share/plex-ai/setup.sh` in place of `plex` below.
@@ -136,6 +144,7 @@ Omitted settings keep their saved values. Interaction is explicitly saved in eve
 | Option | Purpose |
 |---|---|
 | `--dev / --no-dev` | Link local Plex skills, or leave dev mode; Codex project only. |
+| `--archive-other-agents` | Codex: explicitly back up and remove eligible other agents in the selected scope. |
 | `--roles-only` | Skip Plex plugin installation; explicit BMad flags still apply. |
 | `--command / --no-command` | Create ~/.local/bin/plex (default), or skip; dev mode skips it. |
 | `--install-command` | Install only the shortcut; refuses foreign commands and cannot combine with --dev. |
@@ -156,7 +165,7 @@ Omitted settings keep their saved values. Interaction is explicitly saved in eve
 
 | Option | Purpose |
 |---|---|
-| `--release TAG` | Use a published tag, for example v0.5.8. |
+| `--release TAG` | Use a published tag, for example v0.5.9. |
 | `--development` | Use main; does not enable --dev mode. |
 | `--checkout PATH` | GitHub bootstrap only; default ~/.local/share/plex-ai. |
 

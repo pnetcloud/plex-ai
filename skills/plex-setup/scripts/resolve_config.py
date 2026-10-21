@@ -569,6 +569,7 @@ def _inspect_host_state(
     source_sha256: str | None,
     receipt_record: dict | None,
     scope="project",
+    archive_agents=None,
 ) -> dict:
     extension = "toml" if host == "codex" else "md"
     agents_rel = host_agents_relpath(host, scope)
@@ -599,6 +600,8 @@ def _inspect_host_state(
     existing_plex_files = {}
     if agents_dir.is_dir():
         for entry in sorted(agents_dir.glob(f"plex-*.{extension}")):
+            if host == "codex" and f"{agents_rel}/{entry.name}" in (archive_agents or {}):
+                continue
             role = entry.stem.removeprefix("plex-")
             if entry.is_symlink():
                 conflicts.append(f"Symlinked role file refused: {agents_rel}/{entry.name}")
@@ -951,8 +954,32 @@ class _ApplyTransaction:
         return failures
 
 
+def other_codex_agents(root, roles, scope="project"):
+    """Return other agent paths and hashes; None means manual cleanup is required."""
+    directory = host_agents_relpath("codex", scope)
+    folder = _ensure_safe_project_path(root, directory)
+    receipt_path = _ensure_safe_project_path(root, ".plex/applied.json")
+    receipt = _validate_receipt_structure(json.loads(receipt_path.read_text()), scope) if receipt_path.is_file() else {"hosts": {}}
+    protected = {host_role_relpath("codex", role, scope) for role in roles}
+    protected.update(item["relpath"] for item in receipt["hosts"].get("codex", {}).get("files", {}).values())
+    config = _ensure_safe_project_path(root, "config.toml" if scope == "user" else ".codex/config.toml")
+    registrations = tomllib.loads(config.read_text()).get("agents", {}) if config.is_file() else {}
+    if not isinstance(registrations, dict):
+        raise ValueError("Invalid Codex agent registrations; preserved")
+    referenced = {str((config.parent / Path(item["config_file"]).expanduser()).resolve())
+                  for item in registrations.values() if isinstance(item, dict) and isinstance(item.get("config_file"), str)}
+    result = {}
+    for path in sorted(folder.glob("*.toml")):
+        relpath = f"{directory}/{path.name}"
+        if relpath in protected or not (path.is_symlink() or path.is_file()):
+            continue
+        result[relpath] = (None if path.is_symlink() or str(path.resolve()) in referenced
+                           else sha256_bytes(path.read_bytes()))
+    return result
+
+
 def apply_project(project_root, host, team=None, model_profile=None, max_agents=None, reset_overrides=False,
-                  host_overrides=None, scope="project", instructions=False, interaction=None):
+                  host_overrides=None, scope="project", instructions=False, interaction=None, archive_agents=None):
     project_root = installation_root(Path(project_root), host, scope)
     lock = _ensure_safe_project_path(project_root, ".plex/.apply.lock")
     lock.parent.mkdir(parents=True, exist_ok=True)
@@ -962,7 +989,7 @@ def apply_project(project_root, host, team=None, model_profile=None, max_agents=
     except FileExistsError:
         raise ValueError("Another apply holds .plex/.apply.lock; inspect the owning process before recovery") from None
     try:
-        return _apply_project(project_root, host, team, model_profile, max_agents, reset_overrides, host_overrides, scope, instructions, interaction)
+        return _apply_project(project_root, host, team, model_profile, max_agents, reset_overrides, host_overrides, scope, instructions, interaction, archive_agents)
     finally:
         lock.unlink()
 
@@ -978,6 +1005,7 @@ def _apply_project(
     scope="project",
     instructions=False,
     interaction: str | None = None,
+    archive_agents: dict | None = None,
 ) -> dict:
     if host not in HOSTS:
         raise ValueError(f"Unknown host: {host!r}")
@@ -1034,8 +1062,15 @@ def _apply_project(
             json.loads(existing_applied_bytes.decode("utf-8")), scope
         )
 
+    archive_agents = archive_agents or {}
+    if archive_agents:
+        if host != "codex":
+            raise ValueError("Agent cleanup is supported only for Codex")
+        available = other_codex_agents(project_root, resolved["roles"], scope)
+        if any(digest is None or path not in available or available[path] != digest for path, digest in archive_agents.items()):
+            raise ValueError("Other Codex agents changed after preview; review and retry")
     host_state = _inspect_host_state(
-        project_root, host, resolved, source_sha256, receipt["hosts"].get(host), scope
+        project_root, host, resolved, source_sha256, receipt["hosts"].get(host), scope, archive_agents
     )
     if host_state["conflicts"]:
         raise ValueError("; ".join(host_state["conflicts"]))
@@ -1048,6 +1083,7 @@ def _apply_project(
     retire_roles = sorted(set(old_files.keys()) - set(resolved["roles"]))
 
     paths = {preset_path, resolved_path, applied_path}
+    paths.update(_ensure_safe_project_path(project_root, path) for path in archive_agents)
     if instruction_plan:
         paths.add(instruction_plan["path"])
     for role in set(old_files) | set(rendered_roles):
@@ -1064,6 +1100,11 @@ def _apply_project(
         path = _ensure_safe_project_path(project_root, item["relpath"])
         if role not in old_files and transaction.original[path] is not None:
             raise ValueError(f"Unmanaged file collision: {item['relpath']}")
+
+    for relpath, digest in archive_agents.items():
+        path = _ensure_safe_project_path(project_root, relpath)
+        if transaction.original[path] is None or sha256_bytes(transaction.original[path]) != digest:
+            raise ValueError("Other Codex agents changed after preview; review and retry")
 
     try:
         backup_dir = None
@@ -1085,6 +1126,14 @@ def _apply_project(
                 raise ValueError("Concurrent modification detected on .plex/resolved.json")
             bdir = ensure_backup()
             (bdir / "resolved.json").write_bytes(existing_resolved_bytes)
+
+        for relpath, digest in archive_agents.items():
+            path = _ensure_safe_project_path(project_root, relpath)
+            target = ensure_backup() / "other-agents" / path.name
+            target.parent.mkdir(exist_ok=True)
+            transaction.archive(path, target)
+            if sha256_bytes(target.read_bytes()) != digest:
+                raise ValueError(f"Archive verification failed for {relpath}")
 
         archived_roles = []
         for role in retire_roles:
@@ -1201,6 +1250,7 @@ def _apply_project(
             "installed_roles": list(resolved["roles"]),
             "written_roles": written_roles,
             "archived_roles": archived_roles,
+            "archived_other_agents": list(archive_agents),
             "backup_dir": (
                 str(backup_dir.relative_to(project_root.resolve()))
                 if backup_dir is not None

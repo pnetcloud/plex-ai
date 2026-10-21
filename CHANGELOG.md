@@ -4,6 +4,14 @@ Important changes retained in Plex, grouped by release. Interfaces and configura
 may change before 1.0. Releases through v0.5.4 were previews; v0.5.5 and later are
 regular releases.
 
+## [0.5.9] — 2026-10-21
+
+- Restrict Plex-owned dispatch to exact native roles in the checked active team;
+  exclude unrelated, built-in and stale roles while preserving workflow-owned leaves.
+- Detect other Codex agents during setup; keep them by default and offer explicit
+  backup/removal in the selected scope, with rollback and preview hash checks.
+- Preserve symlinks, explicit config.toml registrations, managed roles and other scopes.
+
 ## [0.5.8] — 2026-10-21
 
 - Consolidate installation guides and translated project READMEs under docs; keep

@@ -14,6 +14,7 @@ Plex 在 Codex、Claude Code 和 Antigravity 中配置并协调智能体团队�
 | [角色契约](role-contracts.md) | 职责和执行指令 |
 | [开发](development.md) | 源码布局与检查 |
 | [测试与效率](testing.md) | 实测结果、token、成本和质量观察 |
+| [发布说明](releases/v0.5.9.md) | v0.5.9: 仅使用活动团队角色，并可选择清理旧代理。 |
 | [发布说明](releases/v0.5.8.md) | v0.5.8: 文档整理与 Codex 技能短名称 |
 | [发布说明](releases/v0.5.7.md) | v0.5.7: 统一协调者结构与贡献指南 |
 | [发布说明](releases/v0.5.6.md) | v0.5.6：任务路线与 BMad 激活证据 |

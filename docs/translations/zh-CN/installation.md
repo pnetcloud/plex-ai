@@ -33,6 +33,14 @@ curl -fsSL https://raw.githubusercontent.com/pnetcloud/plex-ai/main/install.sh |
 
 现有安装刷新一次配置后，打开新的 Codex 会话即可使用。其他技能会被保留并报告冲突。`--roles-only` 保留已有链接，但不会为新安装添加链接。带插件前缀的调用仍可使用。
 
+## 其他 Codex 代理
+
+Plex 自有任务只使用已检查的活动团队中准确的 `plex-<role>` 名称。其他已安装或内置代理不属于该团队；工作流内部执行者遵循该工作流的约定。
+
+安装器列出所选范围内的其他 `.toml` 代理，提供**保留**（默认）或**移至备份**。这些代理对客户端仍可用，可能影响角色选择。可处理的文件移至 `.plex/backups/<timestamp>/codex/other-agents/`，需要时可从中手动恢复。其他范围、符号链接及在 `config.toml` 中显式注册的文件会被保留。被修改的托管角色仍会报告冲突。
+
+无人值守清理需明确使用 `--archive-other-agents --client codex`；仅使用 `--yes` 会保留其他代理。`--dry-run` 不移动文件。
+
 ## 常用命令
 
 若没有可选的 `plex` 命令（例如首次开发模式安装后），下文用 `~/.local/share/plex-ai/setup.sh` 代替 `plex`。
@@ -136,6 +144,7 @@ Codex 也可通过 `/plugins` 浏览器卸载插件。参见 [OpenAI 插件指�
 | 参数 | 用途 |
 |---|---|
 | `--dev / --no-dev` | 链接本地技能或退出开发模式，仅限 Codex/project。 |
+| `--archive-other-agents` | Codex：明确授权将所选范围内其他可处理代理移至备份。 |
 | `--roles-only` | 跳过 Plex 插件安装；显式 BMad 选项仍有效。 |
 | `--command / --no-command` | 创建 ~/.local/bin/plex（默认）或跳过；开发模式不创建命令。 |
 | `--install-command` | 仅安装命令，不替换其他命令，不能与 --dev 组合。 |
@@ -156,7 +165,7 @@ Codex 也可通过 `/plugins` 浏览器卸载插件。参见 [OpenAI 插件指�
 
 | 参数 | 用途 |
 |---|---|
-| `--release TAG` | 使用发布标签，例如 v0.5.8。 |
+| `--release TAG` | 使用发布标签，例如 v0.5.9。 |
 | `--development` | 使用 main，不启用 --dev。 |
 | `--checkout PATH` | 仅用于 GitHub 引导安装，默认 ~/.local/share/plex-ai。 |
 

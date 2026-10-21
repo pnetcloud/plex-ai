@@ -148,3 +148,9 @@ Plugininstallation und Anweisungsintegration.
 
 Optionale BMad-Review-Anpassung: [Review-Richtlinie](../../../teams/bmad/review-policy.md).
 Normales Setup aktiviert sie nicht.
+
+## Andere Codex-Agenten
+
+Plex-Aufträge verwenden ausschließlich exakte `plex-<role>`-Namen des geprüften aktiven Teams. Andere installierte oder eingebaute Agenten gehören nicht dazu; Workflow-eigene Ausführende folgen dem jeweiligen Workflow-Vertrag.
+
+Setup zeigt andere `.toml`-Agenten im gewählten Geltungsbereich und bietet **Behalten** (Standard) oder **Ins Backup verschieben** an. Sie bleiben im Client verfügbar und können die Rollenwahl beeinflussen. Geeignete Dateien werden nach `.plex/backups/<timestamp>/codex/other-agents/` verschoben; bei Bedarf manuell daraus wiederherstellen. Andere Geltungsbereiche, Symlinks und explizit in `config.toml` registrierte Dateien bleiben erhalten. Geänderte verwaltete Rollen bleiben Konflikte.

@@ -33,6 +33,14 @@ Das Standard-Setup ergänzt `$plex` und `$plex-setup` durch Symlinks zum gemeins
 
 Bestehende Installationen einmal aktualisieren und eine neue Codex-Sitzung öffnen. Fremde Skills bleiben erhalten und werden als Konflikt gemeldet. `--roles-only` erhält vorhandene Verknüpfungen, ergänzt sie aber nicht bei einer Neuinstallation. Aufrufe mit Plugin-Präfix bleiben verfügbar.
 
+## Andere Codex-Agenten
+
+Plex-Aufträge verwenden ausschließlich exakte `plex-<role>`-Namen des geprüften aktiven Teams. Andere installierte oder eingebaute Agenten gehören nicht dazu; Workflow-eigene Ausführende folgen dem jeweiligen Workflow-Vertrag.
+
+Setup zeigt andere `.toml`-Agenten im gewählten Geltungsbereich und bietet **Behalten** (Standard) oder **Ins Backup verschieben** an. Sie bleiben im Client verfügbar und können die Rollenwahl beeinflussen. Geeignete Dateien werden nach `.plex/backups/<timestamp>/codex/other-agents/` verschoben; bei Bedarf manuell daraus wiederherstellen. Andere Geltungsbereiche, Symlinks und explizit in `config.toml` registrierte Dateien bleiben erhalten. Geänderte verwaltete Rollen bleiben Konflikte.
+
+Für unbeaufsichtigtes Aufräumen `--archive-other-agents --client codex` angeben; `--yes` allein behält andere Agenten. `--dry-run` verschiebt keine Dateien.
+
 ## Häufige Befehle
 
 Fehlt der optionale `plex`-Befehl, etwa nach einer ersten Dev-Installation, unten `~/.local/share/plex-ai/setup.sh` statt `plex` verwenden.
@@ -136,6 +144,7 @@ Ausgelassene Einstellungen behalten ihre Werte. Jeder angewendete Preset speiche
 | Option | Zweck |
 |---|---|
 | `--dev / --no-dev` | Lokale Skills verknüpfen oder Dev verlassen; nur Codex/project. |
+| `--archive-other-agents` | Codex: andere geeignete Agenten im gewählten Bereich ausdrücklich ins Backup verschieben. |
 | `--roles-only` | Plex-Plugin überspringen; explizite BMad-Optionen gelten weiter. |
 | `--command / --no-command` | ~/.local/bin/plex erstellen (Standard) oder überspringen; Dev erstellt keinen Befehl. |
 | `--install-command` | Nur den Befehl installieren; fremde Befehle bleiben erhalten, nicht mit --dev kombinierbar. |
@@ -156,7 +165,7 @@ Ausgelassene Einstellungen behalten ihre Werte. Jeder angewendete Preset speiche
 
 | Option | Zweck |
 |---|---|
-| `--release TAG` | Veröffentlichten Tag verwenden, z. B. v0.5.8. |
+| `--release TAG` | Veröffentlichten Tag verwenden, z. B. v0.5.9. |
 | `--development` | main verwenden; aktiviert nicht --dev. |
 | `--checkout PATH` | Nur GitHub-Bootstrap; Standard ~/.local/share/plex-ai. |
 

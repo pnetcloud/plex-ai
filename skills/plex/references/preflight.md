@@ -40,6 +40,8 @@ Read `<root>/.plex/resolved.json`; do not reconstruct configuration layers.
 | `hosts.<host>.<role>` | Effective model/effort |
 | `interaction`, `max_agents` | Interaction mode and assignment limit |
 
+Use `roles` as the allowlist for Plex-owned dispatch, not the host's full agent inventory. Other installed agents and inactive `plex-` roles are outside this team.
+
 The check proves configuration consistency. Before dispatch, separately verify
 that the session exposes the selected native role. On mismatch, follow the
 skill's delegation rules; do not claim actual routing from installed files.

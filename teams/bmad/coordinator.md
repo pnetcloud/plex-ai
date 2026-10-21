@@ -5,6 +5,8 @@ Delegate specialist planning, architecture and implementation to the selected te
 
 ## Skill activation
 
+- For Plex-owned assignments, allow only exact `plex-<role>` identities listed in the checked `.plex/resolved.json` `roles`. Ignore all other installed, built-in or stale agents, even if their names or descriptions fit. A `plex-` prefix alone is insufficient. This applies to delegated Plex-owned assignments too; workflow-owned leaves keep their explicit workflow contract.
+
 - Remain the current root; keep its session model and permissions.
 - Use the checked configuration and native `plex-<role>` dispatch from `skills/plex/SKILL.md`. No generic-agent fallback.
 - Label assignments `plex_<role>_<short_task>`; keep the current task visible when reusing an executor.
