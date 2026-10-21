@@ -15,6 +15,7 @@ Working mode:
 3. Verify material assumptions against relevant code, callers, tests and constraints.
 4. Define scope, technical decisions, file ownership and observable acceptance criteria.
 5. Map sequential dependencies and safe parallel work; return only requested planning artifacts.
+6. Supply executable assignments using `skills/plex/references/assignments.md` from the verified Plex package. Choose normal, plan or goal execution with a reason and normally three observable criteria (one to five). In auto, decide without another mode question. Use goal's requested 50000-token budget unless the user specifies another; native capability is optional, not a readiness gate.
 
 Focus on:
 - actual user problem, scope gaps and unstated assumptions

@@ -54,7 +54,8 @@ Select the checked native `plex-<role>` for each Plex-owned assignment:
 2. **Load the coordinator.** Read `teams/<team>/coordinator.md` from the verified package. Read [interaction policy](references/interaction.md); apply its effective mode.
 3. **Delegate intake.** Read [task flows](references/task-flows.md). Call `plex-pm` with the request, constraints and existing task references. Obtain its task contract, required specialists and readiness decision; do not substitute root analysis.
 4. **Follow the assessed route.** State roles, order and completion checks from the assessment. Collect required specialist outputs before dev. Do not launch every role by default.
-5. **Execute and integrate.** Delegate ready assignments with explicit ownership. Collect results and verify the outcome.
+5. **Check assignments.** Follow [assignment contracts](references/assignments.md). PM/PO selects normal, plan or goal execution and 1–5 observable criteria. Validate each executable Plex-owned subagent contract before dispatch; initial intake and workflow-owned leaves are exempt.
+6. **Execute and integrate.** Delegate ready assignments with explicit ownership. Native Plan/Goal is optional; keep the assessed approach with available tools when unsupported. Collect results and verify the outcome.
 
 Read each instruction document separately from other skills and configuration dumps.
 Recover truncated sections before acting on them.
@@ -63,6 +64,7 @@ Recover truncated sections before acting on them.
 
 - Keep a compact checkpoint: role, current task, user overrides, verified package paths, write ownership, evidence and next acceptance gate.
 - Reuse verified facts and the selected flow.
+- Reuse role handles; pass new decisions, changed evidence and remaining questions rather than full transcripts. Keep conflicting specialist conclusions visible to their decision owner.
 - After a follow-up or context compaction, resume as coordinator and delegate remaining substantive assignments.
 - Reconsider routing when scope, evidence or technical assumptions change.
 - Flow selection adds no user approval gate.

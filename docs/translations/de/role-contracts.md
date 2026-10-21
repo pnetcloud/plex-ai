@@ -112,3 +112,41 @@ erfinden. Eine fertige Spezifikation allein ist kein Grund für eine Freigabepau
 Verschachtelung braucht Befugnis und Kapazität. Leaf-Prompts und Kontextverträge
 bewahren; Leaf-Reviews nicht an Wrapper geben, die neue vollständige Workflows starten.
 Tatsächliches Routing und nicht verfügbare Fähigkeiten melden.
+
+## Aufträge, Planung und Ziele
+
+Bei pnet verantwortet PM Aufgabenstellung, technische Planung und Ausführungswahl.
+Bei BMad übernimmt PM den Intake, PO Spezifikationen/Aufgaben und architect technische
+Entscheidungen. Root koordiniert und integriert Nachweise; keine zusätzliche Manager-Rolle.
+
+Ausführbare Aufträge nutzen den [kompakten Vertrag](../../../skills/plex/references/assignments.md)
+und dessen schreibfreien Validator: Eingaben, Schreibgrenzen/Ausschlüsse, akzeptierte
+Abhängigkeiten, Bereitschaft und normalerweise drei beobachtbare Kriterien (eins bis fünf)
+mit jeweils einer Prüfung. Bestehende Issues/Specs/Stories bleiben maßgeblich. Erster
+PM-Intake und Workflow-Unteraufträge benötigen keinen zusätzlichen JSON-Vertrag.
+Strukturprüfung beweist weder fachliche Bereitschaft noch Sandbox oder echten Dispatch.
+Die Kriteriengrenze gilt für die Auftragszusammenfassung; alle Spec-/Workflow-Prüfungen bleiben erhalten.
+
+PM/PO wählt begründet `normal`, `plan` oder `goal`, in `auto` ohne zusätzliche Modusfrage.
+Plan klärt Entscheidungen vor Anwendungscode-Änderungen; goal arbeitet innerhalb des
+akzeptierten Umfangs bis zu nachgewiesenen Kriterien. Native Client-Modi sind optional:
+sonst normal planen oder begrenzt zielorientiert arbeiten und den tatsächlichen Ansatz
+melden. Weder Chat-Modus heimlich wechseln noch bestehende Ziele ersetzen oder eine
+vom Host nicht unterstützte Fortsetzung versprechen. Host-Rechte und Benutzerwahl gelten.
+Native Goal fordert standardmäßig 50.000 Tokens an, außer der Benutzer nennt ein anderes
+Budget. Erschöpfte Ziele nicht automatisch erneuern/erhöhen. Ohne native Zählung bleibt
+das Budget ausdrücklich undurchgesetzt; bestehende Blocker-/Stillstandsregeln gelten.
+
+Für passende unbeaufsichtigte BMad-Implementierung in `auto` installiertes
+`bmad-build-auto` wählen: eine gerenderte Workflow-Iteration mit erforderlichen
+Subagenten und Endstatus. Sonst eine autorisierte unterstützte Build-Route verwenden.
+Spezifikation, Renderer, Prüfungen und echte Gates erhalten; kein zweiter Plan-/Review-Zyklus.
+
+Agenten wiederverwenden. Neue Entscheidungen, geänderte Nachweise und die verbleibende
+Frage statt ganzer Transkripte weitergeben. Unabhängige Bewertungen parallel ausführen;
+abhängige Arbeit wartet auf akzeptierte Eingaben. Widersprüche dem Entscheidungsverantwortlichen
+melden, keinen Konsens erfinden. Ergebnisse belegen jedes Kriterium und benennen Lücken.
+
+`max_agents` begrenzt gleichzeitig unerledigte Plex-Aufträge, nicht alle bisherigen Starts.
+Abgeschlossene/idle Aufträge zählen dafür nicht mehr; ihre Handles können weiterhin
+native Thread-Slots belegen. Beide Grenzen vor einer Kapazitätssperre getrennt prüfen.

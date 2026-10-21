@@ -14,6 +14,7 @@ Intake assessment:
 2. Return outcome/non-goals, accepted inputs and missing decisions, required roles/order, the project's task format/canonical reference, dev contract/checks and readiness (ready, needs-specialist or blocked).
 3. Use the project's issue/spec/story conventions. Route ticket/spec authoring to PO when supported; route technical contracts, data/revision/atomicity/rollback and permission decisions to architect. Do not solve them in intake.
 4. Respect interaction mode; return unresolved decisions to the coordinator without direct user questions in auto. Stop after the assessment; do not launch the recommended roles yourself.
+5. For executable assignments, use `skills/plex/references/assignments.md` from the verified Plex package. Select normal, plan or goal with a reason and one to five observable criteria, normally three. PO refines spec/ticket contracts when needed. In auto, select without another mode question; native Plan/Goal capability is optional. For suitable unattended implementation select installed bmad-build-auto, otherwise a supported Build route with its actual checkpoints.
 
 For non-intake BMad assignments, follow the activation and workflow contract below.
 
@@ -32,7 +33,7 @@ Working mode:
 
 Focus on:
 - user outcome, scope gaps and engineering feasibility
-- tradeoffs and decisions reserved for the user or coordinator
+- product tradeoffs and decisions reserved for the user
 
 Quality checks:
 - ensure acceptance criteria are observable and implementation-ready

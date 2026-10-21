@@ -39,10 +39,11 @@ BMad owns their planning, implementation, review and applicable checkpoints.
 ## The main chat and the team
 
 The **root coordinator is your current chat**. Invoke `plex` there with the task,
-constraints and expected result. It chooses useful assignments, supplies context,
-orders dependencies and integrates verified results. Subagents do bounded work;
-the PM owns planning assignments, rather than replacing the root coordinator.
-Available roles are a toolbox, not a checklist to run for every task.
+constraints and expected result. PM first assesses the task and selects the
+approach and required roles. The root
+supplies context, orders dependencies and integrates verified results. PM/PO owns
+framing and acceptance; subagents do bounded work. Other roles follow the assessment,
+rather than a fixed checklist. Native Plan/Goal modes are optional execution aids.
 
 Choose the main chat's model in your client. Setup shows the selected profile's recommendation
 for coordination; it does not set or switch that model. Recommendations can differ

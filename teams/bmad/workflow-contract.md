@@ -87,6 +87,26 @@ same implementation worker, resume that worker rather than launching a new workf
 
 ## Workflow ownership and bounded returns
 
+PM/PO chooses the assignment's normal/plan/goal approach; use the shared
+`skills/plex/references/assignments.md` contract. Native client modes are optional:
+retain ordinary planning or criteria-driven execution when unavailable. They do
+not grant workflow, write or delegation authority. Reuse accepted spec/plan inputs;
+do not add a competing plan or review cycle around the selected build workflow.
+
+For suitable unattended implementation in interaction `auto`, select installed
+`bmad-build-auto` explicitly and verify its entry/dispatch. It owns one iteration,
+not a perpetual outer loop. Follow its rendered launch/wait and terminal-status
+protocol, including mandatory nested agents and actual capacity constraints. Do
+not detach workers or restart the whole workflow automatically. If unavailable,
+ordinary Build is usable only through its supported authorized route; preserve
+real checkpoints. Native Goal absence is not a workflow blocker.
+
+Nested handoffs include active-assignment counts and native capacity separately.
+`max_agents` caps concurrently unfinished Plex work, not every prior launch.
+Completed PM/implementation assignments do not consume that cap; idle handles can
+still consume native thread slots. Inspect both before reporting a capacity gate,
+and preserve handles required for fix resumption.
+
 A `dev` assignment can own the entire installed build workflow, including nested
 implementation and review. Do not follow it with a second full `reviewer` workflow
 unless requested or justified by a concrete verification gap. Return completed

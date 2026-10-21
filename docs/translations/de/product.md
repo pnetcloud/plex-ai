@@ -37,11 +37,11 @@ BMad steuert Planung, Umsetzung, Reviews und anwendbare Freigaben.
 ## Hauptchat und Team
 
 Der **Root-Koordinator ist der aktuelle Chat**. Dort `plex` mit Aufgabe,
-Rahmenbedingungen und erwartetem Ergebnis aufrufen. Er wählt sinnvolle Aufträge,
-liefert Kontext, ordnet Abhängigkeiten und integriert geprüfte Ergebnisse.
-Subagenten bearbeiten begrenzte Aufträge; der PM übernimmt Planungsaufgaben,
-statt den Root-Koordinator zu ersetzen. Die Rollen sind ein Werkzeugkasten,
-keine Pflichtstationen für jede Aufgabe.
+Rahmenbedingungen und erwartetem Ergebnis aufrufen. PM bewertet zuerst die Aufgabe und wählt Ansatz und benötigte Rollen. Root
+liefert Kontext, ordnet Abhängigkeiten und integriert geprüfte Ergebnisse. PM/PO
+verantwortet Aufgabenstellung und Abnahme; Subagenten bearbeiten begrenzte Aufträge.
+Weitere Rollen folgen der Bewertung, keiner festen Checkliste. Native Plan/Goal-Modi
+sind optionale Ausführungshilfen.
 
 Das Modell des Hauptchats wird im Client gewählt. Setup zeigt die Empfehlung
 des gewählten Profils für die Koordination, stellt dieses Modell aber nicht ein.

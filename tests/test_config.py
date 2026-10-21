@@ -78,6 +78,7 @@ class ConfigTests(unittest.TestCase):
         self.assertEqual({item["operation"] for item in resolved["workflows"]["po"]},
                          {"SPEC", "TICKETS", "REFINE", "BOARD", "VALIDATE", "REPLAN", "STORE"})
         self.assertTrue(all(item["skill"] == "bmad-agent-po" for item in resolved["workflows"]["po"]))
+        self.assertIn("bmad-build-auto", {item["skill"] for item in resolved["workflows"]["dev"]})
         for host in MODULE.HOSTS:
             text = MODULE.render_role(resolved, host, "analyst")
             self.assertNotIn("bmad-product-brief", text)

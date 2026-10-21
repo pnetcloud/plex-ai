@@ -4,6 +4,21 @@ Important changes retained in Plex, grouped by release. Interfaces and configura
 may change before 1.0. Releases through v0.5.4 were previews; v0.5.5 and later are
 regular releases.
 
+## [0.7.0] — 2026-10-21
+
+- Let PM/PO select normal execution, planning first or bounded work toward a goal,
+  with one to five observable acceptance criteria. Native Plan/Goal modes are optional;
+  unsupported modes retain ordinary planning or criteria-driven execution.
+- Add a compact assignment template and read-only JSON validator against the checked
+  team's role snapshot. Preserve existing task stores and workflow-owned leaf recipes.
+- Support installed `bmad-build-auto` for one unattended iteration, preserving its
+  renderer, required subagents and terminal protocol without a repeating outer loop.
+- Reuse role context and pass changed evidence and decisions between dependent
+  assignments. Native Goal requests default to 50,000 tokens without automatic renewal;
+  report when the host cannot enforce that budget.
+- Separate unfinished-assignment limits from native thread slots. Preserve exact
+  artifact paths/revisions and correct missing inputs before accepting verification.
+
 ## [0.6.1] — 2026-10-21
 
 - Require a real `plex-pm` intake assessment for every new Plex task and unplanned

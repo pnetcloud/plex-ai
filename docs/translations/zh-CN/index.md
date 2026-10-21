@@ -33,6 +33,7 @@ Plex 在 Codex、Claude Code 和 Antigravity 中配置并协调智能体团队�
 
 | 版本 | 变更 |
 |---|---|
+| [发布说明](releases/v0.7.0.md) | v0.7.0: PM/PO 契约、可选 Plan/Goal 与 BMad Build Auto。 |
 | [发布说明](releases/v0.6.1.md) | v0.6.1: 路由和实现前必须先由专家评估。 |
 | [发布说明](releases/v0.6.0.md) | v0.6.0: Auto、Codex 原生角色与 Plex AI 展示。 |
 | [发布说明](releases/v0.5.11.md) | v0.5.11: 稳定 macOS CI、协调者委派及安装默认值。 |

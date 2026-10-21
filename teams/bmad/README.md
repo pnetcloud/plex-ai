@@ -25,7 +25,7 @@ Only the selected workflow is loaded; its procedures remain in installed BMad.
 | `po` | Sofia — `bmad-agent-po` | Write specifications, slice work, manage tickets and replan | Internal PO workflows: `SPEC`, `TICKETS`, `REFINE`, `BOARD`, `VALIDATE`, `REPLAN`, `STORE` |
 | `ux` | Sally — `bmad-agent-ux-designer` | Define user journeys, interaction states and design | `bmad-ux` |
 | `architect` | Winston — `bmad-agent-architect` | Establish architectural decisions, boundaries and invariants | `bmad-architecture` |
-| `dev` | Amelia — `bmad-agent-dev` | Implement a change, generate tests or assess a completed epic | `bmad-build`, `bmad-qa-generate-e2e-tests`, `bmad-retrospective` |
+| `dev` | Amelia — `bmad-agent-dev` | Implement a change, generate tests or assess a completed epic | `bmad-build`, `bmad-build-auto`, `bmad-qa-generate-e2e-tests`, `bmad-retrospective` |
 | `reviewer` | Independent workflow owner | Review an exact diff or PR on its separately configured model | `bmad-code-review` |
 
 The PO entries are **internal workflow codes within one persona**, not separate
@@ -50,11 +50,12 @@ the relevant specialist. Root owns routing and integration, not all specialist w
 
 ```mermaid
 flowchart TD
-    Root["Plex coordinator"] --> Task{"What does the task need?"}
-    Task -->|"Research and planning"| Planning["pm · po · ux · architect<br/>analyst: manual / approved"]
-    Task -->|"Implementation and verification"| Dev["dev / reviewer"]
-    Planning -->|"Relevant BMad workflow"| Result["Result to coordinator<br/>artifacts, checks, open questions"]
-    Dev -->|"Relevant BMad workflow"| Result
+    Root["Plex coordinator"] --> PM["PM intake: route and criteria"]
+    PM --> Task{"Missing decisions?"}
+    Task -->|Yes| Planning["po · ux · architect as needed<br/>analyst: manual / approved"]
+    Task -->|No| Dev["dev / reviewer: selected workflow"]
+    Planning --> Dev
+    Dev --> Result["Verified result to coordinator"]
 ```
 
 The coordinator supplies the goal, input files and authority. The subagent returns
@@ -72,9 +73,20 @@ For example:
 | “Review someone else's PR” | `reviewer` → `bmad-code-review` |
 | “Requirements changed; what needs reworking?” | `po` → `REPLAN` |
 
-A small, clear change can go straight to Build. BMad owns its planning,
+After PM intake, a small, clear change can go straight to the selected Build workflow. BMad owns its planning,
 implementation, review and fixes; the coordinator does not add another mandatory
 PM → architect → review → QA sequence around it.
+
+## Execution approach
+
+PM/PO selects normal execution, planning first or bounded work toward a goal. Native
+client Plan/Goal modes are optional; unavailable modes do not block ordinary planning or
+criteria-driven execution. Use the [assignment
+contract](../../skills/plex/references/assignments.md) with one to five observable
+criteria, normally three. In `auto`, select installed `bmad-build-auto` for a suitable
+unattended assignment: one iteration with mandatory workflow subagents, not a repeating
+outer loop. Preserve its renderer and terminal protocol. Otherwise retain an authorized
+supported Build route and its actual checkpoints.
 
 ## Startup evidence
 

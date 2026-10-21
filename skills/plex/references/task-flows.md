@@ -9,7 +9,7 @@ These routes assign work; BMad retains its procedures and checkpoints.
 1. Root locates the request, project instructions, existing task references and authority. Do not classify complexity, design the solution or declare the task ready.
 2. Call the checked `plex-pm` for every new task, even an apparently small fix, and every new task/decision outside an existing assessed plan. Reuse its identity with a new task label.
 3. Request a short intake assessment, not a PRD or a planning workflow by default. Supply intent, constraints, existing artifacts, interaction mode and write authority.
-4. PM returns: outcome/non-goals; accepted inputs and missing decisions; required roles/order; task format and canonical reference; dev contract and observable checks; `ready`, `needs-specialist` or `blocked` with evidence.
+4. PM returns: outcome/non-goals; accepted inputs and missing decisions; required roles/order; task format and canonical reference; dev contract and observable checks; `ready`, `needs-specialist` or `blocked` with evidence. PM/PO selects the execution approach through [assignment contracts](assignments.md); root does not choose it from apparent task size.
 5. Follow PM's route and collect required outputs before implementation. Root checks team/permission consistency and schedules work; it does not replace specialist judgment.
 
 ### Readiness and task format
@@ -32,6 +32,7 @@ These routes assign work; BMad retains its procedures and checkpoints.
 - Give dev accepted inputs, write ownership and checks. Build may create the implementation plan.
 - Reuse the intake assessment and accepted specialist outputs; do not repeat planning for covered steps.
 - BMad: use the applicable project build route. Its owner handles investigation, planning, implementation, review and fixes. Do not skip its steps or add a duplicate planning/review pipeline.
+- In `auto`, PM/PO selects installed `bmad-build-auto` for suitable unattended implementation: one workflow iteration, not an endless loop. Verify its actual dispatch, mandatory subagents and capacity. If unavailable, use `bmad-build` only through an authorized supported route; never skip its checkpoints. Native Goal availability does not decide workflow readiness.
 - Separate reviewer/QA: only for required independent proof, explicit review or a concrete evidence gap. Use only roles in the selected team.
 - Root may perform a mechanical step only when the PM assessment explicitly assigns it; this never bypasses intake.
 

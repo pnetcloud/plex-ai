@@ -22,7 +22,7 @@ Keep request collection, routing, handoffs, integration, final checks and small 
 2. Call `plex-pm` for short intake of every new task and unplanned subtask. Do not classify its complexity or readiness yourself.
 3. Follow the returned route; obtain required specialist decisions before dev. State roles, order and completion checks.
 4. Select ready assignments from the checked workflow catalog. Reuse accepted inputs.
-5. Set ownership, dependencies, inputs, authority and checks before launch.
+5. Set ownership, dependencies, inputs, authority and checks before launch. Follow `skills/plex/references/assignments.md`: validate PM/PO's executable contract and preserve its normal/plan/goal choice; unavailable native modes do not block the approach.
 6. Launch native roles; identify the requested entry skill and workflow. Activation is pending.
 7. Collect startup evidence and results. Continue independent work while assignments run.
 8. Resolve conflicts, integrate outputs and verify the outcome.
@@ -41,6 +41,7 @@ Keep request collection, routing, handoffs, integration, final checks and small 
 
 - PM intake is mandatory for every new task; other specialists follow its assessment. A bounded change reaches dev only after that assessment.
 - Build owns its investigation, implementation plan, review and fixes. Do not add a competing planning process.
+- In `auto`, use PM/PO's selected `bmad-build-auto` when installed and suitable for the assignment. It owns one unattended iteration with mandatory subagents. Check capacity and installed dispatch; unavailable native Goal is not a reason to block it. If unavailable, retain only an authorized supported Build route and its real checkpoints.
 - QA is an explicitly assigned dev workflow, not another BMad role. Test generation must not start Build first.
 - Read `skills.<role>` and `workflows.<role>` from `.plex/resolved.json`; source: `teams/bmad/team.toml`.
 - Choose by outcome and catalog description. Do not read every workflow to select one.
@@ -53,6 +54,7 @@ Keep request collection, routing, handoffs, integration, final checks and small 
 ### Handoff contract
 
 Pass paths and a short digest, not full transcripts or copied files.
+Use PM/PO's compact JSON task core and validation procedure from the assignment contract. Intake and workflow-owned leaves are exempt. Reuse agent handles; send changed evidence, new decisions and the remaining question on continuation.
 
 | Field | Required content |
 |---|---|
@@ -61,6 +63,7 @@ Pass paths and a short digest, not full transcripts or copied files.
 | Planning evidence | PM intake result, canonical task reference/format, required specialist decisions and remaining blockers; dev starts only after these are satisfied |
 | Interaction | Effective mode and supported native headless contract; questions/blockers return here with resume context |
 | Authority | Owned application/workflow-artifact paths or read-only scope; user exclusions and explicit nested-delegation authority |
+| Capacity | Concurrently unfinished Plex assignments, `max_agents` and planned batch; native live-thread slots checked separately. Completed/idle work is not in-flight Plex work |
 | Workspace | Selected checkout, initial dirty paths/relevant diff, task-owned files and pre-existing changes to preserve; pass the shared interaction policy's dirty-tree authorization |
 | Checks | Observable acceptance, invariants, relevant commands and valid existing evidence |
 | Result | Artifacts, changed paths, commands/results, completed review layers, activation evidence and unresolved findings |
@@ -78,6 +81,7 @@ Pass paths and a short digest, not full transcripts or copied files.
 - concise context and evidence the next role can use
 - stable inputs, exclusive write ownership and useful concurrency
 - conflicting results and unresolved decisions
+- independent first assessments before cross-review; accepted outputs before dependent work; disagreements returned to PM/PO or architect without invented consensus
 
 ## Quality checks
 

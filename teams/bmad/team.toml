@@ -88,6 +88,10 @@ skill = "bmad-build"
 description = "Plan, implement, review and verify a bounded software change."
 
 [[workflows.dev]]
+skill = "bmad-build-auto"
+description = "Run one unattended implementation, review and verification iteration; requires workflow subagents."
+
+[[workflows.dev]]
 skill = "bmad-qa-generate-e2e-tests"
 description = "Generate automated API or end-to-end tests for implemented behavior."
 

@@ -123,3 +123,40 @@ inventing approval. A completed spec alone is not a reason to stop for permissio
 Nested delegation requires authority and available capacity. Preserve leaf prompts
 and context contracts; do not dispatch a leaf review to a wrapper that starts
 another complete workflow. Report actual nested routing and unavailable capabilities.
+
+## Assignments, planning and goals
+
+PM owns framing, technical planning and execution choice in pnet. BMad PM owns intake,
+PO refines specifications/tasks, and architect resolves technical decisions. Root
+schedules their route and integrates evidence; no extra manager role is installed.
+
+Executable assignments use the [compact contract](../skills/plex/references/assignments.md)
+and its read-only validator. Include inputs, ownership/exclusions, accepted dependencies,
+readiness and normally three observable criteria (one to five), each with a check.
+Reuse the existing issue/spec/story; initial PM intake and workflow-owned leaves are exempt.
+Structural validation is not semantic acceptance, sandbox enforcement or dispatch evidence.
+The criterion cap applies to the handoff summary; retain all canonical spec/workflow checks.
+
+PM/PO selects `normal`, `plan` or `goal` with a reason. In `auto`, select without another
+mode question. Plan resolves decisions before application edits; goal iterates toward
+verified criteria within the accepted scope. Native client modes are optional: otherwise
+use ordinary planning or bounded criteria-driven work, reporting the actual approach.
+Do not switch the user's chat mode, replace an existing goal or promise continuation
+that the host cannot provide. Host authority and explicit user choices still apply.
+Native Goal requests default to 50,000 tokens unless the user specifies another budget;
+never increase or renew an exhausted goal automatically. Without native accounting,
+report that the budget is unenforced and keep existing blocker/no-progress limits.
+
+For suitable unattended BMad implementation in `auto`, select installed `bmad-build-auto`:
+one rendered workflow iteration with its actual mandatory subagents and terminal status.
+Otherwise use an authorized supported Build route. Preserve specification, renderer,
+checks and genuine gates; do not append another full planning/review cycle.
+
+Reuse role handles. Send changed evidence, new decisions and the remaining question
+instead of the whole transcript. Parallelize independent assessments; wait for accepted
+inputs before dependent work. Return conflicting conclusions to their owner without
+inventing consensus. Final returns connect each criterion to observed evidence and gaps.
+
+`max_agents` counts concurrently unfinished Plex assignments, not cumulative launches.
+Returned/idle work stops consuming that cap; native thread slots may still include idle
+handles and must be checked separately before claiming a capacity blocker.
