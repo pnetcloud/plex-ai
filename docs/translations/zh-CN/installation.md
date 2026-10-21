@@ -1,6 +1,6 @@
 # 安装
 
-[English](../../installation.md) · [Русский](../ru/installation.md) · [Deutsch](../de/installation.md) · [简体中文](../zh-CN/installation.md)
+[English](../../installation.md) · [Русский](../ru/installation.md) · [Deutsch](../de/installation.md) · [简体中文](installation.md)
 
 ## 安装
 
@@ -21,11 +21,17 @@ curl -fsSL https://raw.githubusercontent.com/pnetcloud/plex-ai/main/install.sh |
 选择客户端、范围、团队和模型配置，确认计划。推荐 **Project** 范围。安装后打开新的客户端会话。
 
 模型配置档用于子智能体。请在主对话中选择根协调者的模型；安装计划会显示建议。
-参见[主对话与团队](../../../docs/translations/zh-CN/product.md#主对话与团队)。
+参见[主对话与团队](product.md#主对话与团队)。
 
 安装器注册共享 Plex 插件并应用所选团队。插件提供技能；团队配置提供原生角色和托管指令块。开发模式使用本地技能链接。
 
-[对话请求示例](../../../README.zh-CN.md#对话示例)。
+[对话请求示例](README.md#对话示例)。
+
+## 技能短名称 · Codex
+
+标准安装通过符号链接提供 `$plex` 和 `$plex-setup`，指向共享 Plex 工作副本；插件保持启用。项目范围使用 `.agents/skills/`，用户范围使用 `$CODEX_HOME/skills/`（默认 `~/.codex/skills/`）。不复制技能内容，请保留源工作副本。
+
+现有安装刷新一次配置后，打开新的 Codex 会话即可使用。其他技能会被保留并报告冲突。`--roles-only` 保留已有链接，但不会为新安装添加链接。带插件前缀的调用仍可使用。
 
 ## 常用命令
 
@@ -82,7 +88,7 @@ plex uninstall --dry-run
 plex uninstall
 ```
 
-移除未修改的托管角色、Plex 指令块和所属开发链接/覆盖设置。块外的项目指令保留。托管文件被修改时会停止移除，等待检查。
+移除未修改的托管角色、Plex 指令块和所属技能链接及开发模式覆盖配置。块外的项目指令保留。托管文件被修改时会停止移除，等待检查。
 
 **用户级团队** · 选择安装全局角色的客户端：
 
@@ -104,7 +110,7 @@ Codex 也可通过 `/plugins` 浏览器卸载插件。参见 [OpenAI 插件指�
 
 ## 参数参考
 
-省略的设置保留已有值。每个应用的 preset 均保存 `interaction`。模型配置、覆盖及路径见[配置](../../../docs/translations/zh-CN/configuration.md)。
+省略的设置保留已有值。每个应用的 preset 均保存 `interaction`。模型配置、覆盖及路径见[配置](configuration.md)。
 
 ### 客户端与范围
 
@@ -150,7 +156,7 @@ Codex 也可通过 `/plugins` 浏览器卸载插件。参见 [OpenAI 插件指�
 
 | 参数 | 用途 |
 |---|---|
-| `--release TAG` | 使用发布标签，例如 v0.5.7。 |
+| `--release TAG` | 使用发布标签，例如 v0.5.8。 |
 | `--development` | 使用 main，不启用 --dev。 |
 | `--checkout PATH` | 仅用于 GitHub 引导安装，默认 ~/.local/share/plex-ai。 |
 
@@ -159,7 +165,7 @@ Codex 也可通过 `/plugins` 浏览器卸载插件。参见 [OpenAI 插件指�
 ## 文件保护与故障排查
 
 - 卸载默认作用于项目。`--client codex` 限定客户端，`--scope user` 选择用户级角色，`--yes` 无提示确认卸载。
-- 仅删除未修改的托管角色、指令区块和开发链接/覆盖。共享插件、源码、偏好及备份保留；托管文件被修改或格式未知时停止。
+- 仅删除未修改的托管角色、指令区块和技能链接及开发模式覆盖配置。共享插件、源码、偏好及备份保留；托管文件被修改或格式未知时停止。
 - 源码更新拒绝修改有本地更改、来源不同或使用符号链接的副本。插件管理器更改及已完成的客户端安装与角色回滚分离。
 - `status` 优先检查项目，否则检查用户范围。它检查配置和插件发现，不证明实际模型路由。
 

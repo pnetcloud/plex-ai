@@ -57,7 +57,7 @@ choice can also affect those children. Recommendations describe a starting setup
 not a measured optimum for quality or cost.
 
 See [role responsibilities](role-contracts.md#responsibilities) and
-[installation](../readme/installation.md).
+[installation](installation.md).
 
 ## Scope
 

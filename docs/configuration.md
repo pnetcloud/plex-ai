@@ -2,7 +2,7 @@
 
 [English](configuration.md) · [Русский](translations/ru/configuration.md) · [Deutsch](translations/de/configuration.md) · [简体中文](translations/zh-CN/configuration.md)
 
-[Installation, dev mode and all CLI options](../readme/installation.md).
+[Installation, dev mode and all CLI options](installation.md).
 
 ## Teams and profiles
 
@@ -132,6 +132,8 @@ change the host's fallback configuration or make it read an additional instructi
 | `.plex/preset.toml` | Editable team/profile/overrides |
 | `.plex/resolved.json` | Generated effective snapshot |
 | `.plex/applied.json` | Per-client receipt and managed hashes |
+| `.plex/skill-aliases.json` | Codex short-name links; generated ownership receipt |
+| `.plex/dev.json` | Codex dev links and project plugin override; generated ownership receipt |
 | `.plex/backups/` | Replaced files and retired roles |
 
 Do not hand-edit generated roles or receipts. Foreign files, changed managed files,

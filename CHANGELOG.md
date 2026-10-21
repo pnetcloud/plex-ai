@@ -4,6 +4,15 @@ Important changes retained in Plex, grouped by release. Interfaces and configura
 may change before 1.0. Releases through v0.5.4 were previews; v0.5.5 and later are
 regular releases.
 
+## [0.5.8] — 2026-10-21
+
+- Consolidate installation guides and translated project READMEs under docs; keep
+  one root README with language links and update documentation navigation.
+- Add short Codex skill names `$plex` and `$plex-setup` in project and user scope
+  through managed links to the shared checkout, without copying skill contents.
+- Check link ownership during refresh, status and uninstall; preserve foreign skills
+  and roll back owned links when role setup fails. Keep dev mode and roles-only setup.
+
 ## [0.5.7] — 2026-10-21
 
 - Align coordinator instructions with the subagent blocks; preserve routing,

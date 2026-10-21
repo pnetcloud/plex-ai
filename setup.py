@@ -663,65 +663,76 @@ DEV_BLOCK = ('# plex-dev:start\n[plugins."pnet-plex@pnet-plex"]\nenabled = false
 DEV_SKILLS = ("plex", "plex-setup")
 
 
-def plan_dev(project, enabled):
-    """Plan only owned links and a repo-local plugin override; never touch user config."""
-    project = project.resolve()
+def plan_skills(project, development=False, *, aliases=False, scope="project"):
+    """Plan owned skill links; only dev mode manages a project plugin override."""
+    project = CONFIG.installation_root(project, "codex", scope).resolve()
     receipt = CONFIG._ensure_safe_project_path(project, ".plex/dev.json")
-    config = CONFIG._ensure_safe_project_path(project, ".codex/config.toml")
-    CONFIG._ensure_safe_project_path(project, ".agents/skills")
+    alias_receipt = CONFIG._ensure_safe_project_path(project, ".plex/skill-aliases.json")
     before = receipt.read_bytes() if receipt.exists() else None
-    record = json.loads(before) if before is not None else None
-    if record is not None and (not isinstance(record, dict) or set(record) != {"source", "config_block"}
+    alias_before = alias_receipt.read_bytes() if alias_receipt.exists() else None
+    if before is not None and alias_before is not None:
+        raise ValueError("Conflicting Plex skill receipts; inspect before changing links")
+    saved = before if before is not None else alias_before
+    record = json.loads(saved) if saved is not None else None
+    if saved is not None and (not isinstance(record, dict) or set(record) != {"source", "config_block"}
                                or not isinstance(record["source"], str) or not Path(record["source"]).is_absolute()
                                or type(record["config_block"]) is not bool):
-        raise ValueError("Invalid .plex/dev.json; inspect before changing development mode")
-    config_before = config.read_bytes() if config.exists() else None
-    text = (config_before or b"").decode("utf-8")
-    settings = tomllib.loads(text)
-    plugins = settings.get("plugins", {})
-    if not isinstance(plugins, dict) or (DEV_PLUGIN in plugins and not isinstance(plugins[DEV_PLUGIN], dict)):
-        raise ValueError("Invalid project plugin settings; preserved")
-    if record and record["config_block"] and text.count(DEV_BLOCK) != 1:
-        raise ValueError("Managed Plex dev plugin override changed; preserved")
+        raise ValueError("Invalid Plex skill receipt; inspect before changing links")
+    if (scope != "project" and (development or before is not None)) or (alias_before is not None and record["config_block"]):
+        raise ValueError("Only project development mode may own a plugin override")
+    directory = ".agents/skills" if scope == "project" else "skills"
+    CONFIG._ensure_safe_project_path(project, directory)
     links = []
+    source = ROOT
+    enabled = development or aliases
     for name in DEV_SKILLS:
-        path = project / ".agents/skills" / name
+        path = project / directory / name
         old = str(Path(record["source"]) / "skills" / name) if record else None
         actual = os.readlink(path) if path.is_symlink() else None
         if (old is not None and actual != old) or (old is None and (path.exists() or path.is_symlink())):
-            raise ValueError(f"Foreign or modified development skill preserved: {path}")
-        target = str(ROOT / "skills" / name) if enabled else None
-        if enabled and not (Path(target) / "SKILL.md").is_file():
-            raise ValueError(f"Development source is incomplete: {target}")
+            raise ValueError(f"Foreign or modified Plex skill preserved: {path}")
+        target = str(source / "skills" / name) if enabled else None
+        if enabled and not (ROOT / "skills" / name / "SKILL.md").is_file():
+            raise ValueError(f"Plex skill source is incomplete: {name}")
         links.append((path, actual, target))
-    if enabled:
-        owned_block = record["config_block"] if record else False
-        plugin = plugins.get(DEV_PLUGIN)
-        if not record and plugin is None:
-            text += ("" if not text or text.endswith("\n\n") else "\n" if text.endswith("\n") else "\n\n") + DEV_BLOCK
-            owned_block = True
-        if tomllib.loads(text).get("plugins", {}).get(DEV_PLUGIN, {}).get("enabled") is not False:
-            raise ValueError('Set [plugins."pnet-plex@pnet-plex"] enabled = false in project .codex/config.toml before --dev; existing override preserved')
-        after = (json.dumps({"source": str(ROOT), "config_block": owned_block}, indent=2) + "\n").encode()
-    else:
-        if record and record["config_block"]:
+    files = {}
+    owned_block = False
+    if development or before is not None:
+        config = CONFIG._ensure_safe_project_path(project, ".codex/config.toml")
+        config_before = config.read_bytes() if config.exists() else None
+        text = (config_before or b"").decode("utf-8")
+        plugins = tomllib.loads(text).get("plugins", {})
+        if not isinstance(plugins, dict) or (DEV_PLUGIN in plugins and not isinstance(plugins[DEV_PLUGIN], dict)):
+            raise ValueError("Invalid project plugin settings; preserved")
+        if before is not None and record["config_block"] and text.count(DEV_BLOCK) != 1:
+            raise ValueError("Managed Plex dev plugin override changed; preserved")
+        if development:
+            owned_block = record["config_block"] if before is not None else False
+            if before is None and plugins.get(DEV_PLUGIN) is None:
+                text += ("" if not text or text.endswith("\n\n") else "\n" if text.endswith("\n") else "\n\n") + DEV_BLOCK
+                owned_block = True
+            if tomllib.loads(text).get("plugins", {}).get(DEV_PLUGIN, {}).get("enabled") is not False:
+                raise ValueError('Set [plugins."pnet-plex@pnet-plex"] enabled = false in project .codex/config.toml before --dev; existing override preserved')
+        elif record["config_block"]:
             text = text.replace(DEV_BLOCK, "", 1)
-        after = None
-    config_after = text.encode() if text else None
-    return {"project": project, "enabled": enabled, "links": links,
-            "files": {config: (config_before, config_after), receipt: (before, after)}}
+        files[config] = (config_before, text.encode() if text else None)
+    after = (json.dumps({"source": str(source), "config_block": owned_block}, indent=2) + "\n").encode() if enabled else None
+    files[receipt] = (before, after if development else None)
+    files[alias_receipt] = (alias_before, after if aliases and not development else None)
+    return {"project": project, "enabled": enabled, "was_development": before is not None,
+            "links": links, "files": files}
 
 
 @contextmanager
-def apply_dev(plan):
-    """Undo dev changes if role application fails, preserving concurrent edits."""
+def apply_skills(plan):
+    """Roll back owned skill changes on failure, preserving concurrent edits."""
     changed = []
     def link_value(path):
         CONFIG._ensure_safe_project_path(plan["project"], str(path.parent.relative_to(plan["project"])))
         if path.is_symlink():
             return os.readlink(path)
         if path.exists():
-            raise ValueError(f"Foreign development skill preserved: {path}")
+            raise ValueError(f"Foreign Plex skill preserved: {path}")
         return None
     def set_link(path, target):
         if path.is_symlink():
@@ -733,14 +744,16 @@ def apply_dev(plan):
     try:
         for path, (before, after) in plan["files"].items():
             if transaction.original[path] != before:
-                raise ValueError(f"Development settings changed after preview: {path}")
+                raise ValueError(f"Plex skill settings changed after preview: {path}")
         for path, before, after in plan["links"]:
             if link_value(path) != before:
-                raise ValueError(f"Development skill changed after preview: {path}")
+                raise ValueError(f"Plex skill changed after preview: {path}")
+            if after is not None and not (Path(after) / "SKILL.md").is_file():
+                raise ValueError(f"Plex skill target is missing: {after}")
         for path, before, after in plan["links"]:
             if before != after:
                 if link_value(path) != before:
-                    raise ValueError(f"Development skill changed during apply: {path}")
+                    raise ValueError(f"Plex skill changed during apply: {path}")
                 changed.append((path, before, after))
                 set_link(path, after)
         for path, (before, after) in plan["files"].items():
@@ -764,7 +777,7 @@ def apply_dev(plan):
             except (OSError, ValueError) as error:
                 failures.append(f"{path}: {error}")
         if failures:
-            raise ValueError("Development rollback needs recovery: " + "; ".join(failures))
+            raise ValueError("Plex skill rollback needs recovery: " + "; ".join(failures))
         raise
 
 
@@ -780,7 +793,7 @@ def plex_status(project, clients, scope=None):
         dev_receipt = CONFIG._ensure_safe_project_path(project.resolve(), ".plex/dev.json")
         if configured and client == "codex" and report.get("scope") == "project" and dev_receipt.is_file():
             try:
-                plan_dev(project, True)
+                plan_skills(project, True)
                 dev_source = json.loads(dev_receipt.read_text())["source"]
                 for name in DEV_SKILLS:
                     if not (Path(dev_source) / "skills" / name / "SKILL.md").is_file():
@@ -799,12 +812,27 @@ def plex_status(project, clients, scope=None):
                     plugin = "enabled"
                 except (OSError, ValueError, subprocess.TimeoutExpired) as error:
                     plugin = str(error)
+        skill_aliases = None
+        if configured and client == "codex" and plugin != "development":
+            alias_receipt = CONFIG._ensure_safe_project_path(Path(report["root"]), ".plex/skill-aliases.json")
+            skill_aliases = "not_installed"
+            if alias_receipt.is_file():
+                try:
+                    alias_plan = plan_skills(project, aliases=True, scope=report["scope"])
+                    for path, before, after in alias_plan["links"]:
+                        if before is None or not (Path(before) / "SKILL.md").is_file():
+                            raise ValueError(f"Plex skill target is missing: {path}")
+                    skill_aliases = "enabled" if all(before == after for _, before, after in alias_plan["links"]) else "needs_refresh"
+                except (OSError, ValueError) as error:
+                    skill_aliases = str(error)
+                if skill_aliases != "enabled":
+                    report["conflicts"].append(f"Short skill links: {skill_aliases}")
         resolved = report.get("resolved") or {}
         reports.append({"client": client, "scope": report.get("scope", scope or "auto"),
                         "root": report.get("root"), "configured": configured,
                         "status": report["status"] if configured or report.get("conflicts") else "unconfigured",
                         "team": resolved.get("team"), "profile": resolved.get("model_profile"),
-                        "roles": state.get("installed_roles", []), "plugin": plugin, "dev_source": dev_source,
+                        "roles": state.get("installed_roles", []), "plugin": plugin, "dev_source": dev_source, "skill_aliases": skill_aliases,
                         "conflicts": report.get("conflicts", [])})
     return {"version": version, "source": str(ROOT), "clients": reports}
 
@@ -824,6 +852,8 @@ def removal_report(results, preview=False):
             field("Instructions", "Remove managed block only" if preview else "Managed block removed")
         if item.get("remove_dev_links_and_override"):
             field("Dev mode", "Remove owned links and plugin override")
+        if item.get("remove_skill_aliases"):
+            field("Chat skills", "Remove owned $plex and $plex-setup links")
         if item.get("backup_dir"):
             field("Backups", Path(item["root"]) / item["backup_dir"], "muted")
     if preview:
@@ -848,6 +878,8 @@ def maintenance(args):
                 field("Status", item["status"], tone)
                 field("Team / profile", f"{item['team'] or '—'} / {item['profile'] or '—'}")
                 field("Plugin", item["plugin"], tone)
+                if item["skill_aliases"] is not None:
+                    field("Short skills", item["skill_aliases"], "ok" if item["skill_aliases"] == "enabled" else "warn")
                 field("Root", item["root"], "muted")
                 field("Native roles", len(item["roles"]))
                 if item["dev_source"]:
@@ -860,13 +892,16 @@ def maintenance(args):
                        (item["status"] != "in_sync" or item["plugin"] not in {"enabled", "development"})
                        for item in result["clients"]))
     scope = args.scope or "project"
-    dev_plan = (plan_dev(project, False) if scope == "project" and "codex" in clients
-                and CONFIG._ensure_safe_project_path(project.resolve(), ".plex/dev.json").is_file() else None)
+    skill_root = CONFIG.installation_root(project, "codex", scope) if "codex" in clients else None
+    dev_plan = (plan_skills(project, scope=scope) if "codex" in clients and any(
+        CONFIG._ensure_safe_project_path(skill_root, name).is_file()
+        for name in (".plex/dev.json", ".plex/skill-aliases.json")) else None)
     plans = [CONFIG.uninstall_project(project, client, scope, dry_run=True) for client in clients]
     if dev_plan:
         for plan in plans:
             if plan["host"] == "codex":
-                plan["remove_dev_links_and_override"] = True
+                plan["remove_dev_links_and_override"] = dev_plan["was_development"]
+                plan["remove_skill_aliases"] = not dev_plan["was_development"]
     if args.dry_run:
         if args.json:
             print(json.dumps(plans, indent=2))
@@ -892,8 +927,12 @@ def maintenance(args):
             return 0
     results = []
     for client in clients:
-        with apply_dev(dev_plan) if dev_plan and client == "codex" else nullcontext():
-            results.append(CONFIG.uninstall_project(project, client, scope))
+        with apply_skills(dev_plan) if dev_plan and client == "codex" else nullcontext():
+            result = CONFIG.uninstall_project(project, client, scope)
+            if dev_plan and client == "codex":
+                result["remove_dev_links_and_override"] = dev_plan["was_development"]
+                result["remove_skill_aliases"] = not dev_plan["was_development"]
+            results.append(result)
     if args.json:
         print(json.dumps(results, indent=2))
     else:
@@ -999,7 +1038,11 @@ def main(argv=None, *, shared_profile=False, selection=None, setup_mode=None):
             raise ValueError("--dev/--no-dev require project scope")
         dev_receipt = CONFIG._ensure_safe_project_path(project, ".plex/dev.json") if args.scope == "project" else None
         dev_enabled = args.host == "codex" and (args.dev if args.dev is not None else bool(dev_receipt and dev_receipt.exists()))
-        dev_plan = plan_dev(project, dev_enabled) if args.host == "codex" and args.scope == "project" and (dev_enabled or dev_receipt.exists()) else None
+        alias_receipt = CONFIG._ensure_safe_project_path(
+            CONFIG.installation_root(project, "codex", args.scope), ".plex/skill-aliases.json") if args.host == "codex" else None
+        alias_enabled = args.host == "codex" and not dev_enabled and (not args.roles_only or alias_receipt.exists())
+        dev_plan = plan_skills(project, dev_enabled, aliases=alias_enabled, scope=args.scope) if args.host == "codex" and (
+            dev_enabled or alias_enabled or bool(dev_receipt and dev_receipt.exists())) else None
         if dev_enabled and args.instructions is False:
             raise ValueError("Development mode requires the managed AGENTS.md block")
 
@@ -1259,6 +1302,10 @@ def main(argv=None, *, shared_profile=False, selection=None, setup_mode=None):
             field("Project skills", ".agents/skills/plex, .agents/skills/plex-setup", "muted")
             notice("Live symlinks follow this working checkout.")
             notice("Shared Plex plugin: disabled only in this trusted project; other projects unchanged.")
+        elif alias_enabled:
+            field("Chat skills", "$plex, $plex-setup", "command")
+            field("Skill links", ".agents/skills" if args.scope == "project" else config_root / "skills", "muted")
+            notice("Links use the shared Plex checkout; skill contents are not copied.")
         elif dev_plan:
             notice("Leave development mode: remove owned links and restore project plugin discovery.")
         if args.roles_only and not dev_enabled:
@@ -1306,7 +1353,7 @@ def main(argv=None, *, shared_profile=False, selection=None, setup_mode=None):
             plugin_started = True
             for command in commands:
                 run(command, project)
-            if not dev_plan:
+            if not (dev_plan and dev_plan["was_development"]):
                 verify_plugin(args.host, project)
             notice("Shared plugin installed.", "ok")
         heading(f"2 / 2  Apply {args.scope} roles" if commands else f"Apply {args.scope} roles")
@@ -1316,7 +1363,7 @@ def main(argv=None, *, shared_profile=False, selection=None, setup_mode=None):
             current = instruction_plan["path"].read_bytes() if instruction_plan["path"].is_file() else None
             if current != instruction_plan["before"]:
                 raise ValueError("Instruction file changed after preview; review and retry.")
-        with apply_dev(dev_plan) if dev_plan else nullcontext():
+        with apply_skills(dev_plan) if dev_plan else nullcontext():
             result = CONFIG.apply_project(project, args.host, args.team, args.model_profile,
                                           max_agents=args.max_agents, host_overrides=host_overrides, interaction=args.interaction,
                                           scope=args.scope, instructions=args.instructions)
@@ -1327,7 +1374,7 @@ def main(argv=None, *, shared_profile=False, selection=None, setup_mode=None):
         for client in refresh_clients:
             if CONFIG.check_project(project, client, args.scope)["status"] != "in_sync":
                 raise ValueError(f"Post-install check failed for client {client}")
-        if commands and dev_plan:
+        if commands and dev_plan and dev_plan["was_development"]:
             verify_plugin(args.host, project)
         notice(f"{len(result['installed_roles'])} roles; configuration in sync.", "ok")
         if result["backup_dir"]:

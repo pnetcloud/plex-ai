@@ -56,7 +56,7 @@ die Wahl im Hauptchat kann daher auch diese Kinder beeinflussen. Empfehlungen
 sind Ausgangspunkte, kein gemessenes Optimum für Qualität oder Kosten.
 
 Siehe [Rollenzuständigkeiten](role-contracts.md) und
-[Installation](../../../readme/translations/de/installation.md).
+[Installation](installation.md).
 
 ## Grenzen
 

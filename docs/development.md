@@ -65,3 +65,7 @@ English pages live at `docs/`; `translations/ru`, `translations/de` and
 `translations/zh-CN` mirror their names and template subdirectory. Update all versions
 and navigation together. Keep benchmark numbers identical across languages, label
 qualitative assessments, and remove obsolete research/migration notes from current guides.
+
+The root `README.md` is the English project overview. Translated overviews live
+in `docs/translations/<language>/README.md`; their guide indexes are `index.md`.
+Installation instructions live alongside the other guides in `docs/`.

@@ -2,7 +2,7 @@
 
 [English](../../configuration.md) · [Русский](../ru/configuration.md) · [Deutsch](configuration.md) · [简体中文](../zh-CN/configuration.md)
 
-[Installation, Entwicklungsmodus und alle CLI-Optionen](../../../readme/translations/de/installation.md).
+[Installation, Entwicklungsmodus und alle CLI-Optionen](installation.md).
 
 ## Teams und Profile
 
@@ -123,6 +123,8 @@ und erzwingt nicht das Lesen einer zusätzlichen Anweisungsdatei.
 | `.plex/preset.toml` | Editierbares Team/Profil/Overrides |
 | `.plex/resolved.json` | Generierter effektiver Snapshot |
 | `.plex/applied.json` | Client-Receipt und verwaltete Hashes |
+| `.plex/skill-aliases.json` | Codex-Verknüpfungen für kurze Namen; erzeugter Eigentumsnachweis |
+| `.plex/dev.json` | Codex-Dev-Links und Projekt-Plugin-Override; Eigentumsnachweis |
 | `.plex/backups/` | Ersetzte Dateien und ausgeschiedene Rollen |
 
 Generierte Rollen/Receipts nicht manuell bearbeiten. Fremde oder geänderte verwaltete

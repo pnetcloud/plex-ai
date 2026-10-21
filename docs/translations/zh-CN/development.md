@@ -58,3 +58,7 @@ uv run _bmad/scripts/resolve_config.py --project-root .
 英文文档在 `docs/`；`translations/ru`、`translations/de`、`translations/zh-CN`
 镜像相同文件名和模板目录。同步更新各语言与导航，保持测量数字一致，明确标注定性评价，
 从当前指南中移除过期研究和迁移记录。
+
+根目录 `README.md` 是英文项目概览。翻译位于
+`docs/translations/<语言>/README.md`，指南目录为 `index.md`。
+安装说明与其他指南统一保存在 `docs/` 中。

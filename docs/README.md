@@ -1,19 +1,20 @@
 # Plex documentation
 
-[English](README.md) · [Русский](translations/ru/README.md) · [Deutsch](translations/de/README.md) · [简体中文](translations/zh-CN/README.md)
+[English](README.md) · [Русский](translations/ru/index.md) · [Deutsch](translations/de/index.md) · [简体中文](translations/zh-CN/index.md)
 
 Plex configures and coordinates agent teams in Codex, Claude Code and Antigravity.
 
 | Guide | Purpose |
 |---|---|
 | [About Plex](product.md) | Purpose, philosophy and scope |
-| [Installation and all parameters](../readme/installation.md) | Installation, dev mode and all CLI options |
+| [Installation and all parameters](installation.md) | Installation, dev mode and all CLI options |
 | [Configuration](configuration.md) | Team/profile settings and overrides |
 | [Host compatibility](host-compatibility.md) | Native paths, model constraints and verification coverage |
 | [Architecture](architecture.md) | Configuration, installation and coordination |
 | [Role contracts](role-contracts.md) | Responsibilities and instruction authoring |
 | [Development](development.md) | Source layout and contributor checks |
 | [Testing and efficiency](testing.md) | Consolidated results, tokens, cost and quality observations |
+| [Release notes](releases/v0.5.8.md) | v0.5.8: Documentation and short Codex skill names |
 | [Release notes](releases/v0.5.7.md) | v0.5.7: Coordinator structure and contributor guide |
 | [Release notes](releases/v0.5.6.md) | v0.5.6: task routes and BMad activation evidence |
 | [Release notes](releases/v0.5.5.md) | v0.5.5: Claude delegation fixes and regular release |

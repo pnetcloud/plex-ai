@@ -44,7 +44,7 @@ harness 提供可复用的配置。
 后者包含本地覆盖。设置为 `inherit` 的角色遵循客户端或会话默认设置，
 因此主对话的模型选择也可能影响这些子智能体。建议只是起点，并非经实测确定的质量或成本最优配置。
 
-参见[角色职责](role-contracts.md)和[安装说明](../../../readme/translations/zh-CN/installation.md)。
+参见[角色职责](role-contracts.md)和[安装说明](installation.md)。
 
 ## 范围
 

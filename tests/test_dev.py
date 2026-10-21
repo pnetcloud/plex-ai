@@ -127,7 +127,7 @@ class DevTests(unittest.TestCase):
                 source = checkout / "skills" / name / "SKILL.md"
                 source.parent.mkdir(parents=True)
                 source.write_text("before")
-            with patch.object(I, "ROOT", checkout), I.apply_dev(I.plan_dev(project, True)):
+            with patch.object(I, "ROOT", checkout), I.apply_skills(I.plan_skills(project, True)):
                 pass
             skill = checkout / "skills/plex/SKILL.md"
             skill.write_text("after")
@@ -159,11 +159,11 @@ class DevTests(unittest.TestCase):
             run("plugin", "add", I.DEV_PLUGIN, "--json")
             original = config.read_bytes()
             self.assertTrue(enabled(project))
-            with I.apply_dev(I.plan_dev(project, True)):
+            with I.apply_skills(I.plan_skills(project, True)):
                 pass
             self.assertFalse(enabled(project))
             self.assertTrue(enabled(other))
-            with I.apply_dev(I.plan_dev(project, False)):
+            with I.apply_skills(I.plan_skills(project, False)):
                 pass
             self.assertTrue(enabled(project))
             self.assertEqual(config.read_bytes(), original)
@@ -173,7 +173,7 @@ class DevTests(unittest.TestCase):
             project = Path(temp)
             config = project / ".codex/config.toml"
             with self.assertRaisesRegex(ValueError, "recovery"):
-                with I.apply_dev(I.plan_dev(project, True)):
+                with I.apply_skills(I.plan_skills(project, True)):
                     config.write_text('model = "concurrent"\n')
                     raise ValueError("failed")
             self.assertEqual(config.read_text(), 'model = "concurrent"\n')

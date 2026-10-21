@@ -2,7 +2,7 @@
 
 [English](../../configuration.md) · [Русский](configuration.md) · [Deutsch](../de/configuration.md) · [简体中文](../zh-CN/configuration.md)
 
-[Установка, dev-режим и все параметры CLI](../../../readme/translations/ru/installation.md).
+[Установка, dev-режим и все параметры CLI](installation.md).
 
 ## Команды и профили
 
@@ -120,6 +120,8 @@ fallback клиента и не заставляет его читать доп�
 | `.plex/preset.toml` | Редактируемая команда, профиль и переопределения |
 | `.plex/resolved.json` | Сгенерированный снимок настроек |
 | `.plex/applied.json` | Receipt клиента и хеши управляемых файлов |
+| `.plex/skill-aliases.json` | Ссылки коротких имён Codex; создаваемая установщиком запись владения |
+| `.plex/dev.json` | Dev-ссылки Codex и override плагина в проекте; запись владения |
 | `.plex/backups/` | Заменённые файлы и выведенные из команды роли |
 
 Не редактируйте сгенерированные роли и receipts вручную. Чужие файлы, изменённые

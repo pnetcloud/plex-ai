@@ -64,3 +64,7 @@ Englische Seiten liegen in `docs/`; `translations/ru`, `translations/de` und
 `translations/zh-CN` spiegeln Dateinamen und Vorlagenordner. Versionen und Navigation
 zusammen aktualisieren. Benchmarkzahlen gleich halten, qualitative Bewertungen
 kennzeichnen und veraltete Forschungs-/Migrationsnotizen aus aktuellen Anleitungen entfernen.
+
+Die `README.md` im Stamm ist der englische Projektüberblick. Übersetzungen liegen
+in `docs/translations/<Sprache>/README.md`, ihre Anleitungsübersichten in `index.md`.
+Die Installationsanleitung liegt mit den anderen Anleitungen in `docs/`.

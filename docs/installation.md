@@ -21,11 +21,17 @@ curl -fsSL https://raw.githubusercontent.com/pnetcloud/plex-ai/main/install.sh |
 Select the client, scope, team and profile, then confirm the plan. **Project** scope is recommended. Open a new client session after installation.
 
 Profiles configure subagents. Choose the root coordinator's model in your main chat;
-the plan shows a recommendation. See [how the main chat and team work](../docs/product.md#the-main-chat-and-the-team).
+the plan shows a recommendation. See [how the main chat and team work](product.md#the-main-chat-and-the-team).
 
 The installer registers the shared Plex plugin and applies the selected team. A plugin-only installation supplies skills; team setup supplies native roles and the managed instruction block. Dev mode uses local skill links instead.
 
 [Chat examples](../README.md#use-in-chat).
+
+## Short skill names · Codex
+
+Standard setup adds `$plex` and `$plex-setup` through symlinks to the shared Plex checkout; the plugin stays enabled. Project scope uses `.agents/skills/`; user scope uses `$CODEX_HOME/skills/` (default `~/.codex/skills/`). No skill contents are copied. Keep the source checkout available.
+
+Refresh setup once to add the names to an existing installation, then open a new Codex session. Foreign skills are preserved and reported as conflicts. `--roles-only` preserves existing aliases but does not add them to a new installation. Namespaced plugin calls remain available.
 
 ## Common commands
 
@@ -82,7 +88,7 @@ plex uninstall --dry-run
 plex uninstall
 ```
 
-This removes unchanged managed roles, the owned Plex instruction block and owned dev links/overrides. Project instructions outside the block are preserved. Edited managed files stop removal for review.
+This removes unchanged managed roles, the owned Plex instruction block and owned skill links and dev overrides. Project instructions outside the block are preserved. Edited managed files stop removal for review.
 
 **User-wide team** · choose the client whose global roles you installed:
 
@@ -104,7 +110,7 @@ Team removal retains preferences/backups under `.plex`, BMad dependencies/runtim
 
 ## Option reference
 
-Omitted settings keep their saved values. Interaction is explicitly saved in every applied preset. See [configuration](../docs/configuration.md) for profiles, overrides and file paths.
+Omitted settings keep their saved values. Interaction is explicitly saved in every applied preset. See [configuration](configuration.md) for profiles, overrides and file paths.
 
 ### Clients and scope
 
@@ -150,7 +156,7 @@ Omitted settings keep their saved values. Interaction is explicitly saved in eve
 
 | Option | Purpose |
 |---|---|
-| `--release TAG` | Use a published tag, for example v0.5.7. |
+| `--release TAG` | Use a published tag, for example v0.5.8. |
 | `--development` | Use main; does not enable --dev mode. |
 | `--checkout PATH` | GitHub bootstrap only; default ~/.local/share/plex-ai. |
 

@@ -2,7 +2,7 @@
 
 [English](../../configuration.md) · [Русский](../ru/configuration.md) · [Deutsch](../de/configuration.md) · [简体中文](configuration.md)
 
-[安装、开发模式与所有 CLI 参数](../../../readme/translations/zh-CN/installation.md).
+[安装、开发模式与所有 CLI 参数](installation.md).
 
 ## 团队与配置档
 
@@ -103,6 +103,8 @@ Antigravity 按 `GEMINI.md`、项目 `AGENTS.md` 的顺序。用户范围的 Cod
 | `.plex/preset.toml` | 可编辑团队、配置档和覆盖设置 |
 | `.plex/resolved.json` | 自动生成的有效配置快照 |
 | `.plex/applied.json` | 客户端 receipt 与托管文件哈希 |
+| `.plex/skill-aliases.json` | Codex 短名称链接；自动生成的所有权记录 |
+| `.plex/dev.json` | Codex 开发链接与项目插件覆盖；所有权记录 |
 | `.plex/backups/` | 被替换的文件和移除的角色备份 |
 
 不要手动编辑生成的角色或 receipt。无归属文件、被修改的托管文件、符号链接和并行应用操作

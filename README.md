@@ -1,6 +1,6 @@
 # pNet Plex
 
-[English](README.md) · [Русский](README.ru.md) · [Deutsch](README.de.md) · [简体中文](README.zh-CN.md)
+[English](README.md) · [Русский](docs/translations/ru/README.md) · [Deutsch](docs/translations/de/README.md) · [简体中文](docs/translations/zh-CN/README.md)
 
 **Compose your team. Coordinate the work.**
 
@@ -8,7 +8,7 @@ Plex is an **agent harness for multi-agent orchestration and coordination** in
 OpenAI Codex, Anthropic Claude Code and Google Antigravity. Install a reusable team,
 choose its model profile, and ask Plex to organize implementation, review and verification.
 
-**[v0.5.7](https://github.com/pnetcloud/plex-ai/releases/tag/v0.5.7)** — open source, MIT. Ready to try; interfaces may change.
+**[v0.5.8](https://github.com/pnetcloud/plex-ai/releases/tag/v0.5.8)** — open source, MIT. Ready to try; interfaces may change.
 
 ## Install
 
@@ -33,7 +33,7 @@ The normal installer handles both parts:
 
 Plugin installation alone does not configure a team. Dev mode uses project-local skill links instead of the shared Plex plugin in that project.
 
-[Prerequisites, BMad, dev mode and all options](readme/installation.md).
+[Prerequisites, BMad, dev mode and all options](docs/installation.md).
 
 ## How it works
 
@@ -53,20 +53,20 @@ These are **chat requests, not terminal commands**. Replace the angle-bracket pl
 **Coordinate a task · Codex plugin**
 
 ```text
-$pnet-plex:plex Coordinate <task>. Requirements: <requirements>. Verify <acceptance criteria>.
+$plex Coordinate <task>. Requirements: <requirements>. Verify <acceptance criteria>.
 ```
 
 **Review a change**
 
 ```text
-$pnet-plex:plex Review <change> against <requirements>. Report findings and verification gaps.
+$plex Review <change> against <requirements>. Report findings and verification gaps.
 ```
 
 **Check or configure the team**
 
 ```text
-$pnet-plex:plex-setup Check this project's Plex configuration.
-$pnet-plex:plex-setup Configure this project: team <team>, profile <profile>, interaction <mode>.
+$plex-setup Check this project's Plex configuration.
+$plex-setup Configure this project: team <team>, profile <profile>, interaction <mode>.
 ```
 
 **Coordinate a task · Claude Code plugin**
@@ -76,7 +76,7 @@ $pnet-plex:plex-setup Configure this project: team <team>, profile <profile>, in
 /pnet-plex:plex-setup Check this project's Plex configuration.
 ```
 
-In Codex `--dev` mode use the local `$plex` and `$plex-setup` labels. In other clients, select the installed skill or explicitly ask: `Use Plex to coordinate <task>.`
+Codex uses `$plex` and `$plex-setup` in both standard and dev installations. Other clients can select the installed skill or explicitly ask: `Use Plex to coordinate <task>.`
 
 Installation does not start coordination automatically. `plex-setup` changes configuration; `plex` coordinates work.
 
@@ -103,7 +103,7 @@ If the optional `plex` command is absent, use `~/.local/share/plex-ai/setup.sh` 
 
 ## Uninstall
 
-Run `plex uninstall` from the project directory. It removes unchanged managed roles, the Plex instruction block and owned dev links; surrounding instructions are preserved. Preferences, backups and the shared plugin remain.
+Run `plex uninstall` from the project directory. It removes unchanged managed roles, the Plex instruction block and owned skill links and dev overrides; surrounding instructions are preserved. Preferences, backups and the shared plugin remain.
 
 To also remove the shared **Codex plugin** once other projects no longer need it:
 
@@ -111,7 +111,7 @@ To also remove the shared **Codex plugin** once other projects no longer need it
 codex plugin remove pnet-plex@pnet-plex
 ```
 
-For other clients and user-wide team removal, see [uninstallation](readme/installation.md#uninstall).
+For other clients and user-wide team removal, see [uninstallation](docs/installation.md#uninstall).
 
 ## Learn more
 

@@ -1,6 +1,6 @@
 # Installation
 
-[English](../../installation.md) · [Русский](../ru/installation.md) · [Deutsch](../de/installation.md) · [简体中文](../zh-CN/installation.md)
+[English](../../installation.md) · [Русский](../ru/installation.md) · [Deutsch](installation.md) · [简体中文](../zh-CN/installation.md)
 
 ## Installieren
 
@@ -21,11 +21,17 @@ curl -fsSL https://raw.githubusercontent.com/pnetcloud/plex-ai/main/install.sh |
 Client, Bereich, Team und Profil wählen, dann den Plan bestätigen. **Project** wird empfohlen. Anschließend eine neue Client-Sitzung öffnen.
 
 Profile konfigurieren Subagenten. Das Modell des Root-Koordinators im Hauptchat wählen;
-der Plan zeigt eine Empfehlung. Siehe [Hauptchat und Team](../../../docs/translations/de/product.md#hauptchat-und-team).
+der Plan zeigt eine Empfehlung. Siehe [Hauptchat und Team](product.md#hauptchat-und-team).
 
 Der Installer registriert das gemeinsame Plex-Plugin und wendet das Team an. Das Plugin liefert Skills; das Team-Setup native Rollen und den verwalteten Anweisungsblock. Der Dev-Modus nutzt lokale Skill-Links.
 
-[Chat-Beispiele](../../../README.de.md#chat-beispiele).
+[Chat-Beispiele](README.md#chat-beispiele).
+
+## Kurze Skill-Namen · Codex
+
+Das Standard-Setup ergänzt `$plex` und `$plex-setup` durch Symlinks zum gemeinsamen Plex-Checkout; das Plugin bleibt aktiv. Projektinstallation: `.agents/skills/`. Benutzerinstallation: `$CODEX_HOME/skills/` (Standard `~/.codex/skills/`). Skill-Inhalte werden nicht kopiert. Den Quellcheckout behalten.
+
+Bestehende Installationen einmal aktualisieren und eine neue Codex-Sitzung öffnen. Fremde Skills bleiben erhalten und werden als Konflikt gemeldet. `--roles-only` erhält vorhandene Verknüpfungen, ergänzt sie aber nicht bei einer Neuinstallation. Aufrufe mit Plugin-Präfix bleiben verfügbar.
 
 ## Häufige Befehle
 
@@ -82,7 +88,7 @@ plex uninstall --dry-run
 plex uninstall
 ```
 
-Entfernt werden unveränderte verwaltete Rollen, der Plex-Anweisungsblock und eigene Dev-Links/Overrides. Projektanweisungen außerhalb des Blocks bleiben bestehen. Geänderte verwaltete Dateien stoppen die Entfernung zur Prüfung.
+Entfernt werden unveränderte verwaltete Rollen, der Plex-Anweisungsblock und eigene Skill-Links und Dev-Overrides. Projektanweisungen außerhalb des Blocks bleiben bestehen. Geänderte verwaltete Dateien stoppen die Entfernung zur Prüfung.
 
 **Benutzerweites Team** · den Client der globalen Rollen wählen:
 
@@ -104,7 +110,7 @@ Teamentfernung behält Einstellungen/Backups unter `.plex`, BMad-Abhängigkeiten
 
 ## Optionsreferenz
 
-Ausgelassene Einstellungen behalten ihre Werte. Jeder angewendete Preset speichert `interaction`. Profile, Overrides und Pfade: [Konfiguration](../../../docs/translations/de/configuration.md).
+Ausgelassene Einstellungen behalten ihre Werte. Jeder angewendete Preset speichert `interaction`. Profile, Overrides und Pfade: [Konfiguration](configuration.md).
 
 ### Clients und Bereich
 
@@ -150,7 +156,7 @@ Ausgelassene Einstellungen behalten ihre Werte. Jeder angewendete Preset speiche
 
 | Option | Zweck |
 |---|---|
-| `--release TAG` | Veröffentlichten Tag verwenden, z. B. v0.5.7. |
+| `--release TAG` | Veröffentlichten Tag verwenden, z. B. v0.5.8. |
 | `--development` | main verwenden; aktiviert nicht --dev. |
 | `--checkout PATH` | Nur GitHub-Bootstrap; Standard ~/.local/share/plex-ai. |
 
@@ -159,7 +165,7 @@ Der Bootstrap speichert den gemeinsamen Checkout in `~/.local/share/plex-ai`; ve
 ## Dateischutz und Fehlerbehebung
 
 - Entfernen gilt standardmäßig für das Projekt. Mit `--client codex` begrenzen, mit `--scope user` Benutzerrollen wählen; `--yes` bestätigt ohne Rückfragen.
-- Nur unveränderte eigene Rollen, Anweisungsblöcke und Dev-Links/-Overrides werden entfernt. Gemeinsame Plugins, Quellen, Einstellungen und Backups bleiben; geänderte eigene Dateien oder unbekannte Formate stoppen Änderungen.
+- Nur unveränderte eigene Rollen, Anweisungsblöcke und Skill-Links und Dev-Overrides werden entfernt. Gemeinsame Plugins, Quellen, Einstellungen und Backups bleiben; geänderte eigene Dateien oder unbekannte Formate stoppen Änderungen.
 - Quellupdates lehnen veränderte, fremde oder verlinkte Checkouts ab. Plugin-Änderungen und abgeschlossene Client-Installationen sind vom Rollen-Rollback getrennt.
 - `status` prüft zuerst Projekt-, sonst Benutzerkonfiguration. Es prüft Konfiguration/Plugin-Erkennung, nicht tatsächliches Modellrouting.
 
