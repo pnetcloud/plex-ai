@@ -4,7 +4,10 @@ Important changes retained in Plex, grouped by release. Interfaces and configura
 may change before 1.0. Releases through v0.5.4 were previews; v0.5.5 and later are
 regular releases.
 
-## [0.5.10] — 2026-10-21
+## [0.5.11] — 2026-10-21
+
+- Pin macOS CI to macos-15-intel after ARM hosted-runner allocation failed before
+  tests started; retain both Python versions, Linux, Docker and all release gates.
 
 - Default the final setup/refresh confirmation to Yes; retain explicit cancellation
   and separate opt-in for uninstall or archiving other agents.

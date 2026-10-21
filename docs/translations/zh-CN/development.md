@@ -38,7 +38,7 @@ uv run --with pyyaml --with questionary==2.1.1 python -m unittest discover -s te
 
 | 环境 | 检查 |
 |---|---|
-| Ubuntu 和 macOS，Python 3.11/3.14 | 完整测试套件、shell 语法、本地 Markdown 链接目标与包约定 |
+| Ubuntu 和 macOS 15 Intel，Python 3.11/3.14 | 完整测试套件、shell 语法、本地 Markdown 链接目标与包约定 |
 | Docker，Python 3.11 slim | 三个客户端的项目/用户安装、刷新、配置检查和卸载；保留个人指令及其他代理 |
 
 Docker 检查使用不含 uv、questionary 或客户端 CLI 的纯 Python 环境。

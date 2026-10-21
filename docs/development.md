@@ -42,7 +42,7 @@ Measured summaries belong in [testing](testing.md), with raw evidence kept separ
 
 | Environment | Checks |
 |---|---|
-| Ubuntu and macOS, Python 3.11/3.14 | Full test suite, shell syntax, local Markdown link targets and package contracts |
+| Ubuntu and macOS 15 Intel, Python 3.11/3.14 | Full test suite, shell syntax, local Markdown link targets and package contracts |
 | Docker, Python 3.11 slim | Project/user install, refresh, configuration check and uninstall for all three clients; preserve personal instructions and unrelated agents |
 
 The Docker check uses bare Python without uv, questionary or client CLIs. It runs

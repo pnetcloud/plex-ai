@@ -43,7 +43,7 @@ uv run --with pyyaml --with questionary==2.1.1 python -m unittest discover -s te
 
 | Среда | Проверки |
 |---|---|
-| Ubuntu и macOS, Python 3.11/3.14 | Полный набор тестов, синтаксис shell, цели локальных Markdown-ссылок и контракты пакетов |
+| Ubuntu и macOS 15 Intel, Python 3.11/3.14 | Полный набор тестов, синтаксис shell, цели локальных Markdown-ссылок и контракты пакетов |
 | Docker, Python 3.11 slim | Установка project/user, обновление, проверка конфигурации и удаление для трёх клиентов; сохранность личных инструкций и чужих агентов |
 
 Docker-проверка использует чистый Python без uv, questionary и клиентских CLI.

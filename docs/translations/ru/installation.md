@@ -167,7 +167,7 @@ plex uninstall --scope user --client codex
 
 | Параметр | Назначение |
 |---|---|
-| `--release TAG` | Использовать тег релиза, например v0.5.10. |
+| `--release TAG` | Использовать тег релиза, например v0.5.11. |
 | `--development` | Использовать main; не включает --dev. |
 | `--checkout PATH` | Только GitHub-установщик; по умолчанию ~/.local/share/plex-ai. |
 

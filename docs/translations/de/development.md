@@ -41,7 +41,7 @@ dafür das [Prüfprotokoll](../../../EVALUATION.md) verwenden. Messübersichten 
 
 | Umgebung | Prüfungen |
 |---|---|
-| Ubuntu und macOS, Python 3.11/3.14 | Gesamte Testsuite, Shell-Syntax, lokale Markdown-Linkziele und Paketverträge |
+| Ubuntu und macOS 15 Intel, Python 3.11/3.14 | Gesamte Testsuite, Shell-Syntax, lokale Markdown-Linkziele und Paketverträge |
 | Docker, Python 3.11 slim | Projekt-/Benutzerinstallation, Aktualisierung, Konfigurationsprüfung und Deinstallation für alle drei Clients; persönliche Anweisungen und fremde Agenten bleiben erhalten |
 
 Der Docker-Test nutzt reines Python ohne uv, questionary oder Client-CLIs. Er läuft
