@@ -23,6 +23,10 @@ Client, Bereich, Team und Profil wählen, dann den Plan bestätigen. **Project**
 Profile konfigurieren Subagenten. Das Modell des Root-Koordinators im Hauptchat wählen;
 der Plan zeigt eine Empfehlung. Siehe [Hauptchat und Team](../../../docs/translations/de/product.md#hauptchat-und-team).
 
+Der Installer registriert das gemeinsame Plex-Plugin und wendet das Team an. Das Plugin liefert Skills; das Team-Setup native Rollen und den verwalteten Anweisungsblock. Der Dev-Modus nutzt lokale Skill-Links.
+
+[Chat-Beispiele](../../../README.de.md#chat-beispiele).
+
 ## Häufige Befehle
 
 Fehlt der optionale `plex`-Befehl, etwa nach einer ersten Dev-Installation, unten `~/.local/share/plex-ai/setup.sh` statt `plex` verwenden.
@@ -68,6 +72,35 @@ Node.js/npm und uv erforderlich. Team `bmad` im Menü wählen oder ausführen:
 | Mit vorhandenen Skills initialisieren | `plex --team bmad --client codex --init-bmad` |
 
 Skills gelten benutzerweit; ausgewählte Skill-Dateien können ersetzt werden. Die Runtime gehört zum Projekt. Installierte Abhängigkeiten/Runtime bleiben bei Abbruch oder späterem Fehler erhalten. Ohne Rückfragen `--project . --yes` ergänzen: angezeigte BMad-Standardwerte werden akzeptiert.
+
+## Deinstallation
+
+**Projektteam** · im Projektverzeichnis ausführen:
+
+```sh
+plex uninstall --dry-run
+plex uninstall
+```
+
+Entfernt werden unveränderte verwaltete Rollen, der Plex-Anweisungsblock und eigene Dev-Links/Overrides. Projektanweisungen außerhalb des Blocks bleiben bestehen. Geänderte verwaltete Dateien stoppen die Entfernung zur Prüfung.
+
+**Benutzerweites Team** · den Client der globalen Rollen wählen:
+
+```sh
+plex uninstall --scope user --client codex
+```
+
+**Gemeinsames Plugin** · erst entfernen, wenn andere Projekte es nicht mehr benötigen. Den Befehl für den eigenen Client ausführen:
+
+| Client | Befehl |
+|---|---|
+| Codex | `codex plugin remove pnet-plex@pnet-plex` |
+| Claude Code | `claude plugin uninstall pnet-plex@pnet-plex --scope user` |
+| Antigravity | `agy plugin uninstall pnet-plex` |
+
+In Codex ist die Entfernung auch über den Browser `/plugins` möglich. Siehe [OpenAI-Pluginanleitung](https://learn.chatgpt.com/docs/plugins#remove-a-plugin) und [Claude-Code-Befehlsreferenz](https://code.claude.com/docs/en/plugins/cli-reference#plugin-uninstall).
+
+Teamentfernung behält Einstellungen/Backups unter `.plex`, BMad-Abhängigkeiten/Runtime, den optionalen Startbefehl und die Quellkopie. Pluginentfernung ist ein eigener Clientvorgang und entfernt keine Teams anderer Projekte. Die gemeinsame Quellkopie behalten, solange Projekte oder Dev-Links sie nutzen.
 
 ## Optionsreferenz
 

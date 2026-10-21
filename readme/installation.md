@@ -23,6 +23,10 @@ Select the client, scope, team and profile, then confirm the plan. **Project** s
 Profiles configure subagents. Choose the root coordinator's model in your main chat;
 the plan shows a recommendation. See [how the main chat and team work](../docs/product.md#the-main-chat-and-the-team).
 
+The installer registers the shared Plex plugin and applies the selected team. A plugin-only installation supplies skills; team setup supplies native roles and the managed instruction block. Dev mode uses local skill links instead.
+
+[Chat examples](../README.md#use-in-chat).
+
 ## Common commands
 
 If the optional `plex` shortcut is absent (for example after a fresh dev installation), use `~/.local/share/plex-ai/setup.sh` in place of `plex` below.
@@ -68,6 +72,35 @@ Requires Node.js/npm and uv. Select the `bmad` team in setup, or run:
 | Initialize using already installed BMad skills | `plex --team bmad --client codex --init-bmad` |
 
 Skills are user-wide and selected skill files may be replaced. Runtime belongs to the project. Completed dependency/runtime installation remains after cancellation or a later failure. For unattended runs, add `--project . --yes`; displayed BMad defaults are accepted.
+
+## Uninstall
+
+**Project team** · run in the project directory:
+
+```sh
+plex uninstall --dry-run
+plex uninstall
+```
+
+This removes unchanged managed roles, the owned Plex instruction block and owned dev links/overrides. Project instructions outside the block are preserved. Edited managed files stop removal for review.
+
+**User-wide team** · choose the client whose global roles you installed:
+
+```sh
+plex uninstall --scope user --client codex
+```
+
+**Shared plugin** · remove only when your other projects no longer need it. Run the command for your client:
+
+| Client | Command |
+|---|---|
+| Codex | `codex plugin remove pnet-plex@pnet-plex` |
+| Claude Code | `claude plugin uninstall pnet-plex@pnet-plex --scope user` |
+| Antigravity | `agy plugin uninstall pnet-plex` |
+
+Codex can also remove the plugin through its `/plugins` browser. See the [OpenAI plugin guide](https://learn.chatgpt.com/docs/plugins#remove-a-plugin) and [Claude Code command reference](https://code.claude.com/docs/en/plugins/cli-reference#plugin-uninstall).
+
+Team removal retains preferences/backups under `.plex`, BMad dependencies/runtime, the optional launcher and the source checkout. Plugin removal is a separate client operation; it does not remove teams from other projects. Keep the shared checkout while any project or dev link still uses it.
 
 ## Option reference
 

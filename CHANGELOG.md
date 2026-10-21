@@ -3,6 +3,13 @@
 Important changes retained in Plex, grouped by release. The releases below are
 previews; interfaces and configuration may change before 1.0.
 
+## Unreleased
+
+- Restructure READMEs around installation, a short coordination diagram, abstract
+  chat requests, team settings and maintenance; explain shared plugins versus team setup.
+- Document project/user team removal separately from shared plugin removal for all
+  three clients, including retained settings and backups. Update all four languages.
+
 ## [0.5.4] — 2026-10-21
 
 - Put native-role dispatch and Plex/role/task labels at the start of coordination

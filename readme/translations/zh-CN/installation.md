@@ -23,6 +23,10 @@ curl -fsSL https://raw.githubusercontent.com/pnetcloud/plex-ai/main/install.sh |
 模型配置档用于子智能体。请在主对话中选择根协调者的模型；安装计划会显示建议。
 参见[主对话与团队](../../../docs/translations/zh-CN/product.md#主对话与团队)。
 
+安装器注册共享 Plex 插件并应用所选团队。插件提供技能；团队配置提供原生角色和托管指令块。开发模式使用本地技能链接。
+
+[对话请求示例](../../../README.zh-CN.md#对话示例)。
+
 ## 常用命令
 
 若没有可选的 `plex` 命令（例如首次开发模式安装后），下文用 `~/.local/share/plex-ai/setup.sh` 代替 `plex`。
@@ -68,6 +72,35 @@ curl -fsSL https://raw.githubusercontent.com/pnetcloud/plex-ai/main/install.sh |
 | 使用已安装技能初始化 | `plex --team bmad --client codex --init-bmad` |
 
 技能为用户共享，选定技能文件可能被替换。Runtime 属于项目。取消或后续失败时，已安装依赖/runtime 会保留。无人值守运行可添加 `--project . --yes`，接受显示的 BMad 默认值。
+
+## 卸载
+
+**项目团队** · 在项目目录运行：
+
+```sh
+plex uninstall --dry-run
+plex uninstall
+```
+
+移除未修改的托管角色、Plex 指令块和所属开发链接/覆盖设置。块外的项目指令保留。托管文件被修改时会停止移除，等待检查。
+
+**用户级团队** · 选择安装全局角色的客户端：
+
+```sh
+plex uninstall --scope user --client codex
+```
+
+**共享插件** · 仅在其他项目不再需要时移除。运行对应客户端的命令：
+
+| 客户端 | 命令 |
+|---|---|
+| Codex | `codex plugin remove pnet-plex@pnet-plex` |
+| Claude Code | `claude plugin uninstall pnet-plex@pnet-plex --scope user` |
+| Antigravity | `agy plugin uninstall pnet-plex` |
+
+Codex 也可通过 `/plugins` 浏览器卸载插件。参见 [OpenAI 插件指南](https://learn.chatgpt.com/docs/plugins#remove-a-plugin)和 [Claude Code 命令参考](https://code.claude.com/docs/en/plugins/cli-reference#plugin-uninstall)。
+
+移除团队会保留 `.plex` 中的偏好设置和备份、BMad 依赖/运行时、可选启动命令和源码副本。移除插件是独立的客户端操作，不会移除其他项目的团队。只要仍有项目或开发链接使用共享源码目录，就应保留它。
 
 ## 参数参考
 

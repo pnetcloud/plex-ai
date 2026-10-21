@@ -9,101 +9,105 @@ Plex 是用于 **多智能体编排与协调的 agent harness**，集成 OpenAI 
 
 **[v0.5.4 Preview](https://github.com/pnetcloud/plex-ai/releases/tag/v0.5.4)** — 开源，MIT。可试用；接口仍可能变化。
 
-## 快速开始
+## 安装
 
-在自己的项目目录中运行。
-
-**普通安装**
+在项目目录中运行：
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/pnetcloud/plex-ai/main/install.sh | bash
 ```
 
-**开发模式 — Codex，项目级 Plex 技能**
+**开发模式 · Codex · 项目本地技能**
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/pnetcloud/plex-ai/main/install.sh | bash -s -- --dev --client codex
 ```
 
-普通安装会打开交互菜单：
+选择客户端、范围、团队和模型配置档，然后确认计划。推荐 **Project** 范围。安装后打开新的客户端会话。
 
-1. 用 **空格**选择客户端，按 **Enter** 继续（无 uv 时输入编号）。
-2. 选择安装范围（推荐 **Project**），并确认项目目录。
-3. 选择独立团队 **pnet** 和 **Inherit**，使用会话模型设置。
-4. 一般任务选择 **Balanced** 交互模式，也可选择 **Interactive** / **Auto**。
-5. 检查并确认每个客户端的安装计划。
+常规安装器会完成两部分配置：
 
-普通安装会添加共享插件、团队角色和托管指令块。
-再次运行同一命令即可下载更新并重新打开配置。
+- **共享插件** — 为客户端提供可复用的 `plex` 和 `plex-setup` 技能。
+- **团队配置** — 在项目或用户范围创建原生智能体角色和托管指令块。
 
-[安装与所有参数](readme/translations/zh-CN/installation.md).
+只安装插件并不会配置团队。开发模式在该项目中使用本地技能链接代替共享 Plex 插件。
 
-若所选客户端和范围已安装团队，选择 **Update only** 保留设置，或选择 **Reconfigure** 重新打开配置菜单。
+[环境要求、BMad、开发模式及全部参数](readme/translations/zh-CN/installation.md)。
 
-## 尝试第一个任务
+## 工作方式
 
-在项目中打开编码客户端的 **新会话**。
-如客户端要求，重新加载插件/智能体，然后发送：
+当前对话继续担任协调者并保留其模型。它委派有用的任务、整合结果并验证最终成果。简单任务可以在当前对话中完成。
 
-```text
-使用 Plex 创建一个自适应的专注会话预约页面。
-只用 HTML、CSS 和 JavaScript，包含姓名、邮箱及 25/50 分钟时长。
-验证输入并显示本地确认，不保存或发送数据。
-审查修改，执行可用检查，并说明实际验证了什么。
+```mermaid
+flowchart TD
+    A[你的任务] --> B[当前对话负责协调]
+    B --> C[选定角色执行有明确边界的任务]
+    C --> D[协调者整合并验证]
 ```
 
-Plex 会选择适用角色、实现页面并协调审查与验证。
-预期得到源文件、本地预览命令、检查结果和剩余缺口说明。
-安装本身不会启动编排，**请明确要求使用 Plex**。
+## 对话示例
 
-发现问题？[提交 issue](https://github.com/pnetcloud/plex-ai/issues)，附客户端和版本、团队和配置档、
-命令或提示词、预期与实际行为。附加日志前请移除秘密信息。
+以下是**对话请求，不是终端命令**。发送前替换尖括号中的占位符。
+
+**协调任务 · Codex 插件**
+
+```text
+$pnet-plex:plex 协调<任务>。要求：<需求>。验证<验收标准>。
+```
+
+**审查变更**
+
+```text
+$pnet-plex:plex 根据<需求>审查<变更>，报告问题和验证缺口。
+```
+
+**检查或配置团队**
+
+```text
+$pnet-plex:plex-setup 检查当前项目的 Plex 配置。
+$pnet-plex:plex-setup 配置当前项目：团队<团队>、模型配置档<配置档>、交互模式<模式>。
+```
+
+Codex `--dev` 模式使用本地 `$plex` 和 `$plex-setup` 标签。其他客户端可选择已安装技能，或明确请求：`使用 Plex 协调<任务>。`
+
+安装不会自动启动协调。`plex-setup` 修改配置，`plex` 协调工作。
 
 ## 团队与模型
 
 | 团队 | 用途 |
 |---|---|
 | **pnet** | 通用开发：PM、explorer、researcher、dev、reviewer 和 QA；无需 BMad |
-| **bmad** | BMad 技能和工作流及按角色模型；安装器提供所需技能安装和项目初始化 |
+| **bmad** | 已安装的 BMad 角色和工作流；安装器提供所选依赖安装和项目初始化 |
 
-配置档包括 **Inherit、Basic、Plus、Pro、Pro+**。同一档位应用于所有所选客户端，可按角色覆盖。
-Plex 仅管理带标记的指令块，保留周围项目指令。
+**Inherit、Basic、Plus、Pro、Pro+** 配置子智能体。主对话模型由你选择；安装器显示所选配置档的建议。参见[配置](docs/translations/zh-CN/configuration.md)。
 
-更改设置或配置其他项目时，在其目录的 **终端中**运行：
+## 终端命令
 
-```sh
-~/.local/bin/plex
-```
+| 任务 | 命令 |
+|---|---|
+| 配置或刷新项目 | `plex` |
+| 检查安装 | `plex status` |
+| 下载更新并打开安装器 | `plex update` |
+| 预览团队移除 | `plex uninstall --dry-run` |
+| 移除当前项目团队 | `plex uninstall` |
 
-该命令打开安装配置；客户端内的 Plex 请求启动协调。
-团队与模型覆盖设置见[配置](docs/translations/zh-CN/configuration.md)。
+若没有可选的 `plex` 命令，可使用 `~/.local/share/plex-ai/setup.sh`。**Update only** 保留设置；**Reconfigure** 打开配置菜单。
 
-## 检查、更新与卸载
+## 卸载
 
-```sh
-plex status
-plex update
-plex uninstall --dry-run
-```
+在项目目录运行 `plex uninstall`，移除未被修改的托管角色、Plex 指令块和所属开发链接；保留周围项目指令。偏好设置、备份和共享插件仍保留。
 
-运行 `plex uninstall` 确认卸载。若没有 `plex` 命令，请改用
-`~/.local/share/plex-ai/setup.sh`，首次开发模式安装后也适用。
-安装和更新选择已发布版本，包括预览版。
-
-## 本地开发 Plex
-
-在 Plex 工作副本中连接 Codex 测试项目：
+其他项目不再需要共享 **Codex 插件**时，可一并移除：
 
 ```sh
-./setup.sh --dev --client codex --project /path/to/test-project
+codex plugin remove pnet-plex@pnet-plex
 ```
 
-技能通过实时链接使用此工作副本；托管指令区块要求使用项目中的 Plex 技能。共享插件仅在该项目中禁用。用 `--no-dev` 重新运行即可恢复普通安装。修改后请重新打开 Codex。
-
-[安装与所有参数](readme/translations/zh-CN/installation.md).
+其他客户端及用户级团队移除方式参见[卸载说明](readme/translations/zh-CN/installation.md#卸载)。
 
 ## 更多内容
 
+- [报告问题](https://github.com/pnetcloud/plex-ai/issues).
 - [文档](docs/translations/zh-CN/README.md) — 安装与使用详情。
 - [关于 Plex](docs/translations/zh-CN/product.md) — 目标和原则。
 - [兼容性](docs/translations/zh-CN/host-compatibility.md) — Codex 和部分 Antigravity 配置已有实际测试；原生 Claude Code 任务尚未验证。

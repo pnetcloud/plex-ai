@@ -10,103 +10,105 @@ choose its model profile, and ask Plex to organize implementation, review and ve
 
 **[v0.5.4 Preview](https://github.com/pnetcloud/plex-ai/releases/tag/v0.5.4)** — open source, MIT. Ready to try; interfaces may change.
 
-## Quick start
+## Install
 
-Run from your project directory.
-
-**Standard installation**
+Run in your project directory:
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/pnetcloud/plex-ai/main/install.sh | bash
 ```
 
-**Development mode — Codex, project-local Plex skills**
+**Dev mode · Codex · project-local skills**
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/pnetcloud/plex-ai/main/install.sh | bash -s -- --dev --client codex
 ```
 
-Normal installation opens an interactive menu:
+Choose clients, scope, team and model profile; confirm the plan. **Project** scope is recommended. Open a new client session afterwards.
 
-1. Select clients with **Space**, then **Enter** (numbered prompts without uv).
-2. Choose the installation scope (**Project** is recommended) and confirm the directory.
-3. Choose **pnet** for a standalone team and **Inherit** to use session model settings.
-4. Choose **Balanced** interaction for routine work, or select **Interactive** / **Auto**.
-5. Review and confirm the installation plan for each client.
+The normal installer handles both parts:
 
-Normal installation adds the shared plugin, native team roles and a managed instruction block.
-Run the same command again to download updates and reopen setup.
+- **Shared plugin** — reusable `plex` and `plex-setup` skills for the client.
+- **Team setup** — native agent roles and the managed instruction block, at project or user scope.
 
-[Installation and all parameters](readme/installation.md).
+Plugin installation alone does not configure a team. Dev mode uses project-local skill links instead of the shared Plex plugin in that project.
 
-Already installed for this client and scope? Choose **Update only** to keep settings, or **Reconfigure** to reopen the setup menus.
+[Prerequisites, BMad, dev mode and all options](readme/installation.md).
 
-## Try your first task
+## How it works
 
-Open a **new session** of your coding client in your project.
-Reload plugins/agents if the client requires it, then send:
+Your current chat stays coordinator and keeps its model. It delegates useful work, integrates results and verifies the outcome. Small tasks can stay local.
 
-```text
-Use Plex to build a responsive focus-session booking page.
-Use plain HTML, CSS and JavaScript with name, email and 25/50-minute duration.
-Validate input and show a local confirmation without saving or sending data.
-Review the changes, run available checks, and report what was verified.
+```mermaid
+flowchart TD
+    A[Your task] --> B[Current chat coordinates]
+    B --> C[Selected roles do bounded work]
+    C --> D[Coordinator integrates and verifies]
 ```
 
-Plex selects useful roles, implements the page and coordinates review/checks.
-Expect source files, a local preview command and a report of checks and remaining gaps.
-Installation alone does not start orchestration; **ask for Plex explicitly**.
+## Use in chat
 
-Found a problem? [Open an issue](https://github.com/pnetcloud/plex-ai/issues) with your
-client/version, team/profile, command or prompt, expected behavior and actual result.
-Remove secrets from any attached logs.
+These are **chat requests, not terminal commands**. Replace the angle-bracket placeholders before sending.
+
+**Coordinate a task · Codex plugin**
+
+```text
+$pnet-plex:plex Coordinate <task>. Requirements: <requirements>. Verify <acceptance criteria>.
+```
+
+**Review a change**
+
+```text
+$pnet-plex:plex Review <change> against <requirements>. Report findings and verification gaps.
+```
+
+**Check or configure the team**
+
+```text
+$pnet-plex:plex-setup Check this project's Plex configuration.
+$pnet-plex:plex-setup Configure this project: team <team>, profile <profile>, interaction <mode>.
+```
+
+In Codex `--dev` mode use the local `$plex` and `$plex-setup` labels. In other clients, select the installed skill or explicitly ask: `Use Plex to coordinate <task>.`
+
+Installation does not start coordination automatically. `plex-setup` changes configuration; `plex` coordinates work.
 
 ## Teams and models
 
-| Team | Use it for |
+| Team | Purpose |
 |---|---|
-| **pnet** | General development with PM, explorer, researcher, dev, reviewer and QA; no BMad required |
-| **bmad** | BMad skills/workflows with role-specific models; setup offers selected skill installation and project initialization |
+| **pnet** | General development: PM, explorer, researcher, dev, reviewer and QA; no BMad required |
+| **bmad** | Installed BMad personas and workflows; setup offers selected dependencies and project initialization |
 
-Choose **Inherit, Basic, Plus, Pro or Pro+**. One tier applies across selected clients;
-per-role overrides are available. Plex only manages its marked instruction block,
-preserving your surrounding project instructions.
+Choose **Inherit, Basic, Plus, Pro or Pro+** for subagents. The main-chat model remains your choice; setup shows a profile-specific recommendation. See [configuration](docs/configuration.md).
 
-To change settings or configure another project, run this **in the terminal** from that project:
+## Terminal commands
 
-```sh
-~/.local/bin/plex
-```
+| Task | Command |
+|---|---|
+| Configure or refresh this project | `plex` |
+| Check installation | `plex status` |
+| Download an update and open setup | `plex update` |
+| Preview team removal | `plex uninstall --dry-run` |
+| Remove this project's team | `plex uninstall` |
 
-This command opens setup; the Plex request inside your client starts coordination.
-Team/profile overrides are described in [configuration](docs/configuration.md).
+If the optional `plex` command is absent, use `~/.local/share/plex-ai/setup.sh` instead. During setup, **Update only** keeps settings; **Reconfigure** opens the menus.
 
-## Check, update or remove
+## Uninstall
 
-```sh
-plex status
-plex update
-plex uninstall --dry-run
-```
+Run `plex uninstall` from the project directory. It removes unchanged managed roles, the Plex instruction block and owned dev links; surrounding instructions are preserved. Preferences, backups and the shared plugin remain.
 
-Run `plex uninstall` to confirm removal. If `plex` is unavailable, use
-`~/.local/share/plex-ai/setup.sh` instead (including fresh dev installations).
-Installation and updates select published releases, including previews.
-
-## Develop Plex locally
-
-From the working Plex checkout, connect a Codex test project:
+To also remove the shared **Codex plugin** once other projects no longer need it:
 
 ```sh
-./setup.sh --dev --client codex --project /path/to/test-project
+codex plugin remove pnet-plex@pnet-plex
 ```
 
-Live skill links use this checkout; the managed instruction block requires the project Plex skills. The shared plugin is disabled only in that project. Rerun with `--no-dev` to return to normal setup. Reopen Codex after changes.
-
-[Installation and all parameters](readme/installation.md).
+For other clients and user-wide team removal, see [uninstallation](readme/installation.md#uninstall).
 
 ## Learn more
 
+- [Report a problem](https://github.com/pnetcloud/plex-ai/issues).
 - [Documentation](docs/README.md) — setup and usage details.
 - [About Plex](docs/product.md) — purpose and working principles.
 - [Compatibility](docs/host-compatibility.md) — Codex and selected Antigravity live trials; native Claude Code live execution remains unverified.

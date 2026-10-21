@@ -10,102 +10,105 @@ Team installieren, Modellprofil wählen und Plex mit Umsetzung, Review und Prüf
 
 **[v0.5.4 Preview](https://github.com/pnetcloud/plex-ai/releases/tag/v0.5.4)** — Open Source, MIT. Zum Ausprobieren; Schnittstellen können sich ändern.
 
-## Schnellstart
+## Installation
 
-Im eigenen Projektverzeichnis ausführen.
-
-**Normale Installation**
+Im Projektverzeichnis ausführen:
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/pnetcloud/plex-ai/main/install.sh | bash
 ```
 
-**Entwicklungsmodus — Codex, projektlokale Plex-Skills**
+**Dev-Modus · Codex · projektlokale Skills**
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/pnetcloud/plex-ai/main/install.sh | bash -s -- --dev --client codex
 ```
 
-Die normale Installation öffnet ein interaktives Menü:
+Clients, Bereich, Team und Modellprofil wählen; den Plan bestätigen. **Project** wird empfohlen. Danach eine neue Client-Sitzung öffnen.
 
-1. Clients mit **Leertaste** auswählen, mit **Enter** fortfahren (ohne uv per Nummerneingabe).
-2. Installationsbereich wählen (**Project** empfohlen) und den Projektordner bestätigen.
-3. Das eigenständige Team **pnet** und **Inherit** für die Modelleinstellungen der Sitzung wählen.
-4. **Balanced** für normale Zusammenarbeit wählen, alternativ **Interactive** / **Auto**.
-5. Den Installationsplan jedes Clients prüfen und bestätigen.
+Die normale Installation übernimmt beide Teile:
 
-Die normale Installation ergänzt das gemeinsame Plugin, Teamrollen und einen verwalteten Anweisungsblock.
-Denselben Befehl erneut ausführen, um Updates zu laden und Setup zu öffnen.
+- **Gemeinsames Plugin** — wiederverwendbare Skills `plex` und `plex-setup` für den Client.
+- **Teamkonfiguration** — native Agentenrollen und verwalteter Anweisungsblock auf Projekt- oder Benutzerebene.
 
-[Installation und alle Optionen](readme/translations/de/installation.md).
+Das Plugin allein konfiguriert kein Team. Im Dev-Modus ersetzen lokale Skill-Links das gemeinsame Plex-Plugin in diesem Projekt.
 
-Für bereits eingerichtete Clients im gewählten Bereich: **Update only** behält Einstellungen; **Reconfigure** öffnet die Setup-Menüs erneut.
+[Voraussetzungen, BMad, Dev-Modus und alle Optionen](readme/translations/de/installation.md).
 
-## Erste Aufgabe ausprobieren
+## Ablauf
 
-Eine **neue Sitzung** des Coding-Clients im Projekt öffnen.
-Bei Bedarf Plugins/Agenten neu laden und folgende Anfrage senden:
+Der aktuelle Chat bleibt Koordinator und behält sein Modell. Er delegiert sinnvolle Aufträge, integriert Ergebnisse und prüft das Resultat. Kleine Aufgaben können lokal bleiben.
 
-```text
-Nutze Plex, um eine responsive Buchungsseite für eine Fokussitzung zu erstellen.
-Reines HTML, CSS und JavaScript: Name, E-Mail und Dauer 25/50 Minuten.
-Eingaben prüfen und lokal bestätigen, ohne Daten zu speichern oder zu senden.
-Änderungen reviewen, verfügbare Prüfungen ausführen und tatsächlich Geprüftes nennen.
+```mermaid
+flowchart TD
+    A[Deine Aufgabe] --> B[Aktueller Chat koordiniert]
+    B --> C[Ausgewählte Rollen bearbeiten Aufträge]
+    C --> D[Koordinator integriert und prüft]
 ```
 
-Plex wählt passende Rollen, implementiert die Seite und koordiniert Review/Prüfungen.
-Erwartet werden Quelldateien, ein lokaler Vorschaubefehl sowie Prüfergebnisse und offene Lücken.
-Installation allein startet keine Orchestrierung — **Plex ausdrücklich anfordern**.
+## Chat-Beispiele
 
-Problem gefunden? [Issue öffnen](https://github.com/pnetcloud/plex-ai/issues) mit Client/Version,
-Team/Profil, Befehl oder Anfrage sowie erwartetem und tatsächlichem Verhalten.
-Geheimnisse vor dem Anhängen aus Logs entfernen.
+Dies sind **Chat-Anfragen, keine Terminalbefehle**. Platzhalter in spitzen Klammern vor dem Senden ersetzen.
+
+**Aufgabe koordinieren · Codex-Plugin**
+
+```text
+$pnet-plex:plex Koordiniere <Aufgabe>. Anforderungen: <Anforderungen>. Prüfe <Abnahmekriterien>.
+```
+
+**Änderung prüfen**
+
+```text
+$pnet-plex:plex Prüfe <Änderung> anhand von <Anforderungen>. Melde Befunde und Prüflücken.
+```
+
+**Team prüfen oder konfigurieren**
+
+```text
+$pnet-plex:plex-setup Prüfe die Plex-Konfiguration dieses Projekts.
+$pnet-plex:plex-setup Konfiguriere dieses Projekt: Team <Team>, Profil <Profil>, Interaktion <Modus>.
+```
+
+Im Codex-Modus `--dev` die lokalen Labels `$plex` und `$plex-setup` verwenden. In anderen Clients den installierten Skill auswählen oder ausdrücklich bitten: `Nutze Plex zur Koordination von <Aufgabe>.`
+
+Installation startet keine Koordination. `plex-setup` konfiguriert; `plex` koordiniert die Arbeit.
 
 ## Teams und Modelle
 
-| Team | Einsatz |
+| Team | Zweck |
 |---|---|
-| **pnet** | Allgemeine Entwicklung mit PM, explorer, researcher, dev, reviewer und QA; kein BMad nötig |
-| **bmad** | BMad-Skills/Workflows mit Rollenmodellen; Setup bietet Installation ausgewählter Skills und Projektinitialisierung |
+| **pnet** | Allgemeine Entwicklung: PM, explorer, researcher, dev, reviewer und QA; ohne BMad |
+| **bmad** | Installierte BMad-Personas und Workflows; Setup bietet ausgewählte Abhängigkeiten und Projektinitialisierung |
 
-Profile: **Inherit, Basic, Plus, Pro, Pro+**. Eine Stufe gilt für alle gewählten Clients;
-Rollen-Overrides sind möglich. Plex verwaltet nur den markierten Block und erhält umgebende Projektanweisungen.
+**Inherit, Basic, Plus, Pro und Pro+** konfigurieren Subagenten. Das Hauptchatmodell wählst du; Setup zeigt eine profilabhängige Empfehlung. Siehe [Konfiguration](docs/translations/de/configuration.md).
 
-Zum Ändern der Einstellungen oder Einrichten eines anderen Projekts **im Terminal** aus dessen Ordner starten:
+## Terminalbefehle
 
-```sh
-~/.local/bin/plex
-```
+| Aufgabe | Befehl |
+|---|---|
+| Projekt konfigurieren oder auffrischen | `plex` |
+| Installation prüfen | `plex status` |
+| Update herunterladen und Setup öffnen | `plex update` |
+| Teamentfernung vorab anzeigen | `plex uninstall --dry-run` |
+| Team dieses Projekts entfernen | `plex uninstall` |
 
-Dieser Befehl öffnet Setup; die Plex-Anfrage im Client startet Koordination.
-Team-/Profil-Overrides: [Konfiguration](docs/translations/de/configuration.md).
+Fehlt der optionale Befehl `plex`, stattdessen `~/.local/share/plex-ai/setup.sh` verwenden. **Update only** behält Einstellungen; **Reconfigure** öffnet die Menüs.
 
-## Prüfen, aktualisieren oder entfernen
+## Deinstallation
 
-```sh
-plex status
-plex update
-plex uninstall --dry-run
-```
+`plex uninstall` im Projektverzeichnis ausführen. Unveränderte verwaltete Rollen, der Plex-Anweisungsblock und eigene Dev-Links werden entfernt; umgebende Anweisungen bleiben erhalten. Einstellungen, Backups und das gemeinsame Plugin bleiben bestehen.
 
-`plex uninstall` zum Bestätigen starten. Falls `plex` fehlt, stattdessen
-`~/.local/share/plex-ai/setup.sh` verwenden, auch nach einer ersten Dev-Installation.
-Installation und Updates wählen veröffentlichte Versionen einschließlich Vorschauen.
-
-## Plex lokal entwickeln
-
-Aus dem Plex-Arbeitsverzeichnis ein Codex-Testprojekt verbinden:
+Das gemeinsame **Codex-Plugin** ebenfalls entfernen, sobald andere Projekte es nicht mehr benötigen:
 
 ```sh
-./setup.sh --dev --client codex --project /path/to/test-project
+codex plugin remove pnet-plex@pnet-plex
 ```
 
-Live-Links verwenden diesen Checkout; der verwaltete Anweisungsblock verlangt die projektlokalen Plex-Skills. Das gemeinsame Plugin wird nur in diesem Projekt deaktiviert. Mit `--no-dev` zur normalen Installation zurückkehren. Codex nach Änderungen neu öffnen.
-
-[Installation und alle Optionen](readme/translations/de/installation.md).
+Andere Clients und benutzerweite Teams: siehe [Deinstallation](readme/translations/de/installation.md#deinstallation).
 
 ## Weiterführend
 
+- [Problem melden](https://github.com/pnetcloud/plex-ai/issues).
 - [Dokumentation](docs/translations/de/README.md) — Einrichtung und Nutzung.
 - [Über Plex](docs/translations/de/product.md) — Zweck und Prinzipien.
 - [Kompatibilität](docs/translations/de/host-compatibility.md) — Live-Tests für Codex und ausgewählte Antigravity-Konfigurationen; native Claude-Code-Aufgaben noch ungeprüft.
