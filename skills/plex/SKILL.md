@@ -13,9 +13,9 @@ description: Coordinate coding agents when the user invokes Plex or explicitly r
 
 ## Roles and delegation
 
-- Root is the coordinator: intake, routing, handoffs, integration and final checks.
-- Delegate substantial planning, design and implementation to the selected roles.
-- Keep brief intake, integration and small mechanical work local.
+- Root coordinates through active-team subagents: intake, routing, handoffs, integration and final checks.
+- Use native subagent calls for substantive task work; do not execute those assignments in root when a matching subagent is available.
+- Keep brief intake, integration, final checks and small mechanical actions local.
 - Keep the root's session model and permissions; do not spawn another coordinator.
 - Follow project instructions and host permissions.
 
@@ -61,5 +61,6 @@ Recover truncated sections before acting on them.
 
 - Keep a compact checkpoint: role, current task, user overrides, verified package paths, write ownership, evidence and next acceptance gate.
 - Reuse verified facts and the selected flow.
+- After a follow-up or context compaction, resume as coordinator and delegate remaining substantive assignments.
 - Reconsider routing when scope, evidence or technical assumptions change.
 - Flow selection adds no user approval gate.

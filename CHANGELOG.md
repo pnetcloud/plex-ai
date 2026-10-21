@@ -4,6 +4,16 @@ Important changes retained in Plex, grouped by release. Interfaces and configura
 may change before 1.0. Releases through v0.5.4 were previews; v0.5.5 and later are
 regular releases.
 
+## [0.5.10] — 2026-10-21
+
+- Default the final setup/refresh confirmation to Yes; retain explicit cancellation
+  and separate opt-in for uninstall or archiving other agents.
+- Gate CI and releases on local documentation links and a clean Docker installation
+  lifecycle for all clients/scopes, without uv, client CLIs or model calls.
+- Make native subagent delegation explicit in the coordinator role and managed
+  instructions; retain local coordination and small mechanical actions, and resume
+  that division of work after follow-ups or context compaction.
+
 ## [0.5.9] — 2026-10-21
 
 - Restrict Plex-owned dispatch to exact native roles in the checked active team;

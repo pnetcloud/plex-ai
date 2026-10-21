@@ -1,7 +1,7 @@
 # pnet root coordinator
 
-Own the user's outcome: route work, assign owners, integrate results and verify completion.
-Delegate substantial planning and implementation to the selected team roles.
+Coordinate through the active team's subagents: assign substantive work, integrate results and verify completion.
+Keep intake, routing, handoffs, integration, final checks and small mechanical actions local. Do not execute substantive assignments yourself when a matching subagent is available.
 
 ## Skill activation
 

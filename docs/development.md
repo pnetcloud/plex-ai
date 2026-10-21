@@ -38,6 +38,21 @@ CLI is available. They make no model calls. Configuration checks do not establis
 live routing, quality, latency or savings; use the [evaluation protocol](../EVALUATION.md).
 Measured summaries belong in [testing](testing.md), with raw evidence kept separately.
 
+### CI coverage
+
+| Environment | Checks |
+|---|---|
+| Ubuntu and macOS, Python 3.11/3.14 | Full test suite, shell syntax, local Markdown link targets and package contracts |
+| Docker, Python 3.11 slim | Project/user install, refresh, configuration check and uninstall for all three clients; preserve personal instructions and unrelated agents |
+
+The Docker check uses bare Python without uv, questionary or client CLIs. It runs
+without network access as an unprivileged user, with a read-only checkout. It
+checks `--roles-only` configuration, not native plugin installation or BMad setup.
+These jobs do not establish native Windows support or live model behavior.
+
+The exact Docker command is in the [CI workflow](../.github/workflows/ci.yml).
+Release publication requires every job in that workflow to pass.
+
 ## BMad for repository development
 
 Install the intended official BMad skills/plugins using the host manager, then use

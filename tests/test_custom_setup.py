@@ -162,7 +162,7 @@ class CustomSetupTests(unittest.TestCase):
             self.assertEqual(SETUP.main([*args, '--dry-run']), 0)
             self.assertEqual(list(Path(temp).resolve().iterdir()), [])
             with patch.object(SETUP.sys.stdin, 'isatty', return_value=True), \
-                    patch.object(SETUP, 'choose', side_effect=lambda label, choices, default: default), \
+                    patch.object(SETUP, 'choose', side_effect=lambda label, choices, default: "no" if label == "Apply this plan?" else default), \
                     patch.object(SETUP, 'ask_text', side_effect=lambda label, default: default):
                 self.assertEqual(SETUP.main(args), 0)
             self.assertEqual(list(Path(temp).resolve().iterdir()), [])

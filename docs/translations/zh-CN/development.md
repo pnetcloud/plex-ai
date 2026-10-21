@@ -34,6 +34,20 @@ uv run --with pyyaml --with questionary==2.1.1 python -m unittest discover -s te
 这些测试不调用模型。配置检查不能证明实际模型路由、质量、延迟或节省；
 这些需要[评估协议](../../../EVALUATION.md)。聚合结果见[测试](testing.md)，原始证据单独保存。
 
+### CI 覆盖范围
+
+| 环境 | 检查 |
+|---|---|
+| Ubuntu 和 macOS，Python 3.11/3.14 | 完整测试套件、shell 语法、本地 Markdown 链接目标与包约定 |
+| Docker，Python 3.11 slim | 三个客户端的项目/用户安装、刷新、配置检查和卸载；保留个人指令及其他代理 |
+
+Docker 检查使用不含 uv、questionary 或客户端 CLI 的纯 Python 环境。
+以非特权用户、无网络、只读源码目录运行。检查的是 `--roles-only` 配置，
+不包含原生插件或 BMad 安装。这些任务不证明原生 Windows 支持或模型运行行为。
+
+具体 Docker 命令见 [CI 工作流](../../../.github/workflows/ci.yml)。
+发布要求该工作流的所有任务成功完成。
+
 ## 仓库开发的 BMad 环境
 
 通过客户端管理器安装指定的官方 BMad 技能和插件，然后在仓库中使用已安装 Toolbox 的 `bmad` 配置流程。

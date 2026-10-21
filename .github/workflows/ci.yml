@@ -24,5 +24,22 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
       - run: python -m pip install uv pyyaml questionary==2.1.1
-      - run: bash -n install.sh && sh -n setup.sh
-      - run: python -m unittest discover -s tests -v
+      - name: Check shell syntax
+        run: bash -n install.sh && sh -n setup.sh
+      - name: Test configuration, packages and documentation
+        run: python -m unittest discover -s tests -v
+
+  clean-install:
+    name: Clean install / Python fallback
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - name: Exercise setup in a clean, unprivileged container
+        run: |
+          docker run --rm --network none --read-only \
+            --user "$(id -u):$(id -g)" \
+            --tmpfs /tmp:rw,exec,nosuid,size=128m \
+            --mount "type=bind,source=$PWD,target=/plex,readonly" \
+            --workdir /plex --env PYTHONDONTWRITEBYTECODE=1 \
+            python:3.11-slim python tests/smoke_install.py

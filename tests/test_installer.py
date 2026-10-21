@@ -46,7 +46,9 @@ class InstallerTests(unittest.TestCase):
                         self.assertEqual(default, expected_default)
                         self.assertEqual(set(choices), set(installer.CONFIG.INTERACTIONS))
                         return "auto"
-                    return "yes" if label == "Apply this plan?" else default
+                    if label == "Apply this plan?":
+                        self.assertEqual(default, "yes")
+                    return default
                 with patch.object(installer.sys.stdin, "isatty", return_value=True), \
                         patch.object(installer, "choose", side_effect=choose) as menu:
                     self.assertEqual(installer.main(options), 0)
@@ -79,7 +81,8 @@ class InstallerTests(unittest.TestCase):
                     self.assertEqual(default, "refresh")
                     return "refresh"
                 self.assertEqual(label, "Apply this plan?")
-                return "yes"
+                self.assertEqual(default, "yes")
+                return default
             with patch.object(installer.sys.stdin, "isatty", return_value=True), \
                     patch.object(installer, "choose", side_effect=choose) as menu, \
                     patch.object(installer, "ask_text", side_effect=AssertionError("Unexpected settings question")):
@@ -276,7 +279,7 @@ class InstallerTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp, redirect_stdout(io.StringIO()):
             with patch.object(installer.sys.stdin, "isatty", return_value=True), \
                     patch.object(installer.Path, "cwd", return_value=ROOT), \
-                    patch.object(installer, "choose", side_effect=lambda label, choices, default: default), \
+                    patch.object(installer, "choose", side_effect=lambda label, choices, default: "no" if label == "Apply this plan?" else default), \
                     patch.object(installer, "ask_text", side_effect=["", temp, "3"]) as prompt:
                 self.assertEqual(installer.main(["--host", "codex", "--roles-only"]), 0)
             self.assertEqual(prompt.call_args_list[0].args, ("Project directory", ""))

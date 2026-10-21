@@ -20,6 +20,8 @@ curl -fsSL https://raw.githubusercontent.com/pnetcloud/plex-ai/main/install.sh |
 
 Select the client, scope, team and profile, then confirm the plan. **Project** scope is recommended. Open a new client session after installation.
 
+The final **Apply this plan?** prompt defaults to **Yes** for setup and refresh; select **No** to cancel. Archiving other agents and uninstall still require their own confirmation.
+
 Profiles configure subagents. Choose the root coordinator's model in your main chat;
 the plan shows a recommendation. See [how the main chat and team work](product.md#the-main-chat-and-the-team).
 
@@ -165,7 +167,7 @@ Omitted settings keep their saved values. Interaction is explicitly saved in eve
 
 | Option | Purpose |
 |---|---|
-| `--release TAG` | Use a published tag, for example v0.5.9. |
+| `--release TAG` | Use a published tag, for example v0.5.10. |
 | `--development` | Use main; does not enable --dev mode. |
 | `--checkout PATH` | GitHub bootstrap only; default ~/.local/share/plex-ai. |
 

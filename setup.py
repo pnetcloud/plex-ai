@@ -1362,7 +1362,7 @@ def main(argv=None, *, shared_profile=False, selection=None, setup_mode=None):
             notice("Preview only. No files or plugins changed.", "ok")
             return 0
 
-        if interactive and choose("Apply this plan?", {"no": "Cancel without changes", "yes": "Apply"}, "no") != "yes":
+        if interactive and choose("Apply this plan?", {"yes": "Apply", "no": "Cancel without changes"}, "yes") != "yes":
             if selection is not None:
                 selection["cancelled"] = True
             notice("Cancelled. No changes.")

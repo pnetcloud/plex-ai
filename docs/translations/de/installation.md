@@ -20,6 +20,8 @@ curl -fsSL https://raw.githubusercontent.com/pnetcloud/plex-ai/main/install.sh |
 
 Client, Bereich, Team und Profil wählen, dann den Plan bestätigen. **Project** wird empfohlen. Anschließend eine neue Client-Sitzung öffnen.
 
+Die abschließende Frage **Apply this plan?** wählt bei Installation und Aktualisierung **Yes** vor. Zum Abbrechen **No** wählen. Das Archivieren anderer Agenten und die Deinstallation benötigen weiterhin eine eigene Bestätigung.
+
 Profile konfigurieren Subagenten. Das Modell des Root-Koordinators im Hauptchat wählen;
 der Plan zeigt eine Empfehlung. Siehe [Hauptchat und Team](product.md#hauptchat-und-team).
 
@@ -165,7 +167,7 @@ Ausgelassene Einstellungen behalten ihre Werte. Jeder angewendete Preset speiche
 
 | Option | Zweck |
 |---|---|
-| `--release TAG` | Veröffentlichten Tag verwenden, z. B. v0.5.9. |
+| `--release TAG` | Veröffentlichten Tag verwenden, z. B. v0.5.10. |
 | `--development` | main verwenden; aktiviert nicht --dev. |
 | `--checkout PATH` | Nur GitHub-Bootstrap; Standard ~/.local/share/plex-ai. |
 

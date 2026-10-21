@@ -262,7 +262,7 @@ class ScopeTests(unittest.TestCase):
         seen = []
         def choose(label, choices, default):
             seen.append((label, default))
-            return default
+            return "no" if label == "Apply this plan?" else default
         with patch.object(SETUP.sys.stdin, 'isatty', return_value=True), \
                 patch.object(SETUP, 'choose', side_effect=choose), \
                 patch.object(SETUP, 'choose_clients', return_value=['codex']), \

@@ -8,7 +8,7 @@ Plex ist ein **Agent Harness für Multi-Agent-Orchestrierung und Koordination** 
 OpenAI Codex, Anthropic Claude Code und Google Antigravity. Ein wiederverwendbares
 Team installieren, Modellprofil wählen und Plex mit Umsetzung, Review und Prüfung beauftragen.
 
-**[v0.5.9](https://github.com/pnetcloud/plex-ai/releases/tag/v0.5.9)** — Open Source, MIT. Zum Ausprobieren; Schnittstellen können sich ändern.
+**[v0.5.10](https://github.com/pnetcloud/plex-ai/releases/tag/v0.5.10)** — Open Source, MIT. Zum Ausprobieren; Schnittstellen können sich ändern.
 
 ## Installation
 
