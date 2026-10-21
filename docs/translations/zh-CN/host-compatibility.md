@@ -7,7 +7,7 @@
 | 客户端 | Plex 集成 | 验证范围 |
 |---|---|---|
 | OpenAI Codex | 原生 TOML 角色、插件、范围与指令支持 | 隔离环境安装配置和实际任务测试 |
-| Anthropic Claude Code | 原生 Markdown 角色和插件安装路径 | 渲染及配置检查；尚未验证原生客户端实际任务 |
+| Anthropic Claude Code | 原生 Markdown 角色和插件安装路径 | CLI 2.1.306：清单验证、隔离环境插件安装及两支团队配置；尚未验证模型实际执行 |
 | Google Antigravity | 原生 Markdown 角色和插件包 | 安装配置及部分模型的实际任务测试 |
 
 覆盖范围限于测试过的版本和设置，参见[测试](testing.md)。
@@ -22,3 +22,14 @@ Codex 渲染 `model` 和 `model_reasoning_effort`；Claude Code 与 Antigravity 
 
 原生权限和限制始终有效。角色名、配置档和成功渲染不能证明工具隔离、并发行为或模型选择。
 Plex 不会为使适配器工作而启用其他客户端或放宽全局权限。
+
+## Claude Code 委派
+
+Plex 通过 `Agent.subagent_type` 选择原生角色。任务标签放入 `description` 和交接文本；
+传入 `name` 可能启动 Agent Teams 队友。`delegation = false` 会生成
+`disallowedTools: Agent`。BMad 角色保留嵌套委派，但受客户端深度限制和权限约束。
+参见 [Claude 子智能体参考](https://code.claude.com/docs/en/sub-agents)。
+
+模型和 effort 支持取决于客户端及模型。会话或供应商设置（包括
+`CLAUDE_CODE_SUBAGENT_MODEL_FORCE` 和 `CLAUDE_CODE_EFFORT_LEVEL`）可能覆盖角色设置；
+确认路由前应检查实际执行情况。

@@ -31,6 +31,8 @@ Codex uses its sandbox setting, Claude read-only roles use tool allowlists, and
 Antigravity uses explicit tool lists. Host permissions and handoff authority still
 apply. Edit the team source, then refresh installation; do not edit generated roles.
 
+Claude roles with `delegation = false` also deny the native `Agent` tool through `disallowedTools`, including roles with write access.
+
 ## Authoring format
 
 Start with a short purpose and a description of when to select the role. Then use:

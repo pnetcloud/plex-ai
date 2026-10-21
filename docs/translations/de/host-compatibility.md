@@ -7,7 +7,7 @@ Clients führen Agenten aus; Modellanbieter liefern Modelle. Ein Anbieterprofil 
 | Client | Plex-Integration | Verifizierter Umfang |
 |---|---|---|
 | OpenAI Codex | TOML-Rollen, Plugin, Bereiche und Anweisungen | Isolierte Installation/Konfiguration und Live-Aufgaben |
-| Anthropic Claude Code | Markdown-Rollen und Plugininstallationspfad | Rendering/Konfiguration; native Live-Ausführung noch unbestätigt |
+| Anthropic Claude Code | Markdown-Rollen und Plugininstallationspfad | CLI 2.1.306: Manifestvalidierung, isolierte Plugininstallation und Konfiguration beider Teams; Live-Modelltests unbestätigt |
 | Google Antigravity | Markdown-Rollen und Pluginpaket | Installation/Konfiguration und ausgewählte Live-Modelltests |
 
 Die Abdeckung gilt nur für getestete Versionen/Einstellungen; siehe [Tests](testing.md).
@@ -25,3 +25,16 @@ für jedes Kind unabhängig Sonnet oder Opus wählen.
 Native Rechte und Limits bleiben maßgeblich. Rollennamen, Profile und erfolgreiches
 Rendering belegen weder Werkzeugisolation noch Parallelität oder Modellwahl. Plex
 aktiviert keinen anderen Client und lockert keine globalen Rechte, um Adapter nutzbar zu machen.
+
+## Delegation in Claude Code
+
+Plex wählt native Rollen über `Agent.subagent_type`. Aufgabenlabels stehen in
+`description` und im Auftrag: `name` kann einen Agent-Teams-Teammate starten.
+Für `delegation = false` wird `disallowedTools: Agent` erzeugt. BMad-Rollen behalten
+verschachtelte Delegation innerhalb der Rechte und Tiefenbegrenzung des Clients.
+Siehe [Claude-Subagentenreferenz](https://code.claude.com/docs/en/sub-agents).
+
+Modell- und Effort-Unterstützung hängen von Client und Modell ab. Sitzungs- und
+Anbietervorgaben, darunter `CLAUDE_CODE_SUBAGENT_MODEL_FORCE` und
+`CLAUDE_CODE_EFFORT_LEVEL`, können Rolleneinstellungen übersteuern. Tatsächliche
+Ausführung prüfen, bevor Routing als bestätigt gilt.

@@ -150,7 +150,7 @@ Codex 也可通过 `/plugins` 浏览器卸载插件。参见 [OpenAI 插件指�
 
 | 参数 | 用途 |
 |---|---|
-| `--release TAG` | 使用发布标签，例如 v0.5.4。 |
+| `--release TAG` | 使用发布标签，例如 v0.5.5。 |
 | `--development` | 使用 main，不启用 --dev。 |
 | `--checkout PATH` | 仅用于 GitHub 引导安装，默认 ~/.local/share/plex-ai。 |
 

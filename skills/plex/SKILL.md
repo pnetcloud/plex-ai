@@ -13,7 +13,9 @@ activate Plex. Otherwise, handle the task normally without loading a team coordi
 
 For every Plex-owned assignment, select the checked native `plex-<role>` so its
 instructions and model settings apply. On Codex, use that registered name as
-`agent_type` when the tool exposes it. A task label does not select a role.
+`agent_type` when the tool exposes it. On Claude Code, use it as the Agent tool's
+`subagent_type`; keep the configured model/effort unless the user overrides them.
+A task label does not select a role.
 Do not silently substitute a generic agent or infer routing from installed files.
 If the current session cannot select the role or honor an explicit user override,
 report the mismatch and continue independent authorized work locally; do not
@@ -27,6 +29,10 @@ Runner nicknames are not role identities. When reusing an agent, retain its
 thread identity but supply the new current-task label; do not imply its original
 name changed or launch another agent solely to rename it. For workflow-owned
 children, preserve the workflow's launch recipe and context contract.
+
+On Claude Code, put the task label in `description` and the handoff; omit the Agent
+tool's `name`. With Agent Teams enabled, `name` can launch a teammate instead of a
+subagent. Do not change execution mode merely to label work.
 
 On continuation, retain a compact checkpoint: role, current task, explicit user
 overrides, verified package paths, write ownership, evidence and next acceptance

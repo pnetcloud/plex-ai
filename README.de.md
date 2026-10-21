@@ -8,7 +8,7 @@ Plex ist ein **Agent Harness für Multi-Agent-Orchestrierung und Koordination** 
 OpenAI Codex, Anthropic Claude Code und Google Antigravity. Ein wiederverwendbares
 Team installieren, Modellprofil wählen und Plex mit Umsetzung, Review und Prüfung beauftragen.
 
-**[v0.5.4 Preview](https://github.com/pnetcloud/plex-ai/releases/tag/v0.5.4)** — Open Source, MIT. Zum Ausprobieren; Schnittstellen können sich ändern.
+**[v0.5.5](https://github.com/pnetcloud/plex-ai/releases/tag/v0.5.5)** — Open Source, MIT. Zum Ausprobieren; Schnittstellen können sich ändern.
 
 ## Installation
 
@@ -67,6 +67,13 @@ $pnet-plex:plex Prüfe <Änderung> anhand von <Anforderungen>. Melde Befunde und
 ```text
 $pnet-plex:plex-setup Prüfe die Plex-Konfiguration dieses Projekts.
 $pnet-plex:plex-setup Konfiguriere dieses Projekt: Team <Team>, Profil <Profil>, Interaktion <Modus>.
+```
+
+**Aufgabe koordinieren · Claude-Code-Plugin**
+
+```text
+/pnet-plex:plex Koordiniere <Aufgabe>. Anforderungen: <Anforderungen>. Prüfe <Abnahmekriterien>.
+/pnet-plex:plex-setup Prüfe die Plex-Konfiguration dieses Projekts.
 ```
 
 Im Codex-Modus `--dev` die lokalen Labels `$plex` und `$plex-setup` verwenden. In anderen Clients den installierten Skill auswählen oder ausdrücklich bitten: `Nutze Plex zur Koordination von <Aufgabe>.`

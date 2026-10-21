@@ -1,10 +1,18 @@
 # Changelog
 
-Important changes retained in Plex, grouped by release. The releases below are
-previews; interfaces and configuration may change before 1.0.
+Important changes retained in Plex, grouped by release. Interfaces and configuration
+may change before 1.0. Releases through v0.5.4 were previews; v0.5.5 and later are
+regular releases.
 
-## Unreleased
+## [0.5.5] — 2026-10-21
 
+- Publish regular GitHub releases without the prerelease flag or Preview title.
+- Select Claude Code native roles through `subagent_type`; label tasks through
+  `description` and handoffs without using `name`, which can launch an Agent Teams teammate.
+- Render `disallowedTools: Agent` for Claude roles with delegation disabled;
+  preserve BMad roles' conditional nested delegation.
+- Add isolated native Claude package validation, plugin installation and both-team
+  apply/check coverage without model calls. Document Claude chat syntax in all four languages.
 - Restructure READMEs around installation, a short coordination diagram, abstract
   chat requests, team settings and maintenance; explain shared plugins versus team setup.
 - Document project/user team removal separately from shared plugin removal for all

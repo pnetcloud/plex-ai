@@ -357,6 +357,8 @@ def render_role(resolved: dict, host: str, role: str) -> str:
     lines.append(f"model: {json.dumps(model_value)}")
     if tool_line:
         lines.append(tool_line)
+    if host == "claude" and not source["delegation"]:
+        lines.append("disallowedTools: Agent")
     if "reasoning" in role_settings:
         lines.append(f"effort: {role_settings['reasoning']}")
     return "---\n" + "\n".join(lines) + "\n---\n\n" + instructions.rstrip("\n") + "\n"

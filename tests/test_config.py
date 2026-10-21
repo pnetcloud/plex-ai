@@ -344,6 +344,11 @@ class ConfigTests(unittest.TestCase):
         self.assertIn("tools: Read, Glob, Grep\n", MODULE.render_role(plain, "claude", "explorer"))
         self.assertIn("tools: Read, Glob, Grep, WebSearch, WebFetch\n", MODULE.render_role(plain, "claude", "researcher"))
         self.assertNotIn("tools:", MODULE.render_role(bmad, "claude", "dev"))
+        for team in (plain, bmad):
+            for role in team["roles"]:
+                source = MODULE.load_role(team["process"], role, team["team"])
+                self.assertEqual("disallowedTools: Agent\n" in MODULE.render_role(team, "claude", role),
+                                 not source["delegation"])
         for team, role, expected in ((plain, "explorer", False), (plain, "researcher", False),
                                      (plain, "dev", True), (bmad, "dev", True)):
             text = MODULE.render_role(team, "antigravity", role)

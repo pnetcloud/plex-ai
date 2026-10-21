@@ -7,7 +7,7 @@
 Plex 是用于 **多智能体编排与协调的 agent harness**，集成 OpenAI Codex、Anthropic Claude Code
 和 Google Antigravity。安装可复用团队，选择模型配置档，再让 Plex 组织实现、审查和验证。
 
-**[v0.5.4 Preview](https://github.com/pnetcloud/plex-ai/releases/tag/v0.5.4)** — 开源，MIT。可试用；接口仍可能变化。
+**[v0.5.5](https://github.com/pnetcloud/plex-ai/releases/tag/v0.5.5)** — 开源，MIT。可试用；接口仍可能变化。
 
 ## 安装
 
@@ -66,6 +66,13 @@ $pnet-plex:plex 根据<需求>审查<变更>，报告问题和验证缺口。
 ```text
 $pnet-plex:plex-setup 检查当前项目的 Plex 配置。
 $pnet-plex:plex-setup 配置当前项目：团队<团队>、模型配置档<配置档>、交互模式<模式>。
+```
+
+**协调任务 · Claude Code 插件**
+
+```text
+/pnet-plex:plex 协调<任务>。要求：<要求>。验证<验收标准>。
+/pnet-plex:plex-setup 检查此项目的 Plex 配置。
 ```
 
 Codex `--dev` 模式使用本地 `$plex` 和 `$plex-setup` 标签。其他客户端可选择已安装技能，或明确请求：`使用 Plex 协调<任务>。`

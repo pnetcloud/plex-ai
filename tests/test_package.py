@@ -233,6 +233,45 @@ class PackageTests(unittest.TestCase):
             doctor = json.loads(doctor_res.stdout)
             self.assertEqual(doctor["checks"]["config.load"]["status"], "ok", doctor["checks"]["config.load"])
 
+    @unittest.skipUnless(shutil.which("claude"), "Claude Code CLI is not installed")
+    def test_native_claude_validate_install_and_apply(self):
+        with tempfile.TemporaryDirectory(prefix="plex-claude-test-") as temp:
+            env = {**os.environ, "CLAUDE_CONFIG_DIR": temp, "DISABLE_AUTOUPDATER": "1"}
+
+            def run(*args):
+                result = subprocess.run(["claude", *args], env=env, cwd=temp,
+                                        text=True, capture_output=True, timeout=60)
+                self.assertEqual(result.returncode, 0, result.stderr or result.stdout)
+                return result.stdout
+
+            export = INSTALLER.build_plugin("claude")
+            validation = json.loads(run("plugin", "validate", str(export), "--json"))
+            self.assertTrue(validation["success"], validation)
+            for command in INSTALLER.plugin_commands("claude"):
+                run(*command[1:])
+            installed = json.loads(run("plugin", "list", "--json"))
+            self.assertEqual(len(installed), 1)
+            self.assertEqual(installed[0]["id"], "pnet-plex@pnet-plex")
+            self.assertTrue(installed[0]["enabled"])
+            manifest = read_json(export / ".claude-plugin/plugin.json")
+            self.assertEqual(installed[0]["version"], manifest["version"])
+            package = Path(installed[0]["installPath"])
+            script = package / "skills/plex-setup/scripts/resolve_config.py"
+            for team in ("pnet", "bmad"):
+                project = Path(temp) / team
+                project.mkdir()
+                for operation, options in (("apply", ["--team", team, "--model-profile", "plus", "--instructions"]),
+                                           ("check", [])):
+                    result = subprocess.run(
+                        [sys.executable, str(script), operation, str(project), "--host", "claude", *options],
+                        env=env, text=True, capture_output=True, timeout=10)
+                    self.assertEqual(result.returncode, 0, result.stderr or result.stdout)
+                    payload = json.loads(result.stdout)
+                self.assertEqual(payload["status"], "in_sync")
+                self.assertIn("plex:managed:start", (project / "CLAUDE.md").read_text())
+                self.assertEqual(len(list((project / ".claude/agents").glob("plex-*.md"))),
+                                 len(INSTALLER.CONFIG.resolve({"team": team})["roles"]))
+
     @unittest.skipUnless(shutil.which("agy"), "Antigravity CLI is not installed")
     def test_native_antigravity_validate_and_install(self):
         with tempfile.TemporaryDirectory(prefix="plex-agy-test-") as temp:

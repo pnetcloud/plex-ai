@@ -19,6 +19,8 @@ schreibgeschützte Rollen, Antigravity explizite Werkzeuglisten. Client-Berechti
 und Auftragsbefugnisse gelten weiterhin. Team-Quellen bearbeiten und die Installation
 aktualisieren; generierte Rollen nicht direkt ändern.
 
+Claude-Rollen mit `delegation = false` sperren außerdem das native Werkzeug `Agent` über `disallowedTools`, auch bei Schreibzugriff.
+
 ## Format
 
 Mit kurzem Zweck und Auswahlbeschreibung beginnen, danach:

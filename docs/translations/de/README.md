@@ -14,6 +14,7 @@ Plex konfiguriert und koordiniert Agententeams in Codex, Claude Code und Antigra
 | [Rollenverträge](role-contracts.md) | Verantwortlichkeiten und Anweisungen |
 | [Entwicklung](development.md) | Quellstruktur und Prüfungen |
 | [Tests und Effizienz](testing.md) | Ergebnisse, Token, Kosten und Qualitätsbeobachtungen |
+| [Versionshinweise](releases/v0.5.5.md) | v0.5.5: Claude-Korrekturen und reguläre Veröffentlichung |
 | [Versionshinweise](releases/v0.5.4.md) | Vorschau v0.5.4: Inhalt, Installation und Grenzen |
 | [Versionshinweise](releases/v0.5.3.md) | Vorschau v0.5.3: Inhalt, Installation und Grenzen |
 | [Versionshinweise](releases/v0.5.2.md) | Vorschau v0.5.2: Inhalt, Installation und Grenzen |
