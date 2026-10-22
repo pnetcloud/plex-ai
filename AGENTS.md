@@ -2,6 +2,10 @@
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for the contribution workflow.
 
+For Plex releases, use the internal `pnet-plex-release` skill for preparation,
+checks and verified publication. If unavailable, report the missing skill before
+proceeding with a release.
+
 Read `docs/product.md` and `docs/development.md` before substantive work. For
 configuration changes also read `docs/configuration.md` and `docs/architecture.md`.
 These documents describe the project; keep implementation claims backed by files.
