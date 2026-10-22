@@ -36,6 +36,7 @@ English is the maintained source; translations mirror these filenames.
 
 | Version | Changes |
 |---|---|
+| [Release notes](releases/v0.7.1.md) | v0.7.1: README status and installation prerequisites. |
 | [Release notes](releases/v0.7.0.md) | v0.7.0: Manager-owned contracts, optional Plan/Goal and BMad Build Auto. |
 | [Release notes](releases/v0.6.1.md) | v0.6.1: Mandatory specialist intake before routing or implementation. |
 | [Release notes](releases/v0.6.0.md) | v0.6.0: Auto, Codex native roles, Plex AI presentation. |

@@ -4,6 +4,11 @@ Important changes retained in Plex, grouped by release. Interfaces and configura
 may change before 1.0. Releases through v0.5.4 were previews; v0.5.5 and later are
 regular releases.
 
+## [0.7.1] — 2026-10-22
+
+- State the active-development and evaluation status, client verification limits
+  and installation prerequisites on all four project READMEs.
+
 ## [0.7.0] — 2026-10-21
 
 - Let PM/PO select normal execution, planning first or bounded work toward a goal,

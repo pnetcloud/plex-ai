@@ -16,9 +16,13 @@ choose model profiles, and integrate verified work inside your coding client.
 
 [English](README.md) · [Русский](docs/translations/ru/README.md) · [Deutsch](docs/translations/de/README.md) · [简体中文](docs/translations/zh-CN/README.md)
 
+**Status: Active development; released for evaluation.** Support and verification coverage vary by
+client.
+
 ## Quickstart
 
-Run from your project directory. [Review the installer](install.sh) before executing it.
+Run from your project directory. Requires Git, curl, the selected client CLI, and uv or Python 3.11+.
+[Review the installer](install.sh) before executing it.
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/pnetcloud/plex-ai/main/install.sh | bash

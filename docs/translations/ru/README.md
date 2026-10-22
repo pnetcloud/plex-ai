@@ -16,11 +16,14 @@ OpenAI Codex, Anthropic Claude Code и Google Antigravity. Установите 
 
 **[Начать](#quickstart)** · **[Как это работает](../../../README.md#how-it-works)** · **[Документация](index.md)** · **[Релизы](https://github.com/pnetcloud/plex-ai/releases/latest)** · **[Сообщить о проблеме](https://github.com/pnetcloud/plex-ai/issues)**
 
+**Статус: активная разработка; версия доступна для оценки.** Поддержка и объём проверок зависят
+от клиента.
+
 <a id="quickstart"></a>
 
 ## Быстрый старт
 
-Запустите в папке проекта:
+Запустите в папке проекта. Требуются Git, curl, CLI выбранного клиента и uv или Python 3.11+:
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/pnetcloud/plex-ai/main/install.sh | bash

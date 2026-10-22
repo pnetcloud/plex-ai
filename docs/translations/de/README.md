@@ -16,11 +16,15 @@ Team installieren, Modellprofil wählen und Plex mit Umsetzung, Review und Prüf
 
 **[Installieren](#quickstart)** · **[Funktionsweise](../../../README.md#how-it-works)** · **[Dokumentation](index.md)** · **[Releases](https://github.com/pnetcloud/plex-ai/releases/latest)** · **[Problem melden](https://github.com/pnetcloud/plex-ai/issues)**
 
+**Status: aktive Entwicklung; zur Erprobung verfügbar.** Unterstützung und Prüfungsumfang
+unterscheiden sich je Client.
+
 <a id="quickstart"></a>
 
 ## Schnellstart
 
-Im Projektverzeichnis ausführen:
+Im Projektverzeichnis ausführen. Erforderlich sind Git, curl, die CLI des gewählten Clients sowie
+uv oder Python 3.11+:
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/pnetcloud/plex-ai/main/install.sh | bash

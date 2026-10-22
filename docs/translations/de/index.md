@@ -34,6 +34,7 @@ Englisch ist die gepflegte Quelle; Übersetzungen spiegeln die Dateinamen.
 
 | Version | Änderungen |
 |---|---|
+| [Versionshinweise](releases/v0.7.1.md) | v0.7.1: Projektstatus und Installationsvoraussetzungen in den READMEs. |
 | [Versionshinweise](releases/v0.7.0.md) | v0.7.0: PM/PO-Aufträge, optionale Plan/Goal-Modi und BMad Build Auto. |
 | [Versionshinweise](releases/v0.6.1.md) | v0.6.1: Verbindliche Fachbewertung vor Routing und Umsetzung. |
 | [Versionshinweise](releases/v0.6.0.md) | v0.6.0: Auto, native Codex-Rollen und Plex-AI-Präsentation. |

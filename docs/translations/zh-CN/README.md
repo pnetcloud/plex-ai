@@ -15,11 +15,13 @@ Plex 是用于 **多智能体编排与协调的 agent harness**，集成 OpenAI 
 
 **[安装](#quickstart)** · **[工作原理](../../../README.md#how-it-works)** · **[文档](index.md)** · **[版本](https://github.com/pnetcloud/plex-ai/releases/latest)** · **[报告问题](https://github.com/pnetcloud/plex-ai/issues)**
 
+**状态：积极开发中；当前版本可供评估。** 各客户端的支持范围和验证覆盖度有所不同。
+
 <a id="quickstart"></a>
 
 ## 快速开始
 
-在项目目录中运行：
+在项目目录中运行。需要 Git、curl、所选客户端的 CLI，以及 uv 或 Python 3.11+：
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/pnetcloud/plex-ai/main/install.sh | bash
