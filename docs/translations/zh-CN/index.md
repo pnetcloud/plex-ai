@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="../../assets/readme/hero.webp" width="320" height="163" alt="Plex AI by pNet — Triad">
+  <img src="../../assets/readme/hero-banner.png" width="800" alt="Plex AI by pNet，搭配深色矿物质感背景上的 Triad 标志">
 </p>
 
 # Plex 文档
@@ -33,6 +33,7 @@ Plex 在 Codex、Claude Code 和 Antigravity 中配置并协调智能体团队�
 
 | 版本 | 变更 |
 |---|---|
+| [发布说明](releases/v0.7.2.md) | v0.7.2：更大的深色 README 横幅，并同步展示素材。 |
 | [发布说明](releases/v0.7.1.md) | v0.7.1：README 中明确项目状态和安装要求。 |
 | [发布说明](releases/v0.7.0.md) | v0.7.0: PM/PO 契约、可选 Plan/Goal 与 BMad Build Auto。 |
 | [发布说明](releases/v0.6.1.md) | v0.6.1: 路由和实现前必须先由专家评估。 |

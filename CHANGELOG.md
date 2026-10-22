@@ -4,6 +4,14 @@ Important changes retained in Plex, grouped by release. Interfaces and configura
 may change before 1.0. Releases through v0.5.4 were previews; v0.5.5 and later are
 regular releases.
 
+## [0.7.2] — 2026-10-22
+
+- Replace the small README image with a larger dark-mineral banner using the
+  approved Triad mark; keep the original reference asset unchanged.
+- Synchronize the English, Russian, German and Chinese README artwork and release
+  navigation.
+- Update all native plugin manifests to v0.7.2.
+
 ## [0.7.1] — 2026-10-22
 
 - State the active-development and evaluation status, client verification limits

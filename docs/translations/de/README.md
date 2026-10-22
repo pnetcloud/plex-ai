@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="../../assets/readme/hero.webp" width="320" height="163" alt="Plex AI by pNet — Triad">
+  <img src="../../assets/readme/hero-banner.png" width="800" alt="Plex AI von pNet mit dem Triad-Zeichen auf dunklem mineralischem Hintergrund">
 </p>
 
 # Plex AI

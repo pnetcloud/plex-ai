@@ -1,6 +1,4 @@
-<p align="center">
-  <img src="docs/assets/readme/hero.webp" width="320" height="163" alt="Plex AI by pNet — interwoven cyan, teal and amber Triad ribbons">
-</p>
+<p align="center"><img src="docs/assets/readme/hero-banner.png" width="800" alt="Plex AI by pNet, with the approved Triad mark on a dark mineral background"></p>
 
 # Plex AI
 

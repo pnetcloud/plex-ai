@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="../../assets/readme/hero.webp" width="320" height="163" alt="Plex AI by pNet — Triad">
+  <img src="../../assets/readme/hero-banner.png" width="800" alt="Plex AI von pNet mit dem Triad-Zeichen auf dunklem mineralischem Hintergrund">
 </p>
 
 # Plex-Dokumentation
@@ -34,6 +34,7 @@ Englisch ist die gepflegte Quelle; Übersetzungen spiegeln die Dateinamen.
 
 | Version | Änderungen |
 |---|---|
+| [Versionshinweise](releases/v0.7.2.md) | v0.7.2: Größeres dunkles README-Banner und abgestimmte Präsentationsgrafiken. |
 | [Versionshinweise](releases/v0.7.1.md) | v0.7.1: Projektstatus und Installationsvoraussetzungen in den READMEs. |
 | [Versionshinweise](releases/v0.7.0.md) | v0.7.0: PM/PO-Aufträge, optionale Plan/Goal-Modi und BMad Build Auto. |
 | [Versionshinweise](releases/v0.6.1.md) | v0.6.1: Verbindliche Fachbewertung vor Routing und Umsetzung. |

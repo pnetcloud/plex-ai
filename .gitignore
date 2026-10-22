@@ -21,6 +21,7 @@
 
 # Approved public presentation assets only.
 !/docs/assets/readme/hero.webp
+!/docs/assets/readme/hero-banner.png
 !/docs/assets/readme/workflow.svg
 !/skills/
 !/skills/**/
