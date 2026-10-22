@@ -4,6 +4,12 @@ Important changes retained in Plex, grouped by release. Interfaces and configura
 may change before 1.0. Releases through v0.5.4 were previews; v0.5.5 and later are
 regular releases.
 
+## [0.9.1] — 2026-10-22
+
+- Clarify agent orchestration, coordinator responsibilities and Interactive/Balanced/Auto modes in all four READMEs.
+- Show Basic/Plus/Pro/Pro+ development and review models by client, including BMad differences and model identifiers.
+- Document the maintainer release-skill requirement; runtime behavior and project configuration are unchanged.
+
 ## [0.9.0] — 2026-10-22
 
 - Remove Plex token-budget settings and assignment checks. Existing presets remain

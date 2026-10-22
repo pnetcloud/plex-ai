@@ -102,6 +102,46 @@ Installation startet keine Koordination. `plex-setup` konfiguriert; `plex` koord
 
 **Inherit, Basic, Plus, Pro und Pro+** konfigurieren Subagenten. Das Hauptchatmodell wählst du; Setup zeigt eine profilabhängige Empfehlung. Siehe [Konfiguration](configuration.md).
 
+### Modi der Agenten-Orchestrierung
+
+Plex ist ein **AI Agent Orchestrator** in deinem Coding-Client. Dein Chat übernimmt
+die **Koordination**: PM formuliert die Aufgabe, spezialisierte Subagenten liefern
+Entscheidungen und Entwickler setzen die Arbeit zur Prüfung um. Modellprofile verteilen
+Luna, Sol und Astra oder Haiku, Sonnet und Opus auf diese Rollen; der Koordinator behält dein Chatmodell.
+
+Drei unabhängige Einstellungen: **Team** (`pnet` oder BMad-Workflows),
+**Modellprofil** (Inherit / Basic / Plus / Pro / Pro+) und **Interaktionsmodus**:
+
+| Modus | Zusammenarbeit mit dem Team |
+|---|---|
+| **Interactive** | Anforderungen und wesentliche Entscheidungen gemeinsam klären |
+| **Balanced** · Standard | Routinefragen selbst lösen; bei wesentlichen offenen Entscheidungen und erforderlichen Freigaben nachfragen |
+| **Auto** | Autorisierte Arbeit ohne Warten auf Antworten ausführen; Ergebnisse und Blocker melden |
+
+### Modelle nach Profil
+
+Dies sind **Plex-Konfigurationsprofile**, unabhängig von den Abonnements der Anbieter.
+Jede Zelle zeigt **Entwicklung → Code-Review** für das mitgelieferte `pnet`-Team.
+
+| Client / Modellanbieter | Basic | Plus | Pro | Pro+ |
+|---|---|---|---|---|
+| OpenAI Codex | Luna → Luna | Luna → Sol | Luna → Sol | Sol → Astra |
+| Claude Code / Anthropic | Haiku → Haiku | Haiku → Sonnet | Haiku → Sonnet | Sonnet → Opus |
+| Antigravity / Google Gemini | `flash` → `flash` | `flash` → `inherit` | `inherit` → `inherit` | `inherit` → `inherit` |
+| Antigravity / Anthropic | Sonnet low → Sonnet low | Sonnet low → Sonnet medium | Sonnet medium → Opus medium | Sonnet medium → Opus high |
+
+- **Basic:** ein Basismodell für alle `pnet`-Rollen. **Plus:** getrennte Modelle für Umsetzung und Review, sofern konfiguriert.
+- **Pro:** höhere Reasoning-Stufen für ausgewählte Rollen; Modellfamilien können gleich bleiben. **Pro+:** Sol/Sonnet für Entwicklung, Astra/Opus für Review in den OpenAI/Anthropic-Profilen.
+- **BMad:** dieselben Entwicklungs-/Review-Paare, aber Basic nutzt für Review bereits Sol, Sonnet, `inherit` beziehungsweise Sonnet medium. Planung, Architektur und weitere Rollen haben eigene Einstellungen.
+- **Inherit:** Vorgaben des Clients/der Sitzung. In Gemini-Profilen legt `inherit` kein bestimmtes Gemini-Pro-Modell fest.
+
+Konfigurierte IDs: Luna = `gpt-6-luna`, Sol = `gpt-6.1-sol`, Astra = `gpt-6-astra`.
+Claude Code nutzt die Aliase `haiku`, `sonnet`, `opus`; die Anthropic-Profile in Antigravity verwenden
+`claude-sonnet-5-5-low`, `claude-sonnet-5-5-medium`, `claude-opus-5-5-medium` und `claude-opus-5-5-high`.
+Dies sind mitgelieferte Einstellungen, keine Garantie für Modellverfügbarkeit oder Einsparungen. Setup zeigt die wirksamen Einstellungen einschließlich Projektüberschreibungen.
+
+[Alle pnet-Rollen](../../../teams/pnet/profiles/) · [Alle BMad-Rollen](../../../teams/bmad/profiles/) · [Profilkonfiguration](configuration.md)
+
 ## Terminalbefehle
 
 | Aufgabe | Befehl |
