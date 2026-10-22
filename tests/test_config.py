@@ -385,11 +385,14 @@ class ConfigTests(unittest.TestCase):
                     with self.assertRaises(ValueError):
                         resolve({"team": "pnet"})
 
-    def test_render_preserves_native_access_and_tools(self):
+    def test_render_inherits_codex_permissions_and_preserves_other_host_tools(self):
         plain = resolve({"team": "pnet"})
         bmad = resolve({"team": "bmad"})
-        self.assertEqual(tomllib.loads(MODULE.render_role(plain, "codex", "explorer"))["sandbox_mode"], "read-only")
-        self.assertEqual(tomllib.loads(MODULE.render_role(bmad, "codex", "dev"))["sandbox_mode"], "workspace-write")
+        for team in (plain, bmad):
+            for role in team["roles"]:
+                rendered = tomllib.loads(MODULE.render_role(team, "codex", role))
+                self.assertNotIn("sandbox_mode", rendered)
+                self.assertNotIn("approval_policy", rendered)
         self.assertIn("tools: Read, Glob, Grep\n", MODULE.render_role(plain, "claude", "explorer"))
         self.assertIn("tools: Read, Glob, Grep, WebSearch, WebFetch\n", MODULE.render_role(plain, "claude", "researcher"))
         self.assertNotIn("tools:", MODULE.render_role(bmad, "claude", "dev"))
@@ -404,6 +407,37 @@ class ConfigTests(unittest.TestCase):
             self.assertEqual("  - write_to_file\n" in text, expected)
             self.assertEqual("  - define_subagent\n" in text, team is bmad)
             self.assertEqual("  - search_web\n" in text, role != "explorer")
+
+    def test_refresh_removes_legacy_codex_sandbox_without_changing_parent_permissions(self):
+        for team in ("pnet", "bmad"):
+            with self.subTest(team=team), tempfile.TemporaryDirectory() as temp:
+                project = Path(temp).resolve()
+                config = project / ".codex/config.toml"
+                config.parent.mkdir()
+                config.write_text('approval_policy = "on-request"\nsandbox_mode = "read-only"\n')
+                apply_project(project, "codex", team=team, model_profile="plus", instructions=True)
+                parent_config = config.read_bytes()
+                instructions = (project / "AGENTS.md").read_bytes()
+                receipt_path = project / ".plex/applied.json"
+                receipt = json.loads(receipt_path.read_text())
+                legacy_files = {}
+                for role, info in receipt["hosts"]["codex"]["files"].items():
+                    path = project / info["relpath"]
+                    access = MODULE.load_role("bmad" if team == "bmad" else "plain", role, team)["access"]
+                    legacy = f'sandbox_mode = "{access}"\n'.encode() + path.read_bytes()
+                    path.write_bytes(legacy)
+                    info["sha256"] = hashlib.sha256(legacy).hexdigest()
+                    legacy_files[path] = legacy
+                receipt_path.write_text(json.dumps(receipt))
+                result = apply_project(project, "codex", model_profile="pro", instructions=True)
+                self.assertEqual(check_project(project, "codex")["status"], "in_sync")
+                for path, legacy in legacy_files.items():
+                    self.assertNotIn("sandbox_mode", tomllib.loads(path.read_text()))
+                    self.assertNotIn("approval_policy", tomllib.loads(path.read_text()))
+                    self.assertEqual((project / result["backup_dir"] / path.name).read_bytes(), legacy)
+                self.assertEqual(config.read_bytes(), parent_config)
+                self.assertEqual((project / "AGENTS.md").read_bytes(), instructions)
+                self.assertEqual(apply_project(project, "codex")["written_roles"], [])
 
     def test_missing_team_template_never_falls_back(self):
         with tempfile.TemporaryDirectory() as temp:

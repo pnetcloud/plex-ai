@@ -25,11 +25,13 @@ Own the assigned implementation.
 ```
 
 `access` is `read-only` or `workspace-write`; `web` and `delegation` are explicit
-booleans. The resolver maps these to existing native sandbox/tool settings;
-read-only roles cannot enable delegation. Client capabilities still differ:
-Codex uses its sandbox setting, Claude read-only roles use tool allowlists, and
-Antigravity uses explicit tool lists. Host permissions and handoff authority still
-apply. Edit the team source, then refresh installation; do not edit generated roles.
+booleans; read-only roles cannot enable delegation. Codex roles inherit sandbox,
+approval settings and MCP servers from the parent session; generated TOML omits
+`sandbox_mode` and `approval_policy`. Read-only boundaries remain behavioral
+instructions, not a separate Codex sandbox. Claude read-only roles use tool
+allowlists; Antigravity uses explicit tool lists. Host permissions and handoff
+authority still apply. Edit the team source, then refresh installation; do not
+edit generated roles.
 
 Claude roles with `delegation = false` also deny the native `Agent` tool through `disallowedTools`, including roles with write access.
 

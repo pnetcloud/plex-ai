@@ -12,10 +12,12 @@ Die Quelle liegt unter `teams/<team>/agents/<role>.md`: TOML-Metadaten zwischen
 unabhängig. Modelle bleiben in Profilen, Skill-Bindungen in `team.toml`.
 
 Pflichtfelder: `name`, `description`, `access` (`read-only` oder `workspace-write`)
-sowie die booleschen Felder `web` und `delegation`. Der Renderer bildet sie auf die
-bestehenden nativen Sandbox-/Werkzeugeinstellungen ab. Schreibgeschützte Rollen
-dürfen nicht delegieren. Codex nutzt die Sandbox, Claude Werkzeuglisten für
-schreibgeschützte Rollen, Antigravity explizite Werkzeuglisten. Client-Berechtigungen
+sowie die booleschen Felder `web` und `delegation`. Schreibgeschützte Rollen dürfen
+nicht delegieren. Codex erbt Sandbox, Freigaben und MCP-Server von der Hauptsitzung;
+generierte TOML-Dateien enthalten weder `sandbox_mode` noch `approval_policy`.
+Schreibschutz bleibt eine Verhaltensanweisung, keine separate Codex-Sandbox.
+Claude nutzt Werkzeuglisten für schreibgeschützte Rollen, Antigravity explizite
+Werkzeuglisten. Client-Berechtigungen
 und Auftragsbefugnisse gelten weiterhin. Team-Quellen bearbeiten und die Installation
 aktualisieren; generierte Rollen nicht direkt ändern.
 

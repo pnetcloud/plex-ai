@@ -36,6 +36,7 @@ English is the maintained source; translations mirror these filenames.
 
 | Version | Changes |
 |---|---|
+| [Release notes](releases/v0.8.1.md) | v0.8.1: Codex roles inherit permissions from the main chat. |
 | [Release notes](releases/v0.8.0.md) | v0.8.0: Goal token budgets are optional and unset by default. |
 | [Release notes](releases/v0.7.2.md) | v0.7.2: Larger dark README banner and synchronized presentation assets. |
 | [Release notes](releases/v0.7.1.md) | v0.7.1: README status and installation prerequisites. |

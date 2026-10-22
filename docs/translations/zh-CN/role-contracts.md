@@ -10,8 +10,10 @@
 随后是 Markdown 指令。即使角色同名，各团队仍独立。模型保留在配置档中，技能绑定保留在 `team.toml` 中。
 
 必填字段为 `name`、`description`、`access`（`read-only` 或 `workspace-write`），
-以及布尔字段 `web` 和 `delegation`。渲染器将其映射到现有原生沙箱和工具设置；只读角色不能启用委派。
-客户端能力仍有差异：Codex 使用沙箱，Claude 为只读角色使用工具允许列表，Antigravity 使用显式工具列表。
+以及布尔字段 `web` 和 `delegation`。只读角色不能启用委派。
+Codex 从主会话继承沙箱、审批设置和 MCP 服务器；生成的 TOML 不包含 `sandbox_mode` 或 `approval_policy`。
+只读边界由行为指令约束，不构成独立的 Codex 沙箱。
+Claude 为只读角色使用工具允许列表，Antigravity 使用显式工具列表。
 客户端权限及任务授权仍然有效。请修改团队源文件并刷新安装，不要直接修改生成的角色文件。
 
 Claude 中 `delegation = false` 的角色还会通过 `disallowedTools` 禁用原生 `Agent` 工具，包括具有写入权限的角色。

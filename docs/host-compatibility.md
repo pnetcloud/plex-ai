@@ -26,6 +26,11 @@ Native permissions and limits remain authoritative. Do not infer tool isolation,
 concurrency or model selection solely from role names, profiles or successful rendering.
 Plex does not enable another host or relax global permissions to make an adapter work.
 
+Codex subagents inherit sandbox, approval settings and MCP servers from the main
+chat. Plex omits `sandbox_mode` and `approval_policy` from generated role TOML.
+Set permissions in the parent session. Read-only role instructions do not provide
+a separate sandbox. See the [Codex subagent reference](https://learn.chatgpt.com/docs/agent-configuration/subagents).
+
 ## Claude Code dispatch
 
 Plex selects native roles with `Agent.subagent_type`. Task labels go in

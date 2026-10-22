@@ -26,6 +26,11 @@ Codex получает `model`, `model_reasoning_effort`; Claude Code и Antigra
 не доказывают изоляцию инструментов, параллелизм или выбор модели. Plex не включает
 другого клиента и не ослабляет глобальные разрешения ради работы адаптера.
 
+Субагенты Codex наследуют sandbox, согласования и MCP основного чата. Plex не
+записывает `sandbox_mode` и `approval_policy` в TOML ролей. Настраивайте права
+в основном чате; инструкция «только чтение» не создаёт отдельный sandbox.
+См. [справочник субагентов Codex](https://learn.chatgpt.com/docs/agent-configuration/subagents).
+
 ## Делегирование в Claude Code
 
 Plex выбирает нативную роль через `Agent.subagent_type`. Метку задачи передаём в

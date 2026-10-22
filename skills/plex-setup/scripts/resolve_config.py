@@ -335,7 +335,6 @@ def render_role(resolved: dict, host: str, role: str) -> str:
             lines.append(f'model = {json.dumps(role_settings["model"])}')
         if "reasoning" in role_settings:
             lines.append(f'model_reasoning_effort = {json.dumps(role_settings["reasoning"])}')
-        lines.append(f'sandbox_mode = {json.dumps(source["access"])}')
         lines.append(f"developer_instructions = {toml_multiline(instructions)}")
         rendered = "\n".join(lines) + "\n"
         tomllib.loads(rendered)

@@ -33,6 +33,7 @@ Plex 在 Codex、Claude Code 和 Antigravity 中配置并协调智能体团队�
 
 | 版本 | 变更 |
 |---|---|
+| [发布说明](releases/v0.8.1.md) | v0.8.1：Codex 角色从主聊天继承权限。 |
 | [发布说明](releases/v0.8.0.md) | v0.8.0：Goal token 预算为可选项，默认不设置上限。 |
 | [发布说明](releases/v0.7.2.md) | v0.7.2：更大的深色 README 横幅，并同步展示素材。 |
 | [发布说明](releases/v0.7.1.md) | v0.7.1：README 中明确项目状态和安装要求。 |

@@ -4,6 +4,15 @@ Important changes retained in Plex, grouped by release. Interfaces and configura
 may change before 1.0. Releases through v0.5.4 were previews; v0.5.5 and later are
 regular releases.
 
+## [0.8.1] — 2026-10-22
+
+- Omit `sandbox_mode` from generated Codex roles; keep `approval_policy` unset.
+  Subagents inherit permissions and MCP servers from the parent session.
+- Clarify that read-only Codex roles express behavioral boundaries, not a separate
+  sandbox. Preserve Claude Code and Antigravity tool restrictions.
+- Verify refresh of older receipt-owned roles removes the sandbox field, preserves
+  parent permissions and remains idempotent; retain conflict checks for local edits.
+
 ## [0.8.0] — 2026-10-22
 
 - Remove Plex's default 50,000-token Goal budget. Coordinator and subagent budgets

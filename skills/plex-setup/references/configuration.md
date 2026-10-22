@@ -134,6 +134,9 @@ extra legacy `skills` bindings are rendered.
 `resolve_config.py` renders only final settings:
 - In Codex it maps `model` to `model` and `reasoning` to `model_reasoning_effort` in
   role TOML. Omitted fields remain absent, including when clearing a previous override.
+  Sandbox, approval settings and MCP servers inherit from the parent session;
+  role TOML omits `sandbox_mode` and `approval_policy`. Read-only instructions are
+  behavioral boundaries, not a separate Codex sandbox.
 - In Claude Code and Antigravity it renders `model` and optional `effort` in YAML
   frontmatter. Project `reasoning` supports `low`, `medium`, `high`, `xhigh`, `max`;
   Antigravity `model` supports `inherit`, `flash_lite`, `flash`, `pro`; actual model

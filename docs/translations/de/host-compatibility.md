@@ -26,6 +26,11 @@ Native Rechte und Limits bleiben maßgeblich. Rollennamen, Profile und erfolgrei
 Rendering belegen weder Werkzeugisolation noch Parallelität oder Modellwahl. Plex
 aktiviert keinen anderen Client und lockert keine globalen Rechte, um Adapter nutzbar zu machen.
 
+Codex-Subagenten erben Sandbox, Freigaben und MCP-Server vom Hauptchat. Plex lässt
+`sandbox_mode` und `approval_policy` in Rollen-TOML weg. Berechtigungen in der
+Hauptsitzung einstellen; Nur-Lese-Anweisungen erzeugen keine separate Sandbox.
+Siehe die [Codex-Subagentenreferenz](https://learn.chatgpt.com/docs/agent-configuration/subagents).
+
 ## Delegation in Claude Code
 
 Plex wählt native Rollen über `Agent.subagent_type`. Aufgabenlabels stehen in

@@ -23,6 +23,10 @@ Codex 渲染 `model` 和 `model_reasoning_effort`；Claude Code 与 Antigravity 
 原生权限和限制始终有效。角色名、配置档和成功渲染不能证明工具隔离、并发行为或模型选择。
 Plex 不会为使适配器工作而启用其他客户端或放宽全局权限。
 
+Codex 子智能体从主聊天继承沙箱、审批设置和 MCP 服务器。Plex 不在角色 TOML 中写入
+`sandbox_mode` 或 `approval_policy`。请在主会话配置权限；只读指令不构成独立沙箱。
+参见 [Codex 子智能体参考](https://learn.chatgpt.com/docs/agent-configuration/subagents)。
+
 ## Claude Code 委派
 
 Plex 通过 `Agent.subagent_type` 选择原生角色。任务标签放入 `description` 和交接文本；
