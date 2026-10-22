@@ -25,7 +25,7 @@
 ## Questions and blockers
 
 1. Subagents return questions to the coordinator with evidence and resume context. No direct user questions or polling.
-2. Check requirements, prior user decisions and the reached workflow branch.
+2. Verify the blocker's source and applicability against requirements, prior user decisions and the reached workflow branch. An optional agent-chosen method is not a prerequisite; its owner should use an authorized alternative preserving acceptance, permissions and required checks.
 3. Answer from existing authority, including the workspace policy above. Cite that authority to the executor; do not ask again for an already authorized action. Never fabricate consent.
 4. In `balanced`, group necessary questions into one concise request with a recommendation.
 5. Continue independent work while an answer is pending.
