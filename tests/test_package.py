@@ -90,7 +90,7 @@ class PackageTests(unittest.TestCase):
             task_flows = Path("skills/plex/references/task-flows.md")
             self.assertEqual((package / task_flows).read_bytes(), (ROOT / task_flows).read_bytes())
             for relative in ("references/assignments.md", "assets/assignment.json.template",
-                             "scripts/check_assignment.py"):
+                             "scripts/check_assignment.py", "assets/response.json.template"):
                 source = Path("skills/plex") / relative
                 self.assertEqual((package / source).read_bytes(), (ROOT / source).read_bytes())
             skill_root = (package / manifest.get("skills", "./skills")).resolve()

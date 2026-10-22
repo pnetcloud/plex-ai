@@ -1,4 +1,6 @@
 {
+  "assignment": "plex_dev_task",
+  "revision": 1,
   "role": "plex-dev",
   "reference": "existing issue/spec/story reference, or current user request",
   "outcome": "One bounded result agreed by PM/PO",

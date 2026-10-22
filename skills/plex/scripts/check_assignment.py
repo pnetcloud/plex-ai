@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-"""Validate a Plex assignment from stdin against an already checked snapshot.
+"""Validate a Plex assignment or response against an already checked snapshot.
 
 Usage: python3 check_assignment.py --resolved <root>/.plex/resolved.json < assignment.json
+Add --assignment <current-assignment.json> to validate a response on stdin.
 Read-only structural validation; does not establish authority or semantic readiness.
 """
 
@@ -25,6 +26,8 @@ def validate(assignment, snapshot):
         return ["snapshot.roles must be a non-empty list of role names"]
     if not isinstance(assignment, dict):
         return ["assignment must be an object"]
+    if "assignment" in assignment or "revision" in assignment:
+        errors.extend(validate_identity(assignment))
     for field in ("outcome", "reference"):
         if not nonempty(assignment.get(field)):
             errors.append(f"{field} must be a non-empty string")
@@ -64,14 +67,111 @@ def validate(assignment, snapshot):
     return errors
 
 
+def validate_identity(value):
+    errors = []
+    if not nonempty(value.get("assignment")):
+        errors.append("assignment must be a non-empty task label")
+    if type(value.get("revision")) is not int or value["revision"] < 1:
+        errors.append("revision must be a positive integer")
+    return errors
+
+
+def validate_response(response, assignment, snapshot):
+    """Check response structure and identity, not evidence truth or progress history."""
+    errors = validate(assignment, snapshot)
+    if errors:
+        return ["assignment: " + error for error in errors]
+    errors = validate_identity(assignment)
+    if errors:
+        return ["assignment: " + error for error in errors]
+    if not isinstance(response, dict):
+        return ["response must be an object"]
+    errors = validate_identity(response)
+    for field in ("assignment", "revision", "role"):
+        if response.get(field) != assignment[field]:
+            errors.append(f"{field} must match the current assignment")
+    if not nonempty(response.get("summary")):
+        errors.append("summary must be a non-empty string")
+    status = response.get("status")
+    if status not in ("progress", "needs-decision", "blocked", "completed"):
+        errors.append("status must be progress, needs-decision, blocked or completed")
+    if status in ("progress", "needs-decision") and not nonempty(response.get("next")):
+        errors.append("next must describe the next step")
+    if status == "progress":
+        if not string_list(response.get("evidence")) or not response["evidence"]:
+            errors.append("progress requires non-empty evidence of a new result or observation")
+    if status == "needs-decision":
+        request = response.get("request")
+        if not isinstance(request, dict):
+            errors.append("needs-decision requires a request object")
+        else:
+            if request.get("kind") not in ("context", "scope", "technical", "permission"):
+                errors.append("request.kind must be context, scope, technical or permission")
+            for field in ("question", "recommendation"):
+                if not nonempty(request.get(field)):
+                    errors.append(f"request.{field} must be non-empty")
+            if not string_list(request.get("attempted")) or not request["attempted"]:
+                errors.append("request.attempted must contain observations or safe checks already made")
+    if status == "blocked":
+        blocker = response.get("blocker")
+        if not isinstance(blocker, dict):
+            errors.append("blocked requires a blocker object")
+        else:
+            for field in ("constraint", "resume"):
+                if not nonempty(blocker.get(field)):
+                    errors.append(f"blocker.{field} must be non-empty")
+            if not string_list(blocker.get("evidence")) or not blocker["evidence"]:
+                errors.append("blocker.evidence must be non-empty")
+    if "artifacts" in response or status == "completed":
+        if not string_list(response.get("artifacts")):
+            errors.append("artifacts must be a list of references (may be empty)")
+    if "criteria" in response or status == "completed":
+        criteria = response.get("criteria")
+        if not isinstance(criteria, list):
+            errors.append("criteria must be a list")
+        else:
+            seen = set()
+            for item in criteria:
+                if not isinstance(item, dict):
+                    errors.append("each criterion result must be an object")
+                    continue
+                index = item.get("index")
+                if type(index) is not int or not 1 <= index <= len(assignment["acceptance"]):
+                    errors.append("criterion index must identify an acceptance criterion (1-based)")
+                elif index in seen:
+                    errors.append("criterion indexes must be unique")
+                else:
+                    seen.add(index)
+                state = item.get("state")
+                if state not in ("passed", "failed", "pending"):
+                    errors.append("criterion state must be passed, failed or pending")
+                evidence = item.get("evidence")
+                if not string_list(evidence) or (state != "pending" and not evidence):
+                    errors.append("criterion evidence must be a list, non-empty for passed/failed")
+                if status == "completed" and state != "passed":
+                    errors.append("completed requires every criterion to pass")
+            if status == "completed" and seen != set(range(1, len(assignment["acceptance"]) + 1)):
+                errors.append("completed must cover every acceptance criterion")
+    for field, allowed in (("request", "needs-decision"), ("blocker", "blocked")):
+        if field in response and status != allowed:
+            errors.append(f"{field} is only valid with status {allowed}")
+    return errors
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--resolved", type=Path, required=True, help="Already checked .plex/resolved.json")
+    parser.add_argument("--assignment", type=Path,
+                        help="Validate a response from stdin against this current assignment JSON")
     args = parser.parse_args()
     try:
         snapshot = json.loads(args.resolved.read_text(encoding="utf-8"))
-        assignment = json.load(sys.stdin)
-        errors = validate(assignment, snapshot)
+        value = json.load(sys.stdin)
+        if args.assignment:
+            assignment = json.loads(args.assignment.read_text(encoding="utf-8"))
+            errors = validate_response(value, assignment, snapshot)
+        else:
+            errors = validate(value, snapshot)
     except (OSError, ValueError) as error:
         errors = [f"cannot read assignment or snapshot: {error}"]
     print(json.dumps({"status": "invalid" if errors else "valid", "errors": errors}, ensure_ascii=False))

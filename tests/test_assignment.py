@@ -109,5 +109,114 @@ class AssignmentTests(unittest.TestCase):
             self.assertEqual(json.loads(result.stdout)["status"], "invalid")
 
 
+class ResponseTests(unittest.TestCase):
+    def setUp(self):
+        self.assignment = json.loads(TEMPLATE.read_text())
+        self.response = json.loads((ROOT / "skills/plex/assets/response.json.template").read_text())
+        self.snapshot = {"roles": ["pm", "po", "dev", "architect", "ux", "reviewer", "qa"]}
+
+    def check(self, response=None, assignment=None):
+        return MODULE.validate_response(
+            self.response if response is None else response,
+            self.assignment if assignment is None else assignment, self.snapshot)
+
+    def test_all_roles_can_return_without_files(self):
+        for role in self.snapshot["roles"]:
+            self.assignment["role"] = self.response["role"] = "plex-" + role
+            self.assertEqual(self.check(), [])
+        self.response["findings"] = ["A demonstrated implementation defect"]
+        self.assertEqual(self.check(), [])  # A completed review need not approve the code.
+
+    def test_identity_and_current_revision(self):
+        for key, values in {"assignment": ["another", "", None],
+                            "revision": [0, 2, True, 1.0, "1"],
+                            "role": ["dev", "plex-old", "plex-pm", []]}.items():
+            for value in values:
+                with self.subTest(key=key, value=value):
+                    self.assertTrue(self.check({**self.response, key: value}))
+        old = {k: v for k, v in self.assignment.items() if k not in ("assignment", "revision")}
+        self.assertEqual(MODULE.validate(old, self.snapshot), [])
+        self.assertTrue(self.check(assignment=old))
+
+    def test_complete_requires_all_evidence_and_no_open_request(self):
+        for field in self.response:
+            data = copy.deepcopy(self.response)
+            del data[field]
+            self.assertTrue(self.check(data), field)
+        for criteria in ([], None, [None], [{"index": 1, "state": "pending", "evidence": []}],
+                         [{"index": 1, "state": "failed", "evidence": ["failure"]}],
+                         [{"index": 1, "state": "passed", "evidence": []}],
+                         self.response["criteria"] * 2):
+            self.assertTrue(self.check({**self.response, "criteria": criteria}))
+        for index in (True, 1.0, 0, 2, "1", [], None):
+            data = copy.deepcopy(self.response)
+            data["criteria"][0]["index"] = index
+            self.assertTrue(self.check(data))
+        for field in ("request", "blocker"):
+            self.assertTrue(self.check({**self.response, field: {}}))
+        self.assignment["acceptance"] *= 2
+        self.assertTrue(self.check())
+        self.response["criteria"].append({"index": 2, "state": "passed", "evidence": ["check 2"]})
+        self.assertEqual(self.check(), [])
+
+    def test_progress_is_a_delta_without_completion_requirements(self):
+        data = {key: self.response[key] for key in ("assignment", "revision", "role", "summary")}
+        data.update(status="progress", evidence=["check A passed at revision X"], next="Run check B")
+        self.assertEqual(self.check(data), [])
+        for field in ("evidence", "next"):
+            invalid = dict(data)
+            del invalid[field]
+            self.assertTrue(self.check(invalid))
+        data["criteria"] = [{"index": 1, "state": "pending", "evidence": []}]
+        self.assertEqual(self.check(data), [])
+
+    def test_decision_request_and_blocker_are_distinct(self):
+        data = {key: self.response[key] for key in ("assignment", "revision", "role", "summary")}
+        request = {"kind": "technical", "question": "Which contract applies?",
+                   "attempted": ["Compared spec and public API"], "recommendation": "Preserve public API"}
+        data.update(status="needs-decision", request=request, next="Continue after architect decision")
+        self.assertEqual(self.check(data), [])
+        for field in request:
+            invalid = copy.deepcopy(data)
+            del invalid["request"][field]
+            self.assertTrue(self.check(invalid))
+        self.assertTrue(self.check({**data, "request": {**request, "kind": "unknown"}}))
+        blocker = {"constraint": "Required permission denied", "evidence": ["Tool denial"],
+                   "resume": "Authority owner grants required access"}
+        data = {**data, "status": "blocked", "blocker": blocker}
+        del data["request"]
+        self.assertEqual(self.check(data), [])
+        for field in blocker:
+            invalid = copy.deepcopy(data)
+            del invalid["blocker"][field]
+            self.assertTrue(self.check(invalid))
+
+    def test_malformed_objects_fail_without_exceptions(self):
+        for data in (None, 1, [], "text"):
+            self.assertTrue(MODULE.validate_response(data, self.assignment, self.snapshot))
+        for assignment in (None, [], {}, {"role": "plex-dev"}):
+            self.assertTrue(MODULE.validate_response(self.response, assignment, self.snapshot))
+        for field in ("status", "summary", "artifacts", "criteria"):
+            for value in (None, {}, 3, True):
+                self.assertTrue(self.check({**self.response, field: value}))
+
+    def test_response_cli_and_source_files_are_unchanged(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            paths = [root / "assignment.json", root / "resolved.json"]
+            paths[0].write_text(json.dumps(self.assignment))
+            paths[1].write_text(json.dumps(self.snapshot))
+            before = [p.read_bytes() for p in paths]
+            for raw, expected in ((json.dumps(self.response), 0), ("{broken", 1), ("[]", 1),
+                                  (json.dumps({**self.response, "revision": 2}), 1)):
+                result = subprocess.run([sys.executable, str(SCRIPT), "--resolved", str(paths[1]),
+                                         "--assignment", str(paths[0])], input=raw,
+                                        text=True, capture_output=True)
+                self.assertEqual(result.returncode, expected, result.stderr)
+                self.assertEqual(json.loads(result.stdout)["status"], "valid" if expected == 0 else "invalid")
+            self.assertEqual([p.read_bytes() for p in paths], before)
+            self.assertEqual(set(root.iterdir()), set(paths))
+
+
 if __name__ == "__main__":
     unittest.main()

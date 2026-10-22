@@ -29,6 +29,9 @@ This block is managed by the Plex installer; keep personal/project rules outside
 - PM/PO owns the execution approach and 1–5 observable acceptance criteria.
   Follow the skill's assignment contract and validator. Native Plan/Goal is optional;
   when unavailable, retain ordinary planning or bounded work toward the criteria.
+- Validate Plex-owned responses against the current assignment and revision using
+  the skill's response contract. Route help to the decision owner; resume with new
+  evidence or a concrete decision, not an unchanged retry.
 - Pass exact artifact paths/revisions. Return missing inputs to their owner;
   do not substitute a similarly named file or claim a check of another input.
 

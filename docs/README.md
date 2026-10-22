@@ -36,6 +36,7 @@ English is the maintained source; translations mirror these filenames.
 
 | Version | Changes |
 |---|---|
+| [Release notes](releases/v0.10.0.md) | v0.10.0: Validated subagent responses and clearer help requests. |
 | [Release notes](releases/v0.9.1.md) | v0.9.1: Documentation hotfix: clearer model profiles and agent orchestration. |
 | [Release notes](releases/v0.9.0.md) | v0.9.0: Plex no longer manages token budgets. |
 | [Release notes](releases/v0.8.1.md) | v0.8.1: Codex roles inherit permissions from the main chat. |

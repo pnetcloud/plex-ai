@@ -86,3 +86,74 @@ forever, and preserve implementation handles required for workflow fix resumptio
 - Return each criterion with evidence, changed paths and unresolved gaps. A native
   goal completes only after its own criteria pass; required independent acceptance
   still belongs to the owning review/QA or manager assignment.
+
+## Response contract
+
+For new Plex-owned assignments, root attaches `assignment` (the current task label)
+and a positive integer `revision`, starting at 1. Preserve them on continuation.
+PM/PO changes the revision when outcome, scope or acceptance changes; ordinary
+progress does not. Keep the current contract in the conversation or an authorized
+artifact area, not a new tracker. Reusing a handle does not reuse a previous task's
+identity. Legacy input contracts remain readable; attach identity before using the
+response check. Do not restart running work merely to add identity.
+
+Return a JSON object using the [response template](../assets/response.json.template).
+All responses require `assignment`, `revision`, exact native `role`, `status` and
+`summary`. Preserve role-specific findings and BMad activation/step evidence as
+additional fields or referenced artifacts. Intake and workflow-owned leaves retain
+their existing return formats; validate the enclosing Plex-owned assignment only.
+
+| Status | Required fields | Meaning |
+|---|---|---|
+| `progress` | Non-empty `evidence` list and `next` | New result or observation; continue without acknowledgement |
+| `needs-decision` | `request` with `kind`, `question`, non-empty `attempted`, `recommendation`; `next` | A specific decision is needed; continue independent authorized work |
+| `blocked` | `blocker` with `constraint`, non-empty `evidence`, `resume` | Dependent work cannot proceed; name what would unblock it |
+| `completed` | `criteria` covering every acceptance item as `passed` with evidence; `artifacts` list | Ready for acceptance, not automatically accepted |
+
+`criteria` entries use a unique 1-based `index`, `state` (`passed`, `failed`,
+`pending`) and `evidence` list. Passed/failed require evidence; pending may use an
+empty list. Intermediate responses may omit criteria or report a subset. Artifacts
+may be empty for consultations. A reviewer can complete an assignment that finds
+bugs: its criteria require findings, not a positive verdict on the implementation.
+`request` is allowed only for `needs-decision`; `blocker` only for `blocked`.
+`completed` cannot contain an unresolved request or blocker.
+
+Root checks a returned object before accepting it or using it as a dependent input:
+
+```sh
+python3 <plugin-root>/skills/plex/scripts/check_assignment.py --resolved <root>/.plex/resolved.json --assignment <current-assignment.json>
+```
+
+Pass the response on stdin; supply the current accepted contract via an authorized
+temporary file when it exists only in conversation. The checker is read-only.
+A valid structure does not prove evidence, scope containment, progress, delivery or
+acceptance. It does not intercept native dispatch. Inspect actual evidence and the
+host completion event before closing work; a progress message is never completion.
+
+## Help and continuation
+
+- Ask for help on a demonstrated uncertainty before expanding scope or repeatedly
+  guessing. `attempted` records relevant observations/checks, not a required number
+  of failed experiments. A confirmed contradiction can be escalated immediately.
+- Route `request.kind`: `context` to the input owner; `scope` to PM/PO; `technical`
+  to BMad architect or pnet PM; `permission` to its actual authority owner. Root
+  routes decisions, not substitutes for the required specialist. A recommendation
+  is not authorization; `auto` preserves real gates.
+- Return the decision, changed input/evidence and next check to the same executor.
+  Preserve its write ownership. Do not spawn another dev or change models merely
+  because it requested help.
+- Resume a repeated problem only with a concrete change in evidence, input or
+  decision. Reuse an already supplied answer instead of opening another routing
+  cycle. Compare canonical reference, affected criterion and cause across task
+  labels; renaming/revising a task does not reset the problem's history.
+- Keep existing retry and installed workflow rules. If the same problem remains
+  without new evidence, preserve partial results and report the actual constraint;
+  do not repeat the whole workflow or create a manager consultation loop.
+- Return response-format errors once to the same author with exact diagnostics.
+  Do not reimplement or rerun its task. If still invalid, retain partial evidence
+  and report the validation failure; do not invent a valid result on its behalf.
+- Send concise event-driven progress for a completed check/criterion, new risk or
+  needed decision. Include what changed, evidence and next step. Do not repeat an
+  unchanged update, wait for an ACK, or start a periodic manager review. No timer,
+  execution timeout or model budget is introduced. Silence during a blocking tool
+  call alone does not establish drift. Report unavailable live messaging honestly.

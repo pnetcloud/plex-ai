@@ -45,6 +45,7 @@ Quality checks:
 - distinguish verified constraints from assumptions; avoid unrequested planning documents
 
 Return:
+- For Plex-owned assignments, use the response contract in `skills/plex/references/assignments.md`: identity, status and evidence; request help with a specific decision. Initial PM intake and workflow-owned leaves are exempt.
 - activated entry skill, selected workflow/operation, reached step and activation/entry evidence
 - scope, acceptance criteria and refined task contracts
 - requested product artifacts, tradeoffs and unresolved decisions

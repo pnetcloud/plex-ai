@@ -159,3 +159,32 @@ inventing consensus. Final returns connect each criterion to observed evidence a
 `max_agents` counts concurrently unfinished Plex assignments, not cumulative launches.
 Returned/idle work stops consuming that cap; native thread slots may still include idle
 handles and must be checked separately before claiming a capacity blocker.
+
+## Validated responses and help
+
+New Plex-owned assignments carry a task label and positive `revision`. The shared
+[response contract](../skills/plex/references/assignments.md#response-contract)
+checks role, assignment identity, status and criterion evidence before acceptance.
+The existing input-check CLI remains compatible; response checking uses
+`check_assignment.py --resolved <snapshot> --assignment <current-assignment.json>`
+with a response JSON object on stdin. Both checks are read-only.
+
+- `progress`: a new observation/result and next step; no acknowledgement required.
+- `needs-decision`: a concrete question, checks already made and recommendation;
+  coordinator routes it to PM/PO, architect or the input/permission owner.
+- `blocked`: the actual constraint, evidence and condition for resuming dependent work.
+- `completed`: every assignment criterion has passed with evidence; the receiving
+  role still verifies acceptance. Reviewers may complete by delivering findings.
+
+Continue with the same executor and changed evidence/input or an explicit decision.
+Do not reopen an unchanged problem under a new label or restart the entire workflow.
+One response-format correction goes to its author; repeated invalid output retains
+partial evidence and is reported rather than repeatedly reformatted. Progress is
+event-driven, with no timer, new token cap or automatic model escalation.
+
+Initial PM intake and workflow-owned leaves retain their formats. BMad activation
+and workflow evidence remain required in the enclosing return. Existing contracts
+without identity remain readable; attach identity for new response checks without
+restarting active work. Refresh Plex and start a new client session to load the new
+instructions. Structural validity does not prove evidence quality, prevent every
+loop, or enforce native dispatch; live behavior must be evaluated separately.

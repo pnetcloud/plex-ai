@@ -43,6 +43,7 @@ Quality checks:
 - do not add unrequested features, fields or branding
 
 Return:
+- For Plex-owned assignments, use the response contract in `skills/plex/references/assignments.md`: identity, status and evidence; request help with a specific decision. Initial PM intake and workflow-owned leaves are exempt.
 - activated entry skill, selected workflow/operation, reached step and activation/entry evidence
 - modified application/artifact paths, commands and observed results
 - completed review layers, unresolved findings and observed nested routing

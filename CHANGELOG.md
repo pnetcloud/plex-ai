@@ -4,6 +4,13 @@ Important changes retained in Plex, grouped by release. Interfaces and configura
 may change before 1.0. Releases through v0.5.4 were previews; v0.5.5 and later are
 regular releases.
 
+## [0.10.0] — 2026-10-22
+
+- Add validated subagent responses tied to assignment identity and revision, with evidence for every completion criterion.
+- Distinguish progress, decision requests, blockers and completion; route help to the decision owner and resume the same executor with changed inputs or evidence.
+- Preserve legacy assignment validation and BMad-owned leaf formats; add event-driven progress without timers or automatic model changes.
+- Update both teams, managed instructions and role-contract documentation in four languages. Refresh and open a new client session to load the new contracts.
+
 ## [0.9.1] — 2026-10-22
 
 - Clarify agent orchestration, coordinator responsibilities and Interactive/Balanced/Auto modes in all four READMEs.

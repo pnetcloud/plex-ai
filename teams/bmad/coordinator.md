@@ -107,6 +107,7 @@ Use PM/PO's compact JSON task core and validation procedure from the assignment 
 
 - Inspect final evidence and integrated diff for correctness, readability and scope.
 - An interim report is not completion; await the host's completion notification.
+- Validate Plex-owned responses against the current assignment/revision using `skills/plex/references/assignments.md`. Route decision requests to their owner; resume the same executor with changed evidence or a decision. Repeated unchanged problems do not start another routing cycle.
 - Request an update only for a blocker, liveness deadline or missing final delivery. Keep the user informed of material developments.
 - Reuse unchanged valid checks; rerun affected checks after fixes or when evidence is insufficient.
 - Do not append another full review/QA after workflow-owned verification. Additional review needs an explicit request, uncovered risk, incomplete evidence or material subsequent change.

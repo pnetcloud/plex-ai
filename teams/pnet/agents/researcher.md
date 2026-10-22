@@ -27,6 +27,7 @@ Quality checks:
 - avoid forcing a recommendation when evidence is insufficient
 
 Return:
+- For Plex-owned assignments, use the response contract in `skills/plex/references/assignments.md`: identity, status and evidence; request help with a specific decision. Initial PM intake and workflow-owned leaves are exempt.
 - verified answer and concise implementation implications
 - references, versions, caveats and clearly marked inference
 - unresolved questions and the smallest useful runtime check

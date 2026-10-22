@@ -76,6 +76,7 @@ Use PM's compact JSON task core and validation procedure from the assignment con
 
 - Inspect final evidence and integrated diff for correctness, readability and scope.
 - An interim report is not completion; await the host's completion notification.
+- Validate Plex-owned responses against the current assignment/revision using `skills/plex/references/assignments.md`. Route decision requests to their owner; resume the same executor with changed evidence or a decision. Repeated unchanged problems do not start another routing cycle.
 - Request an update only for a blocker, liveness deadline or missing final delivery. Keep the user informed of material developments.
 - Check a workflow blocker's cited rendered step and selected branch before relaying it. Stages on another branch do not apply.
 - Correct a false gate in the same assignment; relay real gates unchanged. Do not audit or restart the entire workflow.

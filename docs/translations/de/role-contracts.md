@@ -149,3 +149,32 @@ melden, keinen Konsens erfinden. Ergebnisse belegen jedes Kriterium und benennen
 `max_agents` begrenzt gleichzeitig unerledigte Plex-Aufträge, nicht alle bisherigen Starts.
 Abgeschlossene/idle Aufträge zählen dafür nicht mehr; ihre Handles können weiterhin
 native Thread-Slots belegen. Beide Grenzen vor einer Kapazitätssperre getrennt prüfen.
+
+## Geprüfte Rückgaben und Hilfsanfragen
+
+Neue Plex-Aufträge erhalten ein Aufgabenlabel und eine positive `revision`. Der
+[gemeinsame Antwortvertrag](../../../skills/plex/references/assignments.md#response-contract)
+prüft Rolle, Auftragsidentität, Status und Nachweise vor der Abnahme. Der bisherige
+CLI-Aufruf für Eingaben bleibt kompatibel. Antworten werden mit
+`check_assignment.py --resolved <snapshot> --assignment <current-assignment.json>`
+und einem JSON-Objekt auf stdin geprüft. Beide Prüfungen sind schreibgeschützt.
+
+- `progress`: neues Ergebnis/Beobachtung und nächster Schritt; keine Bestätigung abwarten.
+- `needs-decision`: konkrete Frage, bereits ausgeführte Prüfungen und Empfehlung;
+  der Koordinator leitet sie an PM/PO, Architekt oder Daten-/Berechtigungsverantwortliche weiter.
+- `blocked`: tatsächliche Einschränkung, Nachweise und Bedingung für die Fortsetzung.
+- `completed`: alle Auftragskriterien mit Nachweisen erfüllt; die empfangende Rolle
+  prüft weiterhin die Abnahme. Reviewer können durch die Lieferung von Befunden abschließen.
+
+Derselbe Ausführende setzt mit neuen Nachweisen, korrigierter Eingabe oder einer
+Entscheidung fort. Unveränderte Probleme erhalten weder ein neues Label noch einen
+Workflow-Neustart. Formatfehler gehen einmal an den Autor zurück; erneut ungültige
+Antworten werden mit ihren Teilergebnissen gemeldet, nicht endlos umformatiert.
+Fortschritt wird ereignisbasiert gemeldet: ohne Timer, neues Tokenlimit oder automatischen Modellwechsel.
+
+PM-Erstaufnahme und interne Workflow-Schritte behalten ihre Formate. Die äußere
+BMad-Rückgabe enthält weiterhin Aktivierungs- und Workflow-Nachweise. Alte Verträge
+bleiben lesbar; Identität für neue Antwortprüfungen ergänzen, ohne laufende Arbeit
+neu zu starten. Plex auffrischen und eine neue Clientsitzung öffnen, um die Anweisungen
+zu laden. Strukturprüfung beweist keine Nachweisqualität, verhindert nicht jede
+Schleife und erzwingt keinen nativen Dispatch; Live-Verhalten separat prüfen.

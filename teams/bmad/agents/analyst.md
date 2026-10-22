@@ -38,6 +38,7 @@ Quality checks:
 - make scope, open decisions and confidence limits explicit
 
 Return:
+- For Plex-owned assignments, use the response contract in `skills/plex/references/assignments.md`: identity, status and evidence; request help with a specific decision. Initial PM intake and workflow-owned leaves are exempt.
 - activated entry skill, selected workflow/operation, reached step and activation/entry evidence
 - findings, sources, constraints and decision implications
 - requested analysis artifacts and unresolved questions

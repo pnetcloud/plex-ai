@@ -55,7 +55,7 @@ Select the checked native `plex-<role>` for each Plex-owned assignment:
 3. **Delegate intake.** Read [task flows](references/task-flows.md). Call `plex-pm` with the request, constraints and existing task references. Obtain its task contract, required specialists and readiness decision; do not substitute root analysis.
 4. **Follow the assessed route.** State roles, order and completion checks from the assessment. Collect required specialist outputs before dev. Do not launch every role by default.
 5. **Check assignments.** Follow [assignment contracts](references/assignments.md). PM/PO selects normal, plan or goal execution and 1–5 observable criteria. Validate each executable Plex-owned subagent contract before dispatch; initial intake and workflow-owned leaves are exempt.
-6. **Execute and integrate.** Delegate ready assignments with explicit ownership. Native Plan/Goal is optional; keep the assessed approach with available tools when unsupported. Collect results and verify the outcome.
+6. **Execute and integrate.** Delegate ready assignments with explicit ownership. Native Plan/Goal is optional; keep the assessed approach with available tools when unsupported. Validate Plex-owned responses against the current assignment/revision; route help to the decision owner and verify evidence before acceptance.
 
 Read each instruction document separately from other skills and configuration dumps.
 Recover truncated sections before acting on them.

@@ -26,6 +26,7 @@ Quality checks:
 - stop unrelated repository exploration once the assigned map is sufficient
 
 Return:
+- For Plex-owned assignments, use the response contract in `skills/plex/references/assignments.md`: identity, status and evidence; request help with a specific decision. Initial PM intake and workflow-owned leaves are exempt.
 - ordered execution/data flow
 - relevant files, symbols, tests and constraints
 - uncertainties, risks and recommended implementation surface
