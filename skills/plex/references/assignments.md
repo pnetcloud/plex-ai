@@ -58,20 +58,29 @@ forever, and preserve implementation handles required for workflow fix resumptio
   have its own usable inputs even if the overall task awaits its result.
 - Planning may precede a goal assignment. Reuse accepted decisions; do not add
   another planning cycle merely because the execution approach changes.
-- For `goal`, include `execution.token_budget: 50000` unless the user explicitly
-  supplies another positive budget. It is a requested native budget, not a
-  promise of shared accounting across nested agents. Never renew, increase or
-  replace an exhausted goal automatically. Exhaustion stops that assignment;
-  do not switch to ordinary execution to bypass the limit. Report progress and gaps.
+- For `goal`, use `.plex/resolved.json` as the default source: `coordinator_token_budget`
+  applies to a native Goal for the root; `subagent_token_budget` applies separately
+  to each Plex subagent Goal. A per-task budget explicitly requested by the user
+  takes precedence. Include a positive effective value as `execution.token_budget`;
+  zero or an omitted setting means no Plex-set limit. The validator accepts zero or
+  omission when the resolved value is zero, and requires a value when the resolved
+  setting is positive. It validates structure and integer range, not budget provenance.
+  When creating a native Goal, omit its budget argument for zero;
+  never pass literal zero as a host budget. Plex does not promise shared accounting
+  across nested Goals. A positive budget ending a Goal is not permission to bypass it
+  by switching execution modes; report progress and wait for an explicit change.
 - Probe actual tool availability and permission for the owning session. Use
   native Plan/Goal only when supported and authorized. Do not switch the user's
   chat mode, replace an active goal, or infer Goal authority from a task label.
   When available, create Goal in the assigned executor's thread with its outcome,
-  criteria, boundaries and requested token budget; do not turn it into a project-wide goal.
+  criteria and boundaries; include a native token budget only when the effective
+  configured or explicitly requested value is positive. Do not turn it into a project-wide goal.
 - Without native support or authorization, keep the same assignment: return a
   normal plan or iterate toward its criteria using available tools. Report the
   actual approach. Do not claim native mode, enforced token accounting or
-  automatic continuation after the host ends the turn. No custom runner/daemon.
+  automatic continuation after the host ends the turn. Zero means Plex adds no
+  token cap; client/provider quotas, host interruptions and tool availability still
+  apply. No custom runner/daemon.
 - During goal work, compare each iteration to the criteria and retain evidence.
   Follow the coordinator's existing retry/no-progress limits. Missing authority,
   an unavailable required specialist or a real workflow gate blocks dependent work.

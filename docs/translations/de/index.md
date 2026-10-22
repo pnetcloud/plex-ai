@@ -34,6 +34,7 @@ Englisch ist die gepflegte Quelle; Übersetzungen spiegeln die Dateinamen.
 
 | Version | Änderungen |
 |---|---|
+| [Versionshinweise](releases/v0.8.0.md) | v0.8.0: Goal-Tokenbudgets sind optional und standardmäßig nicht gesetzt. |
 | [Versionshinweise](releases/v0.7.2.md) | v0.7.2: Größeres dunkles README-Banner und abgestimmte Präsentationsgrafiken. |
 | [Versionshinweise](releases/v0.7.1.md) | v0.7.1: Projektstatus und Installationsvoraussetzungen in den READMEs. |
 | [Versionshinweise](releases/v0.7.0.md) | v0.7.0: PM/PO-Aufträge, optionale Plan/Goal-Modi und BMad Build Auto. |

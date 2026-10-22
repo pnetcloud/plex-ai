@@ -22,10 +22,24 @@ Edit `.plex/preset.toml` in the selected installation root:
 team = "pnet"
 model_profile = "plus"
 max_agents = 3
+coordinator_token_budget = 0
+subagent_token_budget = 0
 
 [codex.dev]
 reasoning = "max"
 ```
+
+Goal token budgets are separate from the concurrent assignment limit. Setup writes
+both settings as `0` without asking about token limits; missing values in an older
+preset also resolve to `0`. `coordinator_token_budget` applies to a native Goal in
+the root thread, while `subagent_token_budget` applies independently to each Plex
+subagent Goal. A positive integer requests that token budget. Zero means Plex omits
+the native budget argument. A task-specific budget explicitly requested by the user
+takes precedence over the saved value. These settings do not limit normal or plan
+assignments, remove provider/client quotas, or guarantee that a host session remains
+available indefinitely. A subagent's Goal has its own requested budget; Plex does
+not claim shared accounting across nested Goals. After editing the preset, refresh
+the configured clients; running sessions do not reload the snapshot automatically.
 
 Optional `[coordinator.<tier>]` tables in vendor profile files hold main-chat
 recommendations (`model`, `reasoning`). They are separate from role settings and

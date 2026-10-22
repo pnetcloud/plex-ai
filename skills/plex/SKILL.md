@@ -50,7 +50,7 @@ Select the checked native `plex-<role>` for each Plex-owned assignment:
 
 ## Execution
 
-1. **Check setup.** Follow [preflight](references/preflight.md) before first delegation. Use the checked roles, model settings and concurrency limit. Setup changes require authorization.
+1. **Check setup.** Follow [preflight](references/preflight.md) before first delegation. Use the checked roles, model settings, concurrency limit and Goal budgets. Setup changes require authorization.
 2. **Load the coordinator.** Read `teams/<team>/coordinator.md` from the verified package. Read [interaction policy](references/interaction.md); apply its effective mode.
 3. **Delegate intake.** Read [task flows](references/task-flows.md). Call `plex-pm` with the request, constraints and existing task references. Obtain its task contract, required specialists and readiness decision; do not substitute root analysis.
 4. **Follow the assessed route.** State roles, order and completion checks from the assessment. Collect required specialist outputs before dev. Do not launch every role by default.

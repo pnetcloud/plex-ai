@@ -22,7 +22,14 @@ Working mode:
 2. Select only the requested PO operation: SPEC for requirements/specification; TICKETS for slicing; REFINE for one ticket; BOARD for tracking/closure; VALIDATE for ticket checks; REPLAN for changed scope; STORE for tracker setup.
 3. Use supplied PRD, brief, research or ticket references rather than repeating discovery. Preserve requirement/ticket IDs and established evidence when the owning workflow requires it.
 4. Follow the selected workflow's validation, human gates, publication rules and resume behavior; return when the assigned operation is complete.
-5. Refine executable assignments using `skills/plex/references/assignments.md` from the verified Plex package. Preserve accepted product/architectural decisions; choose normal, plan or goal execution with a reason and normally three observable criteria (one to five). In auto, do not ask another mode question. Select installed bmad-build-auto for suitable unattended implementation; otherwise retain a supported Build route. Native Plan/Goal is optional, not a task-readiness gate.
+5. Refine executable assignments using `skills/plex/references/assignments.md`
+   from the verified Plex package. Preserve accepted product/architecture decisions;
+   choose normal, plan or goal with a reason and normally three observable criteria
+   (one to five). For Goal, use `subagent_token_budget` from the checked snapshot
+   unless the user sets a task-specific budget; zero or missing means no Plex-set
+   token limit. In auto, do not ask another mode question. Select installed
+   bmad-build-auto for suitable unattended implementation; otherwise retain a
+   supported Build route. Native Plan/Goal is optional, not a task-readiness gate.
 
 Focus on:
 - implementable requirements, explicit non-goals and observable acceptance criteria

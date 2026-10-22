@@ -4,6 +4,16 @@ Important changes retained in Plex, grouped by release. Interfaces and configura
 may change before 1.0. Releases through v0.5.4 were previews; v0.5.5 and later are
 regular releases.
 
+## [0.8.0] — 2026-10-22
+
+- Remove Plex's default 50,000-token Goal budget. Coordinator and subagent budgets
+  default to `0` (or may be omitted), so Plex does not set a native token cap.
+- Add `coordinator_token_budget` and `subagent_token_budget` to `.plex/preset.toml`;
+  positive values request a cap for that role, while `0` keeps it unset.
+- Accept Goal assignments without a budget when the project setting is unset or `0`;
+  preserve validation and explicit positive budgets.
+- Update all native plugin manifests to v0.8.0.
+
 ## [0.7.2] — 2026-10-22
 
 - Replace the small README image with a larger dark-mineral banner using the

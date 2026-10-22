@@ -133,9 +133,14 @@ akzeptierten Umfangs bis zu nachgewiesenen Kriterien. Native Client-Modi sind op
 sonst normal planen oder begrenzt zielorientiert arbeiten und den tatsächlichen Ansatz
 melden. Weder Chat-Modus heimlich wechseln noch bestehende Ziele ersetzen oder eine
 vom Host nicht unterstützte Fortsetzung versprechen. Host-Rechte und Benutzerwahl gelten.
-Native Goal fordert standardmäßig 50.000 Tokens an, außer der Benutzer nennt ein anderes
-Budget. Erschöpfte Ziele nicht automatisch erneuern/erhöhen. Ohne native Zählung bleibt
-das Budget ausdrücklich undurchgesetzt; bestehende Blocker-/Stillstandsregeln gelten.
+Für native Goals `coordinator_token_budget` für Root und `subagent_token_budget`
+für jeden Plex-Subagenten aus `.plex/resolved.json` verwenden. Null oder ein fehlender
+Wert bedeutet: Plex übergibt kein natives Tokenbudget; ein positiver Wert fordert dieses
+Budget je Goal an. Ein ausdrücklich vom Benutzer genanntes Aufgabenbudget hat Vorrang.
+Ein positiv konfiguriertes Budget nicht durch stillen Moduswechsel umgehen. Anbieter-
+und Clientquoten, Unterbrechungen und Toolverfügbarkeit gelten weiterhin; Null bedeutet
+weder unbegrenzte Laufzeit noch garantierte Fortsetzung. Ohne native Zählung melden,
+dass die Einhaltung nicht überprüft werden kann.
 
 Für passende unbeaufsichtigte BMad-Implementierung in `auto` installiertes
 `bmad-build-auto` wählen: eine gerenderte Workflow-Iteration mit erforderlichen

@@ -143,9 +143,14 @@ verified criteria within the accepted scope. Native client modes are optional: o
 use ordinary planning or bounded criteria-driven work, reporting the actual approach.
 Do not switch the user's chat mode, replace an existing goal or promise continuation
 that the host cannot provide. Host authority and explicit user choices still apply.
-Native Goal requests default to 50,000 tokens unless the user specifies another budget;
-never increase or renew an exhausted goal automatically. Without native accounting,
-report that the budget is unenforced and keep existing blocker/no-progress limits.
+For native Goals, use `coordinator_token_budget` for the root and
+`subagent_token_budget` for each Plex subagent from `.plex/resolved.json`. Zero or a
+missing setting means Plex omits the native token budget; a positive value requests
+that per-Goal budget. An explicit task-level user budget takes precedence. Do not
+silently switch modes to bypass an explicitly configured positive budget. Host and
+provider quotas, interruptions and tool availability still apply; zero does not mean
+unlimited runtime or guaranteed continuation. If native budget accounting is absent,
+report that it cannot be verified.
 
 For suitable unattended BMad implementation in `auto`, select installed `bmad-build-auto`:
 one rendered workflow iteration with its actual mandatory subagents and terminal status.

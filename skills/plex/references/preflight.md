@@ -38,7 +38,8 @@ Read `<root>/.plex/resolved.json`; do not reconstruct configuration layers.
 | `roles` | Active roles |
 | `skills`, optional `workflows` | Entry skills and assignment catalog |
 | `hosts.<host>.<role>` | Effective model/effort |
-| `interaction`, `max_agents` | Interaction mode and assignment limit |
+| `interaction`, `max_agents` | Interaction mode and concurrent Plex-assignment limit |
+| `coordinator_token_budget`, `subagent_token_budget` | Native Goal token budgets; zero or missing means Plex requests no token cap |
 
 Use `roles` as the allowlist for Plex-owned dispatch, not the host's full agent inventory. Other installed agents and inactive `plex-` roles are outside this team.
 

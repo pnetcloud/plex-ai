@@ -18,14 +18,15 @@ only when explicitly selected; it applies to that host's user profile.
 
 - Listing and status requests are read-only.
 - Setup, refresh and switch requests authorize the requested configuration changes.
-- Preserve the saved team, profiles, concurrency and model overrides unless asked to change them.
+- Preserve the saved team, profiles, concurrency, Goal budgets and model overrides unless asked to change them.
 - A project can use several clients with one shared `model_profile`: `inherit`,
   `basic`, `plus`, `pro` or `pro-plus`. Each tier uses the team's corresponding vendor
   settings. The installer supports checkboxes or repeated `--client`. When changing
   a shared profile through the resolver, refresh every configured client's receipt;
   the installer does this automatically. Do not silently migrate vendor-specific IDs.
 - For new setup, use `team = "pnet"` and `model_profile = "inherit"` unless specified.
-  Offer the team concurrency default during interactive setup; do not choose models for the user.
+  Offer the team concurrency default during interactive setup; do not ask for token
+  budgets or choose models for the user. Goal budgets default to zero (no Plex-set limit).
 
 ## 2. Inspect and preview
 

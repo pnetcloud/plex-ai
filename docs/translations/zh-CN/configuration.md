@@ -21,10 +21,19 @@ Codex 的 OpenAI、Claude Code 的 Anthropic、Antigravity 的 Google 设置。
 team = "pnet"
 model_profile = "plus"
 max_agents = 3
+coordinator_token_budget = 0
+subagent_token_budget = 0
 
 [codex.dev]
 reasoning = "max"
 ```
+
+Goal token 预算与并发任务数无关。新安装时安装器会将两个设置写为 `0`，不会询问 token
+上限；旧配置中缺少这些字段时也按 `0` 处理。`coordinator_token_budget` 用于根线程的原生
+Goal，`subagent_token_budget` 分别用于每个 Plex 子代理的 Goal。正整数表示请求相应预算；
+为 0 时 Plex 不传递原生预算参数。用户为单个任务明确指定的预算优先。这些设置不限制普通
+执行或 plan，不会取消客户端/供应商配额，也不保证宿主会话一直可用。嵌套 Goal 不共享预算计量。
+修改 preset 后请刷新所有已配置客户端；运行中的会话不会自动重新加载快照。
 
 厂商配置文件中可选的 `[coordinator.<tier>]` 表用于主对话建议（`model`、`reasoning`）。
 它与角色设置分开，并作为 `coordinator` 写入解析快照。安装器显示所选配置档的建议，
