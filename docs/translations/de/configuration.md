@@ -22,24 +22,12 @@ Editierbare Datei im gewählten Installationsstamm: `.plex/preset.toml`.
 team = "pnet"
 model_profile = "plus"
 max_agents = 3
-coordinator_token_budget = 0
-subagent_token_budget = 0
 
 [codex.dev]
 reasoning = "max"
 ```
 
-Goal-Budgets sind unabhängig von der Zahl paralleler Aufträge. Bei einer neuen
-Installation schreibt Setup für beide Einstellungen `0` und fragt nicht nach einem
-Tokenlimit; fehlende Einstellungen in älteren Presets gelten ebenfalls als null.
-`coordinator_token_budget` gilt für ein natives Goal im Root-Thread,
-`subagent_token_budget` separat für jedes Plex-Subagent-Goal. Eine positive ganze Zahl
-fordert dieses Budget an. Bei null lässt Plex das native Budget-Argument weg. Ein
-ausdrücklich vom Benutzer gesetztes Aufgabenbudget hat Vorrang. Diese Werte begrenzen
-weder normale noch Plan-Aufträge, beseitigen Client-/Anbieterquoten oder garantieren
-eine unbegrenzte Verfügbarkeit des Host-Threads. Verschachtelte Goals teilen kein
-gemeinsames Budgetkonto. Nach Änderungen am Preset die konfigurierten Clients
-aktualisieren; laufende Sitzungen laden den Snapshot nicht automatisch neu.
+Plex konfiguriert keine Tokenbudgets. Beim Refresh werden veraltete Budgetfelder aus bestehenden Presets entfernt. Maßgeblich sind die Abnahmekriterien und tatsächlichen Einschränkungen des Clients.
 
 Optionale Tabellen `[coordinator.<tier>]` in den Herstellerprofilen enthalten
 Empfehlungen für den Hauptchat (`model`, `reasoning`). Sie bleiben von den

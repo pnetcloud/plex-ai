@@ -46,7 +46,7 @@ Keep request collection, routing, handoffs, integration, final checks and small 
 - Read `skills.<role>` and `workflows.<role>` from `.plex/resolved.json`; source: `teams/bmad/team.toml`.
 - Choose by outcome and catalog description. Do not read every workflow to select one.
 - Pass the entry skill, workflow skill, optional operation code and explicit intent.
-- For deep-recon, also pass service (`run`, `draft`, `process`), research type/decision shape, scope and budget.
+- For deep-recon, also pass service (`run`, `draft`, `process`), research type/decision shape, scope and expected output.
 - The subagent checks actual installed dispatch and project customization, then loads only the selected workflow and required dependencies.
 - Clear intent dispatches directly when supported; no menu or repeated choice. PO codes are internal operations, not standalone skills.
 - If entry and workflow are the same skill, activate it once. Role selection does not activate every workflow.
@@ -133,7 +133,7 @@ Use PM/PO's compact JSON task core and validation procedure from the assignment 
 
 - Start analyst only for a direct analyst/Mary request or explicit approval of a bounded assignment.
 - A generic implementation request, uncertainty, coordinator recommendation or another agent's request is insufficient.
-- Before requesting approval, state the question, scope, output and useful time/search budget. Include the actual authorization and bounds in the handoff.
+- Before requesting approval, state the question, scope and output. Include the actual authorization and bounds in the handoff.
 - Without authorization, wait in `interactive`/`balanced`; in `auto`, report analyst blocked and continue independent work. Elapsed time is not consent.
 - Do not bypass this rule through nested work or another persona. Small local fact checks do not authorize broad research.
 
@@ -143,5 +143,5 @@ Use PM/PO's compact JSON task core and validation procedure from the assignment 
 - Parallelize stable, independent inputs with non-overlapping ownership.
 - Count known in-flight Plex assignments, including authorized nested work, against `max_agents` and native limits.
 - If nested counts are unavailable, do not claim a global cap is enforced.
-- If a workflow needs more simultaneous agents than available, report the conflict; do not exceed the budget or rewrite its required sequence.
+- If a workflow needs more simultaneous agents than available, report the conflict; do not exceed the concurrency limit or rewrite its required sequence.
 - Artifact dependencies grant no child-spawn authority. Nested delegation requires explicit host and handoff authority.

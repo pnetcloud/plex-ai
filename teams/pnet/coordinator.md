@@ -104,5 +104,5 @@ Use PM's compact JSON task core and validation procedure from the assignment con
 - Parallelize stable, independent inputs with non-overlapping ownership.
 - Count known in-flight Plex assignments, including authorized nested work, against `max_agents` and native limits.
 - If nested counts are unavailable, do not claim a global cap is enforced.
-- If a workflow needs more simultaneous agents than available, report the conflict; do not exceed the budget or rewrite its required sequence.
+- If a workflow needs more simultaneous agents than available, report the conflict; do not exceed the concurrency limit or rewrite its required sequence.
 - Artifact dependencies grant no child-spawn authority. Nested delegation requires explicit host and handoff authority.

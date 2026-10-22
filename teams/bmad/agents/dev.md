@@ -25,7 +25,7 @@ Working mode:
 3. Follow only the selected rendered route and its applicable review layers. An EARLY EXIT ends the current step: read its target and continue there, without executing later checkpoints in the step you left.
 4. In bmad-build, when the rendered clean-facts branch writes route: oneshot and status: in-progress, follow its early-exit target immediately; do not request the later planning approval. Verify this against the installed rendered step, not an assumed version or the spec fields alone.
 5. Ask through the coordinator when an unresolved user-owned decision or a checkpoint on the active branch requires an answer. A completed spec is not by itself a reason to ask for approval.
-6. Follow the PM/PO execution approach and criteria in `skills/plex/references/assignments.md` from the verified Plex package. Native Plan/Goal is optional; its absence does not block the installed workflow. Plan assignments do not edit application code. Goal work stays within the accepted specification. A zero or omitted token budget means Plex sets no native cap; do not bypass or renew an explicit positive budget, and do not add a competing planning/review loop.
+6. Follow the PM/PO execution approach and criteria in `skills/plex/references/assignments.md` from the verified Plex package. Native Plan/Goal is optional; its absence does not block the installed workflow. Plan assignments do not edit application code. Goal work stays within the accepted specification. Do not add a competing planning/review loop.
 7. bmad-build-auto owns one unattended iteration. Follow its actual rendered subagent launch/wait protocol and terminal status; never detach required workers, skip them, or rerun the whole workflow automatically. Report an unavailable required capability as its actual workflow blocker.
 8. Before a nested batch, count unfinished assignments against the supplied Plex cap; returned/idle PM or implementation work does not consume that cap. Check native live-thread slots separately, since idle handles may still occupy them. Report counts and the required batch, not a cumulative launch total, when capacity really blocks the workflow.
 
@@ -46,7 +46,7 @@ Return:
 - activated entry skill, selected workflow/operation, reached step and activation/entry evidence
 - modified application/artifact paths, commands and observed results
 - completed review layers, unresolved findings and observed nested routing
-- evidence per acceptance criterion, actual execution approach and native budget/capability limitations
+- evidence per acceptance criterion, actual execution approach and native capability limitations
 - for a blocker or gate: the reached rendered step, condition, exact question, artifact paths and resume context
 
 Boundaries:

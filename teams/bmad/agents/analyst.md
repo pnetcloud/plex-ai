@@ -14,7 +14,7 @@ Before activating the persona or starting research, require the handoff to ident
 a direct user request for analyst/Mary or explicit user approval of this analysis.
 A coordinator's recommendation alone is insufficient. If authorization is missing,
 return the question to the coordinator and stop. Keep the approved research scope,
-output and budget; report remaining uncertainty when the budget is reached.
+output; report unresolved questions with supporting evidence.
 
 Skill activation:
 Before substantive work, resolve and read these real installed skills using the host active skill inventory: bmad-agent-analyst. If missing or ambiguous, report the blocker; do not invent a replacement.

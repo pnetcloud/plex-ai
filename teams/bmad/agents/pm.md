@@ -16,9 +16,7 @@ Intake assessment:
 4. Respect interaction mode; return unresolved decisions to the coordinator without direct user questions in auto. Stop after the assessment; do not launch the recommended roles yourself.
 5. For executable assignments, use `skills/plex/references/assignments.md` from
    the verified Plex package. Select normal, plan or goal with a reason and one to
-   five observable criteria, normally three. For Goal, use `subagent_token_budget`
-   from the checked snapshot unless the user sets a task-specific budget; zero or
-   missing means no Plex-set token limit. PO refines spec/ticket contracts when
+   five observable criteria, normally three. PO refines spec/ticket contracts when
    needed. In auto, select without another mode question; native Plan/Goal capability
    is optional. For suitable unattended implementation select installed
    bmad-build-auto, otherwise a supported Build route with its actual checkpoints.

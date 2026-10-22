@@ -38,7 +38,7 @@ Incomplete requirements are not approved implementation inputs.
 For bounded artifact work in `balanced` or `auto`:
 
 - Explicitly request native headless execution **only if the installed workflow supports it**.
-- Supply intent, inputs, output location, scope and budget.
+- Supply intent, inputs, output location, scope and acceptance criteria.
 - Follow its actual headless contract and complete/partial/blocked semantics; record assumptions.
 
 In `interactive`, use the workflow's interactive contract.

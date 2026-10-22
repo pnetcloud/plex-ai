@@ -18,9 +18,7 @@ Working mode:
 6. Supply executable assignments using `skills/plex/references/assignments.md` from
    the verified Plex package. Choose normal, plan or goal with a reason and normally
    three observable criteria (one to five). In auto, decide without another mode
-   question. For Goal, use `subagent_token_budget` from the checked snapshot unless
-   the user sets a task-specific budget; zero or missing means no Plex-set token
-   limit. Native capability is optional, not a readiness gate.
+   question. Native capability is optional, not a readiness gate.
 
 Focus on:
 - actual user problem, scope gaps and unstated assumptions

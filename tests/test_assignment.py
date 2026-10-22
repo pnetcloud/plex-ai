@@ -71,26 +71,11 @@ class AssignmentTests(unittest.TestCase):
                 with self.subTest(status=status, mode=mode):
                     self.assertEqual(not MODULE.validate(data, self.snapshot), valid)
 
-    def test_goal_budget_defaults_to_zero_and_accepts_configured_or_explicit_values(self):
+    def test_goal_needs_no_budget_even_with_legacy_snapshot(self):
         self.assignment["execution"]["mode"] = "goal"
-        self.assertEqual(MODULE.validate(self.assignment, self.snapshot), [])
-        self.snapshot["subagent_token_budget"] = 25000
-        self.assertTrue(MODULE.validate(self.assignment, self.snapshot))
-        for budget in (0, 25000, 50000):
-            self.assignment["execution"]["token_budget"] = budget
-            with self.subTest(budget=budget):
-                self.assertEqual(MODULE.validate(self.assignment, self.snapshot), [])
-        for budget in (None, True, -1, "50000", 1.5):
-            self.assignment["execution"]["token_budget"] = budget
-            with self.subTest(budget=budget):
-                self.assertTrue(MODULE.validate(self.assignment, self.snapshot))
-        self.assignment["execution"]["mode"] = "normal"
-        self.assertTrue(MODULE.validate(self.assignment, self.snapshot))
-
-    def test_invalid_budget_settings_in_snapshot_are_rejected(self):
-        for budget in (True, -1, "unlimited", 1.5):
-            with self.subTest(budget=budget):
-                self.assertTrue(MODULE.validate(self.assignment, {**self.snapshot, "subagent_token_budget": budget}))
+        for legacy in ({}, {"subagent_token_budget": 50000}, {"subagent_token_budget": "retired"}):
+            with self.subTest(legacy=legacy):
+                self.assertEqual(MODULE.validate(self.assignment, {**self.snapshot, **legacy}), [])
 
     def test_non_object_input_and_invalid_snapshot(self):
         for data in (None, [], "task", 7):

@@ -29,8 +29,8 @@ class ConfigTests(unittest.TestCase):
         for team in ("pnet", "bmad"):
             resolved = resolve({"team": team})
             self.assertEqual(resolved["interaction"], "balanced")
-            self.assertEqual(resolved["coordinator_token_budget"], 0)
-            self.assertEqual(resolved["subagent_token_budget"], 0)
+            self.assertNotIn("coordinator_token_budget", resolved)
+            self.assertNotIn("subagent_token_budget", resolved)
             for mode in MODULE.INTERACTIONS:
                 original = {"team": team, "interaction": mode}
                 text = MODULE.build_preset_toml(original, model_profile="plus")
@@ -42,25 +42,15 @@ class ConfigTests(unittest.TestCase):
             with self.subTest(value=value), self.assertRaisesRegex(ValueError, "interaction"):
                 resolve({"team": "pnet", "interaction": value})
 
-    def test_goal_token_budgets_default_validate_and_round_trip(self):
-        config = {"team": "pnet", "coordinator_token_budget": 120000,
-                  "subagent_token_budget": 40000}
-        text = MODULE.build_preset_toml(config)
-        saved = tomllib.loads(text)
-        self.assertEqual(saved["coordinator_token_budget"], 120000)
-        self.assertEqual(saved["subagent_token_budget"], 40000)
-        self.assertEqual(resolve(saved)["coordinator_token_budget"], 120000)
-        self.assertEqual(resolve(saved)["subagent_token_budget"], 40000)
-        defaults = tomllib.loads(MODULE.build_preset_toml({"team": "pnet"}))
-        self.assertEqual(defaults["coordinator_token_budget"], 0)
-        self.assertEqual(defaults["subagent_token_budget"], 0)
-        reset = tomllib.loads(MODULE.build_preset_toml(config, reset_overrides=True))
-        self.assertEqual(reset["coordinator_token_budget"], 0)
-        self.assertEqual(reset["subagent_token_budget"], 0)
-        for key in ("coordinator_token_budget", "subagent_token_budget"):
-            for value in (True, -1, "0", 1.5, None):
-                with self.subTest(key=key, value=value), self.assertRaisesRegex(ValueError, key):
-                    resolve({"team": "pnet", key: value})
+    def test_retired_budget_settings_are_ignored_and_not_generated(self):
+        for value in (0, 50000, -1, True, "old", None):
+            config = {"team": "pnet", "coordinator_token_budget": value,
+                      "subagent_token_budget": value}
+            with self.subTest(value=value):
+                self.assertEqual(resolve(config), resolve({"team": "pnet"}))
+                saved = tomllib.loads(MODULE.build_preset_toml(config))
+                self.assertNotIn("coordinator_token_budget", saved)
+                self.assertNotIn("subagent_token_budget", saved)
 
     def test_default_interaction_is_written_for_new_and_legacy_presets(self):
         for host in MODULE.HOSTS:
@@ -70,8 +60,8 @@ class ConfigTests(unittest.TestCase):
                 preset = project / ".plex/preset.toml"
                 config = tomllib.loads(preset.read_text())
                 self.assertEqual(config["interaction"], "balanced")
-                self.assertEqual(config["coordinator_token_budget"], 0)
-                self.assertEqual(config["subagent_token_budget"], 0)
+                self.assertNotIn("coordinator_token_budget", config)
+                self.assertNotIn("subagent_token_budget", config)
                 preset.write_text(preset.read_text().replace('interaction = "balanced"\n', '')
                                   + f'\n[{host}.dev]\nreasoning = "high"\n')
                 apply_project(project, host)
@@ -80,27 +70,27 @@ class ConfigTests(unittest.TestCase):
                 self.assertEqual(config[host]["dev"], {"reasoning": "high"})
                 self.assertEqual(check_project(project, host)["status"], "in_sync")
 
-    def test_refresh_adds_missing_goal_budget_defaults_and_applies_positive_values(self):
-        with tempfile.TemporaryDirectory() as temp:
-            project = Path(temp).resolve()
-            apply_project(project, "codex")
-            preset = project / ".plex/preset.toml"
-            legacy_text = preset.read_text().replace("coordinator_token_budget = 0\n", "")
-            legacy_text = legacy_text.replace("subagent_token_budget = 0\n", "")
-            preset.write_text(legacy_text)
-            apply_project(project, "codex")
-            config = tomllib.loads(preset.read_text())
-            self.assertEqual(config["coordinator_token_budget"], 0)
-            self.assertEqual(config["subagent_token_budget"], 0)
-
-            preset.write_text(preset.read_text().replace(
-                "coordinator_token_budget = 0", "coordinator_token_budget = 90000"
-            ).replace("subagent_token_budget = 0", "subagent_token_budget = 30000"))
-            apply_project(project, "codex")
-            snapshot = json.loads((project / ".plex/resolved.json").read_text())
-            self.assertEqual(snapshot["coordinator_token_budget"], 90000)
-            self.assertEqual(snapshot["subagent_token_budget"], 30000)
-            self.assertEqual(check_project(project, "codex")["status"], "in_sync")
+    def test_refresh_removes_legacy_budgets_for_all_clients_and_scopes(self):
+        for host in MODULE.HOSTS:
+            for scope in ("project", "user"):
+                with self.subTest(host=host, scope=scope), tempfile.TemporaryDirectory() as temp:
+                    project = Path(temp).resolve()
+                    with patch.dict("os.environ", {"HOME": str(project), "CODEX_HOME": str(project / ".codex")}):
+                        apply_project(project, host, team="pnet", model_profile="plus",
+                                      max_agents=7, interaction="auto", scope=scope)
+                        root = MODULE.installation_root(project, host, scope)
+                        preset = root / ".plex/preset.toml"
+                        original = tomllib.loads(preset.read_text())
+                        preset.write_text("coordinator_token_budget = 90000\nsubagent_token_budget = 30000\n" + preset.read_text())
+                        apply_project(project, host, scope=scope)
+                        self.assertEqual(tomllib.loads(preset.read_text()), original)
+                        snapshot = json.loads((root / ".plex/resolved.json").read_text())
+                        self.assertNotIn("coordinator_token_budget", snapshot)
+                        self.assertNotIn("subagent_token_budget", snapshot)
+                        self.assertEqual(check_project(project, host, scope)["status"], "in_sync")
+                        before = preset.read_bytes()
+                        apply_project(project, host, scope=scope)
+                        self.assertEqual(preset.read_bytes(), before)
 
     def test_apply_interaction_change_preserves_roles_and_survives_team_switch(self):
         with tempfile.TemporaryDirectory() as temp:

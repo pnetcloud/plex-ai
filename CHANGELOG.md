@@ -4,6 +4,13 @@ Important changes retained in Plex, grouped by release. Interfaces and configura
 may change before 1.0. Releases through v0.5.4 were previews; v0.5.5 and later are
 regular releases.
 
+## [0.9.0] — 2026-10-22
+
+- Remove Plex token-budget settings and assignment checks. Existing presets remain
+  readable; refresh removes retired fields while preserving team settings and overrides.
+- Remove budget instructions from managers and workers; keep acceptance criteria,
+  actual host restrictions and the concurrent-assignment limit.
+
 ## [0.8.1] — 2026-10-22
 
 - Omit `sandbox_mode` from generated Codex roles; keep `approval_policy` unset.

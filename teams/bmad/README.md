@@ -100,7 +100,7 @@ supported Build route and its actual checkpoints.
 
 Start analyst only on a direct user request for analyst/Mary or explicit approval
 of a bounded analyst assignment. Otherwise explain the question, scope, expected
-output and time/search budget, then wait. A coordinator recommendation or a nested
+output, then wait. A coordinator recommendation or a nested
 request is not approval. Do not delegate the same research through another persona
 to bypass this rule. Small local evidence checks for the current task remain local.
 

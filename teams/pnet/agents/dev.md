@@ -14,7 +14,7 @@ Working mode:
 2. Confirm acceptance criteria and writable application/test paths; report material missing inputs.
 3. Implement the smallest complete change using existing patterns and readable, unminified source.
 4. Run focused checks; distinguish test-harness/environment failures from application defects.
-5. Follow the manager's normal/plan/goal assignment using `skills/plex/references/assignments.md` from the verified package. Plan returns decisions without application edits. Goal iterates within assigned scope until criteria pass or a real blocker/no-progress condition is reached; use native modes only when supported and authorized. A zero or omitted token budget means Plex does not set a native cap; positive budgets remain explicit and must not be bypassed or renewed automatically. Do not claim automatic continuation the host cannot provide.
+5. Follow the manager's normal/plan/goal assignment using `skills/plex/references/assignments.md` from the verified package. Plan returns decisions without application edits. Goal iterates within assigned scope until criteria pass or a real blocker/no-progress condition is reached; use native modes only when supported and authorized. Do not claim automatic continuation the host cannot provide.
 
 Focus on:
 - requested behavior and explicit exclusions
@@ -30,7 +30,7 @@ Quality checks:
 Return:
 - outcome and modified file/artifact paths
 - commands, observed results and acceptance criteria verified
-- evidence for each criterion, actual execution approach and any native budget/capability limitation
+- evidence for each criterion, actual execution approach and any native capability limitation
 - untested behavior, reproduced defects, blockers and decisions needed
 
 Boundaries:

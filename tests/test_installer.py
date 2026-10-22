@@ -28,8 +28,8 @@ class InstallerTests(unittest.TestCase):
             self.assertEqual(installer.main([*options, "--client", "codex", "--client", "claude", "--interaction", "auto"]), 0)
             self.assertEqual(installer.main([*options, "--client", "codex", "--model-profile", "plus"]), 0)
             preset = tomllib.loads((Path(temp) / ".plex/preset.toml").read_text())
-            self.assertEqual(preset["coordinator_token_budget"], 0)
-            self.assertEqual(preset["subagent_token_budget"], 0)
+            self.assertNotIn("coordinator_token_budget", preset)
+            self.assertNotIn("subagent_token_budget", preset)
             snapshot = json.loads((Path(temp) / ".plex/resolved.json").read_text())
             self.assertEqual(snapshot["interaction"], "auto")
             for host in ("codex", "claude"):

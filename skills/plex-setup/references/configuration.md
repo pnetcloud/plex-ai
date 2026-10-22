@@ -47,19 +47,9 @@ The editable source is `<root>/.plex/preset.toml` for the selected scope. New se
 ```toml
 team = "pnet"
 model_profile = "inherit"
-coordinator_token_budget = 0
-subagent_token_budget = 0
 ```
 
-Setup writes both Goal budget settings as `0` for new installations and does not ask
-for a token limit. Missing settings in older presets also resolve to `0`. The
-coordinator setting applies to a native Goal for the current root thread; the
-subagent setting applies separately to each Plex subagent Goal. A positive integer
-requests that native budget; `0` means omit the budget argument. These values do not
-limit normal or plan assignments, remove client/provider quotas or guarantee that a
-host session remains available indefinitely. A user-specified per-task budget takes
-precedence over the saved default. Refresh the configured clients after editing the
-preset; active sessions do not reload the generated snapshot automatically.
+Refresh removes retired token-budget fields from older presets.
 
 Use the user's requested team/profile instead when specified. Optional project
 `interaction` (`interactive`, `balanced`, `auto`; default `balanced`),

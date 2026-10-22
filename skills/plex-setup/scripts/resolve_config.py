@@ -185,10 +185,12 @@ def load_role(process: str, role: str, team_name=None) -> dict:
 
 
 def resolve(config):
-    config = table(config, "project")
+    # Ignore retired settings so existing installations can refresh normally.
+    config = {k: v for k, v in table(config, "project").items()
+              if k not in ("coordinator_token_budget", "subagent_token_budget")}
     keys(config, {
         "team", "model_profile", "process", "roles", "skills", "max_agents", "interaction",
-        "coordinator_token_budget", "subagent_token_budget", *HOSTS,
+        *HOSTS,
     }, "project")
     team_name = config.get("team")
     if team_name == "default":
@@ -214,14 +216,6 @@ def resolve(config):
     interaction = config.get("interaction", team.get("interaction", "balanced"))
     if not isinstance(interaction, str) or interaction not in INTERACTIONS:
         raise ValueError(f"interaction must be one of {INTERACTIONS}")
-    coordinator_token_budget = config.get("coordinator_token_budget", 0)
-    subagent_token_budget = config.get("subagent_token_budget", 0)
-    for name, value in (
-        ("coordinator_token_budget", coordinator_token_budget),
-        ("subagent_token_budget", subagent_token_budget),
-    ):
-        if type(value) is not int or value < 0:
-            raise ValueError(f"{name} must be a non-negative integer; 0 means no Plex-set limit")
     known_roles = discover_known_roles()
     if set(roles) - known_roles:
         raise ValueError(f"Unknown roles: {sorted(set(roles) - known_roles)}")
@@ -285,8 +279,6 @@ def resolve(config):
         "skills": {role: list(names) for role, names in bindings.items()},
         "workflows": {role: [dict(entry) for entry in entries] for role, entries in workflows.items()},
         "interaction": interaction,
-        "coordinator_token_budget": coordinator_token_budget,
-        "subagent_token_budget": subagent_token_budget,
         "max_agents": max_agents, "hosts": hosts, "inactive_overrides": inactive,
     }
 
@@ -873,8 +865,10 @@ def build_preset_toml(
     interaction: str | None = None,
 ) -> str:
     config = dict(existing_config) if existing_config else {}
+    for key in ("coordinator_token_budget", "subagent_token_budget"):
+        config.pop(key, None)
     if reset_overrides:
-        for key in ("max_agents", "coordinator_token_budget", "subagent_token_budget", *HOSTS):
+        for key in ("max_agents", *HOSTS):
             config.pop(key, None)
 
     if team is not None:
@@ -902,8 +896,6 @@ def build_preset_toml(
         keys(table(host_overrides, "host overrides"), set(HOSTS), "host overrides")
         config.update(host_overrides)
     config.setdefault("interaction", resolve(config)["interaction"])
-    config.setdefault("coordinator_token_budget", 0)
-    config.setdefault("subagent_token_budget", 0)
 
     lines = []
     if "team" in config:
@@ -918,8 +910,6 @@ def build_preset_toml(
         lines.append(f'roles = {json.dumps(config["roles"])}')
     if "max_agents" in config:
         lines.append(f'max_agents = {json.dumps(config["max_agents"])}')
-    lines.append(f'coordinator_token_budget = {json.dumps(config["coordinator_token_budget"])}')
-    lines.append(f'subagent_token_budget = {json.dumps(config["subagent_token_budget"])}')
 
     if "skills" in config and isinstance(config["skills"], dict) and config["skills"]:
         lines.append("")
@@ -1103,8 +1093,7 @@ def _apply_project(
     if (
         existing_preset_bytes is not None
         and "interaction" in existing_config
-        and "coordinator_token_budget" in existing_config
-        and "subagent_token_budget" in existing_config
+        and not {"coordinator_token_budget", "subagent_token_budget"} & existing_config.keys()
         and team is None
         and model_profile is None
         and max_agents is None

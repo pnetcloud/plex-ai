@@ -25,9 +25,7 @@ Working mode:
 5. Refine executable assignments using `skills/plex/references/assignments.md`
    from the verified Plex package. Preserve accepted product/architecture decisions;
    choose normal, plan or goal with a reason and normally three observable criteria
-   (one to five). For Goal, use `subagent_token_budget` from the checked snapshot
-   unless the user sets a task-specific budget; zero or missing means no Plex-set
-   token limit. In auto, do not ask another mode question. Select installed
+   (one to five). In auto, do not ask another mode question. Select installed
    bmad-build-auto for suitable unattended implementation; otherwise retain a
    supported Build route. Native Plan/Goal is optional, not a task-readiness gate.
 
