@@ -4,6 +4,13 @@ Important changes retained in Plex, grouped by release. Interfaces and configura
 may change before 1.0. Releases through v0.5.4 were previews; v0.5.5 and later are
 regular releases.
 
+## [0.10.1] — 2026-10-22
+
+- Clarify the existing blocker check: verify its source and applicability before
+  escalation. Optional agent-selected methods do not become prerequisites.
+- Keep alternative methods with the owning specialist and preserve acceptance,
+  permissions and required checks. No configuration or response-schema changes.
+
 ## [0.10.0] — 2026-10-22
 
 - Add validated subagent responses tied to assignment identity and revision, with evidence for every completion criterion.

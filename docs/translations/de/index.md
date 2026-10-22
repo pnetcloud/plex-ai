@@ -34,6 +34,7 @@ Englisch ist die gepflegte Quelle; Übersetzungen spiegeln die Dateinamen.
 
 | Version | Änderungen |
 |---|---|
+| [Versionshinweise](releases/v0.10.1.md) | v0.10.1: Quelle und Anwendbarkeit von Blockern prüfen. |
 | [Versionshinweise](releases/v0.10.0.md) | v0.10.0: Geprüfte Subagenten-Antworten und klare Hilfsanfragen. |
 | [Versionshinweise](releases/v0.9.1.md) | v0.9.1: Dokumentations-Hotfix: verständlichere Modellprofile und Agenten-Orchestrierung. |
 | [Versionshinweise](releases/v0.9.0.md) | v0.9.0: Plex verwaltet keine Tokenbudgets mehr. |
