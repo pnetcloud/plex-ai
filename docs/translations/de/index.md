@@ -34,6 +34,7 @@ Englisch ist die gepflegte Quelle; Übersetzungen spiegeln die Dateinamen.
 
 | Version | Änderungen |
 |---|---|
+| [Versionshinweise](releases/v0.11.1.md) | v0.11.1: Verwaltung der nativen Codex-Kapazität für Kind-Threads. |
 | [Versionshinweise](releases/v0.11.0.md) | v0.11.0: Verwaltung der nativen Codex-Kapazität für Kind-Threads. |
 | [Versionshinweise](releases/v0.10.1.md) | v0.10.1: Quelle und Anwendbarkeit von Blockern prüfen. |
 | [Versionshinweise](releases/v0.10.0.md) | v0.10.0: Geprüfte Subagenten-Antworten und klare Hilfsanfragen. |

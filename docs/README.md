@@ -36,6 +36,7 @@ English is the maintained source; translations mirror these filenames.
 
 | Version | Changes |
 |---|---|
+| [Release notes](releases/v0.11.1.md) | v0.11.1: Managed native Codex child-thread capacity. |
 | [Release notes](releases/v0.11.0.md) | v0.11.0: Managed native Codex child-thread capacity. |
 | [Release notes](releases/v0.10.1.md) | v0.10.1: Verify blocker source and applicability. |
 | [Release notes](releases/v0.10.0.md) | v0.10.0: Validated subagent responses and clearer help requests. |

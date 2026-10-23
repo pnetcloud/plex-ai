@@ -33,6 +33,7 @@ Plex 在 Codex、Claude Code 和 Antigravity 中配置并协调智能体团队�
 
 | 版本 | 变更 |
 |---|---|
+| [发布说明](releases/v0.11.1.md) | v0.11.1: 管理 Codex 原生子线程容量。 |
 | [发布说明](releases/v0.11.0.md) | v0.11.0: 管理 Codex 原生子线程容量。 |
 | [发布说明](releases/v0.10.1.md) | v0.10.1: 核实阻碍的来源及适用性。 |
 | [发布说明](releases/v0.10.0.md) | v0.10.0: 可验证的子智能体响应与清晰的求助请求。 |

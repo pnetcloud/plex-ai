@@ -19,6 +19,19 @@ SPEC.loader.exec_module(I)
 
 
 class DevTests(unittest.TestCase):
+    def setUp(self):
+        self._home_temp = tempfile.TemporaryDirectory(prefix="plex-dev-home-")
+        self.addCleanup(self._home_temp.cleanup)
+        self.home = Path(self._home_temp.name)
+        self.codex_home = self.home / ".codex"
+        self.codex_home.mkdir()
+        env_patch = patch.dict(os.environ, {
+            "HOME": str(self.home),
+            "CODEX_HOME": str(self.codex_home),
+        })
+        env_patch.start()
+        self.addCleanup(env_patch.stop)
+
     def setup_project(self, project, *options):
         return I.main(["--project", str(project), "--client", "codex", "--scope", "project",
                        "--team", "pnet", "--yes", "--no-command", *options])
@@ -54,7 +67,17 @@ class DevTests(unittest.TestCase):
             self.assertFalse((project / ".plex/dev.json").exists())
             self.assertFalse((project / ".agents/skills/plex").is_symlink())
             self.assertNotIn("Plex development source", (project / "AGENTS.md").read_text())
-            self.assertEqual(tomllib.loads(config.read_text()), {"model": "custom", "features": {"some_flag": True, "multi_agent_v2": {"hide_spawn_agent_metadata": False, "tool_namespace": "agents"}}})
+            self.assertEqual(tomllib.loads(config.read_text()), {
+                "model": "custom",
+                "features": {
+                    "some_flag": True,
+                    "multi_agent_v2": {
+                        "hide_spawn_agent_metadata": False,
+                        "tool_namespace": "agents",
+                    },
+                },
+                "agents": {"max_concurrent_threads_per_session": 3},
+            })
 
     def test_dry_run_and_unsupported_modes_never_write(self):
         with tempfile.TemporaryDirectory() as temp, redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()):
@@ -93,7 +116,7 @@ class DevTests(unittest.TestCase):
             config.write_text(original)
             self.assertEqual(self.setup_project(project, "--dev"), 0)
             self.assertEqual(I.main(["uninstall", "--project", temp, "--client", "codex", "--yes"]), 0)
-            self.assertEqual(config.read_text(), original + "\n[features.multi_agent_v2]\n")
+            self.assertEqual(config.read_text(), original + "\n[features.multi_agent_v2]\n\n[agents]\n")
             self.assertFalse((project / ".plex/dev.json").exists())
             self.assertNotIn("plex:managed:start", (project / "AGENTS.md").read_text())
 

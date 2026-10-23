@@ -4,6 +4,11 @@ Important changes retained in Plex, grouped by release. Interfaces and configura
 may change before 1.0. Releases through v0.5.4 were previews; v0.5.5 and later are
 regular releases.
 
+## [0.11.1] — 2026-10-23
+
+- Include the native Codex capacity management prepared for v0.11.0, whose release publication was blocked by CI.
+- Correct dev-mode lifecycle test expectations for managed capacity and retained table headers, and isolate configuration inputs from the operator environment.
+
 ## [0.11.0] — 2026-10-23
 
 - Configure native Codex child-thread capacity from Plex `max_agents` when no explicit limit applies.
