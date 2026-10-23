@@ -15,6 +15,7 @@ import tomllib
 
 ROOT = Path(__file__).resolve().parents[3]
 HOSTS = ("codex", "claude", "antigravity")
+NATIVE_CODEX_INTEGER_MAX = (1 << 63) - 1
 INTERACTIONS = ("interactive", "balanced", "auto")
 PROFILE_TIERS = ("basic", "plus", "pro", "pro-plus")
 EFFORTS = {"minimal", "low", "medium", "high", "xhigh", "max", "ultra"}
@@ -524,48 +525,361 @@ def plan_instructions(root: Path, host: str, scope: str, record=None, dev=None) 
             "record": {"relpath": relpath, "sha256": sha256_bytes(block)}}
 
 
-def plan_codex_routing(root, scope, record=None):
-    """Expose native role selection without adopting or replacing personal settings."""
+def _marker_span(text: str, start: str, end: str, label: str):
+    if start.strip() not in text and end.strip() not in text:
+        return None
+    if text.count(start) != 1 or text.count(end) != 1 or text.index(end) < text.index(start):
+        raise ValueError(f"Invalid Plex {label} markers; config preserved")
+    return text.index(start), text.index(end) + len(end)
+
+
+def _readonly_state(path: Path):
+    for parent in path.parents:
+        if parent.is_symlink():
+            return ("symlink-parent", f"{parent}:{os.readlink(parent)}")
+    try:
+        info = path.lstat()
+    except (FileNotFoundError, NotADirectoryError):
+        return ("absent", None)
+    if path.is_symlink():
+        return ("symlink", os.readlink(path))
+    if not path.is_file():
+        return ("other", str(info.st_mode))
+    return ("file", path.read_bytes())
+
+
+def _capacity_input_snapshot(root: Path, scope: str):
+    """Snapshot read-only native config inputs without adding them to the write set."""
+    root = Path(root).resolve()
+    user = user_root("codex").resolve()
+    paths = set()
+    if scope == "project":
+        paths.add(user / "config.toml")
+        paths.update(parent / ".codex" / "config.toml" for parent in root.parents)
+        paths.discard(root / ".codex" / "config.toml")
+    profile_dir = user
+    try:
+        profile_names = tuple(sorted(path.name for path in profile_dir.glob("*.config.toml")))
+    except OSError as error:
+        raise ValueError(f"Cannot inspect Codex profile configs: {error}") from error
+    paths.update(profile_dir / name for name in profile_names)
+    return {path: _readonly_state(path) for path in paths}, profile_dir, profile_names
+
+
+def _check_capacity_input_snapshot(snapshot):
+    inputs, profile_dir, profile_names = snapshot or ({}, user_root("codex").resolve(), ())
+    try:
+        current_names = tuple(sorted(path.name for path in profile_dir.glob("*.config.toml")))
+        changed = current_names != profile_names
+        for path, before in inputs.items():
+            if _readonly_state(path) != before:
+                changed = True
+    except OSError as error:
+        raise ValueError(f"Cannot recheck inherited Codex config: {error}") from error
+    if changed:
+        raise ValueError("Inherited Codex config changed after planning; review and retry")
+
+
+def _capacity_pair(agents, label):
+    """Validate canonical and legacy limits in one native config table."""
+    agents = table(agents, f"{label}.agents")
+    values = []
+    for key in ("max_concurrent_threads_per_session", "max_threads"):
+        if key not in agents:
+            continue
+        value = agents[key]
+        if type(value) is not int or not 1 <= value <= NATIVE_CODEX_INTEGER_MAX:
+            raise ValueError(
+                f"{label}.agents.{key} must be a positive signed 64-bit integer; config preserved"
+            )
+        values.append((key, value))
+    if len(values) == 2 and values[0][1] != values[1][1]:
+        raise ValueError(f"{label}.agents capacity aliases conflict; config preserved")
+    return values[0][1] if values else None
+
+
+def _capacity_entries(config, label):
+    entries = []
+    if "agents" in config:
+        value = _capacity_pair(config["agents"], label)
+        if value is not None:
+            entries.append((label, value, False))
+    profiles = config.get("profiles", {})
+    if profiles:
+        for name, profile in table(profiles, f"{label}.profiles").items():
+            profile = table(profile, f"{label}.profiles.{name}")
+            if "agents" in profile:
+                value = _capacity_pair(profile["agents"], f"{label}.profiles.{name}")
+                if value is not None:
+                    entries.append((f"{label} profile {name}", value, True))
+    return entries
+
+
+def _managed_capacity_value(block):
+    """Read either a table-local or root dotted-key capacity marker block."""
+    dotted = re.search(r"(?m)^[ \t]*agents[ \t]*\.[ \t]*max_concurrent_threads_per_session[ \t]*=", block)
+    parsed = tomllib.loads(block if dotted else "[agents]\n" + block)
+    agents = parsed.get("agents", {})
+    return _capacity_pair(agents, "managed Codex capacity")
+
+
+def _renders_capacity(text, expected):
+    try:
+        agents = table(tomllib.loads(text).get("agents", {}), "rendered Codex config.agents")
+        paired = _capacity_pair(agents, "rendered Codex config")
+    except (tomllib.TOMLDecodeError, ValueError):
+        return False
+    canonical = agents.get("max_concurrent_threads_per_session")
+    return type(canonical) is int and canonical == expected and paired == expected
+
+
+def _native_capacity(root: Path, scope: str, target_config: dict, max_agents: int | None, snapshot):
+    target_label = "user config" if scope == "user" else "project config"
+    local_entries = _capacity_entries(target_config, target_label)
+    local_profile_entries = [entry for entry in local_entries if entry[2]]
+    local_values = [entry[1] for entry in local_entries if not entry[2]]
+    if len(set(local_values)) > 1:
+        raise ValueError("Codex local capacity values conflict; config preserved")
+
+    inputs, profile_dir, profile_names = snapshot or ({}, user_root("codex").resolve(), ())
+    inherited = []
+    uncertain = [entry[0] for entry in local_profile_entries]
+    ancestor_candidates = {
+        parent / ".codex" / "config.toml"
+        for parent in Path(root).resolve().parents
+    }
+    ancestor_candidates.discard(Path(root).resolve() / ".codex" / "config.toml")
+    ancestor_candidates.discard(user_root("codex").resolve() / "config.toml")
+    for path, (kind, content) in inputs.items():
+        if kind == "absent":
+            continue
+        if kind != "file":
+            uncertain.append(str(path))
+            continue
+        try:
+            parsed = tomllib.loads(content.decode("utf-8"))
+        except (UnicodeError, tomllib.TOMLDecodeError) as error:
+            raise ValueError(f"Cannot inspect inherited Codex config {path}: {error}") from error
+        is_profile_file = path.parent == profile_dir and path.name in profile_names
+        is_ancestor_candidate = path in ancestor_candidates
+        label = f"profile {path.name}" if is_profile_file else f"inherited {path}"
+        entries = _capacity_entries(parsed, label)
+        for origin, value, conditional in entries:
+            inherited.append((origin, value))
+            if conditional or is_profile_file or is_ancestor_candidate:
+                uncertain.append(origin)
+
+    if uncertain:
+        value = None
+        origin = "unknown"
+        mismatch = None
+    elif local_values:
+        value = local_values[0]
+        origin = "user" if scope == "user" else "project"
+        mismatch = value < max_agents if max_agents is not None else None
+    elif inherited:
+        values = {item[1] for item in inherited}
+        if len(values) > 1:
+            uncertain.append("multiple inherited capacity candidates")
+        value = next(iter(values)) if len(values) == 1 else None
+        origin = "inherited" if value is not None else "unknown"
+        mismatch = value < max_agents if value is not None and max_agents is not None else None
+    else:
+        value = None
+        origin = "absent"
+        mismatch = None
+    return {
+        "assignment_limit": max_agents,
+        "value": value,
+        "origin": origin,
+        "sources": sorted({entry[0] for entry in (*local_entries, *inherited)} | set(uncertain)),
+        "mismatch": mismatch,
+        "activation": "unknown",
+        "uncertain": bool(uncertain),
+    }, bool(local_values or inherited or uncertain)
+
+
+def plan_codex_routing(root, scope, record=None, max_agents=None, capacity_record=None):
+    """Compose native role selection and capacity into one owned config plan."""
     relpath = "config.toml" if scope == "user" else ".codex/config.toml"
     path = _ensure_safe_project_path(root, relpath)
     before = path.read_bytes() if path.exists() else None
     text = (before or b"").decode("utf-8")
-    start, end = "# plex-routing:start\n", "# plex-routing:end\n"
-    span = None
-    if start.strip() in text or end.strip() in text:
-        if text.count(start) != 1 or text.count(end) != 1 or text.index(end) < text.index(start):
-            raise ValueError("Invalid Plex routing markers; config preserved")
-        span = (text.index(start), text.index(end) + len(end))
+    route_start, route_end = "# plex-routing:start\n", "# plex-routing:end\n"
+    route_span = _marker_span(text, route_start, route_end, "routing")
     if record:
-        if record["relpath"] != relpath or span is None or sha256_bytes(text[slice(*span)].encode()) != record["sha256"]:
+        if record["relpath"] != relpath or route_span is None or sha256_bytes(text[slice(*route_span)].encode()) != record["sha256"]:
             raise ValueError("Managed Codex routing changed or missing; config preserved")
-    elif span is not None:
+    elif route_span is not None:
         raise ValueError("Unmanaged Plex routing block; config preserved")
-    config = tomllib.loads(text)
+
+    manage_capacity = max_agents is not None or capacity_record is not None
+    capacity_start, capacity_end = "# plex-capacity:start\n", "# plex-capacity:end\n"
+    capacity_span = _marker_span(text, capacity_start, capacity_end, "capacity") if manage_capacity else None
+    if capacity_record:
+        if (capacity_record["relpath"] != relpath or capacity_span is None
+                or sha256_bytes(text[slice(*capacity_span)].encode()) != capacity_record["sha256"]):
+            raise ValueError("Managed Codex capacity changed or missing; config preserved")
+    elif capacity_span is not None:
+        raise ValueError("Unmanaged Plex capacity block; config preserved")
+    without_capacity = text[:capacity_span[0]] + text[capacity_span[1]:] if capacity_span else text
+    config = tomllib.loads(without_capacity)
     features = table(config.get("features", {}), "Codex features")
     native = table(features.get("multi_agent_v2", {}), "Codex multi_agent_v2")
     required = {"hide_spawn_agent_metadata": False, "tool_namespace": "agents"}
     for key, value in required.items():
         if key in native and (type(native[key]) is not type(value) or native[key] != value):
             raise ValueError(f"Codex features.multi_agent_v2.{key} conflicts with Plex role selection; personal setting preserved")
+    routing_record = record
+    routing_values = {key: native.get(key) for key in required}
     missing = {key: value for key, value in required.items() if key not in native}
     if missing:
         if record:
             raise ValueError("Managed Codex routing is incomplete; config preserved")
-        block = start + "".join(f"{key} = {json.dumps(value)}\n" for key, value in missing.items()) + end
-        header = re.search(r"(?m)^\[features\.multi_agent_v2\][ \t]*(?:#[^\n]*)?(?:\n|$)", text)
+        block = route_start + "".join(f"{key} = {json.dumps(value)}\n" for key, value in missing.items()) + route_end
+        header = re.search(r"(?m)^\[features\.multi_agent_v2\][ \t]*(?:#[^\n]*)?(?:\n|$)", without_capacity)
         if "multi_agent_v2" in features:
             if header is None:
                 raise ValueError("Codex routing uses inline or quoted tables; configure native role selection explicitly, config preserved")
-            text = text[:header.end()] + ("" if header.group().endswith("\n") else "\n") + block + text[header.end():]
+            without_capacity = without_capacity[:header.end()] + ("" if header.group().endswith("\n") else "\n") + block + without_capacity[header.end():]
         else:
-            # Keep the table header outside ownership so later personal keys retain their scope on uninstall.
-            text += ("" if not text or text.endswith("\n") else "\n") + "\n[features.multi_agent_v2]\n" + block
-        record = {"relpath": relpath, "sha256": sha256_bytes(block.encode())}
-        parsed = tomllib.loads(text)["features"]["multi_agent_v2"]
+            without_capacity += ("" if not without_capacity or without_capacity.endswith("\n") else "\n") + "\n[features.multi_agent_v2]\n" + block
+        routing_record = {"relpath": relpath, "sha256": sha256_bytes(block.encode())}
+        parsed = tomllib.loads(without_capacity)["features"]["multi_agent_v2"]
         if any(parsed.get(key) != value for key, value in required.items()):
             raise ValueError("Codex routing did not render correctly")
-    return {"path": path, "before": before, "after": text.encode() if text else before, "record": record}
+        routing_values = {key: parsed.get(key) for key in required}
+
+    capacity_plan = None
+    native_capacity = None
+    inherited_snapshot = None
+    proposed_capacity = None
+    if manage_capacity:
+        # Uninstall validates and removes only the receipt-owned target block.
+        # It must remain possible when an unrelated inherited profile is broken.
+        inherited_snapshot = (_capacity_input_snapshot(Path(root), scope)
+                              if max_agents is not None else None)
+        # Parse from the capacity-free target, since an unchanged owned key is not
+        # an unowned explicit choice. The routing block does not affect [agents].
+        native_capacity, explicit = _native_capacity(
+            Path(root), scope, tomllib.loads(without_capacity), max_agents, inherited_snapshot
+        )
+        target_config = tomllib.loads(without_capacity)
+        target_local_value = _capacity_pair(target_config.get("agents", {}), "Codex local config")
+        owned_value = None
+        capacity_block = text[slice(*capacity_span)] if capacity_span else None
+        dotted_capacity_block = False
+        if capacity_span:
+            owned_value = _managed_capacity_value(capacity_block)
+            dotted_capacity_block = bool(re.search(
+                r"(?m)^[ \t]*agents[ \t]*\.[ \t]*max_concurrent_threads_per_session[ \t]*=",
+                capacity_block,
+            ))
+            actual_agents = table(tomllib.loads(text).get("agents", {}), "Codex local config.agents")
+            actual_value = actual_agents.get("max_concurrent_threads_per_session")
+            _capacity_pair(actual_agents, "Codex local config")
+            if type(actual_value) is not int or actual_value != owned_value:
+                raise ValueError("Managed Codex capacity moved outside the [agents] table; config preserved")
+            if target_local_value is not None and target_local_value != owned_value:
+                raise ValueError("Codex local capacity aliases conflict with the managed limit; config preserved")
+        current_capacity = native_capacity
+        should_own = max_agents is not None and not explicit
+        after = without_capacity
+        capacity_receipt = None
+        preserve_uncertain_owned = bool(max_agents is not None and capacity_span and current_capacity["uncertain"])
+        if preserve_uncertain_owned:
+            # A possible active profile makes capacity applicability unknown. Keep
+            # the existing owned block byte-for-byte; uncertainty is not a reason
+            # to replace it or silently relinquish ownership.
+            if dotted_capacity_block:
+                after = capacity_block + ("\n" if not capacity_block.endswith("\n") else "") + after
+            else:
+                headers = re.finditer(
+                    r"(?m)^[ \t]*\[[ \t]*(?:agents|\"agents\"|'agents')[ \t]*\][ \t]*(?:#[^\n]*)?(?:\n|$)",
+                    after,
+                )
+                for header in headers:
+                    candidate = after[:header.end()] + ("" if header.group().endswith("\n") else "\n") + capacity_block + after[header.end():]
+                    if _renders_capacity(candidate, owned_value):
+                        after = candidate
+                        break
+                else:
+                    raise ValueError("Managed Codex capacity table changed; config preserved")
+            capacity_receipt = capacity_record
+            proposed_capacity = native_capacity
+        elif should_own:
+            canonical_block = capacity_start + f"max_concurrent_threads_per_session = {max_agents}\n" + capacity_end
+            dotted_block = capacity_start + f"agents.max_concurrent_threads_per_session = {max_agents}\n" + capacity_end
+            if max_agents > NATIVE_CODEX_INTEGER_MAX:
+                raise ValueError(
+                    "Codex native capacity must be a positive signed 64-bit integer; config preserved"
+                )
+            header = re.search(
+                r"(?m)^[ \t]*\[[ \t]*(?:agents|\"agents\"|'agents')[ \t]*\][ \t]*(?:#[^\n]*)?(?:\n|$)",
+                after,
+            )
+            if "agents" in config:
+                rendered_table = False
+                if header is not None:
+                    headers = re.finditer(
+                        r"(?m)^[ \t]*\[[ \t]*(?:agents|\"agents\"|'agents')[ \t]*\][ \t]*(?:#[^\n]*)?(?:\n|$)",
+                        after,
+                    )
+                    for header in headers:
+                        candidate = after[:header.end()] + ("" if header.group().endswith("\n") else "\n") + canonical_block + after[header.end():]
+                        if _renders_capacity(candidate, max_agents):
+                            after, block = candidate, canonical_block
+                            rendered_table = True
+                            break
+                if not rendered_table:
+                    separator = "" if not after or after.startswith("\n") else "\n"
+                    candidate = dotted_block + separator + after
+                    if not _renders_capacity(candidate, max_agents):
+                        raise ValueError("Codex agents table layout is ambiguous; set native capacity explicitly, config preserved")
+                    after, block = candidate, dotted_block
+            else:
+                block = canonical_block
+                after += ("" if not after or after.endswith("\n") else "\n") + "\n[agents]\n" + block
+            capacity_receipt = {"relpath": relpath, "sha256": sha256_bytes(block.encode())}
+            proposed_capacity = {**native_capacity, "value": max_agents, "origin": "plex", "mismatch": False, "uncertain": False}
+            if not _renders_capacity(after, max_agents):
+                raise ValueError("Codex capacity did not render under the [agents] table; config preserved")
+        else:
+            after = without_capacity
+            proposed_capacity = native_capacity
+        if capacity_receipt:
+            expected_capacity = owned_value if preserve_uncertain_owned else max_agents
+            if not _renders_capacity(after, expected_capacity):
+                raise ValueError("Managed Codex capacity did not render under the [agents] table; config preserved")
+        if capacity_span and not current_capacity["uncertain"]:
+            if target_local_value is None:
+                current_capacity = {
+                    **current_capacity,
+                    "value": owned_value,
+                    "origin": "plex",
+                    "mismatch": owned_value < max_agents if max_agents is not None else None,
+                    "sources": sorted(set(current_capacity.get("sources", [])) | {"Plex-owned target config"}),
+                }
+        if capacity_span and current_capacity["uncertain"]:
+            current_capacity = {**current_capacity, "saved_target": {"value": owned_value, "origin": "plex"}}
+            if preserve_uncertain_owned:
+                proposed_capacity = current_capacity
+        native_capacity = current_capacity
+        capacity_plan = {"record": capacity_receipt, "explicit": explicit}
+    else:
+        after = without_capacity
+
+    return {
+        "path": path,
+        "before": before,
+        "after": after.encode() if after else before,
+        "record": routing_record,
+        "native_routing": routing_values,
+        "capacity_record": capacity_plan["record"] if capacity_plan else capacity_record,
+        "native_capacity": native_capacity,
+        "proposed_capacity": proposed_capacity,
+        "inherited_snapshot": inherited_snapshot,
+    }
 
 
 def _validate_receipt_structure(data: dict, scope="project") -> dict:
@@ -580,6 +894,7 @@ def _validate_receipt_structure(data: dict, scope="project") -> dict:
             {
                 "host", "team", "model_profile", "process", "roles",
                 "skills", "max_agents", "role_settings", "files", "source_sha256", "instructions", "routing",
+                "capacity",
             },
             f"applied.json.hosts.{host}",
         )
@@ -599,6 +914,12 @@ def _validate_receipt_structure(data: dict, scope="project") -> dict:
             expected = "config.toml" if scope == "user" else ".codex/config.toml"
             if host != "codex" or routing.get("relpath") != expected or not isinstance(routing.get("sha256"), str) or not re.fullmatch(r"[0-9a-f]{64}", routing["sha256"]):
                 raise ValueError("Invalid managed Codex routing receipt")
+        if "capacity" in record:
+            capacity = table(record["capacity"], "capacity")
+            keys(capacity, {"relpath", "sha256"}, "capacity")
+            expected = "config.toml" if scope == "user" else ".codex/config.toml"
+            if host != "codex" or capacity.get("relpath") != expected or not isinstance(capacity.get("sha256"), str) or not re.fullmatch(r"[0-9a-f]{64}", capacity["sha256"]):
+                raise ValueError("Invalid managed Codex capacity receipt")
         files = table(record.get("files", {}), f"applied.json.hosts.{host}.files")
         for role, file_info in files.items():
             if not isinstance(role, str) or not re.fullmatch(r"[a-z][a-z0-9_-]*", role):
@@ -624,6 +945,7 @@ def _inspect_host_state(
     receipt_record: dict | None,
     scope="project",
     archive_agents=None,
+    capacity_limit=None,
 ) -> dict:
     extension = "toml" if host == "codex" else "md"
     agents_rel = host_agents_relpath(host, scope)
@@ -652,10 +974,20 @@ def _inspect_host_state(
         except (OSError, ValueError) as error:
             conflicts.append(str(error))
     routing_stale = False
+    native_capacity = None
+    proposed_capacity = None
     if host == "codex" and (resolved is not None or receipt_record):
         try:
-            routing = plan_codex_routing(project_root, scope, (receipt_record or {}).get("routing"))
+            limit = capacity_limit
+            if limit is None:
+                limit = (resolved or receipt_record or {}).get("max_agents")
+            routing = plan_codex_routing(
+                project_root, scope, (receipt_record or {}).get("routing"), limit,
+                (receipt_record or {}).get("capacity"),
+            )
             routing_stale = routing["before"] != routing["after"]
+            native_capacity = routing["native_capacity"]
+            proposed_capacity = routing["proposed_capacity"]
         except (OSError, ValueError) as error:
             conflicts.append(str(error))
     existing_plex_files = {}
@@ -704,6 +1036,8 @@ def _inspect_host_state(
             "missing_roles": [],
             "outdated_roles": [],
             "retire_roles": [],
+            "native_capacity": native_capacity,
+            "proposed_capacity": proposed_capacity,
         }
 
     desired_roles = resolved["roles"]
@@ -751,10 +1085,12 @@ def _inspect_host_state(
         "outdated_roles": outdated_roles,
         "retire_roles": retire_roles,
         "effective_roles": resolved["hosts"][host],
+        "native_capacity": native_capacity,
+        "proposed_capacity": proposed_capacity,
     }
 
 
-def check_project(project_root: Path, host: str | None = None, scope="project") -> dict:
+def check_project(project_root: Path, host: str | None = None, scope="project", max_agents=None) -> dict:
     if scope in {"user", "auto"} and host not in HOSTS:
         raise ValueError("User/auto scope requires a host")
     project_root = Path(project_root)
@@ -808,7 +1144,8 @@ def check_project(project_root: Path, host: str | None = None, scope="project") 
             host_reports[h] = {"status": "unconfigured", "conflicts": []}
             continue
         host_reports[h] = _inspect_host_state(
-            project_root, h, resolved, source_sha256, receipt["hosts"].get(h), scope
+            project_root, h, resolved, source_sha256, receipt["hosts"].get(h), scope,
+            capacity_limit=max_agents if h == host else None,
         )
 
     for h in HOSTS:
@@ -1042,7 +1379,8 @@ def other_codex_agents(root, roles, scope="project"):
 
 
 def apply_project(project_root, host, team=None, model_profile=None, max_agents=None, reset_overrides=False,
-                  host_overrides=None, scope="project", instructions=False, interaction=None, archive_agents=None):
+                  host_overrides=None, scope="project", instructions=False, interaction=None, archive_agents=None,
+                  expected_routing_plan=None):
     project_root = installation_root(Path(project_root), host, scope)
     lock = _ensure_safe_project_path(project_root, ".plex/.apply.lock")
     lock.parent.mkdir(parents=True, exist_ok=True)
@@ -1052,7 +1390,8 @@ def apply_project(project_root, host, team=None, model_profile=None, max_agents=
     except FileExistsError:
         raise ValueError("Another apply holds .plex/.apply.lock; inspect the owning process before recovery") from None
     try:
-        return _apply_project(project_root, host, team, model_profile, max_agents, reset_overrides, host_overrides, scope, instructions, interaction, archive_agents)
+        return _apply_project(project_root, host, team, model_profile, max_agents, reset_overrides, host_overrides,
+                              scope, instructions, interaction, archive_agents, expected_routing_plan)
     finally:
         lock.unlink()
 
@@ -1069,6 +1408,7 @@ def _apply_project(
     instructions=False,
     interaction: str | None = None,
     archive_agents: dict | None = None,
+    expected_routing_plan: dict | None = None,
 ) -> dict:
     if host not in HOSTS:
         raise ValueError(f"Unknown host: {host!r}")
@@ -1134,7 +1474,8 @@ def _apply_project(
         if any(digest is None or path not in available or available[path] != digest for path, digest in archive_agents.items()):
             raise ValueError("Other Codex agents changed after preview; review and retry")
     host_state = _inspect_host_state(
-        project_root, host, resolved, source_sha256, receipt["hosts"].get(host), scope, archive_agents
+        project_root, host, resolved, source_sha256, receipt["hosts"].get(host), scope,
+        archive_agents, capacity_limit=resolved["max_agents"],
     )
     if host_state["conflicts"]:
         raise ValueError("; ".join(host_state["conflicts"]))
@@ -1144,7 +1485,15 @@ def _apply_project(
     old_files = old_host_record.get("files", {})
     instruction_plan = (plan_instructions(project_root, host, scope, old_host_record.get("instructions"))
                         if instructions else None)
-    routing_plan = plan_codex_routing(project_root, scope, old_host_record.get("routing")) if host == "codex" else None
+    routing_plan = (plan_codex_routing(
+        project_root, scope, old_host_record.get("routing"), resolved["max_agents"], old_host_record.get("capacity")
+    ) if host == "codex" else None)
+    if expected_routing_plan is not None:
+        if routing_plan is None or any(
+            routing_plan.get(key) != expected_routing_plan.get(key)
+            for key in ("native_routing", "capacity_record", "native_capacity", "proposed_capacity")
+        ):
+            raise ValueError("Codex configuration changed after preview; review the new plan and retry.")
     retire_roles = sorted(set(old_files.keys()) - set(resolved["roles"]))
 
     paths = {preset_path, resolved_path, applied_path}
@@ -1176,6 +1525,8 @@ def _apply_project(
             raise ValueError("Other Codex agents changed after preview; review and retry")
 
     try:
+        if routing_plan and routing_plan["inherited_snapshot"]:
+            _check_capacity_input_snapshot(routing_plan["inherited_snapshot"])
         backup_dir = None
 
         def ensure_backup() -> Path:
@@ -1256,6 +1607,8 @@ def _apply_project(
             transaction.write(instruction_plan["path"], instruction_plan["after"])
 
         if routing_plan and routing_plan["before"] != routing_plan["after"]:
+            if routing_plan["inherited_snapshot"]:
+                _check_capacity_input_snapshot(routing_plan["inherited_snapshot"])
             if routing_plan["before"] is not None:
                 (ensure_backup() / "config.before.toml").write_bytes(routing_plan["before"])
             transaction.write(routing_plan["path"], routing_plan["after"])
@@ -1274,6 +1627,8 @@ def _apply_project(
         }
         if routing_plan and routing_plan["record"]:
             receipt["hosts"][host]["routing"] = routing_plan["record"]
+        if routing_plan and routing_plan["capacity_record"]:
+            receipt["hosts"][host]["capacity"] = routing_plan["capacity_record"]
         instruction_record = instruction_plan["record"] if instruction_plan else old_host_record.get("instructions")
         if instruction_record:
             receipt["hosts"][host]["instructions"] = instruction_record
@@ -1333,6 +1688,7 @@ def _apply_project(
                 else None
             ),
             "effective_roles": resolved["hosts"][host],
+            "native_capacity": routing_plan["proposed_capacity"] if routing_plan else None,
             "inactive_overrides": resolved["inactive_overrides"],
             "other_host": other_hosts[primary_other],
             "other_hosts": other_hosts,
@@ -1385,12 +1741,16 @@ def uninstall_project(project_root, host, scope="project", dry_run=False):
                 instruction_path, instruction_before = path, data
                 instruction_after = data[:span[0]] + data[span[1]:]
         routing_plan = None
-        if record.get("routing"):
-            routing_plan = plan_codex_routing(root, scope, record["routing"])
-            text = routing_plan["before"].decode("utf-8")
-            start = text.index("# plex-routing:start\n")
-            end = text.index("# plex-routing:end\n") + len("# plex-routing:end\n")
-            routing_plan["after"] = (text[:start] + text[end:]).encode()
+        if record.get("routing") or record.get("capacity"):
+            routing_plan = plan_codex_routing(
+                root, scope, record.get("routing"), capacity_record=record.get("capacity")
+            )
+            if record.get("routing"):
+                text = routing_plan["after"].decode("utf-8")
+                span = _marker_span(text, "# plex-routing:start\n", "# plex-routing:end\n", "routing")
+                if span is None:
+                    raise ValueError("Managed Codex routing changed or missing; config preserved")
+                routing_plan["after"] = (text[:span[0]] + text[span[1]:]).encode()
         snapshot = _ensure_safe_project_path(root, ".plex/resolved.json")
         paths = {receipt_path, *roles}
         if instruction_path:
@@ -1411,9 +1771,14 @@ def uninstall_project(project_root, host, scope="project", dry_run=False):
             raise ValueError("Concurrent Codex config change; retry uninstall")
         result = {"status": "planned" if dry_run else "uninstalled", "host": host, "scope": scope,
                   "root": str(root), "removed_roles": list(record.get("files", {})),
-                  "instruction_block_removed": instruction_path is not None, "routing_settings_removed": routing_plan is not None, "backup_dir": None}
+                  "instruction_block_removed": instruction_path is not None,
+                  "routing_settings_removed": bool(routing_plan and record.get("routing")),
+                  "capacity_settings_removed": bool(routing_plan and record.get("capacity")),
+                  "backup_dir": None}
         if dry_run:
             return result
+        if routing_plan and routing_plan["inherited_snapshot"]:
+            _check_capacity_input_snapshot(routing_plan["inherited_snapshot"])
         backup = _create_backup_dir(root, host)
         result["backup_dir"] = str(backup.relative_to(root.resolve()))
         try:
@@ -1422,6 +1787,8 @@ def uninstall_project(project_root, host, scope="project", dry_run=False):
                 (backup / "instructions.before.md").write_bytes(instruction_before)
                 transaction.write(instruction_path, instruction_after)
             if routing_plan:
+                if routing_plan["inherited_snapshot"]:
+                    _check_capacity_input_snapshot(routing_plan["inherited_snapshot"])
                 (backup / "config.before.toml").write_bytes(routing_plan["before"])
                 transaction.write(routing_plan["path"], routing_plan["after"])
             for path, digest in roles.items():

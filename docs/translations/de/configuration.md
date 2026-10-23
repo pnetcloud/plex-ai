@@ -161,6 +161,33 @@ Setup zeigt andere `.toml`-Agenten im gewählten Geltungsbereich und bietet **Be
 
 Nicht eingecheckte Änderungen allein erfordern keine Bestätigung. Plex erfasst den Ausgangszustand, weist Aufgabendateien zu und bewahrt bestehende Änderungen, auch fremde Abschnitte innerhalb einer zugewiesenen Datei. Diese Erlaubnis wird an Workflows weitergegeben; eine reine Dirty-Tree-Rückfrage ist damit beantwortet. Konflikte blockieren nur betroffene Arbeiten. Plex erstellt keine Worktrees und führt keinen Branchwechsel, Stash, Reset, Clean oder Commit aus, um einen sauberen Zustand herzustellen.
 
-Für Codex ergänzt Setup nur fehlende Werte `hide_spawn_agent_metadata = false` und `tool_namespace = "agents"` unter `[features.multi_agent_v2]`. Sie öffnen die native Rollenauswahl, ohne Backend, Modelle, Berechtigungen oder Parallelität zu ändern. Abweichende persönliche Werte bleiben erhalten und werden als Konflikt gemeldet. Verwaltete Werte nehmen an Sicherung, Konfliktprüfung, Rollback und Deinstallation teil; vorhandene passende Werte werden nicht übernommen. Ein leerer Tabellenkopf kann verbleiben, damit spätere persönliche Einstellungen ihren Geltungsbereich behalten.
+Für Codex ergänzt Setup fehlende Werte `hide_spawn_agent_metadata = false` und `tool_namespace = "agents"` unter `[features.multi_agent_v2]`. Wenn weder die Zielkonfiguration noch bekannte geerbte Konfiguration eine Kapazität festlegt, speichert es zusätzlich `agents.max_concurrent_threads_per_session = max_agents` in derselben Transaktion. Der Tabellenkopf `[agents]` bleibt außerhalb des entfernbaren Blocks, damit persönliche Schlüssel ihren Geltungsbereich behalten.
+
+Vorhandene kanonische `agents.max_concurrent_threads_per_session`- und ältere
+`agents.max_threads`-Werte bleiben persönlich; gleiche Aliaswerte werden erhalten.
+Wird neben einem Plex-eigenen kanonischen Schlüssel ein gleicher lokaler Alias
+ergänzt, gibt Plex nur seinen Schlüssel und Beleg frei; der Alias bleibt
+erhalten. Unterschiedliche Aliaswerte und boolesche, nicht ganzzahlige oder
+nichtpositive Werte führen vor dem Schreiben zu einem Konflikt. Werte außerhalb
+des positiven Bereichs einer vorzeichenbehafteten 64-Bit-Ganzzahl führen
+ebenfalls vor dem Schreiben zu einem Konflikt; dies ist eine Grenze der
+Konfigurationsdarstellung, keine Empfehlung für die Thread-Anzahl. Explizite
+globale Benutzerwerte bleiben bestehen, auch wenn sie unter `max_agents` liegen.
+Für einen übergeordneten Kandidaten `.codex/config.toml` ohne Beleg, dass die
+Konfigurationsebene gilt, oder ein Profil mit möglicher Kapazität meldet Setup
+die Anwendbarkeit als unbekannt und ändert die Kapazität nicht automatisch. Bei
+dieser Unsicherheit bleiben ein unveränderter Plex-Block und sein Beleg bestehen,
+auch wenn sich `max_agents` ändert. Bei bekannter Anwendbarkeit folgt ein
+unveränderter Plex-Block dem aktualisierten `max_agents`; Plex gibt ihn bei einem
+bekannt geltenden expliziten geerbten Limit oder einem gleichen lokalen Alias
+frei. Geänderte, fehlende oder nicht verwaltete Marker sind Konflikte.
+
+`max_agents` zählt unerledigte Plex-Aufträge. Der native Grenzwert zählt zugleich
+offene Kindthreads einschließlich verschachtelter und inaktiver Threads; der
+Hauptthread ist ausgeschlossen. Vorschau, Anwendung und Status zeigen Quelle,
+Wert und Abweichungen getrennt und melden die Sitzungsaktivierung als unbekannt.
+Eine Konfigurationsprüfung belegt nur gespeicherte Werte. Der Installer startet
+Codex nie neu; nach Änderungen eine neue Sitzung öffnen und die tatsächliche
+Aktivierung dort prüfen.
 
 Codex muss der Projektkonfiguration vertrauen. Nach Setup eine neue Sitzung öffnen. Preflight unterscheidet fehlendes Spawn-Werkzeug, verborgene Rollenauswahl, abgelehnte Rolle und akzeptierten Aufruf. Ist die Auswahl verfügbar, die genaue Teamrolle anfordern, auch ohne sichtbare Rollenliste; soweit unterstützt mit frischem Kontext und eigenständiger Übergabe. Konfigurationsprüfungen beweisen weder geladene Sitzungsrollen noch das tatsächliche Modell des Kindes.

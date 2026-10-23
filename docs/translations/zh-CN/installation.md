@@ -43,6 +43,12 @@ Plex 自有任务只使用已检查的活动团队中准确的 `plex-<role>` 名
 
 Codex 原生角色选择还需要受信任的项目配置和新会话。安装器通过备份及归属检查管理所需的角色选择参数，并保留冲突的个人值。参见[配置](configuration.md)。
 
+如果没有显式的原生容量限制，安装器会根据 `max_agents` 保存 Codex 子线程限制。预览、应用和状态会分别显示未完成的 Plex 任务与最多可打开的子代理线程数；主线程不计入。会话激活状态在 Codex 中得到验证前始终未知。安装器不会重启 Codex。
+
+如果无法确定配置档或祖先配置层是否适用，即使 `max_agents` 变化，现有未修改
+的 Plex 托管容量块及其回执也保持原样。只有确认显式继承限制适用，或存在相同
+的本地旧别名时，Plex 才会移除自己的键。
+
 无人值守清理需明确使用 `--archive-other-agents --client codex`；仅使用 `--yes` 会保留其他代理。`--dry-run` 不移动文件。
 
 ## 常用命令
@@ -141,7 +147,7 @@ Codex 也可通过 `/plugins` 浏览器卸载插件。参见 [OpenAI 插件指�
 | `--team pnet / bmad` | 角色集合，新安装默认 pnet。 |
 | `--model-profile PROFILE` | inherit、basic、plus、pro 或 pro-plus。 |
 | `--interaction MODE` | interactive、balanced（默认）或 auto。 |
-| `--max-agents N` | 并发任务上限，须为正整数。 |
+| `--max-agents N` | 未完成 Plex 任务的正整数上限；Codex 原生线程容量会单独显示。 |
 
 ### 执行与输出
 

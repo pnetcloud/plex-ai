@@ -155,8 +155,11 @@ class OtherAgentTests(unittest.TestCase):
         config.write_text(original)
         self.assertEqual(self.setup_project("--archive-other-agents"), 0, self.output.getvalue())
         self.assertTrue(path.exists())
-        self.assertTrue(config.read_text().startswith(original))
-        self.assertEqual(tomllib.loads(config.read_text())["agents"], {"legacy": {"config_file": "agents/legacy.toml"}})
+        self.assertIn(original, config.read_text())
+        self.assertEqual(tomllib.loads(config.read_text())["agents"], {
+            "max_concurrent_threads_per_session": 3,
+            "legacy": {"config_file": "agents/legacy.toml"},
+        })
         with self.assertRaises(ValueError):
             C.apply_project(self.project, "codex", archive_agents={".codex/agents/legacy.toml": C.sha256_bytes(path.read_bytes())})
 

@@ -4,6 +4,13 @@ Important changes retained in Plex, grouped by release. Interfaces and configura
 may change before 1.0. Releases through v0.5.4 were previews; v0.5.5 and later are
 regular releases.
 
+## [0.11.0] — 2026-10-23
+
+- Configure native Codex child-thread capacity from Plex `max_agents` when no explicit limit applies.
+- Preserve explicit canonical, legacy and observed inherited limits; reject invalid or conflicting values and avoid automatic writes when profile or inherited-layer applicability is uncertain.
+- Reuse managed configuration transactions, backups, refresh and uninstall, preserving manual edits and existing routing receipts.
+- Clarify the separate Plex assignment and native thread limits, saved settings and unknown session activation in setup, status and skills.
+
 ## [0.10.1] — 2026-10-22
 
 - Clarify the existing blocker check: verify its source and applicability before

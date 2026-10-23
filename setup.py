@@ -79,6 +79,45 @@ def notice(text, tone="muted", *, file=None):
     print("  " + style(prefix, tone, file=stream) + lines.replace("\n", "\n  " + " " * len(prefix)), file=stream)
 
 
+def capacity_summary(native_capacity, proposed_capacity=None):
+    if not native_capacity:
+        return
+    value = native_capacity.get("value")
+    field("Codex limit", f"{value if value is not None else 'unknown'} max open child threads (primary excluded) · {native_capacity.get('origin', 'unknown')}")
+    saved_target = native_capacity.get("saved_target")
+    if saved_target:
+        saved = saved_target.get("value")
+        field("Saved target", f"{saved if saved is not None else 'unknown'} max open child threads · {saved_target.get('origin', 'unknown')}")
+    if proposed_capacity and (
+        proposed_capacity.get("value") != value
+        or proposed_capacity.get("origin") != native_capacity.get("origin")
+    ):
+        planned = proposed_capacity.get("value")
+        field("Planned limit", f"{planned if planned is not None else 'unknown'} max open child threads · {proposed_capacity.get('origin', 'unknown')}")
+    field("Session activation", native_capacity.get("activation", "unknown"))
+    if native_capacity.get("mismatch") is True:
+        notice("The known native thread limit is below Plex's unfinished-assignment limit.", "warn")
+    if proposed_capacity and proposed_capacity.get("mismatch") is True and (
+        proposed_capacity.get("value") != value
+        or proposed_capacity.get("origin") != native_capacity.get("origin")
+    ):
+        notice("The planned native thread limit is below Plex's unfinished-assignment limit.", "warn")
+    if native_capacity.get("uncertain"):
+        notice("Native profile or inherited config applicability is uncertain; automatic capacity changes are suppressed.", "warn")
+
+
+def check_capacity_preview(plan):
+    """Reject target or inherited Codex config drift from the displayed plan."""
+    if not plan:
+        return
+    path = plan["path"]
+    current = path.read_bytes() if path.is_file() else None
+    if current != plan["before"]:
+        raise ValueError("Codex config changed after preview; review the new plan and retry.")
+    if plan.get("inherited_snapshot"):
+        CONFIG._check_capacity_input_snapshot(plan["inherited_snapshot"])
+
+
 def show_command(command):
     text = shlex.join(command) if isinstance(command, (list, tuple)) else command
     print("    " + style("$ ", "muted") + style(text, "command"))
@@ -835,6 +874,8 @@ def plex_status(project, clients, scope=None):
                         "status": report["status"] if configured or report.get("conflicts") else "unconfigured",
                         "team": resolved.get("team"), "profile": resolved.get("model_profile"),
                         "roles": state.get("installed_roles", []), "plugin": plugin, "dev_source": dev_source, "skill_aliases": skill_aliases,
+                        "native_capacity": state.get("native_capacity"),
+                        "proposed_capacity": state.get("proposed_capacity"),
                         "conflicts": report.get("conflicts", [])})
     return {"version": version, "source": str(ROOT), "clients": reports}
 
@@ -854,6 +895,8 @@ def removal_report(results, preview=False):
             field("Instructions", "Remove managed block only" if preview else "Managed block removed")
         if item.get("routing_settings_removed"):
             field("Role selection", "Remove owned Codex routing settings" if preview else "Owned Codex routing settings removed")
+        if item.get("capacity_settings_removed"):
+            field("Codex capacity", "Remove owned native limit" if preview else "Owned native limit removed")
         if item.get("remove_dev_links_and_override"):
             field("Dev mode", "Remove owned links and plugin override")
         if item.get("remove_skill_aliases"):
@@ -882,6 +925,9 @@ def maintenance(args):
                 field("Status", item["status"], tone)
                 field("Team / profile", f"{item['team'] or '—'} / {item['profile'] or '—'}")
                 field("Plugin", item["plugin"], tone)
+                if item.get("native_capacity"):
+                    field("Plex assignments", f"{item['native_capacity'].get('assignment_limit')} unfinished assignments")
+                    capacity_summary(item["native_capacity"], item.get("proposed_capacity"))
                 if item["skill_aliases"] is not None:
                     field("Short skills", item["skill_aliases"], "ok" if item["skill_aliases"] == "enabled" else "warn")
                 field("Root", item["root"], "muted")
@@ -1258,7 +1304,14 @@ def main(argv=None, *, shared_profile=False, selection=None, setup_mode=None):
                     }, "keep") == "archive"
                 archive_agents = eligible if archive else {}
                 notice("Move listed agents to backup when applying." if archive else "Keep existing agents; Plex must use only its active team.")
-        state = CONFIG.check_project(project, args.host, args.scope)
+        capacity_preview = None
+        if args.host == "codex":
+            installed_record = receipt["hosts"].get(args.host, {})
+            capacity_preview = CONFIG.plan_codex_routing(
+                config_root, args.scope, installed_record.get("routing"), resolved["max_agents"],
+                installed_record.get("capacity"),
+            )
+        state = CONFIG.check_project(project, args.host, args.scope, max_agents=resolved["max_agents"])
         if archive_agents:
             ignored = {f"Unmanaged file collision: {path} is not owned by .plex/applied.json" for path in archive_agents}
             state["conflicts"] = [item for item in state["conflicts"] if item not in ignored]
@@ -1318,7 +1371,9 @@ def main(argv=None, *, shared_profile=False, selection=None, setup_mode=None):
         if len(refresh_clients) > 1:
             field("Refresh", ", ".join(refresh_clients))
         field("Interaction", resolved["interaction"], "command")
-        field("Concurrency", f"{resolved['max_agents']} assignments")
+        field("Plex assignments", f"{resolved['max_agents']} unfinished assignments")
+        if capacity_preview:
+            capacity_summary(capacity_preview["native_capacity"], capacity_preview["proposed_capacity"])
         coordinator_summary(resolved, args.host)
         print("\n  " + style(f"Subagents · {len(resolved['roles'])} roles"))
         role_table(resolved["hosts"][args.host])
@@ -1373,6 +1428,7 @@ def main(argv=None, *, shared_profile=False, selection=None, setup_mode=None):
             notice("Cancelled. No changes.")
             return 0
 
+        check_capacity_preview(capacity_preview)
         if bmad_init:
             heading("Initialize BMad project")
             initialize_bmad(project, bmad_init)
@@ -1380,6 +1436,7 @@ def main(argv=None, *, shared_profile=False, selection=None, setup_mode=None):
             run([sys.executable, str(project / "_bmad/scripts/resolve_config.py"),
                  "--project-root", str(project)], project)
         if commands:
+            check_capacity_preview(capacity_preview)
             heading("1 / 2  Install native plugin")
             build_plugin(args.host)
             plugin_started = True
@@ -1398,7 +1455,8 @@ def main(argv=None, *, shared_profile=False, selection=None, setup_mode=None):
         with apply_skills(dev_plan) if dev_plan else nullcontext():
             result = CONFIG.apply_project(project, args.host, args.team, args.model_profile,
                                           max_agents=args.max_agents, host_overrides=host_overrides, interaction=args.interaction,
-                                          scope=args.scope, instructions=args.instructions, archive_agents=archive_agents)
+                                          scope=args.scope, instructions=args.instructions, archive_agents=archive_agents,
+                                          expected_routing_plan=capacity_preview)
         for client in refresh_clients:
             if client != args.host:
                 other_instructions = bool(receipt["hosts"][client].get("instructions")) if setup_mode == "refresh" else args.instructions
@@ -1409,6 +1467,8 @@ def main(argv=None, *, shared_profile=False, selection=None, setup_mode=None):
         if commands and dev_plan and dev_plan["was_development"]:
             verify_plugin(args.host, project)
         notice(f"{len(result['installed_roles'])} roles; configuration in sync.", "ok")
+        if result.get("native_capacity"):
+            capacity_summary(result["native_capacity"])
         if result.get("archived_other_agents"):
             notice(f"{len(result['archived_other_agents'])} other agents moved to backup.", "ok")
         if result["backup_dir"]:
@@ -1422,7 +1482,10 @@ def main(argv=None, *, shared_profile=False, selection=None, setup_mode=None):
             install_command()
         heading("Setup complete")
         notice("No separate plex-setup step is needed for this team configuration.", "ok")
-        notice("Open a new client session, then invoke the plex skill for coordinated work.")
+        if args.host == "codex":
+            notice("The installer never restarts Codex. Open a new client session to use saved settings; runtime recognition remains unverified.")
+        else:
+            notice("Open a new client session to use saved settings.")
         print("\n  " + style("Next commands", "bold"))
         launcher = ["plex"] if shortcut and str(shortcut.parent) in os.environ.get("PATH", "").split(os.pathsep) else [str(ROOT / "setup.sh")]
         show_command([*launcher, "status", "--client", args.host])

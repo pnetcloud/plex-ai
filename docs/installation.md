@@ -41,7 +41,12 @@ Plex-owned assignments use only exact `plex-<role>` names from the checked activ
 
 Setup lists other `.toml` agents found in the selected scope and offers **Keep** (default) or **Move to backup**. They remain available to the client and can affect role selection. Only eligible files move to `.plex/backups/<timestamp>/codex/other-agents/`; restore a file manually from that directory if needed. Other scopes, symlinks and files referenced by explicit `config.toml` registrations are preserved. Edited managed roles remain conflicts.
 
-Native Codex role selection also needs trusted project configuration and a fresh session. Setup manages the required role-selection settings with backups and ownership checks; personal conflicting values are preserved. See [native delegation](configuration.md#workspace-and-native-delegation).
+Native Codex role selection also needs trusted project configuration and a fresh session. Setup manages the required role-selection settings with backups and ownership checks; personal conflicting values are preserved. When no explicit native capacity applies, it also saves the Codex child-thread limit from `max_agents`. Preview, apply and status distinguish unfinished Plex assignments from the maximum open spawned threads, which excludes the primary thread. Session activation remains unknown until verified in Codex. The installer never restarts Codex. See [native delegation](configuration.md#workspace-and-native-delegation).
+
+If profile or ancestor-layer applicability is uncertain, an existing unchanged
+Plex-owned capacity block and receipt stay unchanged even when `max_agents`
+changes. Plex relinquishes its owned key when an explicit inherited limit is
+known to apply or an equal local legacy alias is present.
 
 For unattended cleanup, pass `--archive-other-agents --client codex`; `--yes` alone preserves other agents. `--dry-run` never moves files.
 
@@ -141,7 +146,7 @@ Omitted settings keep their saved values. Interaction is explicitly saved in eve
 | `--team pnet / bmad` | Role set; default pnet for new installs. |
 | `--model-profile PROFILE` | inherit, basic, plus, pro or pro-plus. |
 | `--interaction MODE` | interactive, balanced (default) or auto. |
-| `--max-agents N` | Positive concurrent-assignment limit. |
+| `--max-agents N` | Positive limit on unfinished Plex assignments; Codex native thread capacity is reported separately. |
 
 ### Execution and output
 

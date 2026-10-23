@@ -38,11 +38,17 @@ class OutputTests(unittest.TestCase):
             self.assertEqual(S.style("Ready", "ok"), "Ready")
 
     def test_preview_has_compact_sections_and_copyable_commands_without_template_dump(self):
-        with tempfile.TemporaryDirectory(prefix="plex cli ") as temp, redirect_stdout(io.StringIO()) as output:
-            self.assertEqual(S.main(["--project", temp, "--client", "codex", "--model-profile", "plus", "--dry-run"]), 0)
+        with tempfile.TemporaryDirectory(prefix="plex cli ") as temp, tempfile.TemporaryDirectory() as home, redirect_stdout(io.StringIO()) as output:
+            codex_home = Path(home)
+            with patch.dict(os.environ, {"CODEX_HOME": str(codex_home)}):
+                self.assertEqual(S.main(["--project", temp, "--client", "codex", "--model-profile", "plus", "--dry-run"]), 0)
             text = output.getvalue()
             self.assertIn("Installation plan", text)
             self.assertIn("Skills and dependencies", text)
+            self.assertIn("Plex assignments", text)
+            self.assertIn("Codex limit", text)
+            self.assertIn("primary excluded", text)
+            self.assertIn("Session activation", text)
             self.assertIn("AGENT", text)
             self.assertIn("REASONING", text)
             self.assertIn("plex-dev", text)
@@ -85,16 +91,63 @@ class OutputTests(unittest.TestCase):
         self.assertIn("A longer field label  value", lines[2])
         self.assertEqual(lines[2].index("value"), lines[3].index("continued"))
 
+    def test_planned_lower_native_limit_is_reported_separately(self):
+        current = {"value": 4, "origin": "plex", "mismatch": False, "activation": "unknown"}
+        planned = {"value": 2, "origin": "inherited", "mismatch": True, "uncertain": False}
+        with redirect_stdout(io.StringIO()) as output:
+            S.capacity_summary(current, planned)
+        text = output.getvalue()
+        self.assertIn("Codex limit", text)
+        self.assertIn("Planned limit", text)
+        self.assertIn("planned native thread limit is below", text)
+
+    def test_uncertain_native_value_keeps_saved_target_separate(self):
+        current = {
+            "value": None, "origin": "unknown", "mismatch": None,
+            "activation": "unknown", "uncertain": True,
+            "saved_target": {"value": 4, "origin": "plex"},
+        }
+        with redirect_stdout(io.StringIO()) as output:
+            S.capacity_summary(current, current)
+        self.assertIn("Codex limit", output.getvalue())
+        self.assertIn("Saved target", output.getvalue())
+        self.assertIn("4 max open child threads · plex", output.getvalue())
+
+    def test_capacity_preview_guard_checks_target_and_inherited_inputs(self):
+        with tempfile.TemporaryDirectory() as temp, tempfile.TemporaryDirectory() as home:
+            project = Path(temp)
+            codex_home = Path(home)
+            with patch.dict(os.environ, {"CODEX_HOME": str(codex_home)}):
+                plan = S.CONFIG.plan_codex_routing(project, "project", max_agents=4)
+                S.check_capacity_preview(plan)
+                config = project / ".codex/config.toml"
+                config.parent.mkdir(parents=True)
+                config.write_text("# changed after preview\n")
+                with self.assertRaisesRegex(ValueError, "Codex config changed after preview"):
+                    S.check_capacity_preview(plan)
+
+                config.unlink()
+                plan = S.CONFIG.plan_codex_routing(project, "project", max_agents=4)
+                (codex_home / "config.toml").write_text("[agents]\nmax_threads = 2\n")
+                with self.assertRaisesRegex(ValueError, "Inherited Codex config changed"):
+                    S.check_capacity_preview(plan)
+
     def test_status_json_stays_clean_even_on_a_color_terminal(self):
         with tempfile.TemporaryDirectory() as temp:
             project = Path(temp)
-            S.CONFIG.apply_project(project, "codex")
-            with redirect_stdout(Terminal()) as output, patch.object(S, "verify_plugin"), \
-                    patch.object(S.shutil, "which", return_value="/stub/codex"), \
-                    patch.dict(os.environ, {"TERM": "xterm"}, clear=True):
-                self.assertEqual(S.main(["status", "--project", temp, "--client", "codex", "--json"]), 0)
+            codex_home = project / "codex-home"
+            codex_home.mkdir()
+            with patch.dict(os.environ, {"CODEX_HOME": str(codex_home)}):
+                S.CONFIG.apply_project(project, "codex", max_agents=4)
+                with redirect_stdout(Terminal()) as output, patch.object(S, "verify_plugin"), \
+                        patch.object(S.shutil, "which", return_value="/stub/codex"), \
+                        patch.dict(os.environ, {"TERM": "xterm", "CODEX_HOME": str(codex_home)}, clear=True):
+                    self.assertEqual(S.main(["status", "--project", temp, "--client", "codex", "--json"]), 0)
             data = json.loads(output.getvalue())
             self.assertEqual(data["clients"][0]["status"], "in_sync")
+            self.assertEqual(data["clients"][0]["native_capacity"]["assignment_limit"], 4)
+            self.assertEqual(data["clients"][0]["native_capacity"]["value"], 4)
+            self.assertEqual(data["clients"][0]["native_capacity"]["activation"], "unknown")
             self.assertNotIn("\033[", output.getvalue())
 
     def test_uninstall_human_preview_and_json_preview_removal_and_cancel(self):

@@ -59,6 +59,9 @@ overrides. During interactive setup ask once for the shared positive-integer
 concurrency limit, suggesting the saved value or team default. Save it as root
 `max_agents`; do not add per-role or per-model-profile concurrency settings. This
 limits Plex assignments, subject to native host limits.
+For Codex, these are unfinished Plex assignments. The separate native thread
+limit counts open spawned-agent threads and excludes the primary thread; status
+and setup must show both values separately.
 Do not choose models for the user. A team switch changes only `team`;
 a profile switch changes the shared `model_profile`. Refresh all configured clients
 after a shared-profile switch; their role/model settings stay derived from the same tier. Preserve overrides and the other
@@ -165,4 +168,30 @@ prove that live subagent execution or model routing works.
 
 ## Codex role selection
 
-Role application exposes native role metadata through a receipt-owned block in the selected scope's `config.toml`: missing `features.multi_agent_v2.hide_spawn_agent_metadata = false` and `tool_namespace = "agents"`. It preserves personal settings, rejects conflicting values and uses the existing apply/check/backup/rollback/uninstall lifecycle. It does not change models, permissions, concurrency, the selected backend or project trust. Existing matching fields remain user-owned. Use a supported native client, trust the project through Codex, and open a new session. Verify the active spawn schema and actual accepted role separately; setup makes no model calls.
+Role application exposes native role metadata through a receipt-owned block in the selected scope's `config.toml`: missing `features.multi_agent_v2.hide_spawn_agent_metadata = false` and `tool_namespace = "agents"`. When neither target nor observed inherited config sets capacity, it also owns `agents.max_concurrent_threads_per_session = max_agents` in the same config transaction. The `[agents]` header stays outside the removable capacity block so personal keys retain their table scope.
+
+Existing canonical `agents.max_concurrent_threads_per_session` and legacy
+`agents.max_threads` values remain user-owned, including equal aliases. Different
+aliases or non-integer, boolean, or non-positive values conflict before writes.
+Values above the signed 64-bit integer range also conflict before writes; this
+is a config representation boundary, not a concurrency recommendation.
+An equal local legacy alias added beside a Plex-owned canonical key makes Plex
+relinquish only its owned key and receipt; the user alias remains. Explicit user
+global limits are preserved, even when lower than `max_agents`. An ancestor
+`.codex/config.toml` candidate without proof that its layer applies, or a
+possible profile limit, makes capacity applicability unknown and suppresses
+automatic capacity mutations. Under that uncertainty, an existing unchanged
+Plex-owned block and receipt stay unchanged even when `max_agents` changes.
+Unchanged Plex-owned capacity follows a refreshed `max_agents` when
+applicability is known; Plex relinquishes it for a known applicable inherited
+limit or an equal local legacy alias. Edited, missing, or unmanaged owned
+markers are conflicts. Receipts retain older routing records and uninstall
+removes only unchanged Plex-owned blocks.
+
+Setup and status report `max_agents` as unfinished Plex assignments and the native
+limit as open spawned threads excluding the primary. They report any known
+mismatch and mark session activation unknown. An offline config check proves only
+saved values; Codex CLI flags, active profiles and session recognition can still
+affect runtime behavior. The installer never restarts Codex. Use a fresh session
+when applying new settings, then verify the active spawn schema and accepted role
+separately; setup makes no model calls.

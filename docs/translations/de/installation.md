@@ -43,6 +43,13 @@ Setup zeigt andere `.toml`-Agenten im gewählten Geltungsbereich und bietet **Be
 
 Die native Codex-Rollenauswahl benötigt eine vertrauenswürdige Projektkonfiguration und eine neue Sitzung. Setup verwaltet die nötigen Einstellungen mit Sicherung und Eigentumsprüfung; abweichende persönliche Werte bleiben erhalten. Siehe [Konfiguration](configuration.md).
 
+Wenn kein expliziter nativer Grenzwert gilt, speichert der Installer die Codex-Kindthread-Grenze aus `max_agents`. Vorschau, Anwendung und Status unterscheiden unerledigte Plex-Aufträge von der maximalen Zahl offener Kindthreads; der Hauptthread ist ausgeschlossen. Die Aktivierung in der Sitzung bleibt bis zur Prüfung in Codex unbekannt. Der Installer startet Codex nie neu.
+
+Bei unklarer Profil- oder Geltung einer übergeordneten Konfiguration bleiben ein
+vorhandener, unveränderter Plex-Kapazitätsblock und sein Beleg auch bei geändertem
+`max_agents` unverändert. Plex gibt seinen Schlüssel frei, wenn ein explizites
+geerbtes Limit nachweislich gilt oder ein gleicher lokaler älterer Alias vorhanden ist.
+
 Für unbeaufsichtigtes Aufräumen `--archive-other-agents --client codex` angeben; `--yes` allein behält andere Agenten. `--dry-run` verschiebt keine Dateien.
 
 ## Häufige Befehle
@@ -141,7 +148,7 @@ Ausgelassene Einstellungen behalten ihre Werte. Jeder angewendete Preset speiche
 | `--team pnet / bmad` | Rollensatz; bei Neuinstallation pnet. |
 | `--model-profile PROFILE` | inherit, basic, plus, pro oder pro-plus. |
 | `--interaction MODE` | interactive, balanced (Standard) oder auto. |
-| `--max-agents N` | Positive Grenze gleichzeitiger Aufträge. |
+| `--max-agents N` | Positive Grenze unerledigter Plex-Aufträge; native Codex-Threadkapazität wird separat angezeigt. |
 
 ### Ausführung und Ausgabe
 

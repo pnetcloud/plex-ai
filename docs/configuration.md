@@ -106,7 +106,33 @@ of unattended completion for every BMad workflow.
 
 Existing uncommitted changes alone do not require confirmation. Plex records the initial state, assigns task-owned files and preserves pre-existing changes, including unrelated hunks inside an assigned file. That authorization is passed to workflows; a dirty-tree-only confirmation is already answered. Conflicting edits block affected work only. Plex does not create worktrees, switch branches, stash, reset, clean or commit to make the tree clean.
 
-For Codex, setup manages only missing `hide_spawn_agent_metadata = false` and `tool_namespace = "agents"` settings under `[features.multi_agent_v2]`. They expose native role selection; they do not force a backend, change models, permissions or concurrency. Conflicting personal values are preserved and reported. Owned settings participate in backup, conflict checks, rollback and uninstall; pre-existing matching values are not adopted. An empty table header may remain after removal so later personal settings keep their scope.
+For Codex, setup manages missing `hide_spawn_agent_metadata = false` and `tool_namespace = "agents"` settings under `[features.multi_agent_v2]`. When no explicit native capacity applies, it also manages `agents.max_concurrent_threads_per_session = max_agents` in the same config transaction. The `[agents]` header stays outside the removable capacity block so later personal keys keep their table scope.
+
+Existing canonical `agents.max_concurrent_threads_per_session` and legacy
+`agents.max_threads` limits remain user-owned, including equal aliases. Different
+aliases and boolean, non-integer or non-positive values conflict before writes.
+Values above the signed 64-bit integer range also conflict before writes; this
+is a config representation boundary, not a concurrency recommendation.
+An equal local legacy alias added beside a Plex-owned canonical key makes Plex
+relinquish only its owned key and receipt; the user alias remains. Explicit user
+global limits remain in place, even when lower than `max_agents`. An ancestor
+`.codex/config.toml` candidate without proof that its layer applies, or a profile
+that may supply capacity, makes applicability unknown and suppresses automatic
+capacity mutations. Under that uncertainty, an existing unchanged Plex-owned
+block and receipt stay unchanged even when `max_agents` changes. Unchanged
+Plex-owned capacity follows a refreshed `max_agents` when applicability is
+known; Plex relinquishes it for a known applicable inherited limit or an equal
+local legacy alias. Edited, missing or unmanaged markers are conflicts. Receipts
+keep existing routing ownership compatible and uninstall removes only unchanged
+Plex-owned blocks.
+
+`max_agents` counts unfinished Plex assignments. The native setting limits
+concurrently open child-agent threads, including nested and idle child handles;
+the primary thread is excluded. Setup and status show the origin, value and any
+mismatch separately, and mark session activation as unknown. A file check proves
+saved configuration only; active profiles, CLI overrides and session recognition
+can affect runtime. The installer never restarts Codex. Open a fresh session after
+applying settings and verify the active spawn schema and accepted role separately.
 
 Project configuration must be trusted by Codex. Open a new client session after setup. Preflight distinguishes a missing spawn tool, a hidden role selector, a rejected role and accepted dispatch. When the selector is available, request the checked role even if no inventory is displayed; use a fresh context and a self-contained handoff when supported. File/configuration checks do not prove that an existing session loaded its roles or that the child used the requested model.
 

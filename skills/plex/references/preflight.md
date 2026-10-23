@@ -40,6 +40,19 @@ Read `<root>/.plex/resolved.json`; do not reconstruct configuration layers.
 | `hosts.<host>.<role>` | Effective model/effort |
 | `interaction`, `max_agents` | Interaction mode and concurrent Plex-assignment limit |
 
+Read `native_capacity` from the read-only configuration/status result; do not
+reconstruct Codex's inheritance or profile selection. It reports a known native
+thread limit or unknown applicability, origin, mismatch and `activation: unknown`
+separately from `max_agents`. When `saved_target` is present, it describes only
+the target file's saved block, not the effective profile value. The native setting
+limits concurrently open spawned-agent threads;
+it excludes the primary thread and includes nested or idle child handles. An
+available live thread census counts handles, not unfinished Plex assignments.
+Configuration checks report a limit, not a live count; if the runtime exposes no
+census, do not guess one. An ancestor config candidate without proof that its
+layer applies remains unknown; automatic capacity writes are suppressed, and an
+unchanged owned block and receipt remain unchanged.
+
 Use `roles` as the allowlist for Plex-owned dispatch, not the host's full agent inventory. Other installed agents and inactive `plex-` roles are outside this team.
 
 The check proves configuration consistency, not live readiness. Inspect the actual

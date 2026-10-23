@@ -48,6 +48,18 @@ Present common tiers by default; vendor-specific recipes are a compatibility pat
 Show the target, scope, team, profile, effective interaction mode, role settings and changes before
 applying. The editable source is `<root>/.plex/preset.toml`; inspect the selected
 team and its own profiles under `<plugin-root>/teams/<team>/`.
+
+For Codex, report `max_agents` as unfinished Plex assignments separately from the
+native open spawned-thread limit (which excludes the primary thread). Show the
+native origin/value and any mismatch; report session activation as unknown because
+file checks cannot prove what a running client loaded. Never restart Codex during
+installation. Native Codex capacity values must fit its positive signed 64-bit
+configuration integer range; this parser boundary is not a concurrency recommendation.
+If profile applicability or an ancestor config layer is uncertain,
+suppress all automatic capacity mutations and keep any existing unchanged
+Plex-owned block and receipt unchanged even when `max_agents` changes. A known
+applicable inherited limit or an equal local legacy alias relinquishes only
+Plex's owned block and receipt.
 Use `resolve <preset-file>` and `render <preset-file> --host codex` for read-only
 candidate previews (`render` also accepts `--scope user`).
 For custom overrides, scope paths, legacy presets or recovery, read the relevant

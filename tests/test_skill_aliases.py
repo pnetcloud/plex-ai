@@ -70,7 +70,7 @@ class SkillAliasTests(unittest.TestCase):
         self.assertTrue((self.user / "skills/plex").is_symlink())
         self.assertEqual(I.main(["uninstall", "--project", str(self.project), "--client", "codex", "--scope", "user", "--yes"]), 0)
         self.assertFalse((self.user / "skills/plex").is_symlink())
-        self.assertEqual(config.read_text(), original + "\n[features.multi_agent_v2]\n")
+        self.assertEqual(config.read_text(), original + "\n[features.multi_agent_v2]\n\n[agents]\n")
 
     def test_dev_transitions_reuse_owned_links_and_restore_override(self):
         self.assertEqual(self.setup_project(), 0)
