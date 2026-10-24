@@ -20,7 +20,7 @@ host = "antigravity"
 
 [coordinator.plus]
   model     = "claude-sonnet-5-5-low"
-  reasoning = "xhigh"
+  reasoning = "high"
 
 [profiles.plus.pm]
   model     = "claude-sonnet-5-5-low"
@@ -51,7 +51,7 @@ host = "antigravity"
 
 [coordinator.pro]
   model     = "claude-sonnet-5-5-low"
-  reasoning = "max"
+  reasoning = "xhigh"
 
 [profiles.pro.pm]
   model     = "claude-sonnet-5-5-medium"
@@ -82,7 +82,7 @@ host = "antigravity"
 
 [coordinator.pro-plus]
   model     = "claude-sonnet-5-5-low"
-  reasoning = "low"
+  reasoning = "max"
 
 [profiles.pro-plus.pm]
   model     = "claude-sonnet-5-5-medium"
@@ -113,7 +113,7 @@ host = "antigravity"
 
 [coordinator.ultra]
   model     = "claude-sonnet-5-5-medium"
-  reasoning = "medium"
+  reasoning = "low"
 
 [profiles.ultra.pm]
   model     = "claude-sonnet-5-5-medium"

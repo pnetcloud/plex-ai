@@ -34,6 +34,7 @@ Englisch ist die gepflegte Quelle; Übersetzungen spiegeln die Dateinamen.
 
 | Version | Änderungen |
 |---|---|
+| [v0.12.3](releases/v0.12.3.md) | Abgestimmte Koordinator-Empfehlungen für Teams und Anbieter. |
 | [v0.12.2](releases/v0.12.2.md) | Geänderte Rollen mit geprüften Backups neu konfigurieren. |
 | [v0.12.1](releases/v0.12.1.md) | Geänderte Rollen mit geprüften Backups neu konfigurieren. |
 | [v0.12.0](releases/v0.12.0.md) | Sechs abgestimmte Modellstufen für beide Teams. |

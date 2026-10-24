@@ -4,6 +4,12 @@ Important changes retained in Plex, grouped by release. Interfaces and configura
 may change before 1.0. Releases through v0.5.4 were previews; v0.5.5 and later are
 regular releases.
 
+## [0.12.3] — 2026-10-24
+
+- Align coordinator recommendations across both teams and all four provider recipes: lightweight models through Pro+, then Sol/Sonnet or the inherited Google model for Ultra tiers.
+- Set Plus to high, Pro to xhigh, Pro+ to max and Ultra to low reasoning; Basic and Ultra+ recommendations remain unchanged.
+- Keep subagent models, reasoning, profile IDs and the running main-chat model unchanged.
+
 ## [0.12.2] — 2026-10-24
 
 - Include the Reconfigure role-replacement fix prepared for v0.12.1, whose publication was blocked by CI.

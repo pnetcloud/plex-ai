@@ -649,6 +649,23 @@ class ConfigTests(unittest.TestCase):
                         if "model" not in settings:
                             self.assertEqual(roles, set(team["roles"]))
 
+    def test_coordinator_ladder_matches_across_teams_and_providers(self):
+        efforts = ["high", "high", "xhigh", "max", "low", "high"]
+        providers = {
+            "openai": ("codex", ["gpt-6-luna"] * 4 + ["gpt-6.1-sol"] * 2),
+            "anthropic": ("claude", ["haiku"] * 4 + ["sonnet"] * 2),
+            "google": ("antigravity", ["flash"] * 4 + ["inherit"] * 2),
+            "google-anthropic": ("antigravity", ["claude-sonnet-5-5-low"] * 4
+                                 + ["claude-sonnet-5-5-medium", "claude-sonnet-5-5-high"]),
+        }
+        for team in ("pnet", "bmad"):
+            for vendor, (host, models) in providers.items():
+                for tier, model, effort in zip(MODULE.PROFILE_TIERS, models, efforts, strict=True):
+                    with self.subTest(team=team, vendor=vendor, tier=tier):
+                        resolved = resolve({"team": team, "model_profile": f"{vendor}-{tier}"})
+                        self.assertEqual(resolved["coordinator"][host], {"model": model, "reasoning": effort})
+                        self.assertNotIn("coordinator", resolved["roles"])
+
     def test_invalid_coordinator_recommendations_are_rejected(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)

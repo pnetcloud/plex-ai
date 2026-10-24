@@ -18,7 +18,7 @@ host = "claude"
 
 [coordinator.plus]
   model     = "haiku"
-  reasoning = "xhigh"
+  reasoning = "high"
 
 [profiles.plus.pm]
   model     = "sonnet"
@@ -49,7 +49,7 @@ host = "claude"
 
 [coordinator.pro]
   model     = "haiku"
-  reasoning = "max"
+  reasoning = "xhigh"
 
 [profiles.pro.pm]
   model     = "sonnet"
@@ -79,8 +79,8 @@ host = "claude"
 # ==================== Pro+ ====================
 
 [coordinator.pro-plus]
-  model     = "sonnet"
-  reasoning = "low"
+  model     = "haiku"
+  reasoning = "max"
 
 [profiles.pro-plus.pm]
   model     = "sonnet"
@@ -111,7 +111,7 @@ host = "claude"
 
 [coordinator.ultra]
   model     = "sonnet"
-  reasoning = "medium"
+  reasoning = "low"
 
 [profiles.ultra.pm]
   model     = "sonnet"

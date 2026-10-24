@@ -25,7 +25,7 @@ host = "antigravity"
 
 [coordinator.plus]
   model     = "flash"
-  reasoning = "xhigh"
+  reasoning = "high"
 
 [profiles.plus.pm]
   model     = "inherit"
@@ -60,7 +60,7 @@ host = "antigravity"
 
 [coordinator.pro]
   model     = "flash"
-  reasoning = "max"
+  reasoning = "xhigh"
 
 [profiles.pro.pm]
   model     = "inherit"
@@ -94,8 +94,8 @@ host = "antigravity"
 # ==================== Pro+ ====================
 
 [coordinator.pro-plus]
-  model     = "inherit"
-  reasoning = "low"
+  model     = "flash"
+  reasoning = "max"
 
 [profiles.pro-plus.pm]
   model     = "inherit"
@@ -130,7 +130,7 @@ host = "antigravity"
 
 [coordinator.ultra]
   model     = "inherit"
-  reasoning = "medium"
+  reasoning = "low"
 
 [profiles.ultra.pm]
   model     = "inherit"
