@@ -11,13 +11,14 @@
 | `pnet` | pm, explorer, researcher, dev, reviewer, qa | Eigenständige Koordination |
 | `bmad` | analyst, pm, po, ux, architect, dev, reviewer | Vorhandene BMad-Skills |
 
-Profile: `inherit`, `basic`, `plus`, `pro`, `pro-plus`. Gemeinsame Stufen kombinieren
+Profile: `inherit`, `basic`, `plus`, `pro`, `pro-plus`, `ultra`, `ultra-plus`. Gemeinsame Stufen kombinieren
 die OpenAI-Einstellungen für Codex, Anthropic für Claude Code und Google für Antigravity
 des gewählten Teams. `inherit` überlässt Modell/Effort dem Client.
 Profile beschreiben Einstellungen, keine gemessenen Qualitätsstufen.
 
-Editierbare Datei im gewählten Installationsstamm: `.plex/preset.toml`.
+Beide Teams bieten sechs benannte Stufen sowie `inherit`. In den Anbieterdateien steht die Koordinator-Empfehlung zuerst in jeder Stufe. Haiku/Sonnet/Opus entsprechen ungefähr Luna/Sol/Astra; gleiche Qualität ist nicht nachgewiesen. Native Google-Profile verwenden Flash oder das Modell des Hauptchats; Ultra erhöht den angeforderten Effort. Claude in Antigravity verwendet Sonnet statt des nicht verfügbaren Haiku; genaue Modell-IDs benötigen Client-Unterstützung.
 
+Editierbare Datei im gewählten Installationsstamm: `.plex/preset.toml`.
 ```toml
 team = "pnet"
 model_profile = "plus"
@@ -35,7 +36,6 @@ Rolleneinstellungen getrennt und erscheinen als `coordinator` im aufgelösten
 Snapshot. Setup zeigt die Empfehlung des gewählten Profils, ändert aber weder
 den Client noch installiert es eine Koordinatorrolle. Ohne Empfehlung, auch
 bei `inherit`, wählt der Benutzer das Modell.
-
 
 Priorität je Feld: **Profilstandard → Profilrolle → Client-Override → Rollen-Override**.
 Clienttabellen heißen `[codex]`, `[claude]`, `[antigravity]`; Rollentabellen ergänzen den

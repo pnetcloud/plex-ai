@@ -144,7 +144,7 @@ Omitted settings keep their saved values. Interaction is explicitly saved in eve
 | Option | Purpose |
 |---|---|
 | `--team pnet / bmad` | Role set; default pnet for new installs. |
-| `--model-profile PROFILE` | inherit, basic, plus, pro or pro-plus. |
+| `--model-profile PROFILE` | inherit, basic, plus, pro, pro-plus, ultra or ultra-plus. |
 | `--interaction MODE` | interactive, balanced (default) or auto. |
 | `--max-agents N` | Positive limit on unfinished Plex assignments; Codex native thread capacity is reported separately. |
 

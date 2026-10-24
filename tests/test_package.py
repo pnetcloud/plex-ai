@@ -329,7 +329,7 @@ class PackageTests(unittest.TestCase):
             )
             self.assertEqual(
                 applied_payload["effective_roles"]["dev"],
-                {"model": "flash", "reasoning": "max"},
+                {"model": "flash", "reasoning": "xhigh"},
             )
 
             (project_dir / ".agents/plugin.json").write_text('{"name": "project-agents"}\n')

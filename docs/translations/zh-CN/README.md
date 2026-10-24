@@ -97,7 +97,7 @@ Codex 的标准安装和开发安装均使用 `$plex` 和 `$plex-setup`。其他
 | **pnet** | 通用开发：PM、explorer、researcher、dev、reviewer 和 QA；无需 BMad |
 | **bmad** | 已安装的 BMad 角色和工作流；安装器提供所选依赖安装和项目初始化 |
 
-**Inherit、Basic、Plus、Pro、Pro+** 配置子智能体。主对话模型由你选择；安装器显示所选配置档的建议。参见[配置](configuration.md)。
+**Inherit、Basic、Plus、Pro、Pro+、Ultra、Ultra+** 配置子智能体。主对话模型由你选择；安装器显示所选配置档的建议。参见[配置](configuration.md)。
 
 ### 智能体编排模式
 
@@ -107,7 +107,7 @@ Plex 是编码客户端内的 **AI 智能体编排器（AI agent orchestrator）
 分配给这些角色；协调器保留当前对话的模型。
 
 三个独立设置：**团队**（`pnet` 或 BMad 工作流）、
-**模型配置档**（Inherit / Basic / Plus / Pro / Pro+）和**交互模式**：
+**模型配置档**（Inherit / Basic / Plus / Pro / Pro+ / Ultra / Ultra+）和**交互模式**：
 
 | 模式 | 团队如何与你协作 |
 |---|---|
@@ -120,21 +120,21 @@ Plex 是编码客户端内的 **AI 智能体编排器（AI agent orchestrator）
 这些是 **Plex 配置档**，与提供商的订阅套餐无关。
 每个单元格表示内置 `pnet` 团队的 **开发 → 代码审查**。
 
-| 客户端 / 模型提供商 | Basic | Plus | Pro | Pro+ |
-|---|---|---|---|---|
-| OpenAI Codex | Luna → Luna | Luna → Sol | Luna → Sol | Sol → Astra |
-| Claude Code / Anthropic | Haiku → Haiku | Haiku → Sonnet | Haiku → Sonnet | Sonnet → Opus |
-| Antigravity / Google Gemini | `flash` → `flash` | `flash` → `inherit` | `inherit` → `inherit` | `inherit` → `inherit` |
-| Antigravity / Anthropic | Sonnet low → Sonnet low | Sonnet low → Sonnet medium | Sonnet medium → Opus medium | Sonnet medium → Opus high |
+| 客户端 / 模型提供商 | Basic | Plus | Pro | Pro+ | Ultra | Ultra+ |
+|---|---|---|---|---|---|---|
+| OpenAI Codex | Luna → Luna | Luna → Sol | Luna → Sol | Sol → Sol | Sol → Astra | Sol → Astra |
+| Claude Code / Anthropic | Haiku → Haiku | Haiku → Sonnet | Haiku → Sonnet | Sonnet → Sonnet | Sonnet → Opus | Sonnet → Opus |
+| Antigravity / Google Gemini | `flash` → `flash` | `flash` → `inherit` | `flash` → `inherit` | `inherit` → `inherit` | `inherit` → `inherit` | `inherit` → `inherit` |
+| Antigravity / Anthropic | Sonnet low → Sonnet low | Sonnet low → Sonnet medium | Sonnet low → Sonnet high | Sonnet medium → Sonnet high | Sonnet medium → Opus medium | Sonnet high → Opus high |
 
 - **Basic：** `pnet` 各角色使用同一基础模型。**Plus：** 在配置支持时，为实现和审查分配不同模型。
-- **Pro：** 提高部分角色的推理级别，模型系列可能不变。**Pro+：** OpenAI/Anthropic 配置使用 Sol/Sonnet 开发、Astra/Opus 审查。
+- **Pro：** 提高部分角色的推理级别，模型系列可能不变。**Pro+：** Sol/Sonnet 负责开发与审查。**Ultra：** 引入 Astra/Opus 专家。**Ultra+：** 提高推理强度。
 - **BMad：** 开发与审查的配对相同，但 Basic 已分别使用 Sol、Sonnet、`inherit` 或 Sonnet medium 进行审查。规划、架构等角色有各自的设置。
 - **Inherit：** 使用客户端或会话默认值。Gemini 配置中的 `inherit` 并不固定为某个 Gemini Pro 模型。
 
 配置中的标识符：Luna = `gpt-6-luna`，Sol = `gpt-6.1-sol`，Astra = `gpt-6-astra`。
 Claude Code 使用 `haiku`、`sonnet`、`opus` 别名；Antigravity 的 Anthropic 配置使用
-`claude-sonnet-5-5-low`、`claude-sonnet-5-5-medium`、`claude-opus-5-5-medium` 和 `claude-opus-5-5-high`。
+`claude-sonnet-5-5-{low,medium,high}` 和 `claude-opus-5-5-{low,medium,high}`。
 这些是随项目提供的设置，不保证模型可用性或成本节省。安装器会显示包含项目覆盖项的有效配置。
 
 [pnet 的全部角色设置](../../../teams/pnet/profiles/) · [BMad 的全部角色设置](../../../teams/bmad/profiles/) · [配置档设置](configuration.md)

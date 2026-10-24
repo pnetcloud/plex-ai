@@ -28,6 +28,19 @@ MODELS = {
 
 
 class CustomSetupTests(unittest.TestCase):
+    def test_ultra_tiers_preview_for_all_clients_without_writes(self):
+        for team, tier in ((team, tier) for team in ("pnet", "bmad") for tier in ("ultra", "ultra-plus")):
+            with self.subTest(tier=tier), tempfile.TemporaryDirectory() as temp, \
+                    redirect_stdout(io.StringIO()) as output:
+                result = SETUP.main([
+                    "--project", temp, "--team", team, "--model-profile", tier,
+                    "--client", "codex", "--client", "claude", "--client", "antigravity",
+                    "--roles-only", "--dry-run",
+                ])
+                self.assertEqual(result, 0)
+                self.assertIn(tier, output.getvalue())
+                self.assertEqual(list(Path(temp).iterdir()), [])
+
     def test_team_switch_with_missing_profile_offers_selection_without_writes(self):
         with tempfile.TemporaryDirectory() as temp, redirect_stdout(io.StringIO()):
             root = Path(temp).resolve()
@@ -80,9 +93,9 @@ class CustomSetupTests(unittest.TestCase):
                 self.assertEqual(list(choices)[0], "inherit")
                 self.assertIn("custom", choices)
                 if host == "codex":
-                    self.assertEqual(list(choices), ["inherit", "openai-basic", "openai-plus", "openai-pro", "openai-pro-plus", "custom"])
+                    self.assertEqual(list(choices), ["inherit", *(f"openai-{tier}" for tier in CONFIG.PROFILE_TIERS), "custom"])
                 elif host == "claude":
-                    self.assertEqual(list(choices), ["inherit", "anthropic-basic", "anthropic-plus", "anthropic-pro", "anthropic-pro-plus", "custom"])
+                    self.assertEqual(list(choices), ["inherit", *(f"anthropic-{tier}" for tier in CONFIG.PROFILE_TIERS), "custom"])
                 else:
                     self.assertEqual(
                         list(choices),
@@ -92,10 +105,14 @@ class CustomSetupTests(unittest.TestCase):
                             "google-plus",
                             "google-pro",
                             "google-pro-plus",
+                            "google-ultra",
+                            "google-ultra-plus",
                             "google-anthropic-basic",
                             "google-anthropic-plus",
                             "google-anthropic-pro",
                             "google-anthropic-pro-plus",
+                            "google-anthropic-ultra",
+                            "google-anthropic-ultra-plus",
                             "custom",
                         ],
                     )
@@ -126,7 +143,7 @@ class CustomSetupTests(unittest.TestCase):
             def choose(label, choices, default):
                 seen.append(label)
                 if label == 'Model profile':
-                    self.assertEqual(list(choices), ['inherit', 'basic', 'plus', 'pro', 'pro-plus'])
+                    self.assertEqual(list(choices), ['inherit', *CONFIG.PROFILE_TIERS])
                     return 'plus'
                 return 'yes' if label == 'Apply this plan?' else default
             with patch.object(SETUP.sys.stdin, 'isatty', return_value=True), \

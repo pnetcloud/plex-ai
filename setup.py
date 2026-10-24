@@ -161,6 +161,7 @@ def choose(label, choices, default):
         labels = {"__default__": "Default", "__manual__": "Other model…", "__done__": "Done",
                   "inherit": "Inherit session settings", "custom": "Custom",
                   "basic": "Basic", "plus": "Plus", "pro": "Pro", "pro-plus": "Pro+",
+                  "ultra": "Ultra", "ultra-plus": "Ultra+",
                   "refresh": "Update only", "configure": "Reconfigure",
                   "project": "Project (recommended)", "user": "User-wide",
                   "pnet": "pnet · Standalone", "bmad": "bmad · BMad workflows",
@@ -178,7 +179,7 @@ def choose(label, choices, default):
                             "google": "Google",
                             "google-anthropic": "Google-Anthropic",
                         }.get(vendor, vendor.title())
-                        labels[name] = f"{title} · " + ("Pro+" if tier == "pro-plus" else tier.title())
+                        labels[name] = f"{title} · " + labels[tier]
                         break
         return ui.select(label, choices=[ui.Choice(
             [("class:choice-title", labels.get(name, name))],
@@ -641,7 +642,7 @@ def select_target(args, interactive):
 
 def setup_clients(args, clients, interactive):
     if args.model_profile is not None and args.model_profile not in ("inherit", *CONFIG.PROFILE_TIERS):
-        raise ValueError("For multiple clients choose one shared profile: inherit, basic, plus, pro or pro-plus")
+        raise ValueError("For multiple clients choose one shared profile: inherit, " + ", ".join(CONFIG.PROFILE_TIERS))
     if not args.roles_only and not args.dry_run:
         missing = [host_cli(client) for client in clients if not shutil.which(host_cli(client))]
         if missing:
@@ -1227,7 +1228,9 @@ def main(argv=None, *, shared_profile=False, selection=None, setup_mode=None):
                         "basic": "Lightweight defaults with team-specific overrides",
                         "plus": "Mixed models for execution, planning and review",
                         "pro": "More capable settings for demanding assignments",
-                        "pro-plus": "Strongest configured role settings",
+                        "pro-plus": "Stronger implementation models",
+                        "ultra": "Top-tier specialists with balanced implementation",
+                        "ultra-plus": "Ultra models with higher reasoning effort",
                     }[tier]
                 notice("Profiles configure subagents. The final plan shows effective models, including project overrides.")
                 if not shared_profile:
@@ -1254,7 +1257,7 @@ def main(argv=None, *, shared_profile=False, selection=None, setup_mode=None):
         if (shared_profile and resolved["model_profile"] not in ("inherit", *CONFIG.PROFILE_TIERS)
                 and not (setup_mode == "refresh" and existing
                          and resolved["model_profile"] == saved_profile(existing))):
-            raise ValueError("Choose one shared profile: inherit, basic, plus, pro or pro-plus; client-specific profiles remain available through legacy --host setup")
+            raise ValueError("Choose one shared profile: inherit, " + ", ".join(CONFIG.PROFILE_TIERS) + "; client-specific profiles remain available through legacy --host setup")
         if configure_interactively and args.interaction is None:
             args.interaction = choose("Interaction mode", {
                 "interactive": "Ask about meaningful choices; collaborate step by step",

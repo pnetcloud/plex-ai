@@ -1,33 +1,31 @@
 # Google model profiles for Antigravity
-# Note: In Antigravity, subagent frontmatter `model:` accepts tier aliases
-# ("inherit", "flash_lite", "flash", "pro"). Because Antigravity's server-side
-# `pro` tier alias currently maps to Gemini 3.8 Flash (1322) while `inherit`
-# copies the parent session's exact model (e.g. `gemini-4-argon-medium` 1418
-# or `gemini-4-argon-high` 1417), strong roles use `model = "inherit"` (with a
-# Gemini 4 Argon root session) and fast roles use `model = "flash"`.
+# Flash handles lightweight work; inherit uses the main chat model.
+# Select a strong Gemini main-chat model for Pro+ and higher.
+# Ultra tiers increase requested effort; inherit does not select another model.
 host = "antigravity"
-# Basic shares settings; other tiers explicitly configure each team role.
+# Coordinator settings are main-chat recommendations only; never applied.
+# Basic shares defaults; other tiers configure each role.
 
 # ==================== Basic ====================
+
+[coordinator.basic]
+  model     = "flash"
+  reasoning = "high"
 
 [profiles.basic]
   model     = "flash"
   reasoning = "high"
 
-  # ==================== Plus ====================
+
+# ==================== Plus ====================
+
+[coordinator.plus]
+  model     = "flash"
+  reasoning = "xhigh"
 
 [profiles.plus.pm]
   model     = "inherit"
   reasoning = "low"
-
-[profiles.plus.dev]
-  model     = "flash"
-  reasoning = "max"
-
-[profiles.plus.reviewer]
-  model     = "inherit"
-  reasoning = "medium"
-
 
 [profiles.plus.explorer]
   model     = "flash"
@@ -37,24 +35,28 @@ host = "antigravity"
   model     = "inherit"
   reasoning = "low"
 
+[profiles.plus.dev]
+  model     = "flash"
+  reasoning = "xhigh"
+
+[profiles.plus.reviewer]
+  model     = "inherit"
+  reasoning = "medium"
+
 [profiles.plus.qa]
   model     = "flash"
   reasoning = "high"
 
-  # ==================== Pro ====================
+
+# ==================== Pro ====================
+
+[coordinator.pro]
+  model     = "flash"
+  reasoning = "max"
 
 [profiles.pro.pm]
   model     = "inherit"
   reasoning = "medium"
-
-[profiles.pro.dev]
-  model     = "inherit"
-  reasoning = "max"
-
-[profiles.pro.reviewer]
-  model     = "inherit"
-  reasoning = "high"
-
 
 [profiles.pro.explorer]
   model     = "flash"
@@ -62,25 +64,30 @@ host = "antigravity"
 
 [profiles.pro.researcher]
   model     = "inherit"
-  reasoning = "medium"
+  reasoning = "low"
+
+[profiles.pro.dev]
+  model     = "flash"
+  reasoning = "max"
+
+[profiles.pro.reviewer]
+  model     = "inherit"
+  reasoning = "high"
 
 [profiles.pro.qa]
   model     = "flash"
   reasoning = "max"
 
-  # ==================== Pro+ ====================
+
+# ==================== Pro+ ====================
+
+[coordinator.pro-plus]
+  model     = "inherit"
+  reasoning = "low"
 
 [profiles.pro-plus.pm]
   model     = "inherit"
   reasoning = "medium"
-
-[profiles.pro-plus.dev]
-  model     = "inherit"
-  reasoning = "high"
-
-[profiles.pro-plus.reviewer]
-  model     = "inherit"
-  reasoning = "max"
 
 [profiles.pro-plus.explorer]
   model     = "inherit"
@@ -88,8 +95,78 @@ host = "antigravity"
 
 [profiles.pro-plus.researcher]
   model     = "inherit"
+  reasoning = "low"
+
+[profiles.pro-plus.dev]
+  model     = "inherit"
   reasoning = "medium"
+
+[profiles.pro-plus.reviewer]
+  model     = "inherit"
+  reasoning = "high"
 
 [profiles.pro-plus.qa]
   model     = "inherit"
   reasoning = "high"
+
+
+# ==================== Ultra ====================
+
+[coordinator.ultra]
+  model     = "inherit"
+  reasoning = "medium"
+
+[profiles.ultra.pm]
+  model     = "inherit"
+  reasoning = "medium"
+
+[profiles.ultra.explorer]
+  model     = "inherit"
+  reasoning = "medium"
+
+[profiles.ultra.researcher]
+  model     = "inherit"
+  reasoning = "medium"
+
+[profiles.ultra.dev]
+  model     = "inherit"
+  reasoning = "medium"
+
+[profiles.ultra.reviewer]
+  model     = "inherit"
+  reasoning = "xhigh"
+
+[profiles.ultra.qa]
+  model     = "inherit"
+  reasoning = "high"
+
+
+# ==================== Ultra+ ====================
+
+[coordinator.ultra-plus]
+  model     = "inherit"
+  reasoning = "high"
+
+[profiles.ultra-plus.pm]
+  model     = "inherit"
+  reasoning = "high"
+
+[profiles.ultra-plus.explorer]
+  model     = "inherit"
+  reasoning = "high"
+
+[profiles.ultra-plus.researcher]
+  model     = "inherit"
+  reasoning = "high"
+
+[profiles.ultra-plus.dev]
+  model     = "inherit"
+  reasoning = "high"
+
+[profiles.ultra-plus.reviewer]
+  model     = "inherit"
+  reasoning = "max"
+
+[profiles.ultra-plus.qa]
+  model     = "inherit"
+  reasoning = "xhigh"

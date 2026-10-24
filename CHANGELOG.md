@@ -4,6 +4,14 @@ Important changes retained in Plex, grouped by release. Interfaces and configura
 may change before 1.0. Releases through v0.5.4 were previews; v0.5.5 and later are
 regular releases.
 
+## [0.12.0] — 2026-10-24
+
+- Add Ultra and Ultra+ to both pnet and BMad across all four provider recipes and shared client setup.
+- Rebalance Plus/Pro for lightweight execution, use Sol/Sonnet development and review in Pro+, and move Astra/Opus specialists to Ultra; Ultra+ increases reasoning effort.
+- Put main-chat coordinator recommendations first within each tier and keep PM/PO settings independent; explorer and QA retain role-specific settings in pnet.
+- Derive setup guidance from the selected team's catalog; update profile menus, four-language documentation and regression checks.
+- Existing profile IDs remain valid, but their model settings can change on refresh. Preview effective settings and preserve project overrides; main-chat models are never switched automatically.
+
 ## [0.11.1] — 2026-10-23
 
 - Include the native Codex capacity management prepared for v0.11.0, whose release publication was blocked by CI.

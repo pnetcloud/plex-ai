@@ -11,10 +11,12 @@
 | `pnet` | pm, explorer, researcher, dev, reviewer, qa | Standalone coordination |
 | `bmad` | analyst, pm, po, ux, architect, dev, reviewer | Existing BMad skills |
 
-Choose `inherit`, `basic`, `plus`, `pro` or `pro-plus`. Shared tiers combine the
+Choose `inherit`, `basic`, `plus`, `pro`, `pro-plus`, `ultra` or `ultra-plus`. Shared tiers combine the
 selected team's OpenAI settings for Codex, Anthropic settings for Claude Code and
 Google settings for Antigravity. `inherit` leaves model/effort to host defaults.
 Profiles describe settings, not measured quality levels.
+
+Both teams provide six named tiers plus `inherit`. Coordinator recommendations appear first within each tier in the provider files. Anthropic uses Haiku/Sonnet/Opus as approximate Luna/Sol/Astra counterparts; these are not measured equivalents. Google native profiles use Flash or inherit the main-chat model, with higher requested effort for Ultra tiers. Claude on Antigravity substitutes Sonnet for unavailable Haiku; exact model IDs require host support.
 
 Edit `.plex/preset.toml` in the selected installation root:
 
@@ -34,7 +36,6 @@ recommendations (`model`, `reasoning`). They are separate from role settings and
 appear as `coordinator` in the resolved snapshot. Setup displays the selected
 profile's recommendation; it never applies it to the client or installs a coordinator
 role. A missing recommendation, including `inherit`, leaves the choice to the user.
-
 
 Per field: **profile default → profile role → host override → role override**.
 Host tables are `[codex]`, `[claude]`, `[antigravity]`; role tables add the role name.
@@ -135,7 +136,6 @@ can affect runtime. The installer never restarts Codex. Open a fresh session aft
 applying settings and verify the active spawn schema and accepted role separately.
 
 Project configuration must be trusted by Codex. Open a new client session after setup. Preflight distinguishes a missing spawn tool, a hidden role selector, a rejected role and accepted dispatch. When the selector is available, request the checked role even if no inventory is displayed; use a fresh context and a self-contained handoff when supported. File/configuration checks do not prove that an existing session loaded its roles or that the child used the requested model.
-
 
 ## Project and user scope
 

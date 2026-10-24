@@ -11,9 +11,11 @@
 | `pnet` | pm, explorer, researcher, dev, reviewer, qa | 独立协调 |
 | `bmad` | analyst, pm, po, ux, architect, dev, reviewer | 使用已有 BMad 技能 |
 
-配置档包括 `inherit`、`basic`、`plus`、`pro`、`pro-plus`。共享档位使用所选团队中适用于
+配置档包括 `inherit`、`basic`、`plus`、`pro`、`pro-plus`、`ultra`、`ultra-plus`。共享档位使用所选团队中适用于
 Codex 的 OpenAI、Claude Code 的 Anthropic、Antigravity 的 Google 设置。
 `inherit` 将模型和推理强度交由客户端决定。配置档描述设置，不是实测质量等级。
+
+两个团队均提供六个命名档位及 `inherit`。提供商文件在每个档位中先列出协调器建议。Haiku/Sonnet/Opus 大致对应 Luna/Sol/Astra，但并未验证质量等价。Google 原生配置使用 Flash 或继承主会话模型，Ultra 档位提高请求的推理强度。Antigravity 中的 Claude 使用 Sonnet 替代不可用的 Haiku；具体模型 ID 需要客户端支持。
 
 可编辑文件位于所选安装根目录的 `.plex/preset.toml`：
 
@@ -31,7 +33,6 @@ Plex 不配置 token 预算。刷新时会移除旧 preset 中已停用的预算
 厂商配置文件中可选的 `[coordinator.<tier>]` 表用于主对话建议（`model`、`reasoning`）。
 它与角色设置分开，并作为 `coordinator` 写入解析快照。安装器显示所选配置档的建议，
 但不会应用到客户端，也不会安装协调者角色。没有建议时（包括 `inherit`），由用户选择模型。
-
 
 各字段优先级：**配置档默认值 → 配置档角色值 → 客户端覆盖 → 角色覆盖**。
 客户端表为 `[codex]`、`[claude]`、`[antigravity]`；角色表追加角色名。

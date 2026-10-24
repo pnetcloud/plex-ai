@@ -146,7 +146,7 @@ plex uninstall --scope user --client codex
 | Параметр | Назначение |
 |---|---|
 | `--team pnet / bmad` | Набор ролей; для новой установки — pnet. |
-| `--model-profile PROFILE` | inherit, basic, plus, pro или pro-plus. |
+| `--model-profile PROFILE` | inherit, basic, plus, pro, pro-plus, ultra или ultra-plus. |
 | `--interaction MODE` | interactive, balanced (по умолчанию) или auto. |
 | `--max-agents N` | Положительный лимит незавершённых поручений Plex; нативная ёмкость потоков Codex показывается отдельно. |
 

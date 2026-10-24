@@ -1,65 +1,83 @@
 # OpenAI model profiles
 host = "codex"
+# Coordinator settings are main-chat recommendations only; never applied.
 # Basic shares defaults with a reviewer override; other tiers configure each role.
 
 # ==================== Basic ====================
+
+[coordinator.basic]
+  model     = "gpt-6-luna"
+  reasoning = "high"
 
 [profiles.basic]
   model     = "gpt-6-luna"
   reasoning = "high"
 
-# Basic review has an explicit role setting independent of implementation defaults.
-[profiles.basic.reviewer]
-  model     = "gpt-6.1-sol"
-  reasoning = "medium"
+  [profiles.basic.reviewer]
+    model     = "gpt-6.1-sol"
+    reasoning = "medium"
 
-  # ==================== Plus ====================
+
+    # ==================== Plus ====================
+
+[coordinator.plus]
+  model     = "gpt-6-luna"
+  reasoning = "xhigh"
+
+[profiles.plus.pm]
+  model     = "gpt-6.1-sol"
+  reasoning = "low"
 
 [profiles.plus.analyst]
   model     = "gpt-6.1-sol"
   reasoning = "low"
 
-[profiles.plus.pm]
+[profiles.plus.architect]
   model     = "gpt-6.1-sol"
   reasoning = "medium"
 
 [profiles.plus.ux]
   model     = "gpt-6-luna"
-  reasoning = "max"
+  reasoning = "high"
 
-[profiles.plus.architect]
-  model     = "gpt-6.1-sol"
-  reasoning = "medium"
+[profiles.plus.po]
+  model     = "gpt-6-luna"
+  reasoning = "high"
 
 [profiles.plus.dev]
   model     = "gpt-6-luna"
-  reasoning = "max"
+  reasoning = "xhigh"
 
 [profiles.plus.reviewer]
   model     = "gpt-6.1-sol"
   reasoning = "medium"
 
-[profiles.plus.po]
-  model     = "gpt-6.1-sol"
-  reasoning = "medium"
 
   # ==================== Pro ====================
 
-[profiles.pro.analyst]
-  model     = "gpt-6.1-sol"
-  reasoning = "high"
+[coordinator.pro]
+  model     = "gpt-6-luna"
+  reasoning = "max"
 
 [profiles.pro.pm]
   model     = "gpt-6.1-sol"
   reasoning = "medium"
 
-[profiles.pro.ux]
+[profiles.pro.analyst]
   model     = "gpt-6.1-sol"
-  reasoning = "high"
+  reasoning = "low"
 
 [profiles.pro.architect]
   model     = "gpt-6.1-sol"
   reasoning = "high"
+
+[profiles.pro.ux]
+  model     = "gpt-6.1-sol"
+  reasoning = "high"
+
+[profiles.pro.po]
+  model     = "gpt-6.1-sol"
+  reasoning = "low"
 
 [profiles.pro.dev]
   model     = "gpt-6-luna"
@@ -69,54 +87,107 @@ host = "codex"
   model     = "gpt-6.1-sol"
   reasoning = "high"
 
-[profiles.pro.po]
-  model     = "gpt-6.1-sol"
-  reasoning = "medium"
 
   # ==================== Pro+ ====================
 
-[profiles.pro-plus.analyst]
-  model     = "gpt-6-astra"
+[coordinator.pro-plus]
+  model     = "gpt-6.1-sol"
   reasoning = "low"
 
 [profiles.pro-plus.pm]
   model     = "gpt-6.1-sol"
   reasoning = "medium"
 
-[profiles.pro-plus.ux]
-  model     = "gpt-6-astra"
+[profiles.pro-plus.analyst]
+  model     = "gpt-6.1-sol"
   reasoning = "low"
 
 [profiles.pro-plus.architect]
-  model     = "gpt-6-astra"
-  reasoning = "medium"
+  model     = "gpt-6.1-sol"
+  reasoning = "high"
+
+[profiles.pro-plus.ux]
+  model     = "gpt-6.1-sol"
+  reasoning = "high"
+
+[profiles.pro-plus.po]
+  model     = "gpt-6.1-sol"
+  reasoning = "low"
 
 [profiles.pro-plus.dev]
   model     = "gpt-6.1-sol"
   reasoning = "medium"
 
 [profiles.pro-plus.reviewer]
-  model     = "gpt-6-astra"
-  reasoning = "medium"
+  model     = "gpt-6.1-sol"
+  reasoning = "high"
 
-[profiles.pro-plus.po]
+
+  # ==================== Ultra ====================
+
+[coordinator.ultra]
   model     = "gpt-6.1-sol"
   reasoning = "medium"
 
-# Main-chat recommendations only; never applied to client settings.
+[profiles.ultra.pm]
+  model     = "gpt-6.1-sol"
+  reasoning = "medium"
 
-[coordinator.basic]
-model = "gpt-6-luna"
-reasoning = "high"
+[profiles.ultra.analyst]
+  model     = "gpt-6-astra"
+  reasoning = "low"
 
-[coordinator.plus]
-model = "gpt-6.1-sol"
-reasoning = "low"
+[profiles.ultra.architect]
+  model     = "gpt-6-astra"
+  reasoning = "medium"
 
-[coordinator.pro]
-model = "gpt-6.1-sol"
-reasoning = "medium"
+[profiles.ultra.ux]
+  model     = "gpt-6-astra"
+  reasoning = "low"
 
-[coordinator.pro-plus]
-model = "gpt-6.1-sol"
-reasoning = "high"
+[profiles.ultra.po]
+  model     = "gpt-6.1-sol"
+  reasoning = "medium"
+
+[profiles.ultra.dev]
+  model     = "gpt-6.1-sol"
+  reasoning = "medium"
+
+[profiles.ultra.reviewer]
+  model     = "gpt-6-astra"
+  reasoning = "medium"
+
+
+  # ==================== Ultra+ ====================
+
+[coordinator.ultra-plus]
+  model     = "gpt-6.1-sol"
+  reasoning = "high"
+
+[profiles.ultra-plus.pm]
+  model     = "gpt-6.1-sol"
+  reasoning = "high"
+
+[profiles.ultra-plus.analyst]
+  model     = "gpt-6-astra"
+  reasoning = "medium"
+
+[profiles.ultra-plus.architect]
+  model     = "gpt-6-astra"
+  reasoning = "high"
+
+[profiles.ultra-plus.ux]
+  model     = "gpt-6-astra"
+  reasoning = "medium"
+
+[profiles.ultra-plus.po]
+  model     = "gpt-6.1-sol"
+  reasoning = "high"
+
+[profiles.ultra-plus.dev]
+  model     = "gpt-6.1-sol"
+  reasoning = "high"
+
+[profiles.ultra-plus.reviewer]
+  model     = "gpt-6-astra"
+  reasoning = "high"

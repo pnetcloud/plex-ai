@@ -100,7 +100,7 @@ Installation startet keine Koordination. `plex-setup` konfiguriert; `plex` koord
 | **pnet** | Allgemeine Entwicklung: PM, explorer, researcher, dev, reviewer und QA; ohne BMad |
 | **bmad** | Installierte BMad-Personas und Workflows; Setup bietet ausgewählte Abhängigkeiten und Projektinitialisierung |
 
-**Inherit, Basic, Plus, Pro und Pro+** konfigurieren Subagenten. Das Hauptchatmodell wählst du; Setup zeigt eine profilabhängige Empfehlung. Siehe [Konfiguration](configuration.md).
+**Inherit, Basic, Plus, Pro, Pro+, Ultra und Ultra+** konfigurieren Subagenten. Das Hauptchatmodell wählst du; Setup zeigt eine profilabhängige Empfehlung. Siehe [Konfiguration](configuration.md).
 
 ### Modi der Agenten-Orchestrierung
 
@@ -110,7 +110,7 @@ Entscheidungen und Entwickler setzen die Arbeit zur Prüfung um. Modellprofile v
 Luna, Sol und Astra oder Haiku, Sonnet und Opus auf diese Rollen; der Koordinator behält dein Chatmodell.
 
 Drei unabhängige Einstellungen: **Team** (`pnet` oder BMad-Workflows),
-**Modellprofil** (Inherit / Basic / Plus / Pro / Pro+) und **Interaktionsmodus**:
+**Modellprofil** (Inherit / Basic / Plus / Pro / Pro+ / Ultra / Ultra+) und **Interaktionsmodus**:
 
 | Modus | Zusammenarbeit mit dem Team |
 |---|---|
@@ -123,21 +123,21 @@ Drei unabhängige Einstellungen: **Team** (`pnet` oder BMad-Workflows),
 Dies sind **Plex-Konfigurationsprofile**, unabhängig von den Abonnements der Anbieter.
 Jede Zelle zeigt **Entwicklung → Code-Review** für das mitgelieferte `pnet`-Team.
 
-| Client / Modellanbieter | Basic | Plus | Pro | Pro+ |
-|---|---|---|---|---|
-| OpenAI Codex | Luna → Luna | Luna → Sol | Luna → Sol | Sol → Astra |
-| Claude Code / Anthropic | Haiku → Haiku | Haiku → Sonnet | Haiku → Sonnet | Sonnet → Opus |
-| Antigravity / Google Gemini | `flash` → `flash` | `flash` → `inherit` | `inherit` → `inherit` | `inherit` → `inherit` |
-| Antigravity / Anthropic | Sonnet low → Sonnet low | Sonnet low → Sonnet medium | Sonnet medium → Opus medium | Sonnet medium → Opus high |
+| Client / Modellanbieter | Basic | Plus | Pro | Pro+ | Ultra | Ultra+ |
+|---|---|---|---|---|---|---|
+| OpenAI Codex | Luna → Luna | Luna → Sol | Luna → Sol | Sol → Sol | Sol → Astra | Sol → Astra |
+| Claude Code / Anthropic | Haiku → Haiku | Haiku → Sonnet | Haiku → Sonnet | Sonnet → Sonnet | Sonnet → Opus | Sonnet → Opus |
+| Antigravity / Google Gemini | `flash` → `flash` | `flash` → `inherit` | `flash` → `inherit` | `inherit` → `inherit` | `inherit` → `inherit` | `inherit` → `inherit` |
+| Antigravity / Anthropic | Sonnet low → Sonnet low | Sonnet low → Sonnet medium | Sonnet low → Sonnet high | Sonnet medium → Sonnet high | Sonnet medium → Opus medium | Sonnet high → Opus high |
 
 - **Basic:** ein Basismodell für alle `pnet`-Rollen. **Plus:** getrennte Modelle für Umsetzung und Review, sofern konfiguriert.
-- **Pro:** höhere Reasoning-Stufen für ausgewählte Rollen; Modellfamilien können gleich bleiben. **Pro+:** Sol/Sonnet für Entwicklung, Astra/Opus für Review in den OpenAI/Anthropic-Profilen.
+- **Pro:** höhere Reasoning-Stufen für ausgewählte Rollen; Modellfamilien können gleich bleiben. **Pro+:** Sol/Sonnet für Entwicklung und Review. **Ultra:** Spezialisten mit Astra/Opus. **Ultra+:** höherer Reasoning-Effort.
 - **BMad:** dieselben Entwicklungs-/Review-Paare, aber Basic nutzt für Review bereits Sol, Sonnet, `inherit` beziehungsweise Sonnet medium. Planung, Architektur und weitere Rollen haben eigene Einstellungen.
 - **Inherit:** Vorgaben des Clients/der Sitzung. In Gemini-Profilen legt `inherit` kein bestimmtes Gemini-Pro-Modell fest.
 
 Konfigurierte IDs: Luna = `gpt-6-luna`, Sol = `gpt-6.1-sol`, Astra = `gpt-6-astra`.
 Claude Code nutzt die Aliase `haiku`, `sonnet`, `opus`; die Anthropic-Profile in Antigravity verwenden
-`claude-sonnet-5-5-low`, `claude-sonnet-5-5-medium`, `claude-opus-5-5-medium` und `claude-opus-5-5-high`.
+`claude-sonnet-5-5-{low,medium,high}` und `claude-opus-5-5-{low,medium,high}`.
 Dies sind mitgelieferte Einstellungen, keine Garantie für Modellverfügbarkeit oder Einsparungen. Setup zeigt die wirksamen Einstellungen einschließlich Projektüberschreibungen.
 
 [Alle pnet-Rollen](../../../teams/pnet/profiles/) · [Alle BMad-Rollen](../../../teams/bmad/profiles/) · [Profilkonfiguration](configuration.md)

@@ -99,7 +99,7 @@ $plex-setup Настрой проект: команда <команда>, про
 | **pnet** | Обычная разработка: PM, explorer, researcher, dev, reviewer и QA; BMad не требуется |
 | **bmad** | Установленные персоны и workflow BMad; установщик предлагает выбранные зависимости и инициализацию проекта |
 
-Профили **Inherit, Basic, Plus, Pro, Pro+** задают модели субагентов. Модель основного чата выбираете вы; установщик показывает рекомендацию выбранного профиля. См. [конфигурацию](configuration.md).
+Профили **Inherit, Basic, Plus, Pro, Pro+, Ultra, Ultra+** задают модели субагентов. Модель основного чата выбираете вы; установщик показывает рекомендацию выбранного профиля. См. [конфигурацию](configuration.md).
 
 ### Режимы оркестрации агентов
 
@@ -109,7 +109,7 @@ Plex — **оркестратор ИИ-агентов (AI agent orchestrator)** 
 Luna, Sol и Astra либо Haiku, Sonnet и Opus между ролями; координатор сохраняет модель вашего чата.
 
 Три независимые настройки: **команда** (`pnet` или workflow BMad),
-**профиль моделей** (Inherit / Basic / Plus / Pro / Pro+) и **режим взаимодействия**:
+**профиль моделей** (Inherit / Basic / Plus / Pro / Pro+ / Ultra / Ultra+) и **режим взаимодействия**:
 
 | Режим | Как команда работает с вами |
 |---|---|
@@ -122,21 +122,21 @@ Luna, Sol и Astra либо Haiku, Sonnet и Opus между ролями; ко�
 Это **профили конфигурации Plex**, независимые от тарифов провайдеров.
 В ячейках — **разработка → ревью кода** для встроенной команды `pnet`.
 
-| Клиент / провайдер моделей | Basic | Plus | Pro | Pro+ |
-|---|---|---|---|---|
-| OpenAI Codex | Luna → Luna | Luna → Sol | Luna → Sol | Sol → Astra |
-| Claude Code / Anthropic | Haiku → Haiku | Haiku → Sonnet | Haiku → Sonnet | Sonnet → Opus |
-| Antigravity / Google Gemini | `flash` → `flash` | `flash` → `inherit` | `inherit` → `inherit` | `inherit` → `inherit` |
-| Antigravity / Anthropic | Sonnet low → Sonnet low | Sonnet low → Sonnet medium | Sonnet medium → Opus medium | Sonnet medium → Opus high |
+| Клиент / провайдер моделей | Basic | Plus | Pro | Pro+ | Ultra | Ultra+ |
+|---|---|---|---|---|---|---|
+| OpenAI Codex | Luna → Luna | Luna → Sol | Luna → Sol | Sol → Sol | Sol → Astra | Sol → Astra |
+| Claude Code / Anthropic | Haiku → Haiku | Haiku → Sonnet | Haiku → Sonnet | Sonnet → Sonnet | Sonnet → Opus | Sonnet → Opus |
+| Antigravity / Google Gemini | `flash` → `flash` | `flash` → `inherit` | `flash` → `inherit` | `inherit` → `inherit` | `inherit` → `inherit` | `inherit` → `inherit` |
+| Antigravity / Anthropic | Sonnet low → Sonnet low | Sonnet low → Sonnet medium | Sonnet low → Sonnet high | Sonnet medium → Sonnet high | Sonnet medium → Opus medium | Sonnet high → Opus high |
 
 - **Basic:** одна базовая модель для ролей `pnet`. **Plus:** разделение моделей реализации и ревью, где это задано профилем.
-- **Pro:** больше рассуждений для отдельных ролей; семейства моделей могут оставаться прежними. **Pro+:** разработка на Sol/Sonnet, ревью на Astra/Opus в профилях OpenAI/Anthropic.
+- **Pro:** больше рассуждений для отдельных ролей; семейства моделей могут оставаться прежними. **Pro+:** разработка и ревью на Sol/Sonnet. **Ultra:** подключаются специалисты Astra/Opus. **Ultra+:** повышается reasoning.
 - **BMad:** те же пары разработки и ревью, но уже в Basic ревью выполняет Sol, Sonnet, `inherit` или Sonnet medium соответственно. Планирование, архитектура и остальные роли имеют свои настройки.
 - **Inherit:** настройки клиента/сессии. В профилях Gemini значение `inherit` не закрепляет модель Gemini Pro.
 
 Идентификаторы в конфигурации: Luna = `gpt-6-luna`, Sol = `gpt-6.1-sol`, Astra = `gpt-6-astra`.
 Claude Code использует алиасы `haiku`, `sonnet`, `opus`; профили Anthropic в Antigravity —
-`claude-sonnet-5-5-low`, `claude-sonnet-5-5-medium`, `claude-opus-5-5-medium` и `claude-opus-5-5-high`.
+`claude-sonnet-5-5-{low,medium,high}` и `claude-opus-5-5-{low,medium,high}`.
 Это поставляемые настройки, без гарантии доступности моделей или экономии. Установщик показывает итоговую конфигурацию с учётом переопределений проекта.
 
 [Все роли pnet](../../../teams/pnet/profiles/) · [Все роли BMad](../../../teams/bmad/profiles/) · [Настройка профилей](configuration.md)

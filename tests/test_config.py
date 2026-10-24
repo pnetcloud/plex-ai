@@ -169,7 +169,7 @@ class ConfigTests(unittest.TestCase):
 
     def test_shared_tiers_reuse_each_clients_vendor_settings(self):
         for team in ('pnet', 'bmad'):
-            for tier in MODULE.PROFILE_TIERS:
+            for tier in tomllib.loads((ROOT / f'teams/{team}/profiles/openai.toml').read_text())['profiles']:
                 shared = resolve({'team':team, 'model_profile':tier})
                 for host, vendor in [('codex','openai'), ('claude','anthropic'), ('antigravity','google')]:
                     standalone = resolve({'team':team, 'model_profile':f'{vendor}-{tier}'})
@@ -451,19 +451,23 @@ class ConfigTests(unittest.TestCase):
             "openai-basic": ("gpt-6-luna", "gpt-6-luna"),
             "openai-plus": ("gpt-6.1-sol", "gpt-6-luna"),
             "openai-pro": ("gpt-6.1-sol", "gpt-6-luna"),
-            "openai-pro-plus": ("gpt-6-astra", "gpt-6.1-sol"),
+            "openai-pro-plus": ("gpt-6.1-sol", "gpt-6.1-sol"),
+            "openai-ultra": ("gpt-6-astra", "gpt-6.1-sol"),
+            "openai-ultra-plus": ("gpt-6-astra", "gpt-6.1-sol"),
             "anthropic-basic": ("haiku", "haiku"),
             "anthropic-plus": ("sonnet", "haiku"),
             "anthropic-pro": ("sonnet", "haiku"),
-            "anthropic-pro-plus": ("opus", "sonnet"),
+            "anthropic-pro-plus": ("sonnet", "sonnet"),
+            "anthropic-ultra": ("opus", "sonnet"),
+            "anthropic-ultra-plus": ("opus", "sonnet"),
             "google-basic": ("flash", "flash"),
             "google-plus": ("inherit", "flash"),
-            "google-pro": ("inherit", "inherit"),
+            "google-pro": ("inherit", "flash"),
             "google-pro-plus": ("inherit", "inherit"),
             "google-anthropic-basic": ("claude-sonnet-5-5-low", "claude-sonnet-5-5-low"),
             "google-anthropic-plus": ("claude-sonnet-5-5-medium", "claude-sonnet-5-5-low"),
-            "google-anthropic-pro": ("claude-opus-5-5-medium", "claude-sonnet-5-5-medium"),
-            "google-anthropic-pro-plus": ("claude-opus-5-5-high", "claude-sonnet-5-5-medium"),
+            "google-anthropic-pro": ("claude-sonnet-5-5-high", "claude-sonnet-5-5-low"),
+            "google-anthropic-pro-plus": ("claude-sonnet-5-5-high", "claude-sonnet-5-5-medium"),
         }
         for profile, (strong, dev) in expected.items():
             host = (
@@ -474,11 +478,15 @@ class ConfigTests(unittest.TestCase):
             resolved = resolve({"team": "bmad", "model_profile": profile})["hosts"][host]
             self.assertEqual(resolved["architect"]["model"], strong)
             review_model = {"openai-basic": "gpt-6.1-sol", "anthropic-basic": "sonnet",
-                            "google-basic": "inherit", "google-anthropic-basic": "claude-sonnet-5-5-medium"}.get(profile, strong)
+                            "google-basic": "inherit", "google-anthropic-basic": "claude-sonnet-5-5-medium",
+                            "google-anthropic-plus": "claude-sonnet-5-5-medium"}.get(profile, strong)
             self.assertEqual(resolved["reviewer"]["model"], review_model)
             pm = {"openai-pro-plus": "gpt-6.1-sol", "anthropic-pro-plus": "sonnet",
+                  "google-anthropic-plus": "claude-sonnet-5-5-low",
                   "google-anthropic-pro": "claude-sonnet-5-5-medium",
-                  "google-anthropic-pro-plus": "claude-sonnet-5-5-medium"}.get(profile, strong)
+                  "google-anthropic-pro-plus": "claude-sonnet-5-5-medium",
+                  "openai-ultra": "gpt-6.1-sol", "openai-ultra-plus": "gpt-6.1-sol",
+                  "anthropic-ultra": "sonnet", "anthropic-ultra-plus": "sonnet"}.get(profile, strong)
             self.assertEqual(resolved["pm"]["model"], pm)
             self.assertEqual(resolved["dev"]["model"], dev)
 
@@ -493,13 +501,9 @@ class ConfigTests(unittest.TestCase):
                 self.assertEqual(set(profile), roles)
             for role, values in (profile.items() if tier != "basic" else []):
                 self.assertEqual(set(values), {"model", "reasoning"})
-                if tier in ("plus", "pro"):
-                    self.assertEqual(
-                        values["reasoning"] == "max",
-                        role == "dev"
-                        or (tier == "plus" and role == "ux"),
-                    )
             for team in ("pnet", "bmad"):
+                if f"openai-{tier}" not in MODULE.load_model_profiles(team):
+                    continue
                 resolved = resolve({"team": team, "model_profile": f"openai-{tier}"})
                 for role, values in resolved["hosts"]["codex"].items():
                     team_profile = tomllib.loads((ROOT / f"teams/{team}/profiles/openai.toml").read_text())["profiles"][tier]
@@ -511,6 +515,8 @@ class ConfigTests(unittest.TestCase):
         models = {"gpt-6-luna": "haiku", "gpt-6.1-sol": "sonnet", "gpt-6-astra": "opus"}
         for tier in MODULE.PROFILE_TIERS:
             for team in ("pnet", "bmad"):
+                if f"openai-{tier}" not in MODULE.load_model_profiles(team):
+                    continue
                 openai = resolve({"team": team, "model_profile": f"openai-{tier}"})["hosts"]["codex"]
                 anthropic = resolve({"team": team, "model_profile": f"anthropic-{tier}"})["hosts"]["claude"]
                 self.assertEqual(set(openai), set(anthropic))
@@ -518,6 +524,36 @@ class ConfigTests(unittest.TestCase):
                     self.assertEqual(anthropic[role], {
                         "model": models[values["model"]], "reasoning": values["reasoning"],
                     })
+
+    def test_six_tiers_keep_coordinator_first_and_role_order(self):
+        for team, roles in {
+            "bmad": ["pm", "analyst", "architect", "ux", "po", "dev", "reviewer"],
+            "pnet": ["pm", "explorer", "researcher", "dev", "reviewer", "qa"],
+        }.items():
+            for vendor in ("openai", "anthropic", "google", "google-anthropic"):
+                path = ROOT / f"teams/{team}/profiles/{vendor}.toml"
+                text = path.read_text()
+                document = tomllib.loads(text)
+                self.assertEqual(list(document["profiles"]), list(MODULE.PROFILE_TIERS))
+                for tier in MODULE.PROFILE_TIERS:
+                    self.assertLess(text.index(f"[coordinator.{tier}]"),
+                                    text.index(f"[profiles.{tier}"))
+                    if tier != "basic":
+                        self.assertEqual(list(document["profiles"][tier]), roles)
+                    resolved = resolve({"team": team, "model_profile": f"{vendor}-{tier}"})
+                    self.assertNotIn("coordinator", resolved["roles"])
+
+    def test_ultra_plus_increases_effort_without_changing_models(self):
+        levels = ["low", "medium", "high", "xhigh", "max"]
+        for team in ("pnet", "bmad"):
+            for vendor, host in (("openai", "codex"), ("anthropic", "claude"),
+                                 ("google", "antigravity")):
+                ultra = resolve({"team": team, "model_profile": f"{vendor}-ultra"})["hosts"][host]
+                stronger = resolve({"team": team, "model_profile": f"{vendor}-ultra-plus"})["hosts"][host]
+                for role, settings in ultra.items():
+                    self.assertEqual(settings["model"], stronger[role]["model"])
+                    self.assertEqual(levels.index(stronger[role]["reasoning"]),
+                                     levels.index(settings["reasoning"]) + 1)
 
     def test_new_vendor_file_discovery_and_invalid_sections(self):
         with tempfile.TemporaryDirectory() as temp:
@@ -696,7 +732,7 @@ class ConfigTests(unittest.TestCase):
         self.assertEqual(parsed_arch["model_reasoning_effort"], "medium")
         self.assertIn("bmad-agent-architect, custom-arch-skill.", parsed_arch["developer_instructions"])
 
-        claude_opus = resolve({"team": "pnet", "model_profile": "anthropic-pro-plus"})
+        claude_opus = resolve({"team": "pnet", "model_profile": "anthropic-ultra"})
         claude_roles = render_host_roles(claude_opus, "claude")
         self.assertIn('\nmodel: "sonnet"\n', claude_roles["pm"]["content"])
         self.assertIn('\nmodel: "opus"\n', claude_roles["reviewer"]["content"])
@@ -708,7 +744,7 @@ class ConfigTests(unittest.TestCase):
         self.assertIn('\nmodel: "inherit"\n', ag_roles["pm"]["content"])
         self.assertIn('\neffort: low\n', ag_roles["pm"]["content"])
         self.assertIn('\nmodel: "flash"\n', ag_roles["dev"]["content"])
-        self.assertIn('\neffort: max\n', ag_roles["dev"]["content"])
+        self.assertIn('\neffort: xhigh\n', ag_roles["dev"]["content"])
 
     def test_apply_check_and_switch_lifecycle_with_backups_and_dual_hosts(self):
         with tempfile.TemporaryDirectory(prefix="plex-lifecycle-test-") as temp:

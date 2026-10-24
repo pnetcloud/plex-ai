@@ -1,108 +1,195 @@
-# Google-Anthropic model profiles for Antigravity (Claude on Antigravity)
-# Run Antigravity with `--model claude-sonnet-5-5-medium` (for Plus/Pro) or
-# `--model claude-opus-5-5-medium` / `claude-opus-5-5-high` (for Pro+).
-# These are requested model IDs, not native tier aliases. Native role installation
-# rejects unsupported IDs instead of silently inheriting the root model.
+# Claude model profiles for Antigravity
+# Sonnet low substitutes for Haiku, which is absent from this host catalog.
+# Exact model IDs require host support; unsupported IDs are rejected.
 host = "antigravity"
+# Coordinator settings are main-chat recommendations only; never applied.
 # Basic shares defaults with a reviewer override; other tiers configure each role.
 
 # ==================== Basic ====================
+
+[coordinator.basic]
+  model     = "claude-sonnet-5-5-low"
+  reasoning = "high"
 
 [profiles.basic]
   model     = "claude-sonnet-5-5-low"
   reasoning = "high"
 
-# Basic review has an explicit role setting independent of implementation defaults.
 [profiles.basic.reviewer]
   model     = "claude-sonnet-5-5-medium"
   reasoning = "medium"
 
-  # ==================== Plus ====================
 
-[profiles.plus.analyst]
-  model     = "claude-sonnet-5-5-medium"
-  reasoning = "low"
+# ==================== Plus ====================
+
+[coordinator.plus]
+  model     = "claude-sonnet-5-5-low"
+  reasoning = "xhigh"
 
 [profiles.plus.pm]
-  model     = "claude-sonnet-5-5-medium"
-  reasoning = "medium"
-
-[profiles.plus.ux]
   model     = "claude-sonnet-5-5-low"
-  reasoning = "max"
+  reasoning = "low"
+
+[profiles.plus.analyst]
+  model     = "claude-sonnet-5-5-low"
+  reasoning = "low"
 
 [profiles.plus.architect]
   model     = "claude-sonnet-5-5-medium"
   reasoning = "medium"
 
+[profiles.plus.ux]
+  model     = "claude-sonnet-5-5-low"
+  reasoning = "high"
+
+[profiles.plus.po]
+  model     = "claude-sonnet-5-5-low"
+  reasoning = "high"
+
 [profiles.plus.dev]
   model     = "claude-sonnet-5-5-low"
-  reasoning = "max"
+  reasoning = "xhigh"
 
 [profiles.plus.reviewer]
   model     = "claude-sonnet-5-5-medium"
   reasoning = "medium"
 
-[profiles.plus.po]
-  model     = "claude-sonnet-5-5-medium"
-  reasoning = "medium"
 
-  # ==================== Pro ====================
+# ==================== Pro ====================
 
-[profiles.pro.analyst]
-  model     = "claude-opus-5-5-medium"
-  reasoning = "high"
+[coordinator.pro]
+  model     = "claude-sonnet-5-5-low"
+  reasoning = "max"
 
 [profiles.pro.pm]
   model     = "claude-sonnet-5-5-medium"
   reasoning = "medium"
 
-[profiles.pro.ux]
-  model     = "claude-sonnet-5-5-medium"
-  reasoning = "high"
+[profiles.pro.analyst]
+  model     = "claude-sonnet-5-5-low"
+  reasoning = "low"
 
 [profiles.pro.architect]
-  model     = "claude-opus-5-5-medium"
+  model     = "claude-sonnet-5-5-high"
   reasoning = "high"
 
-[profiles.pro.dev]
-  model     = "claude-sonnet-5-5-medium"
-  reasoning = "max"
-
-[profiles.pro.reviewer]
-  model     = "claude-opus-5-5-medium"
+[profiles.pro.ux]
+  model     = "claude-sonnet-5-5-high"
   reasoning = "high"
 
 [profiles.pro.po]
-  model     = "claude-sonnet-5-5-medium"
-  reasoning = "medium"
+  model     = "claude-sonnet-5-5-low"
+  reasoning = "low"
 
-  # ==================== Pro+ ====================
+[profiles.pro.dev]
+  model     = "claude-sonnet-5-5-low"
+  reasoning = "max"
 
-[profiles.pro-plus.analyst]
-  model     = "claude-opus-5-5-high"
+[profiles.pro.reviewer]
+  model     = "claude-sonnet-5-5-high"
+  reasoning = "high"
+
+
+# ==================== Pro+ ====================
+
+[coordinator.pro-plus]
+  model     = "claude-sonnet-5-5-low"
   reasoning = "low"
 
 [profiles.pro-plus.pm]
   model     = "claude-sonnet-5-5-medium"
   reasoning = "medium"
 
-[profiles.pro-plus.ux]
-  model     = "claude-opus-5-5-high"
+[profiles.pro-plus.analyst]
+  model     = "claude-sonnet-5-5-low"
   reasoning = "low"
 
 [profiles.pro-plus.architect]
-  model     = "claude-opus-5-5-high"
-  reasoning = "medium"
+  model     = "claude-sonnet-5-5-high"
+  reasoning = "high"
+
+[profiles.pro-plus.ux]
+  model     = "claude-sonnet-5-5-high"
+  reasoning = "high"
+
+[profiles.pro-plus.po]
+  model     = "claude-sonnet-5-5-low"
+  reasoning = "low"
 
 [profiles.pro-plus.dev]
   model     = "claude-sonnet-5-5-medium"
   reasoning = "medium"
 
 [profiles.pro-plus.reviewer]
-  model     = "claude-opus-5-5-high"
-  reasoning = "medium"
+  model     = "claude-sonnet-5-5-high"
+  reasoning = "high"
 
-[profiles.pro-plus.po]
+
+# ==================== Ultra ====================
+
+[coordinator.ultra]
   model     = "claude-sonnet-5-5-medium"
   reasoning = "medium"
+
+[profiles.ultra.pm]
+  model     = "claude-sonnet-5-5-medium"
+  reasoning = "medium"
+
+[profiles.ultra.analyst]
+  model     = "claude-opus-5-5-low"
+  reasoning = "low"
+
+[profiles.ultra.architect]
+  model     = "claude-opus-5-5-medium"
+  reasoning = "medium"
+
+[profiles.ultra.ux]
+  model     = "claude-opus-5-5-low"
+  reasoning = "low"
+
+[profiles.ultra.po]
+  model     = "claude-sonnet-5-5-medium"
+  reasoning = "medium"
+
+[profiles.ultra.dev]
+  model     = "claude-sonnet-5-5-medium"
+  reasoning = "medium"
+
+[profiles.ultra.reviewer]
+  model     = "claude-opus-5-5-medium"
+  reasoning = "medium"
+
+
+# ==================== Ultra+ ====================
+
+[coordinator.ultra-plus]
+  model     = "claude-sonnet-5-5-high"
+  reasoning = "high"
+
+[profiles.ultra-plus.pm]
+  model     = "claude-sonnet-5-5-high"
+  reasoning = "high"
+
+[profiles.ultra-plus.analyst]
+  model     = "claude-opus-5-5-medium"
+  reasoning = "medium"
+
+[profiles.ultra-plus.architect]
+  model     = "claude-opus-5-5-high"
+  reasoning = "high"
+
+[profiles.ultra-plus.ux]
+  model     = "claude-opus-5-5-medium"
+  reasoning = "medium"
+
+[profiles.ultra-plus.po]
+  model     = "claude-sonnet-5-5-high"
+  reasoning = "high"
+
+[profiles.ultra-plus.dev]
+  model     = "claude-sonnet-5-5-high"
+  reasoning = "high"
+
+[profiles.ultra-plus.reviewer]
+  model     = "claude-opus-5-5-high"
+  reasoning = "high"

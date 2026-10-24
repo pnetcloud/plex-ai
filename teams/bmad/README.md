@@ -123,7 +123,8 @@ human gates, required verification and assignment resumption.
 
 Basic code review now has an explicit role override: Sol / medium for OpenAI,
 Sonnet / medium for Claude, and inherit / medium for native Google routing.
-Plus/Pro/Pro+ retain their existing dedicated reviewer settings. `inherit` uses the
+Plus/Pro/Pro+/Ultra/Ultra+ configure each role separately. Coordinator recommendations
+appear first within each tier; they do not become another team role. `inherit` uses the
 root session model and does not guarantee an upgrade; the inherit profile remains
 fully inherited. Google-Anthropic exact requested IDs retain their existing native
 routing limitation.
@@ -136,8 +137,8 @@ routing limitation.
 - [profiles/](profiles/) — models and reasoning settings.
 
 **The seven roles in this mapping are registered in team.toml and have native
-instructions and model profiles.** PO follows the PM model/effort settings in the
-named tiers. QA is dispatched through dev; reviewer owns standalone code review.
+instructions and model profiles.** PM and PO have independent model/effort settings
+in named tiers. QA is dispatched through dev; reviewer owns standalone code review.
 Existing project/user installations require an explicit refresh. The active BMad
 installation must provide bmad-agent-po and the selected workflows; a missing
 prerequisite blocks execution rather than falling back to an older workflow.

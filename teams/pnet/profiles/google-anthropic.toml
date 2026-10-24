@@ -1,93 +1,171 @@
-# Google-Anthropic model profiles for Antigravity (Claude on Antigravity)
-# Run Antigravity with `--model claude-sonnet-5-5-medium` (for Plus/Pro) or
-# `--model claude-opus-5-5-medium` / `claude-opus-5-5-high` (for Pro+).
-# These are requested model IDs, not native tier aliases. Native role installation
-# rejects unsupported IDs instead of silently inheriting the root model.
+# Claude model profiles for Antigravity
+# Sonnet low substitutes for Haiku, which is absent from this host catalog.
+# Exact model IDs require host support; unsupported IDs are rejected.
 host = "antigravity"
-# Basic shares settings; other tiers explicitly configure each team role.
+# Coordinator settings are main-chat recommendations only; never applied.
+# Basic shares defaults; other tiers configure each role.
 
 # ==================== Basic ====================
+
+[coordinator.basic]
+  model     = "claude-sonnet-5-5-low"
+  reasoning = "high"
 
 [profiles.basic]
   model     = "claude-sonnet-5-5-low"
   reasoning = "high"
 
-  # ==================== Plus ====================
+
+# ==================== Plus ====================
+
+[coordinator.plus]
+  model     = "claude-sonnet-5-5-low"
+  reasoning = "xhigh"
 
 [profiles.plus.pm]
-  model     = "claude-sonnet-5-5-medium"
-  reasoning = "low"
-
-[profiles.plus.dev]
   model     = "claude-sonnet-5-5-low"
-  reasoning = "max"
-
-[profiles.plus.reviewer]
-  model     = "claude-sonnet-5-5-medium"
-  reasoning = "medium"
-
+  reasoning = "low"
 
 [profiles.plus.explorer]
   model     = "claude-sonnet-5-5-low"
   reasoning = "high"
 
 [profiles.plus.researcher]
-  model     = "claude-sonnet-5-5-medium"
+  model     = "claude-sonnet-5-5-low"
   reasoning = "low"
+
+[profiles.plus.dev]
+  model     = "claude-sonnet-5-5-low"
+  reasoning = "xhigh"
+
+[profiles.plus.reviewer]
+  model     = "claude-sonnet-5-5-medium"
+  reasoning = "medium"
 
 [profiles.plus.qa]
   model     = "claude-sonnet-5-5-low"
   reasoning = "high"
 
-  # ==================== Pro ====================
+
+# ==================== Pro ====================
+
+[coordinator.pro]
+  model     = "claude-sonnet-5-5-low"
+  reasoning = "max"
 
 [profiles.pro.pm]
   model     = "claude-sonnet-5-5-medium"
   reasoning = "medium"
-
-[profiles.pro.dev]
-  model     = "claude-sonnet-5-5-medium"
-  reasoning = "max"
-
-[profiles.pro.reviewer]
-  model     = "claude-opus-5-5-medium"
-  reasoning = "high"
-
 
 [profiles.pro.explorer]
   model     = "claude-sonnet-5-5-low"
   reasoning = "high"
 
 [profiles.pro.researcher]
-  model     = "claude-sonnet-5-5-medium"
-  reasoning = "medium"
+  model     = "claude-sonnet-5-5-low"
+  reasoning = "low"
+
+[profiles.pro.dev]
+  model     = "claude-sonnet-5-5-low"
+  reasoning = "max"
+
+[profiles.pro.reviewer]
+  model     = "claude-sonnet-5-5-high"
+  reasoning = "high"
 
 [profiles.pro.qa]
   model     = "claude-sonnet-5-5-low"
   reasoning = "max"
 
-  # ==================== Pro+ ====================
+
+# ==================== Pro+ ====================
+
+[coordinator.pro-plus]
+  model     = "claude-sonnet-5-5-low"
+  reasoning = "low"
 
 [profiles.pro-plus.pm]
   model     = "claude-sonnet-5-5-medium"
   reasoning = "medium"
 
-[profiles.pro-plus.dev]
-  model     = "claude-sonnet-5-5-medium"
-  reasoning = "high"
-
-[profiles.pro-plus.reviewer]
-  model     = "claude-opus-5-5-high"
-  reasoning = "medium"
-
 [profiles.pro-plus.explorer]
-  model     = "claude-sonnet-5-5-medium"
+  model     = "claude-sonnet-5-5-low"
   reasoning = "low"
 
 [profiles.pro-plus.researcher]
+  model     = "claude-sonnet-5-5-low"
+  reasoning = "low"
+
+[profiles.pro-plus.dev]
   model     = "claude-sonnet-5-5-medium"
   reasoning = "medium"
 
-[profiles.pro-plus.qa]
-  model     = "claude-sonnet-5-5-medium"
+[profiles.pro-plus.reviewer]
+  model     = "claude-sonnet-5-5-high"
   reasoning = "high"
+
+[profiles.pro-plus.qa]
+  model     = "claude-sonnet-5-5-high"
+  reasoning = "high"
+
+
+# ==================== Ultra ====================
+
+[coordinator.ultra]
+  model     = "claude-sonnet-5-5-medium"
+  reasoning = "medium"
+
+[profiles.ultra.pm]
+  model     = "claude-sonnet-5-5-medium"
+  reasoning = "medium"
+
+[profiles.ultra.explorer]
+  model     = "claude-sonnet-5-5-medium"
+  reasoning = "medium"
+
+[profiles.ultra.researcher]
+  model     = "claude-opus-5-5-low"
+  reasoning = "low"
+
+[profiles.ultra.dev]
+  model     = "claude-sonnet-5-5-medium"
+  reasoning = "medium"
+
+[profiles.ultra.reviewer]
+  model     = "claude-opus-5-5-medium"
+  reasoning = "medium"
+
+[profiles.ultra.qa]
+  model     = "claude-sonnet-5-5-high"
+  reasoning = "high"
+
+
+# ==================== Ultra+ ====================
+
+[coordinator.ultra-plus]
+  model     = "claude-sonnet-5-5-high"
+  reasoning = "high"
+
+[profiles.ultra-plus.pm]
+  model     = "claude-sonnet-5-5-high"
+  reasoning = "high"
+
+[profiles.ultra-plus.explorer]
+  model     = "claude-sonnet-5-5-high"
+  reasoning = "high"
+
+[profiles.ultra-plus.researcher]
+  model     = "claude-opus-5-5-medium"
+  reasoning = "medium"
+
+[profiles.ultra-plus.dev]
+  model     = "claude-sonnet-5-5-high"
+  reasoning = "high"
+
+[profiles.ultra-plus.reviewer]
+  model     = "claude-opus-5-5-high"
+  reasoning = "high"
+
+[profiles.ultra-plus.qa]
+  model     = "claude-sonnet-5-5-high"
+  reasoning = "xhigh"

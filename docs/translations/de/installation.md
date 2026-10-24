@@ -146,7 +146,7 @@ Ausgelassene Einstellungen behalten ihre Werte. Jeder angewendete Preset speiche
 | Option | Zweck |
 |---|---|
 | `--team pnet / bmad` | Rollensatz; bei Neuinstallation pnet. |
-| `--model-profile PROFILE` | inherit, basic, plus, pro oder pro-plus. |
+| `--model-profile PROFILE` | inherit, basic, plus, pro, pro-plus, ultra oder ultra-plus. |
 | `--interaction MODE` | interactive, balanced (Standard) oder auto. |
 | `--max-agents N` | Positive Grenze unerledigter Plex-Aufträge; native Codex-Threadkapazität wird separat angezeigt. |
 

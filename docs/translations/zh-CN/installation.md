@@ -145,7 +145,7 @@ Codex 也可通过 `/plugins` 浏览器卸载插件。参见 [OpenAI 插件指�
 | 参数 | 用途 |
 |---|---|
 | `--team pnet / bmad` | 角色集合，新安装默认 pnet。 |
-| `--model-profile PROFILE` | inherit、basic、plus、pro 或 pro-plus。 |
+| `--model-profile PROFILE` | inherit、basic、plus、pro、pro-plus、ultra 或 ultra-plus。 |
 | `--interaction MODE` | interactive、balanced（默认）或 auto。 |
 | `--max-agents N` | 未完成 Plex 任务的正整数上限；Codex 原生线程容量会单独显示。 |
 

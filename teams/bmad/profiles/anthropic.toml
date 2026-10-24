@@ -1,65 +1,83 @@
 # Anthropic model profiles
 host = "claude"
+# Coordinator settings are main-chat recommendations only; never applied.
 # Basic shares defaults with a reviewer override; other tiers configure each role.
 
 # ==================== Basic ====================
+
+[coordinator.basic]
+  model     = "haiku"
+  reasoning = "high"
 
 [profiles.basic]
   model     = "haiku"
   reasoning = "high"
 
-# Basic review has an explicit role setting independent of implementation defaults.
 [profiles.basic.reviewer]
   model     = "sonnet"
   reasoning = "medium"
 
-  # ==================== Plus ====================
+
+# ==================== Plus ====================
+
+[coordinator.plus]
+  model     = "haiku"
+  reasoning = "xhigh"
+
+[profiles.plus.pm]
+  model     = "sonnet"
+  reasoning = "low"
 
 [profiles.plus.analyst]
   model     = "sonnet"
   reasoning = "low"
 
-[profiles.plus.pm]
+[profiles.plus.architect]
   model     = "sonnet"
   reasoning = "medium"
 
 [profiles.plus.ux]
   model     = "haiku"
-  reasoning = "max"
+  reasoning = "high"
 
-[profiles.plus.architect]
-  model     = "sonnet"
-  reasoning = "medium"
+[profiles.plus.po]
+  model     = "haiku"
+  reasoning = "high"
 
 [profiles.plus.dev]
   model     = "haiku"
-  reasoning = "max"
+  reasoning = "xhigh"
 
 [profiles.plus.reviewer]
   model     = "sonnet"
   reasoning = "medium"
 
-[profiles.plus.po]
-  model     = "sonnet"
-  reasoning = "medium"
 
-  # ==================== Pro ====================
+# ==================== Pro ====================
 
-[profiles.pro.analyst]
-  model     = "sonnet"
-  reasoning = "high"
+[coordinator.pro]
+  model     = "haiku"
+  reasoning = "max"
 
 [profiles.pro.pm]
   model     = "sonnet"
   reasoning = "medium"
 
-[profiles.pro.ux]
+[profiles.pro.analyst]
   model     = "sonnet"
-  reasoning = "high"
+  reasoning = "low"
 
 [profiles.pro.architect]
   model     = "sonnet"
   reasoning = "high"
+
+[profiles.pro.ux]
+  model     = "sonnet"
+  reasoning = "high"
+
+[profiles.pro.po]
+  model     = "sonnet"
+  reasoning = "low"
 
 [profiles.pro.dev]
   model     = "haiku"
@@ -69,36 +87,107 @@ host = "claude"
   model     = "sonnet"
   reasoning = "high"
 
-[profiles.pro.po]
+
+# ==================== Pro+ ====================
+
+[coordinator.pro-plus]
   model     = "sonnet"
-  reasoning = "medium"
-
-  # ==================== Pro+ ====================
-
-[profiles.pro-plus.analyst]
-  model     = "opus"
   reasoning = "low"
 
 [profiles.pro-plus.pm]
   model     = "sonnet"
   reasoning = "medium"
 
-[profiles.pro-plus.ux]
-  model     = "opus"
+[profiles.pro-plus.analyst]
+  model     = "sonnet"
   reasoning = "low"
 
 [profiles.pro-plus.architect]
-  model     = "opus"
-  reasoning = "medium"
+  model     = "sonnet"
+  reasoning = "high"
+
+[profiles.pro-plus.ux]
+  model     = "sonnet"
+  reasoning = "high"
+
+[profiles.pro-plus.po]
+  model     = "sonnet"
+  reasoning = "low"
 
 [profiles.pro-plus.dev]
   model     = "sonnet"
   reasoning = "medium"
 
 [profiles.pro-plus.reviewer]
+  model     = "sonnet"
+  reasoning = "high"
+
+
+# ==================== Ultra ====================
+
+[coordinator.ultra]
+  model     = "sonnet"
+  reasoning = "medium"
+
+[profiles.ultra.pm]
+  model     = "sonnet"
+  reasoning = "medium"
+
+[profiles.ultra.analyst]
+  model     = "opus"
+  reasoning = "low"
+
+[profiles.ultra.architect]
   model     = "opus"
   reasoning = "medium"
 
-[profiles.pro-plus.po]
+[profiles.ultra.ux]
+  model     = "opus"
+  reasoning = "low"
+
+[profiles.ultra.po]
   model     = "sonnet"
   reasoning = "medium"
+
+[profiles.ultra.dev]
+  model     = "sonnet"
+  reasoning = "medium"
+
+[profiles.ultra.reviewer]
+  model     = "opus"
+  reasoning = "medium"
+
+
+# ==================== Ultra+ ====================
+
+[coordinator.ultra-plus]
+  model     = "sonnet"
+  reasoning = "high"
+
+[profiles.ultra-plus.pm]
+  model     = "sonnet"
+  reasoning = "high"
+
+[profiles.ultra-plus.analyst]
+  model     = "opus"
+  reasoning = "medium"
+
+[profiles.ultra-plus.architect]
+  model     = "opus"
+  reasoning = "high"
+
+[profiles.ultra-plus.ux]
+  model     = "opus"
+  reasoning = "medium"
+
+[profiles.ultra-plus.po]
+  model     = "sonnet"
+  reasoning = "high"
+
+[profiles.ultra-plus.dev]
+  model     = "sonnet"
+  reasoning = "high"
+
+[profiles.ultra-plus.reviewer]
+  model     = "opus"
+  reasoning = "high"

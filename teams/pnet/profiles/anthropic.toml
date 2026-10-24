@@ -1,27 +1,28 @@
 # Anthropic model profiles
 host = "claude"
-# Basic shares settings; other tiers explicitly configure each team role.
+# Coordinator settings are main-chat recommendations only; never applied.
+# Basic shares defaults; other tiers configure each role.
 
 # ==================== Basic ====================
+
+[coordinator.basic]
+  model     = "haiku"
+  reasoning = "high"
 
 [profiles.basic]
   model     = "haiku"
   reasoning = "high"
 
-  # ==================== Plus ====================
+
+# ==================== Plus ====================
+
+[coordinator.plus]
+  model     = "haiku"
+  reasoning = "xhigh"
 
 [profiles.plus.pm]
   model     = "sonnet"
   reasoning = "low"
-
-[profiles.plus.dev]
-  model     = "haiku"
-  reasoning = "max"
-
-[profiles.plus.reviewer]
-  model     = "sonnet"
-  reasoning = "medium"
-
 
 [profiles.plus.explorer]
   model     = "haiku"
@@ -31,15 +32,36 @@ host = "claude"
   model     = "sonnet"
   reasoning = "low"
 
+[profiles.plus.dev]
+  model     = "haiku"
+  reasoning = "xhigh"
+
+[profiles.plus.reviewer]
+  model     = "sonnet"
+  reasoning = "medium"
+
 [profiles.plus.qa]
   model     = "haiku"
   reasoning = "high"
 
-  # ==================== Pro ====================
+
+# ==================== Pro ====================
+
+[coordinator.pro]
+  model     = "haiku"
+  reasoning = "max"
 
 [profiles.pro.pm]
   model     = "sonnet"
   reasoning = "medium"
+
+[profiles.pro.explorer]
+  model     = "haiku"
+  reasoning = "high"
+
+[profiles.pro.researcher]
+  model     = "sonnet"
+  reasoning = "low"
 
 [profiles.pro.dev]
   model     = "haiku"
@@ -49,31 +71,19 @@ host = "claude"
   model     = "sonnet"
   reasoning = "high"
 
-
-[profiles.pro.explorer]
-  model     = "haiku"
-  reasoning = "high"
-
-[profiles.pro.researcher]
-  model     = "sonnet"
-  reasoning = "medium"
-
 [profiles.pro.qa]
   model     = "haiku"
   reasoning = "max"
 
-  # ==================== Pro+ ====================
+
+# ==================== Pro+ ====================
+
+[coordinator.pro-plus]
+  model     = "sonnet"
+  reasoning = "low"
 
 [profiles.pro-plus.pm]
   model     = "sonnet"
-  reasoning = "medium"
-
-[profiles.pro-plus.dev]
-  model     = "sonnet"
-  reasoning = "high"
-
-[profiles.pro-plus.reviewer]
-  model     = "opus"
   reasoning = "medium"
 
 [profiles.pro-plus.explorer]
@@ -82,8 +92,78 @@ host = "claude"
 
 [profiles.pro-plus.researcher]
   model     = "sonnet"
+  reasoning = "low"
+
+[profiles.pro-plus.dev]
+  model     = "sonnet"
   reasoning = "medium"
+
+[profiles.pro-plus.reviewer]
+  model     = "sonnet"
+  reasoning = "high"
 
 [profiles.pro-plus.qa]
   model     = "sonnet"
   reasoning = "high"
+
+
+# ==================== Ultra ====================
+
+[coordinator.ultra]
+  model     = "sonnet"
+  reasoning = "medium"
+
+[profiles.ultra.pm]
+  model     = "sonnet"
+  reasoning = "medium"
+
+[profiles.ultra.explorer]
+  model     = "sonnet"
+  reasoning = "medium"
+
+[profiles.ultra.researcher]
+  model     = "opus"
+  reasoning = "low"
+
+[profiles.ultra.dev]
+  model     = "sonnet"
+  reasoning = "medium"
+
+[profiles.ultra.reviewer]
+  model     = "opus"
+  reasoning = "medium"
+
+[profiles.ultra.qa]
+  model     = "sonnet"
+  reasoning = "high"
+
+
+# ==================== Ultra+ ====================
+
+[coordinator.ultra-plus]
+  model     = "sonnet"
+  reasoning = "high"
+
+[profiles.ultra-plus.pm]
+  model     = "sonnet"
+  reasoning = "high"
+
+[profiles.ultra-plus.explorer]
+  model     = "sonnet"
+  reasoning = "high"
+
+[profiles.ultra-plus.researcher]
+  model     = "opus"
+  reasoning = "medium"
+
+[profiles.ultra-plus.dev]
+  model     = "sonnet"
+  reasoning = "high"
+
+[profiles.ultra-plus.reviewer]
+  model     = "opus"
+  reasoning = "high"
+
+[profiles.ultra-plus.qa]
+  model     = "sonnet"
+  reasoning = "xhigh"

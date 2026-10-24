@@ -22,7 +22,8 @@ managed blocks require resolution. Existing Codex overrides/fallbacks are respec
 do not create an override to mask user instructions or change fallback configuration.
 
 Teams are `<plugin-root>/teams/<team>/team.toml` (roles, process, skill bindings, default concurrency).
-The ordinary profile IDs are `inherit`, `basic`, `plus`, `pro` and `pro-plus`.
+Read ordinary profile IDs from the selected team's resolver catalog. Both teams
+provide `basic`, `plus`, `pro`, `pro-plus`, `ultra` and `ultra-plus`, plus `inherit`.
 Vendor-prefixed IDs such as `openai-plus` remain available for compatibility.
 The default standalone team is `pnet`; old `default` selections migrate on refresh.
 Model-named aliases were removed; use a shared tier for multi-client setup.
@@ -38,7 +39,7 @@ presets”, with their actual settings and host support; listing is read-only:
 python3 <skill-directory>/scripts/resolve_config.py list
 ```
 
-Shared tiers (`basic`, `plus`, `pro`, `pro-plus`) combine the selected team's
+Shared tiers available in the selected team's catalog combine that team's
 OpenAI, Anthropic and Google definitions for all clients under one `model_profile`.
 Vendor-specific IDs remain compatible with earlier configuration.
 

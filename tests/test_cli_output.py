@@ -53,7 +53,7 @@ class OutputTests(unittest.TestCase):
             self.assertIn("REASONING", text)
             self.assertIn("plex-dev", text)
             self.assertIn("Root coordinator · your main chat", text)
-            self.assertIn("gpt-6.1-sol / low", text)
+            self.assertIn("gpt-6-luna / xhigh", text)
             self.assertLess(text.index("Root coordinator"), text.index("SUBAGENT"))
             self.assertIn("$ codex plugin marketplace add", text)
             self.assertNotIn("<!-- plex:managed:start -->", text)
@@ -64,8 +64,10 @@ class OutputTests(unittest.TestCase):
         self.assertIn("$ plex --project '/a path/with spaces'", output.getvalue())
 
     def test_coordinator_guidance_follows_profile_without_becoming_a_role(self):
-        expected = {"basic": "gpt-6-luna / high", "plus": "gpt-6.1-sol / low",
-                    "pro": "gpt-6.1-sol / medium", "pro-plus": "gpt-6.1-sol / high"}
+        expected = {
+            "basic": "gpt-6-luna / high", "plus": "gpt-6-luna / xhigh",
+            "pro": "gpt-6-luna / max", "pro-plus": "gpt-6.1-sol / low",
+            "ultra": "gpt-6.1-sol / medium", "ultra-plus": "gpt-6.1-sol / high"}
         for team in ("pnet", "bmad"):
             for tier, text in expected.items():
                 for profile in (tier, f"openai-{tier}"):
