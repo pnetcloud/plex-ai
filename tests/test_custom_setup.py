@@ -51,18 +51,24 @@ class CustomSetupTests(unittest.TestCase):
                 options = ["--project", temp, "--client", "codex", "--roles-only", "--no-instructions"]
                 if action == "dry-run":
                     options.append("--dry-run")
-                with patch.object(SETUP.sys.stdin, "isatty", return_value=True), \
+                with patch.object(SETUP, "bmad_runtime_ready", return_value=True), \
+                        patch.object(SETUP, "run") as run, \
+                        patch.object(SETUP.sys.stdin, "isatty", return_value=True), \
                         patch.object(SETUP, "choose", side_effect=choose), \
                         patch.object(SETUP, "ask_text", side_effect=lambda label, default: default):
-                    self.assertEqual(SETUP.main(options), 0)
+                    self.assertEqual(SETUP.main(options), 0, output.getvalue())
                 self.assertIn("Reconfigure backs up edited managed roles", output.getvalue())
                 if action == "apply":
+                    run.assert_called_once_with([
+                        SETUP.sys.executable, str(root / "_bmad/scripts/resolve_config.py"),
+                        "--project-root", str(root)], root)
                     self.assertEqual(CONFIG.check_project(root, "codex")["status"], "in_sync")
                     self.assertEqual(tomllib.loads((root / ".plex/preset.toml").read_text())["model_profile"], "pro-plus")
                     for path, content in edited.items():
                         self.assertNotIn(b"# manual edit", path.read_bytes())
                         self.assertTrue(any(p.read_bytes() == content for p in (root / ".plex/backups").rglob(path.name)))
                 else:
+                    run.assert_not_called()
                     self.assertEqual((root / ".plex/preset.toml").read_bytes(), preset)
                     for path, content in edited.items():
                         self.assertEqual(path.read_bytes(), content)

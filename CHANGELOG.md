@@ -4,6 +4,11 @@ Important changes retained in Plex, grouped by release. Interfaces and configura
 may change before 1.0. Releases through v0.5.4 were previews; v0.5.5 and later are
 regular releases.
 
+## [0.12.2] — 2026-10-24
+
+- Include the Reconfigure role-replacement fix prepared for v0.12.1, whose publication was blocked by CI.
+- Isolate the new Reconfigure test from local BMad runtime availability so it exercises the same behavior on clean runners.
+
 ## [0.12.1] — 2026-10-24
 
 - Let interactive Reconfigure regenerate edited receipt-owned roles from the selected profile and preset overrides, instead of stopping before the installation plan.

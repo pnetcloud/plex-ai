@@ -36,6 +36,7 @@ English is the maintained source; translations mirror these filenames.
 
 | Version | Changes |
 |---|---|
+| [v0.12.2](releases/v0.12.2.md) | Reconfigure edited managed roles with verified backups. |
 | [v0.12.1](releases/v0.12.1.md) | Reconfigure edited managed roles with verified backups. |
 | [v0.12.0](releases/v0.12.0.md) | Six balanced model tiers for both teams. |
 | [Release notes](releases/v0.11.1.md) | v0.11.1: Managed native Codex child-thread capacity. |
