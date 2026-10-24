@@ -34,6 +34,7 @@ Englisch ist die gepflegte Quelle; Übersetzungen spiegeln die Dateinamen.
 
 | Version | Änderungen |
 |---|---|
+| [v0.12.1](releases/v0.12.1.md) | Geänderte Rollen mit geprüften Backups neu konfigurieren. |
 | [v0.12.0](releases/v0.12.0.md) | Sechs abgestimmte Modellstufen für beide Teams. |
 | [Versionshinweise](releases/v0.11.1.md) | v0.11.1: Verwaltung der nativen Codex-Kapazität für Kind-Threads. |
 | [Versionshinweise](releases/v0.11.0.md) | v0.11.0: Verwaltung der nativen Codex-Kapazität für Kind-Threads. |

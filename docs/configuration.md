@@ -18,6 +18,8 @@ Profiles describe settings, not measured quality levels.
 
 Both teams provide six named tiers plus `inherit`. Coordinator recommendations appear first within each tier in the provider files. Anthropic uses Haiku/Sonnet/Opus as approximate Luna/Sol/Astra counterparts; these are not measured equivalents. Google native profiles use Flash or inherit the main-chat model, with higher requested effort for Ultra tiers. Claude on Antigravity substitutes Sonnet for unavailable Haiku; exact model IDs require host support.
 
+Interactive **Reconfigure** shows edited receipt-owned role paths, backs up their previewed content and regenerates them from the selected profile and preset overrides. **Update only** still stops on manual edits. Missing or unmanaged files, symlinks, edited instruction blocks, client configuration conflicts and changes after preview remain protected. Put durable model choices in `.plex/preset.toml`.
+
 Edit `.plex/preset.toml` in the selected installation root:
 
 ```toml
@@ -175,7 +177,7 @@ change the host's fallback configuration or make it read an additional instructi
 
 Do not hand-edit generated roles or receipts. Foreign files, changed managed files,
 symlinks and concurrent applies block unsafe updates. Resolve the reported conflict
-before refreshing; retain backups.
+before refreshing; retain backups. Interactive Reconfigure can replace receipt-owned role edits as described above.
 
 ## Inspect without applying
 
@@ -199,4 +201,4 @@ For optional BMad review customization, follow the team's
 
 Plex-owned assignments use only exact `plex-<role>` names from the checked active team. Other installed or built-in agents are outside that team; workflow-owned leaves follow their workflow contract.
 
-Setup lists other `.toml` agents found in the selected scope and offers **Keep** (default) or **Move to backup**. They remain available to the client and can affect role selection. Only eligible files move to `.plex/backups/<timestamp>/codex/other-agents/`; restore a file manually from that directory if needed. Other scopes, symlinks and files referenced by explicit `config.toml` registrations are preserved. Edited managed roles remain conflicts.
+Setup lists other `.toml` agents found in the selected scope and offers **Keep** (default) or **Move to backup**. They remain available to the client and can affect role selection. Only eligible files move to `.plex/backups/<timestamp>/codex/other-agents/`; restore a file manually from that directory if needed. Other scopes, symlinks and files referenced by explicit `config.toml` registrations are preserved. Edited managed roles remain conflicts outside interactive Reconfigure.

@@ -17,6 +17,8 @@ Codex 的 OpenAI、Claude Code 的 Anthropic、Antigravity 的 Google 设置。
 
 两个团队均提供六个命名档位及 `inherit`。提供商文件在每个档位中先列出协调器建议。Haiku/Sonnet/Opus 大致对应 Luna/Sol/Astra，但并未验证质量等价。Google 原生配置使用 Flash 或继承主会话模型，Ultra 档位提高请求的推理强度。Antigravity 中的 Claude 使用 Sonnet 替代不可用的 Haiku；具体模型 ID 需要客户端支持。
 
+交互式 **Reconfigure** 显示被修改的受管角色路径，备份预览时核验的内容，并依据所选配置档及 preset 覆盖设置重新生成角色。**Update only** 仍会在发现手动修改时停止。缺失或非受管文件、符号链接、修改后的指令块、客户端配置冲突及预览后的变化仍受到保护。持久模型设置应写入 `.plex/preset.toml`。
+
 可编辑文件位于所选安装根目录的 `.plex/preset.toml`：
 
 ```toml
@@ -111,7 +113,7 @@ Antigravity 按 `GEMINI.md`、项目 `AGENTS.md` 的顺序。用户范围的 Cod
 | `.plex/backups/` | 被替换的文件和移除的角色备份 |
 
 不要手动编辑生成的角色或 receipt。无归属文件、被修改的托管文件、符号链接和并行应用操作
-会阻止不安全更新。刷新前解决报告的冲突，并保留备份。
+会阻止不安全更新。刷新前解决报告的冲突，并保留备份。交互式 Reconfigure 可按上述方式替换受管角色修改。
 
 ## 只读检查
 
@@ -133,7 +135,7 @@ python3 skills/plex-setup/scripts/resolve_config.py check /path/to/project --hos
 
 Plex 自有任务只使用已检查的活动团队中准确的 `plex-<role>` 名称。其他已安装或内置代理不属于该团队；工作流内部执行者遵循该工作流的约定。
 
-安装器列出所选范围内的其他 `.toml` 代理，提供**保留**（默认）或**移至备份**。这些代理对客户端仍可用，可能影响角色选择。可处理的文件移至 `.plex/backups/<timestamp>/codex/other-agents/`，需要时可从中手动恢复。其他范围、符号链接及在 `config.toml` 中显式注册的文件会被保留。被修改的托管角色仍会报告冲突。
+安装器列出所选范围内的其他 `.toml` 代理，提供**保留**（默认）或**移至备份**。这些代理对客户端仍可用，可能影响角色选择。可处理的文件移至 `.plex/backups/<timestamp>/codex/other-agents/`，需要时可从中手动恢复。其他范围、符号链接及在 `config.toml` 中显式注册的文件会被保留。在交互式 Reconfigure 之外，被修改的托管角色仍会报告冲突。
 
 ## 工作区与原生代理委派
 

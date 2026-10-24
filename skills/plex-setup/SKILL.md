@@ -97,8 +97,14 @@ markers. If instruction integration is declined, omit the flag; retain any exist
 managed block and report if it needs a refresh.
 
 The resolver handles conflicts, backups, retired roles, receipts and rollback.
-Stop on conflicts or unsupported model routing; never force-overwrite manual edits
-or substitute another model. Report other hosts needing refresh and inactive overrides.
+Interactive **Reconfigure** explicitly regenerates edited receipt-owned role files
+from the selected profile and preset overrides after showing their paths. It backs
+up their exact previewed content; changed-after-preview files still block apply.
+**Update only** retains the manual-edit conflict. This replacement never includes
+unmanaged roles, symlinks, instruction blocks or client configuration.
+Stop on remaining conflicts or unsupported model routing; never overwrite edits
+outside the previewed receipt-owned role replacement scope.
+Do not substitute another model. Report other hosts needing refresh and inactive overrides.
 Require overall and selected-host `in_sync` after applying. Report installed roles,
 remaining issues and any required host reload. File checks do not prove live model routing.
 

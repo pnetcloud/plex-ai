@@ -4,6 +4,12 @@ Important changes retained in Plex, grouped by release. Interfaces and configura
 may change before 1.0. Releases through v0.5.4 were previews; v0.5.5 and later are
 regular releases.
 
+## [0.12.1] — 2026-10-24
+
+- Let interactive Reconfigure regenerate edited receipt-owned roles from the selected profile and preset overrides, instead of stopping before the installation plan.
+- Show affected paths, verify backups of previewed content and reject edits after preview. Update only, unmanaged files, symlinks, instruction blocks and client configuration retain their conflict protection.
+- Cover Pro to Pro+ switching with edited Dev/Reviewer/UX roles, preview/cancellation, ownership, concurrency and team-switch archives.
+
 ## [0.12.0] — 2026-10-24
 
 - Add Ultra and Ultra+ to both pnet and BMad across all four provider recipes and shared client setup.

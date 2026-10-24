@@ -71,6 +71,13 @@ show them explicitly. Unknown roles are errors. Reset overrides only on request.
 An ordinary refresh preserves the source but resolves the currently installed team
 and profile definitions again, showing any changes before applying them.
 
+Choosing **Reconfigure** in the interactive installer authorizes regeneration of
+edited receipt-owned role files, with their paths shown in the plan and their
+previewed bytes backed up before replacement. Use preset role overrides for durable
+model choices. **Update only** still stops on manual edits. Missing files, unmanaged
+collisions, symlinks, edited instruction blocks and changed client configuration
+retain their conflict checks; edits after preview also stop apply.
+
 Legacy full presets with `process`, `roles`, `[skills]` and host overrides still
 work without `team`. Do not silently migrate them. On an explicit switch to a named
 team, show replacement of those three team fields by `team`; preserve concurrency

@@ -16,9 +16,10 @@ die OpenAI-Einstellungen für Codex, Anthropic für Claude Code und Google für 
 des gewählten Teams. `inherit` überlässt Modell/Effort dem Client.
 Profile beschreiben Einstellungen, keine gemessenen Qualitätsstufen.
 
-Beide Teams bieten sechs benannte Stufen sowie `inherit`. In den Anbieterdateien steht die Koordinator-Empfehlung zuerst in jeder Stufe. Haiku/Sonnet/Opus entsprechen ungefähr Luna/Sol/Astra; gleiche Qualität ist nicht nachgewiesen. Native Google-Profile verwenden Flash oder das Modell des Hauptchats; Ultra erhöht den angeforderten Effort. Claude in Antigravity verwendet Sonnet statt des nicht verfügbaren Haiku; genaue Modell-IDs benötigen Client-Unterstützung.
-
 Editierbare Datei im gewählten Installationsstamm: `.plex/preset.toml`.
+Interaktives **Reconfigure** zeigt geänderte verwaltete Rollenpfade, sichert deren geprüften Inhalt und erzeugt die Rollen aus dem gewählten Profil und den Preset-Überschreibungen neu. **Update only** stoppt weiterhin bei manuellen Änderungen. Fehlende oder fremde Dateien, Symlinks, geänderte Anweisungsblöcke, Client-Konflikte und Änderungen nach der Vorschau bleiben geschützt. Dauerhafte Modellwahl gehört in `.plex/preset.toml`.
+
+Beide Teams bieten sechs benannte Stufen sowie `inherit`. In den Anbieterdateien steht die Koordinator-Empfehlung zuerst in jeder Stufe. Haiku/Sonnet/Opus entsprechen ungefähr Luna/Sol/Astra; gleiche Qualität ist nicht nachgewiesen. Native Google-Profile verwenden Flash oder das Modell des Hauptchats; Ultra erhöht den angeforderten Effort. Claude in Antigravity verwendet Sonnet statt des nicht verfügbaren Haiku; genaue Modell-IDs benötigen Client-Unterstützung.
 ```toml
 team = "pnet"
 model_profile = "plus"
@@ -131,7 +132,7 @@ und erzwingt nicht das Lesen einer zusätzlichen Anweisungsdatei.
 
 Generierte Rollen/Receipts nicht manuell bearbeiten. Fremde oder geänderte verwaltete
 Dateien, Symlinks und parallele Applies blockieren unsichere Updates.
-Gemeldeten Konflikt vor dem Refresh lösen und Backups behalten.
+Gemeldeten Konflikt vor dem Refresh lösen und Backups behalten. Interaktives Reconfigure darf verwaltete Rollen wie oben beschrieben ersetzen.
 
 ## Ohne Anwendung prüfen
 
@@ -155,7 +156,7 @@ Normales Setup aktiviert sie nicht.
 
 Plex-Aufträge verwenden ausschließlich exakte `plex-<role>`-Namen des geprüften aktiven Teams. Andere installierte oder eingebaute Agenten gehören nicht dazu; Workflow-eigene Ausführende folgen dem jeweiligen Workflow-Vertrag.
 
-Setup zeigt andere `.toml`-Agenten im gewählten Geltungsbereich und bietet **Behalten** (Standard) oder **Ins Backup verschieben** an. Sie bleiben im Client verfügbar und können die Rollenwahl beeinflussen. Geeignete Dateien werden nach `.plex/backups/<timestamp>/codex/other-agents/` verschoben; bei Bedarf manuell daraus wiederherstellen. Andere Geltungsbereiche, Symlinks und explizit in `config.toml` registrierte Dateien bleiben erhalten. Geänderte verwaltete Rollen bleiben Konflikte.
+Setup zeigt andere `.toml`-Agenten im gewählten Geltungsbereich und bietet **Behalten** (Standard) oder **Ins Backup verschieben** an. Sie bleiben im Client verfügbar und können die Rollenwahl beeinflussen. Geeignete Dateien werden nach `.plex/backups/<timestamp>/codex/other-agents/` verschoben; bei Bedarf manuell daraus wiederherstellen. Andere Geltungsbereiche, Symlinks und explizit in `config.toml` registrierte Dateien bleiben erhalten. Außerhalb des interaktiven Reconfigure bleiben geänderte verwaltete Rollen Konflikte.
 
 ## Arbeitsverzeichnis und native Delegation
 

@@ -812,6 +812,36 @@ class ConfigTests(unittest.TestCase):
             self.assertIn("modified outside Plex", str(ctx.exception))
             self.assertIn("# local edit", worker_path.read_text())
 
+    def test_role_replacement_requires_owned_paths_and_exact_preview_hash(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            apply_project(root, "codex", team="bmad", model_profile="pro")
+            path = root / ".codex/agents/plex-dev.toml"
+            path.write_text(path.read_text() + "# edited\n")
+            digest = hashlib.sha256(path.read_bytes()).hexdigest()
+            approved = {".codex/agents/plex-dev.toml": digest}
+            path.write_text(path.read_text() + "# newer edit\n")
+            preset = (root / ".plex/preset.toml").read_bytes()
+            with self.assertRaisesRegex(ValueError, "modified outside Plex"):
+                apply_project(root, "codex", model_profile="pro-plus", replace_modified_roles=approved)
+            self.assertEqual((root / ".plex/preset.toml").read_bytes(), preset)
+            self.assertIn("# newer edit", path.read_text())
+            with self.assertRaisesRegex(ValueError, "Only previously managed"):
+                apply_project(root, "codex", replace_modified_roles={"AGENTS.md": digest})
+
+    def test_reconfigure_archives_modified_role_when_switching_teams(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            apply_project(root, "codex", team="bmad", model_profile="pro")
+            path = root / ".codex/agents/plex-ux.toml"
+            path.write_text(path.read_text() + "# custom UX\n")
+            edited = path.read_bytes()
+            apply_project(root, "codex", team="pnet", model_profile="pro-plus",
+                          replace_modified_roles={".codex/agents/plex-ux.toml": hashlib.sha256(edited).hexdigest()})
+            self.assertFalse(path.exists())
+            self.assertTrue(any(p.read_bytes() == edited for p in (root / ".plex/backups").rglob(path.name)))
+            self.assertEqual(check_project(root, "codex")["status"], "in_sync")
+
 
 if __name__ == "__main__":
     unittest.main()

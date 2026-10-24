@@ -28,6 +28,45 @@ MODELS = {
 
 
 class CustomSetupTests(unittest.TestCase):
+    def test_reconfigure_regenerates_modified_managed_roles_with_backups(self):
+        for action in ("dry-run", "cancel", "apply"):
+            with self.subTest(action=action), tempfile.TemporaryDirectory() as temp, \
+                    redirect_stdout(io.StringIO()) as output:
+                root = Path(temp)
+                CONFIG.apply_project(root, "codex", team="bmad", model_profile="pro")
+                edited = {}
+                for role in ("dev", "reviewer", "ux"):
+                    path = root / f".codex/agents/plex-{role}.toml"
+                    path.write_text(path.read_text() + "# manual edit\n")
+                    edited[path] = path.read_bytes()
+                preset = (root / ".plex/preset.toml").read_bytes()
+                def choose(label, choices, default):
+                    if label == "Existing Plex installation":
+                        return "configure"
+                    if label == "Model profile":
+                        return "pro-plus"
+                    if label == "Apply this plan?":
+                        return "no" if action == "cancel" else "yes"
+                    return default
+                options = ["--project", temp, "--client", "codex", "--roles-only", "--no-instructions"]
+                if action == "dry-run":
+                    options.append("--dry-run")
+                with patch.object(SETUP.sys.stdin, "isatty", return_value=True), \
+                        patch.object(SETUP, "choose", side_effect=choose), \
+                        patch.object(SETUP, "ask_text", side_effect=lambda label, default: default):
+                    self.assertEqual(SETUP.main(options), 0)
+                self.assertIn("Reconfigure backs up edited managed roles", output.getvalue())
+                if action == "apply":
+                    self.assertEqual(CONFIG.check_project(root, "codex")["status"], "in_sync")
+                    self.assertEqual(tomllib.loads((root / ".plex/preset.toml").read_text())["model_profile"], "pro-plus")
+                    for path, content in edited.items():
+                        self.assertNotIn(b"# manual edit", path.read_bytes())
+                        self.assertTrue(any(p.read_bytes() == content for p in (root / ".plex/backups").rglob(path.name)))
+                else:
+                    self.assertEqual((root / ".plex/preset.toml").read_bytes(), preset)
+                    for path, content in edited.items():
+                        self.assertEqual(path.read_bytes(), content)
+
     def test_ultra_tiers_preview_for_all_clients_without_writes(self):
         for team, tier in ((team, tier) for team in ("pnet", "bmad") for tier in ("ultra", "ultra-plus")):
             with self.subTest(tier=tier), tempfile.TemporaryDirectory() as temp, \

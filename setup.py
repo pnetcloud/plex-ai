@@ -1314,7 +1314,24 @@ def main(argv=None, *, shared_profile=False, selection=None, setup_mode=None):
                 config_root, args.scope, installed_record.get("routing"), resolved["max_agents"],
                 installed_record.get("capacity"),
             )
-        state = CONFIG.check_project(project, args.host, args.scope, max_agents=resolved["max_agents"])
+        replace_modified_roles = {}
+        if setup_mode == "configure":
+            for client, record in receipt["hosts"].items():
+                if client != args.host and not (shared_profile and args.scope == "project"):
+                    continue
+                replacements = {}
+                for info in record.get("files", {}).values():
+                    path = CONFIG._ensure_safe_project_path(config_root, info["relpath"])
+                    if path.is_file():
+                        digest = CONFIG.sha256_bytes(path.read_bytes())
+                        if digest != info["sha256"]:
+                            replacements[info["relpath"]] = digest
+                            field("Regenerate", info["relpath"], "warn")
+                replace_modified_roles[client] = replacements
+            if any(replace_modified_roles.values()):
+                notice("Reconfigure backs up edited managed roles and regenerates them from the selected profile and preset overrides.", "warn")
+        state = CONFIG.check_project(project, args.host, args.scope, max_agents=resolved["max_agents"],
+                                     replace_modified_roles=replace_modified_roles)
         if archive_agents:
             ignored = {f"Unmanaged file collision: {path} is not owned by .plex/applied.json" for path in archive_agents}
             state["conflicts"] = [item for item in state["conflicts"] if item not in ignored]
@@ -1459,11 +1476,13 @@ def main(argv=None, *, shared_profile=False, selection=None, setup_mode=None):
             result = CONFIG.apply_project(project, args.host, args.team, args.model_profile,
                                           max_agents=args.max_agents, host_overrides=host_overrides, interaction=args.interaction,
                                           scope=args.scope, instructions=args.instructions, archive_agents=archive_agents,
-                                          expected_routing_plan=capacity_preview)
+                                          expected_routing_plan=capacity_preview,
+                                          replace_modified_roles=replace_modified_roles.get(args.host))
         for client in refresh_clients:
             if client != args.host:
                 other_instructions = bool(receipt["hosts"][client].get("instructions")) if setup_mode == "refresh" else args.instructions
-                CONFIG.apply_project(project, client, scope=args.scope, instructions=other_instructions)
+                CONFIG.apply_project(project, client, scope=args.scope, instructions=other_instructions,
+                                     replace_modified_roles=replace_modified_roles.get(client))
         for client in refresh_clients:
             if CONFIG.check_project(project, client, args.scope)["status"] != "in_sync":
                 raise ValueError(f"Post-install check failed for client {client}")

@@ -946,6 +946,7 @@ def _inspect_host_state(
     scope="project",
     archive_agents=None,
     capacity_limit=None,
+    replace_modified_roles=None,
 ) -> dict:
     extension = "toml" if host == "codex" else "md"
     agents_rel = host_agents_relpath(host, scope)
@@ -1007,7 +1008,7 @@ def _inspect_host_state(
             conflicts.append(
                 f"Previously managed role file is missing: {info['relpath']}"
             )
-        elif existing_plex_files[role] != info["sha256"]:
+        elif existing_plex_files[role] != (replace_modified_roles or {}).get(info["relpath"], info["sha256"]):
             conflicts.append(
                 f"Previously managed role file was modified outside Plex: {info['relpath']}"
             )
@@ -1090,7 +1091,8 @@ def _inspect_host_state(
     }
 
 
-def check_project(project_root: Path, host: str | None = None, scope="project", max_agents=None) -> dict:
+def check_project(project_root: Path, host: str | None = None, scope="project", max_agents=None,
+                  replace_modified_roles=None) -> dict:
     if scope in {"user", "auto"} and host not in HOSTS:
         raise ValueError("User/auto scope requires a host")
     project_root = Path(project_root)
@@ -1146,6 +1148,7 @@ def check_project(project_root: Path, host: str | None = None, scope="project", 
         host_reports[h] = _inspect_host_state(
             project_root, h, resolved, source_sha256, receipt["hosts"].get(h), scope,
             capacity_limit=max_agents if h == host else None,
+            replace_modified_roles=(replace_modified_roles or {}).get(h),
         )
 
     for h in HOSTS:
@@ -1380,7 +1383,7 @@ def other_codex_agents(root, roles, scope="project"):
 
 def apply_project(project_root, host, team=None, model_profile=None, max_agents=None, reset_overrides=False,
                   host_overrides=None, scope="project", instructions=False, interaction=None, archive_agents=None,
-                  expected_routing_plan=None):
+                  expected_routing_plan=None, replace_modified_roles=None):
     project_root = installation_root(Path(project_root), host, scope)
     lock = _ensure_safe_project_path(project_root, ".plex/.apply.lock")
     lock.parent.mkdir(parents=True, exist_ok=True)
@@ -1391,7 +1394,8 @@ def apply_project(project_root, host, team=None, model_profile=None, max_agents=
         raise ValueError("Another apply holds .plex/.apply.lock; inspect the owning process before recovery") from None
     try:
         return _apply_project(project_root, host, team, model_profile, max_agents, reset_overrides, host_overrides,
-                              scope, instructions, interaction, archive_agents, expected_routing_plan)
+                              scope, instructions, interaction, archive_agents, expected_routing_plan,
+                              replace_modified_roles)
     finally:
         lock.unlink()
 
@@ -1409,6 +1413,7 @@ def _apply_project(
     interaction: str | None = None,
     archive_agents: dict | None = None,
     expected_routing_plan: dict | None = None,
+    replace_modified_roles: dict | None = None,
 ) -> dict:
     if host not in HOSTS:
         raise ValueError(f"Unknown host: {host!r}")
@@ -1473,9 +1478,14 @@ def _apply_project(
         available = other_codex_agents(project_root, resolved["roles"], scope)
         if any(digest is None or path not in available or available[path] != digest for path, digest in archive_agents.items()):
             raise ValueError("Other Codex agents changed after preview; review and retry")
+    replace_modified_roles = replace_modified_roles or {}
+    owned_files = receipt["hosts"].get(host, {}).get("files", {})
+    if set(replace_modified_roles) - {item["relpath"] for item in owned_files.values()}:
+        raise ValueError("Only previously managed role files can be replaced")
     host_state = _inspect_host_state(
         project_root, host, resolved, source_sha256, receipt["hosts"].get(host), scope,
         archive_agents, capacity_limit=resolved["max_agents"],
+        replace_modified_roles=replace_modified_roles,
     )
     if host_state["conflicts"]:
         raise ValueError("; ".join(host_state["conflicts"]))
@@ -1505,6 +1515,10 @@ def _apply_project(
     if routing_plan:
         paths.add(routing_plan["path"])
     transaction = _ApplyTransaction(project_root, paths)
+    for relpath, digest in replace_modified_roles.items():
+        current = transaction.original[_ensure_safe_project_path(project_root, relpath)]
+        if current is None or sha256_bytes(current) != digest:
+            raise ValueError("Managed role changed after preview; review and retry")
     if routing_plan and transaction.original[routing_plan["path"]] != routing_plan["before"]:
         raise ValueError("Codex config changed after planning; review and retry")
     if instruction_plan and transaction.original[instruction_plan["path"]] != instruction_plan["before"]:
@@ -1535,6 +1549,12 @@ def _apply_project(
                 backup_dir = _create_backup_dir(project_root, host)
             return backup_dir
 
+        for relpath in replace_modified_roles:
+            path = _ensure_safe_project_path(project_root, relpath)
+            digest = _atomic_write_bytes(ensure_backup() / path.name, transaction.original[path])
+            if digest != replace_modified_roles[relpath]:
+                raise ValueError(f"Backup verification failed for {relpath}")
+
         if existing_preset_bytes is not None and existing_preset_bytes != candidate_preset_bytes:
             if preset_path.read_bytes() != existing_preset_bytes:
                 raise ValueError("Concurrent modification detected on .plex/preset.toml")
@@ -1560,12 +1580,13 @@ def _apply_project(
             relpath = old_files[role]["relpath"]
             role_path = _ensure_safe_project_path(project_root, relpath)
             current_bytes = role_path.read_bytes()
-            if sha256_bytes(current_bytes) != old_files[role]["sha256"]:
+            expected_hash = replace_modified_roles.get(relpath, old_files[role]["sha256"])
+            if sha256_bytes(current_bytes) != expected_hash:
                 raise ValueError(f"Concurrent modification detected on retired role {relpath}")
             bdir = ensure_backup()
             backup_target = bdir / role_path.name
             transaction.archive(role_path, backup_target)
-            if sha256_bytes(backup_target.read_bytes()) != old_files[role]["sha256"]:
+            if sha256_bytes(backup_target.read_bytes()) != expected_hash:
                 raise ValueError(f"Archive verification failed for {relpath}")
             archived_roles.append(role)
 
@@ -1578,7 +1599,7 @@ def _apply_project(
             if role_path.is_file():
                 current_bytes = role_path.read_bytes()
                 current_hash = sha256_bytes(current_bytes)
-                if role in old_files and current_hash != old_files[role]["sha256"]:
+                if role in old_files and current_hash != replace_modified_roles.get(item["relpath"], old_files[role]["sha256"]):
                     raise ValueError(f"Concurrent modification detected on {item['relpath']}")
                 if current_bytes != target_bytes:
                     bdir = ensure_backup()
