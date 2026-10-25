@@ -84,6 +84,17 @@ These routes assign work; BMad retains its procedures and checkpoints.
 - If fixes are authorized: assign dev, then verify affected findings.
 - Repeat full review only for a material new change or uncovered risk.
 
+## 5. CI, release or deployment
+
+**Use:** CI/CD changes, release preparation/publication, or explicitly assigned deployment/recovery.
+
+`coordinator → PM intake → required decisions → devops → required checks/review → coordinator`
+
+- DevOps owns the assigned pipeline/release/deployment paths; application fixes remain with dev. Use reviewer for required independent review.
+- Pass the exact source SHA/artifact, target, project procedure, checks and existing authorization. Publication and deployment are separate operations.
+- DevOps is a native Plex specialist in both teams; do not require a BMad persona or invent a workflow binding for it.
+- Reuse valid checks for the same revision. Verify publication, installation and runtime state separately; inspect state after interrupted operations before retrying.
+
 ## Revisit the route
 
 | Change | Consult |

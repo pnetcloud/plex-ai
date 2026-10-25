@@ -8,8 +8,8 @@
 
 | 团队 | 角色 | 工作方式 |
 |---|---|---|
-| `pnet` | pm, explorer, researcher, dev, reviewer, qa | 独立协调 |
-| `bmad` | analyst, pm, po, ux, architect, dev, reviewer | 使用已有 BMad 技能 |
+| `pnet` | pm, explorer, researcher, dev, reviewer, qa, devops | 独立协调 |
+| `bmad` | analyst, pm, po, ux, architect, dev, reviewer, devops | 使用已有 BMad 技能 |
 
 配置档包括 `inherit`、`basic`、`plus`、`pro`、`pro-plus`、`ultra`、`ultra-plus`。共享档位使用所选团队中适用于
 Codex 的 OpenAI、Claude Code 的 Anthropic、Antigravity 的 Google 设置。

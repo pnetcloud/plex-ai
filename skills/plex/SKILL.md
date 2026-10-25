@@ -29,6 +29,7 @@ Select the checked native `plex-<role>` for each Plex-owned assignment:
 | Other hosts | Use the exposed native role selector |
 
 - Preserve configured model/effort unless the user overrides them.
+- Route assigned CI, release and deployment work through the checked `plex-devops` after PM intake; use the operational route in `references/task-flows.md`. Release authority does not imply deployment authority.
 - For Plex-owned assignments, allow only exact `plex-<role>` identities listed in the checked `.plex/resolved.json` `roles`. Ignore all other installed, built-in or stale agents, even if their names or descriptions fit. A `plex-` prefix alone is insufficient. This applies to delegated Plex-owned assignments too; workflow-owned leaves keep their explicit workflow contract.
 - Inspect the actual native role selector as described in preflight. A hidden selector is not a missing role; a missing displayed inventory is not proof of absence. Installed files do not prove routing.
 - Missing role or unsupported user override: report the mismatch and block dependent work. Local continuation is limited to intake context, status, integration, final checks and already authorized mechanical actions; do not implement or make the missing specialist's decisions.

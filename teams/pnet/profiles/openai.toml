@@ -44,6 +44,9 @@ host = "codex"
   model     = "gpt-6-luna"
   reasoning = "high"
 
+[profiles.plus.devops]
+  model     = "gpt-6.1-sol"
+  reasoning = "medium"
 
 # ==================== Pro ====================
 
@@ -75,6 +78,9 @@ host = "codex"
   model     = "gpt-6-luna"
   reasoning = "max"
 
+[profiles.pro.devops]
+  model     = "gpt-6.1-sol"
+  reasoning = "high"
 
 # ==================== Pro+ ====================
 
@@ -106,6 +112,9 @@ host = "codex"
   model     = "gpt-6.1-sol"
   reasoning = "high"
 
+[profiles.pro-plus.devops]
+  model     = "gpt-6.1-sol"
+  reasoning = "high"
 
 # ==================== Ultra ====================
 
@@ -137,6 +146,9 @@ host = "codex"
   model     = "gpt-6.1-sol"
   reasoning = "high"
 
+[profiles.ultra.devops]
+  model     = "gpt-6-astra"
+  reasoning = "medium"
 
 # ==================== Ultra+ ====================
 
@@ -167,3 +179,6 @@ host = "codex"
 [profiles.ultra-plus.qa]
   model     = "gpt-6.1-sol"
   reasoning = "xhigh"
+[profiles.ultra-plus.devops]
+  model     = "gpt-6-astra"
+  reasoning = "high"

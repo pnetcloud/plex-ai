@@ -20,7 +20,7 @@ SPEC = importlib.util.spec_from_file_location("plex_package_installer", ROOT / "
 INSTALLER = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(INSTALLER)
 ALL_ROLES = (
-    "analyst", "pm", "po", "ux", "architect", "dev", "qa", "reviewer", "explorer", "researcher",
+    "analyst", "pm", "po", "ux", "architect", "dev", "qa", "reviewer", "explorer", "researcher", "devops",
 )
 
 
@@ -163,7 +163,7 @@ class PackageTests(unittest.TestCase):
                                 if host == "antigravity":
                                     self.assertIsInstance(data["tools"], list)
                 if preset["process"] == "bmad":
-                    self.assertEqual(set(preset["skills"]), set(preset["roles"]))
+                    self.assertEqual(set(preset["skills"]), set(preset["roles"]) - {"devops"})
                     for bindings in preset["skills"].values():
                         self.assertTrue(bindings)
                         self.assertEqual(len(bindings), len(set(bindings)))
@@ -340,7 +340,7 @@ class PackageTests(unittest.TestCase):
             self.assertEqual(agents_val.returncode, 0, agents_val.stderr or agents_val.stdout)
             agents_data = json.loads(agents_val.stdout)
             self.assertEqual(agents_data["findings"], [])
-            self.assertEqual(agents_data["components"]["agents"], 7)
+            self.assertEqual(agents_data["components"]["agents"], 8)
 
 
 if __name__ == "__main__":

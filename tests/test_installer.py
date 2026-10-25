@@ -212,7 +212,7 @@ class InstallerTests(unittest.TestCase):
                 self.assertIn(["claude", "plugin", "install", "pnet-plex@pnet-plex", "--scope", "user"],
                               [call.args[0] for call in run.call_args_list])
                 self.assertEqual((home / ".local/bin/plex").resolve(), ROOT / "setup.sh")
-                self.assertEqual(len(list((project / ".claude/agents").glob("plex-*.md"))), 6)
+                self.assertEqual(len(list((project / ".claude/agents").glob("plex-*.md"))), 7)
                 self.assertTrue((project / "CLAUDE.md").read_text().startswith("Personal rules.\n"))
                 self.assertFalse((project / "skills").exists())
                 before = {p.relative_to(project): p.read_bytes() for p in project.rglob('*') if p.is_file()}
@@ -431,7 +431,7 @@ class InstallerTests(unittest.TestCase):
                                                      "--team", "bmad", "--roles-only", "--no-instructions"]), 0)
                     if answer == "yes":
                         install.assert_called_once_with(project, "codex")
-                        self.assertEqual(len(list((project / ".codex/agents").glob("plex-*.toml"))), 7)
+                        self.assertEqual(len(list((project / ".codex/agents").glob("plex-*.toml"))), 8)
                     else:
                         install.assert_not_called()
                         self.assertEqual(list(project.iterdir()), [])
@@ -602,7 +602,7 @@ class InstallerTests(unittest.TestCase):
             self.assertTrue((project / ".plex/applied.json").is_file())
             self.assertEqual(
                 {path.stem for path in (project / ".codex/agents").glob("*.toml")},
-                {"plex-pm", "plex-explorer", "plex-researcher", "plex-dev", "plex-reviewer", "plex-qa"},
+                {"plex-pm", "plex-explorer", "plex-researcher", "plex-dev", "plex-reviewer", "plex-qa", "plex-devops"},
             )
 
     @unittest.skipUnless(shutil.which("codex") and shutil.which("agy"), "Codex and Antigravity CLIs required")
@@ -623,8 +623,8 @@ class InstallerTests(unittest.TestCase):
                 self.assertIn('All selected clients are in sync', result.stdout)
                 if before:
                     self.assertEqual(before, {p.relative_to(project):p.read_bytes() for p in project.rglob('*') if p.is_file()})
-            self.assertEqual(len(list((project / '.codex/agents').glob('plex-*.toml'))), 6)
-            self.assertEqual(len(list((project / '.agents/agents').glob('plex-*.md'))), 6)
+            self.assertEqual(len(list((project / '.codex/agents').glob('plex-*.toml'))), 7)
+            self.assertEqual(len(list((project / '.agents/agents').glob('plex-*.md'))), 7)
             self.assertEqual((root / '.local/bin/plex').resolve(), ROOT / 'setup.sh')
 
     @unittest.skipUnless(shutil.which("agy"), "Antigravity CLI unavailable")
@@ -646,7 +646,7 @@ class InstallerTests(unittest.TestCase):
             self.assertTrue((project / ".plex/applied.json").is_file())
             self.assertEqual(
                 {path.stem for path in (project / ".agents/agents").glob("*.md")},
-                {"plex-pm", "plex-explorer", "plex-researcher", "plex-dev", "plex-reviewer", "plex-qa"},
+                {"plex-pm", "plex-explorer", "plex-researcher", "plex-dev", "plex-reviewer", "plex-qa", "plex-devops"},
             )
 
 

@@ -91,8 +91,8 @@ Gemini models through Antigravity do not imply Gemini CLI support.
 
 | Team | Specialists | Best starting point |
 |---|---|---|
-| **pnet** | PM, explorer, researcher, dev, reviewer, QA | General development; no BMad required |
-| **bmad** | Analyst, PM, PO, UX, architect, dev, reviewer | Work using installed BMad workflows |
+| **pnet** | PM, explorer, researcher, dev, reviewer, QA, DevOps | General development; no BMad required |
+| **bmad** | Analyst, PM, PO, UX, architect, dev, reviewer, DevOps | Work using installed BMad workflows |
 
 Profiles: **Inherit · Basic · Plus · Pro · Pro+ · Ultra · Ultra+**. They configure subagents; the
 main-chat model remains your choice. Setup shows a profile-specific coordinator

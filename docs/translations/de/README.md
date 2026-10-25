@@ -97,8 +97,8 @@ Installation startet keine Koordination. `plex-setup` konfiguriert; `plex` koord
 
 | Team | Zweck |
 |---|---|
-| **pnet** | Allgemeine Entwicklung: PM, explorer, researcher, dev, reviewer und QA; ohne BMad |
-| **bmad** | Installierte BMad-Personas und Workflows; Setup bietet ausgewählte Abhängigkeiten und Projektinitialisierung |
+| **pnet** | Allgemeine Entwicklung: PM, explorer, researcher, dev, reviewer, QA und DevOps; ohne BMad |
+| **bmad** | Installierte BMad-Personas und Workflows plus nativer DevOps; Setup bietet ausgewählte Abhängigkeiten und Projektinitialisierung |
 
 **Inherit, Basic, Plus, Pro, Pro+, Ultra und Ultra+** konfigurieren Subagenten. Das Hauptchatmodell wählst du; Setup zeigt eine profilabhängige Empfehlung. Siehe [Konfiguration](configuration.md).
 

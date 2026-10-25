@@ -1,4 +1,4 @@
 # Team only; choose models and reasoning through a separate model profile.
 process = "plain"
-roles = ["pm", "explorer", "researcher", "dev", "reviewer", "qa"]
+roles = ["pm", "explorer", "researcher", "dev", "reviewer", "qa", "devops"]
 max_agents = 3

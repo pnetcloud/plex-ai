@@ -1,6 +1,6 @@
 # Team only; choose models and reasoning through a separate model profile.
 process = "bmad"
-roles = ["analyst", "pm", "po", "ux", "architect", "dev", "reviewer"]
+roles = ["analyst", "pm", "po", "ux", "architect", "dev", "reviewer", "devops"]
 max_agents = 4
 
 [skills]

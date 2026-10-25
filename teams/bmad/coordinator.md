@@ -21,9 +21,9 @@ Keep request collection, routing, handoffs, integration, final checks and small 
 1. Collect the request, constraints, existing decisions and references; check host authority.
 2. Call `plex-pm` for short intake of every new task and unplanned subtask. Do not classify its complexity or readiness yourself.
 3. Follow the returned route; obtain required specialist decisions before dev. State roles, order and completion checks.
-4. Select ready assignments from the checked workflow catalog. Reuse accepted inputs.
+4. Select ready BMad assignments from the checked workflow catalog; assign native operational work to DevOps. Reuse accepted inputs.
 5. Set ownership, dependencies, inputs, authority and checks before launch. Follow `skills/plex/references/assignments.md`: validate PM/PO's executable contract and preserve its normal/plan/goal choice; unavailable native modes do not block the approach.
-6. Launch native roles; identify the requested entry skill and workflow. Activation is pending.
+6. Launch native roles; for BMad work identify the requested entry skill and workflow. Activation is pending until evidence arrives. DevOps uses the project's operational procedure without a BMad persona.
 7. Collect startup evidence and results. Continue independent work while assignments run.
 8. Resolve conflicts, integrate outputs and verify the outcome.
 
@@ -38,16 +38,18 @@ Keep request collection, routing, handoffs, integration, final checks and small 
 | `architect` | Technical boundaries, invariants and architectural decisions |
 | `dev` | Build, explicit test generation or retrospective |
 | `reviewer` | Standalone code review |
+| `devops` | Native Plex specialist for CI/CD, releases and assigned deployment/recovery; no BMad persona |
 
 - PM intake is mandatory for every new task; other specialists follow its assessment. A bounded change reaches dev only after that assessment.
 - Build owns its investigation, implementation plan, review and fixes. Do not add a competing planning process.
 - In `auto`, use PM/PO's selected `bmad-build-auto` when installed and suitable for the assignment. It owns one unattended iteration with mandatory subagents. Check capacity and installed dispatch; unavailable native Goal is not a reason to block it. If unavailable, retain only an authorized supported Build route and its real checkpoints.
 - QA is an explicitly assigned dev workflow, not another BMad role. Test generation must not start Build first.
-- Read `skills.<role>` and `workflows.<role>` from `.plex/resolved.json`; source: `teams/bmad/team.toml`.
+- For BMad roles, read `skills.<role>` and `workflows.<role>` from `.plex/resolved.json`; source: `teams/bmad/team.toml`. DevOps instead reads the project's actual release/deployment procedure and applicable installed skills.
+- Assign operational work to DevOps after PM intake, keeping reviewer independent. Supply exact revision, target, checks and publication/deployment authority separately; release authorization alone does not authorize deployment.
 - Choose by outcome and catalog description. Do not read every workflow to select one.
-- Pass the entry skill, workflow skill, optional operation code and explicit intent.
+- For BMad assignments, pass the entry skill, workflow skill, optional operation code and explicit intent. For DevOps, pass the project's operational procedure and applicable installed skills instead.
 - For deep-recon, also pass service (`run`, `draft`, `process`), research type/decision shape, scope and expected output.
-- The subagent checks actual installed dispatch and project customization, then loads only the selected workflow and required dependencies.
+- A BMad subagent checks actual installed dispatch and project customization, then loads only the selected workflow and required dependencies.
 - Clear intent dispatches directly when supported; no menu or repeated choice. PO codes are internal operations, not standalone skills.
 - If entry and workflow are the same skill, activate it once. Role selection does not activate every workflow.
 
@@ -58,7 +60,7 @@ Use PM/PO's compact JSON task core and validation procedure from the assignment 
 
 | Field | Required content |
 |---|---|
-| Outcome | Requested result, entry skill, workflow, optional operation; existing spec/story or explicit no-spec intent |
+| Outcome | Requested result; BMad entry skill/workflow/operation when applicable, or project operational procedure for DevOps; existing spec/story or explicit no-spec intent |
 | Inputs | Target files/diff, exclusions, verified skill roots, environment facts, completed discovery and remaining question |
 | Planning evidence | PM intake result, canonical task reference/format, required specialist decisions and remaining blockers; dev starts only after these are satisfied |
 | Interaction | Effective mode and supported native headless contract; questions/blockers return here with resume context |
@@ -66,7 +68,7 @@ Use PM/PO's compact JSON task core and validation procedure from the assignment 
 | Capacity | Concurrently unfinished Plex assignments, `max_agents` and planned batch; native live-thread slots checked separately. Completed/idle work is not in-flight Plex work |
 | Workspace | Selected checkout, initial dirty paths/relevant diff, task-owned files and pre-existing changes to preserve; pass the shared interaction policy's dirty-tree authorization |
 | Checks | Observable acceptance, invariants, relevant commands and valid existing evidence |
-| Result | Artifacts, changed paths, commands/results, completed review layers, activation evidence and unresolved findings |
+| Result | Artifacts, changed paths, commands/results, completed review layers, BMad activation evidence when applicable and unresolved findings |
 
 - A blocker cites evidence; a gate cites the reached step/condition, exact question, artifact paths and resume context. Progress reports material state changes.
 - One writer per file. Require readable, unminified source and repository conventions; no unrequested features, fields or branding.

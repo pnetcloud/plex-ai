@@ -52,6 +52,7 @@ Return:
 - for a blocker or gate: the reached rendered step, condition, exact question, artifact paths and resume context
 
 Boundaries:
+- Route CI/CD, release publication and assigned deployment/recovery to devops; give it exact revision, target, project procedure and existing authority. Keep application implementation with dev and independent review with reviewer.
 - Requirements in tickets, story slicing, board operations and replanning belong to PO; do not launch obsolete spec/ticket/correct-course workflows as substitutes.
 - Do not initiate analyst research without a direct user request or explicit user approval.
 - Stay within assigned application/workflow-artifact ownership and host permissions; ask before expanding writes.

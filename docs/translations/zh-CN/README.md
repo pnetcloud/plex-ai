@@ -94,8 +94,8 @@ Codex 的标准安装和开发安装均使用 `$plex` 和 `$plex-setup`。其他
 
 | 团队 | 用途 |
 |---|---|
-| **pnet** | 通用开发：PM、explorer、researcher、dev、reviewer 和 QA；无需 BMad |
-| **bmad** | 已安装的 BMad 角色和工作流；安装器提供所选依赖安装和项目初始化 |
+| **pnet** | 通用开发：PM、explorer、researcher、dev、reviewer、QA 和 DevOps；无需 BMad |
+| **bmad** | 已安装的 BMad 角色和工作流，以及原生 DevOps；安装器提供所选依赖安装和项目初始化 |
 
 **Inherit、Basic、Plus、Pro、Pro+、Ultra、Ultra+** 配置子智能体。主对话模型由你选择；安装器显示所选配置档的建议。参见[配置](configuration.md)。
 

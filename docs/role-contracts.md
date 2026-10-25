@@ -68,7 +68,7 @@ Required technical decisions go to architect in BMad or PM in pnet before dev. A
 Every new Plex task starts with a short route: outcome, needed roles, execution
 order and completion check. The root coordinates; it delegates substantial
 planning and implementation to the owning roles. The skill's
-[task flows](../skills/plex/references/task-flows.md) define four routes:
+[task flows](../skills/plex/references/task-flows.md) define these routes:
 
 | Task | Route |
 |---|---|
@@ -76,6 +76,7 @@ planning and implementation to the owning roles. The skill's
 | Substantial new work with missing decisions | PM intake → needed PM/PO/UX/architect assignments → dev → verification → coordinator |
 | Unexplained failure | PM intake → bounded investigation → fix → verification → coordinator |
 | Review request | PM intake → reviewer → coordinator |
+| CI/CD, release or assigned deployment | PM intake → devops → required checks/review → coordinator |
 
 Only the selected team's roles apply: pnet PM also owns technical planning;
 BMad separates PM, PO, UX and architect. Reuse accepted plans, skip resolved
@@ -97,6 +98,9 @@ and analyst authorization still apply. A small mechanical task can stay local.
 | dev | Implementation and relevant checks; selected BMad execution workflow |
 | reviewer | Independent findings with location, trigger, impact and evidence |
 | qa | Independent behavior verification and tests within assigned scope |
+| devops | CI/CD, release publication and explicitly assigned deployment/recovery with revision-specific evidence |
+
+DevOps is a native Plex specialist in both teams and uses project release/deployment procedures, without a mandatory BMad persona. PM intake still applies. Release authorization does not imply deployment authorization; preparation, publication, installation and runtime health require separate evidence. Independent review remains with reviewer.
 
 Only the selected team's roles are available. One writer owns each changed file.
 Returns distinguish completed checks, assumptions, harness failures and remaining gaps.

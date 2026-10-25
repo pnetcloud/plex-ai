@@ -25,6 +25,30 @@ apply_project = MODULE.apply_project
 
 
 class ConfigTests(unittest.TestCase):
+    def test_refresh_adds_native_devops_without_bmad_binding_or_other_role_writes(self):
+        original = MODULE.named_file
+        for team in ("pnet", "bmad"):
+            for host in MODULE.HOSTS:
+                with self.subTest(team=team, host=host), tempfile.TemporaryDirectory() as temp:
+                    root = Path(temp)
+                    def old_team(directory, name, team_name=None):
+                        result = original(directory, name, team_name)
+                        if directory == "teams" and name == team:
+                            result = {**result, "roles": [role for role in result["roles"] if role != "devops"]}
+                        return result
+                    with patch.object(MODULE, "named_file", side_effect=old_team):
+                        apply_project(root, host, team=team, model_profile="pro-plus")
+                    devops = root / MODULE.host_role_relpath(host, "devops")
+                    self.assertFalse(devops.exists())
+                    result = apply_project(root, host)
+                    self.assertEqual(result["written_roles"], ["devops"])
+                    self.assertTrue(devops.exists())
+                    resolved = resolve({"team": team, "model_profile": "pro-plus"})
+                    self.assertNotIn("devops", resolved["skills"])
+                    self.assertNotIn("devops", resolved["workflows"])
+                    self.assertEqual(check_project(root, host)["status"], "in_sync")
+                    self.assertEqual(apply_project(root, host)["written_roles"], [])
+
     def test_interaction_defaults_validation_and_preset_round_trip(self):
         for team in ("pnet", "bmad"):
             resolved = resolve({"team": team})
@@ -110,7 +134,7 @@ class ConfigTests(unittest.TestCase):
         team = tomllib.loads((ROOT / "teams/bmad/team.toml").read_text())
         resolved = resolve({"team": "bmad"})
         self.assertEqual(resolved["workflows"], team["workflows"])
-        self.assertEqual(set(resolved["workflows"]), set(team["roles"]))
+        self.assertEqual(set(resolved["workflows"]), set(team["roles"]) - {"devops"})
         self.assertEqual(resolve({"team": "pnet"})["workflows"], {})
         self.assertEqual(resolved["skills"]["analyst"], ["bmad-agent-analyst"])
         self.assertEqual({item["operation"] for item in resolved["workflows"]["po"]},
@@ -438,7 +462,7 @@ class ConfigTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, "team bmad/reviewer"):
                     resolve({"team": "bmad"})
                 self.assertEqual(resolve({"team": "pnet"})["roles"],
-                                 ["pm", "explorer", "researcher", "dev", "reviewer", "qa"])
+                                 ["pm", "explorer", "researcher", "dev", "reviewer", "qa", "devops"])
 
     def test_vendor_tiers(self):
         catalog = MODULE.list_catalog()["model_profiles"]["bmad"]
@@ -492,7 +516,7 @@ class ConfigTests(unittest.TestCase):
 
     def test_openai_basic_is_shared_and_other_tiers_are_explicit(self):
         document = tomllib.loads((ROOT / "teams/bmad/profiles/openai.toml").read_text())
-        roles = {"analyst", "pm", "po", "ux", "architect", "dev", "reviewer"}
+        roles = {"analyst", "pm", "po", "ux", "architect", "dev", "reviewer", "devops"}
         for tier, profile in document["profiles"].items():
             if tier == "basic":
                 self.assertEqual(profile, {"model": "gpt-6-luna", "reasoning": "high",
@@ -527,8 +551,8 @@ class ConfigTests(unittest.TestCase):
 
     def test_six_tiers_keep_coordinator_first_and_role_order(self):
         for team, roles in {
-            "bmad": ["pm", "analyst", "architect", "ux", "po", "dev", "reviewer"],
-            "pnet": ["pm", "explorer", "researcher", "dev", "reviewer", "qa"],
+            "bmad": ["pm", "analyst", "architect", "ux", "po", "dev", "reviewer", "devops"],
+            "pnet": ["pm", "explorer", "researcher", "dev", "reviewer", "qa", "devops"],
         }.items():
             for vendor in ("openai", "anthropic", "google", "google-anthropic"):
                 path = ROOT / f"teams/{team}/profiles/{vendor}.toml"

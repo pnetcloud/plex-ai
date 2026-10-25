@@ -56,7 +56,7 @@ def main():
                 state = json.loads(run("python3", str(ROOT / "skills/plex-setup/scripts/resolve_config.py"),
                                        "check", str(project), "--host", client, "--scope", scope))
                 assert state["status"] == "in_sync", state
-                assert len(list(agents.glob("plex-*"))) == 6
+                assert len(list(agents.glob("plex-*"))) == 7
                 remove = (str(ROOT / "setup.sh"), "uninstall", "--project", str(project),
                           "--client", client, "--scope", scope, "--json")
                 json.loads(run(*remove, "--dry-run"))

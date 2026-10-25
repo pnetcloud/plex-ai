@@ -44,6 +44,9 @@ host = "claude"
   model     = "haiku"
   reasoning = "high"
 
+[profiles.plus.devops]
+  model     = "sonnet"
+  reasoning = "medium"
 
 # ==================== Pro ====================
 
@@ -75,6 +78,9 @@ host = "claude"
   model     = "haiku"
   reasoning = "max"
 
+[profiles.pro.devops]
+  model     = "sonnet"
+  reasoning = "high"
 
 # ==================== Pro+ ====================
 
@@ -106,6 +112,9 @@ host = "claude"
   model     = "sonnet"
   reasoning = "high"
 
+[profiles.pro-plus.devops]
+  model     = "sonnet"
+  reasoning = "high"
 
 # ==================== Ultra ====================
 
@@ -137,6 +146,9 @@ host = "claude"
   model     = "sonnet"
   reasoning = "high"
 
+[profiles.ultra.devops]
+  model     = "opus"
+  reasoning = "medium"
 
 # ==================== Ultra+ ====================
 
@@ -167,3 +179,6 @@ host = "claude"
 [profiles.ultra-plus.qa]
   model     = "sonnet"
   reasoning = "xhigh"
+[profiles.ultra-plus.devops]
+  model     = "opus"
+  reasoning = "high"

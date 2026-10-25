@@ -55,6 +55,9 @@ host = "antigravity"
   model     = "inherit"
   reasoning = "medium"
 
+[profiles.plus.devops]
+  model     = "inherit"
+  reasoning = "medium"
 
 # ==================== Pro ====================
 
@@ -90,6 +93,9 @@ host = "antigravity"
   model     = "inherit"
   reasoning = "high"
 
+[profiles.pro.devops]
+  model     = "inherit"
+  reasoning = "high"
 
 # ==================== Pro+ ====================
 
@@ -125,6 +131,9 @@ host = "antigravity"
   model     = "inherit"
   reasoning = "high"
 
+[profiles.pro-plus.devops]
+  model     = "inherit"
+  reasoning = "high"
 
 # ==================== Ultra ====================
 
@@ -160,6 +169,9 @@ host = "antigravity"
   model     = "inherit"
   reasoning = "xhigh"
 
+[profiles.ultra.devops]
+  model     = "inherit"
+  reasoning = "xhigh"
 
 # ==================== Ultra+ ====================
 
@@ -192,5 +204,8 @@ host = "antigravity"
   reasoning = "high"
 
 [profiles.ultra-plus.reviewer]
+  model     = "inherit"
+  reasoning = "max"
+[profiles.ultra-plus.devops]
   model     = "inherit"
   reasoning = "max"

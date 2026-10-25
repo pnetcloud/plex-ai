@@ -8,8 +8,8 @@
 
 | Команда | Роли | Процесс |
 |---|---|---|
-| `pnet` | pm, explorer, researcher, dev, reviewer, qa | Самостоятельная координация |
-| `bmad` | analyst, pm, po, ux, architect, dev, reviewer | Существующие скилы BMad |
+| `pnet` | pm, explorer, researcher, dev, reviewer, qa, devops | Самостоятельная координация |
+| `bmad` | analyst, pm, po, ux, architect, dev, reviewer, devops | Существующие скилы BMad |
 
 Профили: `inherit`, `basic`, `plus`, `pro`, `pro-plus`, `ultra`, `ultra-plus`. Общие уровни объединяют
 OpenAI для Codex, Anthropic для Claude Code и Google для Antigravity внутри команды.

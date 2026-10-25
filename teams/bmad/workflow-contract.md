@@ -6,6 +6,11 @@ consultation does not activate BMad or create a PRD; activation below applies to
 actual BMad assignments after intake. Resolve
 skills through the host's active inventory; missing or tied copies are blockers.
 
+`devops` is a native Plex operational specialist, not a BMad persona. PM intake
+still applies, but BMad activation/entry evidence below does not apply to its
+CI/release/deployment assignments. Use the project's actual operational procedure
+and installed skills; report exact revision, authority and observed results.
+
 Use the checked team's workflow catalog to select the persona and requested workflow. A persona
 adds professional judgment and dispatch; the workflow owns its procedure. Direct
 workflow invocation is valid when supported by the assignment and installed skill.

@@ -1,14 +1,14 @@
-# BMad team: six personas and an independent reviewer
+# BMad team: six personas, reviewer and DevOps
 
 [English](README.md) · [Русский](README.ru.md)
 
-**The coordinator selects a subagent. That subagent runs the appropriate BMad workflow and returns the result.**
+**The coordinator selects a subagent. BMad roles run their assigned workflows; DevOps uses project operational procedures.**
 
 Every new task first receives a short `plex-pm` intake assessment, without BMad activation or a PRD. Its route determines subsequent specialist and dev assignments. Use the project's existing task/spec format; required roles cannot be replaced by root.
 
 Six Plex subagents correspond to BMad personas; a seventh, `reviewer`, owns independent code-review workflows. We configure its model,
 reasoning and assignment boundaries; BMad supplies the workflow and its procedures.
-A task does not need all seven agents. Analyst is manual or explicitly approved only.
+An eighth role, `devops`, owns CI, releases and assigned deployment/recovery without a BMad persona. A task does not need every role. Analyst is manual or explicitly approved only.
 
 ## Roles and workflow mapping
 
@@ -16,7 +16,7 @@ The maintained assignment catalog is [team.toml](team.toml): entry skills are in
 `[skills]`, workflow descriptions and optional internal menu codes in
 `[[workflows.<role>]]`. The resolver copies this catalog to the applied snapshot;
 the coordinator selects an operation there and passes it explicitly to the subagent.
-Only the selected workflow is loaded; its procedures remain in installed BMad.
+Only the selected BMad workflow is loaded; its procedures remain in installed BMad. DevOps has no fabricated BMad binding; publication and deployment authority are checked separately.
 
 | Plex subagent | BMad persona | Assignment | Workflows |
 | --- | --- | --- | --- |
@@ -27,6 +27,7 @@ Only the selected workflow is loaded; its procedures remain in installed BMad.
 | `architect` | Winston — `bmad-agent-architect` | Establish architectural decisions, boundaries and invariants | `bmad-architecture` |
 | `dev` | Amelia — `bmad-agent-dev` | Implement a change, generate tests or assess a completed epic | `bmad-build`, `bmad-build-auto`, `bmad-qa-generate-e2e-tests`, `bmad-retrospective` |
 | `reviewer` | Independent workflow owner | Review an exact diff or PR on its separately configured model | `bmad-code-review` |
+| `devops` | Native Plex specialist | CI/CD, releases and assigned deployment/recovery | Project procedures and applicable installed operational skills; no BMad persona |
 
 The PO entries are **internal workflow codes within one persona**, not separate
 skills with those names:
@@ -106,7 +107,7 @@ to bypass this rule. Small local evidence checks for the current task remain loc
 
 ## Models and nested workers
 
-The target Plex profiles configure the seven subagents and, once the adaptation is
+The target Plex profiles configure the eight subagents and, once the adaptation is
 implemented, the workers launched inside their workflows. For example: Sol owns
 Build, Luna implements the code, and Sol or Astra performs independent review.
 
@@ -136,7 +137,7 @@ routing limitation.
 - [agents/](agents/) — one Markdown source per role; native client formats are generated during setup.
 - [profiles/](profiles/) — models and reasoning settings.
 
-**The seven roles in this mapping are registered in team.toml and have native
+**The eight roles in this mapping are registered in team.toml and have native
 instructions and model profiles.** PM and PO have independent model/effort settings
 in named tiers. QA is dispatched through dev; reviewer owns standalone code review.
 Existing project/user installations require an explicit refresh. The active BMad

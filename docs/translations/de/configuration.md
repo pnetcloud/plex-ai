@@ -8,8 +8,8 @@
 
 | Team | Rollen | Ablauf |
 |---|---|---|
-| `pnet` | pm, explorer, researcher, dev, reviewer, qa | Eigenständige Koordination |
-| `bmad` | analyst, pm, po, ux, architect, dev, reviewer | Vorhandene BMad-Skills |
+| `pnet` | pm, explorer, researcher, dev, reviewer, qa, devops | Eigenständige Koordination |
+| `bmad` | analyst, pm, po, ux, architect, dev, reviewer, devops | Vorhandene BMad-Skills |
 
 Profile: `inherit`, `basic`, `plus`, `pro`, `pro-plus`, `ultra`, `ultra-plus`. Gemeinsame Stufen kombinieren
 die OpenAI-Einstellungen für Codex, Anthropic für Claude Code und Google für Antigravity

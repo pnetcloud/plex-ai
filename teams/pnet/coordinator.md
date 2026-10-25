@@ -34,12 +34,14 @@ Keep request collection, routing, handoffs, integration, final checks and small 
 | `dev` | Implementation and focused routine checks |
 | `reviewer` | Independent findings on the actual change |
 | `qa` | Reproduction and behavior verification; assigned tests/artifacts only |
+| `devops` | CI/CD, release preparation/publication and explicitly assigned deployment/recovery |
 
 - PM intake is mandatory for every new task. Other roles follow its assessment; root cannot bypass it as "clear work".
 - Reuse role outputs instead of repeating discovery. Required-role failure is a blocker, not permission for root to perform that work.
 - Review inspects the change; QA exercises behavior. Neither is automatic after sufficient workflow-owned verification.
 - QA test edits require ownership; production edits remain with dev.
-- The six-role catalog does not increase concurrency. Team default: three; honor applied `max_agents` and native limits.
+- Assign operational work to DevOps after PM intake; keep independent review with reviewer. Supply exact revision, target, existing procedure and publication/deployment authority separately.
+- The role catalog does not increase concurrency. Team default: three; honor applied `max_agents` and native limits.
 
 ### Handoff contract
 

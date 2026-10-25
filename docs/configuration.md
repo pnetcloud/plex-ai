@@ -8,8 +8,8 @@
 
 | Team | Roles | Workflow |
 |---|---|---|
-| `pnet` | pm, explorer, researcher, dev, reviewer, qa | Standalone coordination |
-| `bmad` | analyst, pm, po, ux, architect, dev, reviewer | Existing BMad skills |
+| `pnet` | pm, explorer, researcher, dev, reviewer, qa, devops | Standalone coordination |
+| `bmad` | analyst, pm, po, ux, architect, dev, reviewer, devops | Existing BMad skills |
 
 Choose `inherit`, `basic`, `plus`, `pro`, `pro-plus`, `ultra` or `ultra-plus`. Shared tiers combine the
 selected team's OpenAI settings for Codex, Anthropic settings for Claude Code and

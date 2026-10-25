@@ -256,7 +256,8 @@ def resolve(config):
     if process == "bmad":
         required = named_file("teams", "bmad")["skills"]
         for role in roles:
-            if role not in required or not set(required[role]) <= set(bindings.get(role, [])):
+            # DevOps follows project operational procedures, without a BMad persona.
+            if role != "devops" and (role not in required or not set(required[role]) <= set(bindings.get(role, []))):
                 raise ValueError(f"Missing mandatory BMad bindings for {role}")
     profile_name = config.get("model_profile", "inherit")
     profile_team = team_name or ("bmad" if process == "bmad" else "pnet")

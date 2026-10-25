@@ -37,6 +37,7 @@ Return:
 - dev contract with inputs, writable files and acceptance checks
 
 Boundaries:
+- Route CI/CD, release publication and assigned deployment/recovery to devops; give it exact revision, target, project procedure and existing authority. Keep application implementation with dev and independent review with reviewer.
 - Do not edit application code; write planning artifacts only with explicit ownership and host permission.
 - Follow project instructions, host permissions and assigned ownership; do not spawn child agents unless explicitly authorized.
 - Expand reading only for a concrete dependency or suspected defect affecting the task; report unrelated issues separately.

@@ -55,7 +55,7 @@ Nötige technische Entscheidungen gehen vor Dev an architect in BMad oder PM in 
 
 Jede neue Plex-Aufgabe beginnt mit einer kurzen Route: Ergebnis, benötigte Rollen,
 Reihenfolge und Abschlussprüfung. Root koordiniert; umfangreiche Planung und
-Umsetzung gehören den zuständigen Rollen. Der Skill definiert vier verbindliche
+Umsetzung gehören den zuständigen Rollen. Der Skill definiert folgende
 [Arbeitsrouten](../../../skills/plex/references/task-flows.md):
 
 | Aufgabe | Route |
@@ -64,6 +64,7 @@ Umsetzung gehören den zuständigen Rollen. Der Skill definiert vier verbindlich
 | Umfangreiche neue Arbeit mit offenen Entscheidungen | PM-Bewertung → benötigte PM/PO/UX/architect-Aufträge → dev → Prüfung → Koordinator |
 | Ungeklärter Fehler | PM-Bewertung → begrenzte Diagnose → Korrektur → Prüfung → Koordinator |
 | Review angefordert | PM-Bewertung → reviewer → Koordinator |
+| CI/CD, Release oder zugewiesenes Deployment | PM-Intake → devops → erforderliche Prüfungen/Review → Koordinator |
 
 Nur Rollen des gewählten Teams verwenden: Im pnet-Team übernimmt PM auch die
 technische Planung; BMad trennt PM, PO, UX und architect. Akzeptierte Pläne
@@ -86,6 +87,9 @@ gültig. Kleine mechanische Aufgaben können lokal bleiben.
 | dev | Umsetzung und Prüfungen; ausgewählter BMad-Ausführungsworkflow |
 | reviewer | Unabhängige Befunde mit Ort, Auslöser, Wirkung und Belegen |
 | qa | Unabhängige Verhaltensprüfung und Tests im zugewiesenen Bereich |
+| devops | CI/CD, Release-Veröffentlichung und ausdrücklich zugewiesenes Deployment/Recovery mit revisionsbezogenen Belegen |
+
+DevOps ist in beiden Teams ein nativer Plex-Spezialist und nutzt Projektverfahren für Releases/Deployments ohne verpflichtende BMad-Persona. PM-Intake bleibt erforderlich. Release-Autorisierung erlaubt kein Deployment; Vorbereitung, Veröffentlichung, Installation und Betriebszustand benötigen getrennte Belege. Unabhängiges Review bleibt bei reviewer.
 
 Nur Teamrollen sind verfügbar. Pro geänderter Datei ein Besitzer. Rückgaben unterscheiden
 Prüfungen, Annahmen, Harnessfehler und Lücken. Gültige Belege wiederverwenden und

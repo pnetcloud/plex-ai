@@ -45,7 +45,7 @@ class ScopeTests(unittest.TestCase):
             root = C.user_root(host)
             rel = C.host_agents_relpath(host, 'user')
             self.assertEqual({p.stem for p in (root / rel).glob('plex-*')},
-                             {'plex-pm', 'plex-explorer', 'plex-researcher', 'plex-dev', 'plex-reviewer', 'plex-qa'})
+                             {'plex-pm', 'plex-explorer', 'plex-researcher', 'plex-dev', 'plex-reviewer', 'plex-qa', 'plex-devops'})
             self.assertTrue((root / '.plex/preset.toml').is_file())
             self.assertEqual(result['scope'], 'user')
             self.assertEqual(tomllib.loads((root / '.plex/preset.toml').read_text())['interaction'], 'balanced')
@@ -232,7 +232,7 @@ class ScopeTests(unittest.TestCase):
         validated = subprocess.run(['agy', 'plugin', 'validate', str(config), '--strict', '--json'],
                                    capture_output=True, text=True, timeout=30)
         self.assertEqual(validated.returncode, 0, validated.stderr or validated.stdout)
-        self.assertEqual(json.loads(validated.stdout)['components']['agents'], 6)
+        self.assertEqual(json.loads(validated.stdout)['components']['agents'], 7)
         self.assertEqual(list(self.project.iterdir()), [])
         self.assertTrue((C.user_root('antigravity') / 'GEMINI.md').is_file())
 

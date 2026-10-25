@@ -46,6 +46,9 @@ host = "antigravity"
   model     = "claude-sonnet-5-5-low"
   reasoning = "high"
 
+[profiles.plus.devops]
+  model     = "claude-sonnet-5-5-medium"
+  reasoning = "medium"
 
 # ==================== Pro ====================
 
@@ -77,6 +80,9 @@ host = "antigravity"
   model     = "claude-sonnet-5-5-low"
   reasoning = "max"
 
+[profiles.pro.devops]
+  model     = "claude-sonnet-5-5-high"
+  reasoning = "high"
 
 # ==================== Pro+ ====================
 
@@ -108,6 +114,9 @@ host = "antigravity"
   model     = "claude-sonnet-5-5-high"
   reasoning = "high"
 
+[profiles.pro-plus.devops]
+  model     = "claude-sonnet-5-5-high"
+  reasoning = "high"
 
 # ==================== Ultra ====================
 
@@ -139,6 +148,9 @@ host = "antigravity"
   model     = "claude-sonnet-5-5-high"
   reasoning = "high"
 
+[profiles.ultra.devops]
+  model     = "claude-opus-5-5-medium"
+  reasoning = "medium"
 
 # ==================== Ultra+ ====================
 
@@ -169,3 +181,6 @@ host = "antigravity"
 [profiles.ultra-plus.qa]
   model     = "claude-sonnet-5-5-high"
   reasoning = "xhigh"
+[profiles.ultra-plus.devops]
+  model     = "claude-opus-5-5-high"
+  reasoning = "high"
