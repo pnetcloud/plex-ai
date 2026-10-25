@@ -62,6 +62,18 @@ class ScopeTests(unittest.TestCase):
         self.assertEqual(state['status'], 'conflict')
         self.assertEqual(state['scope'], 'project')
 
+    def test_install_refresh_and_uninstall_preserve_coordinator_state(self):
+        state = self.project / ".plex/work/session-1.json"
+        state.parent.mkdir(parents=True)
+        sentinel = b'{"session_id":"session-1","preserve":true}\n'
+        state.write_bytes(sentinel)
+        for profile in ("inherit", "plus"):
+            C.apply_project(self.project, "codex", team="pnet", model_profile=profile,
+                            scope="project", instructions=True)
+            self.assertEqual(state.read_bytes(), sentinel)
+        C.uninstall_project(self.project, "codex")
+        self.assertEqual(state.read_bytes(), sentinel)
+
     def test_instruction_template_rejects_invalid_managed_boundaries(self):
         template = self.base / 'skills/plex-setup/assets/AGENTS.md.template'
         template.parent.mkdir(parents=True)

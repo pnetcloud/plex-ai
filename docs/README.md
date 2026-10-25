@@ -36,6 +36,7 @@ English is the maintained source; translations mirror these filenames.
 
 | Version | Changes |
 |---|---|
+| [v0.13.0](releases/v0.13.0.md) | Bounded coordinator focus, session state and DevOps specialists. |
 | [v0.12.3](releases/v0.12.3.md) | Aligned coordinator recommendations across teams and providers. |
 | [v0.12.2](releases/v0.12.2.md) | Reconfigure edited managed roles with verified backups. |
 | [v0.12.1](releases/v0.12.1.md) | Reconfigure edited managed roles with verified backups. |

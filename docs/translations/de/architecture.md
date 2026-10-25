@@ -40,8 +40,9 @@ auszuweichen. Anweisungen separat lesen und abgeschnittene Abschnitte vor der De
 
 Root vergibt ausführbare Aufträge mit Ergebnis, Eingaben, Befugnissen, Prüfungen und
 Rückgabevertrag. Pro geänderter Datei gibt es einen Schreiber. Unabhängige Arbeit darf
-innerhalb gemeinsamer und nativer Limits parallel laufen. Jede neue Aufgabe beginnt
-mit PM-Intake. PM/PO wählt Ansatz und weitere Rollen; Root prüft den kompakten Auftrag
+innerhalb gemeinsamer und nativer Limits parallel laufen. Der Koordinator kann
+aufgeschobene Anfragen zuerst im [Sitzungsstatus](../../../skills/plex/references/coordinator-state.md) festhalten;
+PM-Intake ist vor Routing oder Ausführung erforderlich. PM/PO wählt Ansatz und Rollen; Root prüft den Auftrag
 vor dem Dispatch. Native Plan/Goal-Modi sind optional. Siehe [Rollenverträge](role-contracts.md).
 
 ## BMad-Workflow-Verantwortung

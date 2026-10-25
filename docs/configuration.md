@@ -18,6 +18,13 @@ Profiles describe settings, not measured quality levels.
 
 Both teams provide six named tiers plus `inherit`. Coordinator recommendations appear first within each tier in the provider files. Anthropic uses Haiku/Sonnet/Opus as approximate Luna/Sol/Astra counterparts; these are not measured equivalents. Google native profiles use Flash or inherit the main-chat model, with higher requested effort for Ultra tiers. Claude on Antigravity substitutes Sonnet for unavailable Haiku; exact model IDs require host support.
 
+Role recipes are explicit per team and provider; the profile table in the README describes `pnet`
+only. For example, BMad's Codex main-chat recommendation is Luna/xhigh on Pro+ and Sol/medium
+on Ultra, while `pnet` uses Luna/max and Sol/low. BMad OpenAI Ultra+ UX remains Astra/medium.
+DevOps has its own entry in each team/provider profile; it does not inherit another role's
+settings. See the [pnet](../teams/pnet/profiles/) and [BMad](../teams/bmad/profiles/) profile
+files for exact recipes; setup shows effective settings after overrides.
+
 Interactive **Reconfigure** shows edited receipt-owned role paths, backs up their previewed content and regenerates them from the selected profile and preset overrides. **Update only** still stops on manual edits. Missing or unmanaged files, symlinks, edited instruction blocks, client configuration conflicts and changes after preview remain protected. Put durable model choices in `.plex/preset.toml`.
 
 Edit `.plex/preset.toml` in the selected installation root:

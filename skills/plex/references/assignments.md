@@ -75,6 +75,7 @@ forever, and preserve implementation handles required for workflow fix resumptio
 
 ## Context and return
 
+- The coordinator owns its session state and passes each worker only the current assigned goal, inputs and boundaries; workers do not read or update the global queue.
 - Reuse the same role's live handle for continuation. Send new decisions, changed
   evidence and the remaining question, not the full transcript again.
 - Pass exact artifact paths/revisions from tool output. A missing input returns

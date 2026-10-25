@@ -65,11 +65,19 @@ class OutputTests(unittest.TestCase):
 
     def test_coordinator_guidance_follows_profile_without_becoming_a_role(self):
         expected = {
-            "basic": "gpt-6-luna / high", "plus": "gpt-6-luna / high",
-            "pro": "gpt-6-luna / xhigh", "pro-plus": "gpt-6-luna / max",
-            "ultra": "gpt-6.1-sol / low", "ultra-plus": "gpt-6.1-sol / high"}
+            "pnet": {
+                "basic": "gpt-6-luna / high", "plus": "gpt-6-luna / high",
+                "pro": "gpt-6-luna / xhigh", "pro-plus": "gpt-6-luna / max",
+                "ultra": "gpt-6.1-sol / low", "ultra-plus": "gpt-6.1-sol / high",
+            },
+            "bmad": {
+                "basic": "gpt-6-luna / high", "plus": "gpt-6-luna / high",
+                "pro": "gpt-6-luna / xhigh", "pro-plus": "gpt-6-luna / xhigh",
+                "ultra": "gpt-6.1-sol / medium", "ultra-plus": "gpt-6.1-sol / high",
+            },
+        }
         for team in ("pnet", "bmad"):
-            for tier, text in expected.items():
+            for tier, text in expected[team].items():
                 for profile in (tier, f"openai-{tier}"):
                     with self.subTest(team=team, profile=profile), redirect_stdout(io.StringIO()) as output:
                         resolved = S.CONFIG.resolve({"team": team, "model_profile": profile})

@@ -535,8 +535,27 @@ class ConfigTests(unittest.TestCase):
                                 | team_profile.get(role, {})) if tier == "basic" else team_profile[role]
                     self.assertEqual(values, expected)
 
-    def test_anthropic_matches_openai_role_balance(self):
+    def test_anthropic_role_balance_has_explicit_bmad_exceptions(self):
         models = {"gpt-6-luna": "haiku", "gpt-6.1-sol": "sonnet", "gpt-6-astra": "opus"}
+        bmad_anthropic_exceptions = {
+            "plus": {"devops": {"model": "sonnet", "reasoning": "medium"}},
+            "pro": {
+                "architect": {"model": "sonnet", "reasoning": "high"},
+                "reviewer": {"model": "sonnet", "reasoning": "high"},
+                "devops": {"model": "sonnet", "reasoning": "high"},
+            },
+            "pro-plus": {
+                "ux": {"model": "sonnet", "reasoning": "high"},
+                "architect": {"model": "sonnet", "reasoning": "high"},
+                "reviewer": {"model": "sonnet", "reasoning": "high"},
+                "devops": {"model": "sonnet", "reasoning": "high"},
+            },
+            "ultra": {
+                "ux": {"model": "opus", "reasoning": "low"},
+                "devops": {"model": "opus", "reasoning": "medium"},
+            },
+            "ultra-plus": {"devops": {"model": "opus", "reasoning": "high"}},
+        }
         for tier in MODULE.PROFILE_TIERS:
             for team in ("pnet", "bmad"):
                 if f"openai-{tier}" not in MODULE.load_model_profiles(team):
@@ -545,9 +564,13 @@ class ConfigTests(unittest.TestCase):
                 anthropic = resolve({"team": team, "model_profile": f"anthropic-{tier}"})["hosts"]["claude"]
                 self.assertEqual(set(openai), set(anthropic))
                 for role, values in openai.items():
-                    self.assertEqual(anthropic[role], {
+                    expected = {
                         "model": models[values["model"]], "reasoning": values["reasoning"],
-                    })
+                    }
+                    if team == "bmad":
+                        expected.update(bmad_anthropic_exceptions.get(tier, {}).get(role, {}))
+                    self.assertEqual(anthropic[role], expected,
+                                     (team, tier, role))
 
     def test_six_tiers_keep_coordinator_first_and_role_order(self):
         for team, roles in {
@@ -567,17 +590,27 @@ class ConfigTests(unittest.TestCase):
                     resolved = resolve({"team": team, "model_profile": f"{vendor}-{tier}"})
                     self.assertNotIn("coordinator", resolved["roles"])
 
-    def test_ultra_plus_increases_effort_without_changing_models(self):
+    def test_ultra_plus_follows_the_explicit_effort_exception(self):
         levels = ["low", "medium", "high", "xhigh", "max"]
+        exceptions = {
+            ("bmad", "openai", "ux"): {"model": "gpt-6-astra", "reasoning": "medium"},
+        }
         for team in ("pnet", "bmad"):
             for vendor, host in (("openai", "codex"), ("anthropic", "claude"),
                                  ("google", "antigravity")):
                 ultra = resolve({"team": team, "model_profile": f"{vendor}-ultra"})["hosts"][host]
                 stronger = resolve({"team": team, "model_profile": f"{vendor}-ultra-plus"})["hosts"][host]
                 for role, settings in ultra.items():
-                    self.assertEqual(settings["model"], stronger[role]["model"])
-                    self.assertEqual(levels.index(stronger[role]["reasoning"]),
-                                     levels.index(settings["reasoning"]) + 1)
+                    key = (team, vendor, role)
+                    if key in exceptions:
+                        expected = exceptions[key]
+                        self.assertEqual(settings, expected, key)
+                    else:
+                        expected = {
+                            "model": settings["model"],
+                            "reasoning": levels[levels.index(settings["reasoning"]) + 1],
+                        }
+                    self.assertEqual(stronger[role], expected, key)
 
     def test_new_vendor_file_discovery_and_invalid_sections(self):
         with tempfile.TemporaryDirectory() as temp:
@@ -674,19 +707,41 @@ class ConfigTests(unittest.TestCase):
                             self.assertEqual(roles, set(team["roles"]))
 
     def test_coordinator_ladder_matches_across_teams_and_providers(self):
-        efforts = ["high", "high", "xhigh", "max", "low", "high"]
         providers = {
-            "openai": ("codex", ["gpt-6-luna"] * 4 + ["gpt-6.1-sol"] * 2),
-            "anthropic": ("claude", ["haiku"] * 4 + ["sonnet"] * 2),
-            "google": ("antigravity", ["flash"] * 4 + ["inherit"] * 2),
-            "google-anthropic": ("antigravity", ["claude-sonnet-5-5-low"] * 4
-                                 + ["claude-sonnet-5-5-medium", "claude-sonnet-5-5-high"]),
+            "openai": ("codex", [
+                ("gpt-6-luna", "high"), ("gpt-6-luna", "high"),
+                ("gpt-6-luna", "xhigh"), ("gpt-6-luna", "max"),
+                ("gpt-6.1-sol", "low"), ("gpt-6.1-sol", "high"),
+            ]),
+            "anthropic": ("claude", [
+                ("haiku", "high"), ("haiku", "high"), ("haiku", "xhigh"),
+                ("haiku", "max"), ("sonnet", "low"), ("sonnet", "high"),
+            ]),
+            "google": ("antigravity", [
+                ("flash", "high"), ("flash", "high"), ("flash", "xhigh"),
+                ("flash", "max"), ("inherit", "low"), ("inherit", "high"),
+            ]),
+            "google-anthropic": ("antigravity", [
+                ("claude-sonnet-5-5-low", "high"),
+                ("claude-sonnet-5-5-low", "high"),
+                ("claude-sonnet-5-5-low", "xhigh"),
+                ("claude-sonnet-5-5-low", "max"),
+                ("claude-sonnet-5-5-medium", "low"),
+                ("claude-sonnet-5-5-high", "high"),
+            ]),
+        }
+        bmad_exceptions = {
+            ("openai", "pro-plus"): ("gpt-6-luna", "xhigh"),
+            ("openai", "ultra"): ("gpt-6.1-sol", "medium"),
         }
         for team in ("pnet", "bmad"):
-            for vendor, (host, models) in providers.items():
-                for tier, model, effort in zip(MODULE.PROFILE_TIERS, models, efforts, strict=True):
+            for vendor, (host, recommendations) in providers.items():
+                for tier, recommendation in zip(MODULE.PROFILE_TIERS, recommendations, strict=True):
                     with self.subTest(team=team, vendor=vendor, tier=tier):
                         resolved = resolve({"team": team, "model_profile": f"{vendor}-{tier}"})
+                        expected = bmad_exceptions.get((vendor, tier), recommendation) \
+                            if team == "bmad" else recommendation
+                        model, effort = expected
                         self.assertEqual(resolved["coordinator"][host], {"model": model, "reasoning": effort})
                         self.assertNotIn("coordinator", resolved["roles"])
 

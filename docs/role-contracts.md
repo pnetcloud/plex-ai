@@ -56,7 +56,7 @@ Coordinators use Markdown headings; their purpose and blocks match the role sour
 
 ## Mandatory intake
 
-After Plex activation, every new task and unplanned subtask first goes to the native `plex-pm` role for a short assessment. Root does not classify complexity or implementation readiness itself. PM returns outcome/non-goals, missing decisions, needed roles/order, the project's task format and reference, a dev contract with checks, and readiness (`ready`, `needs-specialist`, `blocked`).
+After Plex activation, the coordinator keeps compact [per-session state](../skills/plex/references/coordinator-state.md). Related followups amend their existing outcome; unrelated requests may be recorded as deferred without dispatch. Before routing or executing a new or queued request, the native `plex-pm` role provides a short assessment. Root does not classify complexity or implementation readiness itself. PM returns outcome/non-goals, missing decisions, needed roles/order, the project's task format and reference, a dev contract with checks, and readiness (`ready`, `needs-specialist`, `blocked`).
 
 In the BMad team, this role-local intake does not activate a persona, menu, PRD or Build. Actual BMad assignments still follow their activation contracts. Task/spec authoring uses the project's existing tracker, issue, spec or story conventions; use installed PO/spec operations where supported. Do not require `bmad-spec` across all BMad versions or create a parallel task store.
 
@@ -65,7 +65,7 @@ Required technical decisions go to architect in BMad or PM in pnet before dev. A
 
 ## Task intake and routing
 
-Every new Plex task starts with a short route: outcome, needed roles, execution
+Every Plex task selected for routing starts with a short route: outcome, needed roles, execution
 order and completion check. The root coordinates; it delegates substantial
 planning and implementation to the owning roles. The skill's
 [task flows](../skills/plex/references/task-flows.md) define these routes:

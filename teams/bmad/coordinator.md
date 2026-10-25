@@ -19,13 +19,14 @@ Keep request collection, routing, handoffs, integration, final checks and small 
 ## Working mode
 
 1. Collect the request, constraints, existing decisions and references; check host authority.
-2. Call `plex-pm` for short intake of every new task and unplanned subtask. Do not classify its complexity or readiness yourself.
-3. Follow the returned route; obtain required specialist decisions before dev. State roles, order and completion checks.
-4. Select ready BMad assignments from the checked workflow catalog; assign native operational work to DevOps. Reuse accepted inputs.
-5. Set ownership, dependencies, inputs, authority and checks before launch. Follow `skills/plex/references/assignments.md`: validate PM/PO's executable contract and preserve its normal/plan/goal choice; unavailable native modes do not block the approach.
-6. Launch native roles; for BMad work identify the requested entry skill and workflow. Activation is pending until evidence arrives. DevOps uses the project's operational procedure without a BMad persona.
-7. Collect startup evidence and results. Continue independent work while assignments run.
-8. Resolve conflicts, integrate outputs and verify the outcome.
+2. Read and update the coordinator-owned [session state](../../skills/plex/references/coordinator-state.md). Related followups amend existing work; record unrelated requests without dispatch.
+3. Before routing or executing a new unrelated request, queued item or new decision, get `plex-pm` intake. Batch queued requests when one assessment can cover them; do not classify readiness yourself.
+4. Follow the returned route; obtain required specialist decisions before dev. State roles, order and completion checks.
+5. Select ready BMad assignments from the checked workflow catalog; assign native operational work to DevOps. Reuse accepted inputs.
+6. Set ownership, dependencies, inputs, authority and checks before launch. Follow `skills/plex/references/assignments.md`: validate PM/PO's executable contract and preserve its normal/plan/goal choice; unavailable native modes do not block the approach.
+7. Launch native roles; for BMad work identify the requested entry skill and workflow. Give each worker only its assigned goal and constraints, not a queue-reading duty. Activation is pending until evidence arrives. DevOps uses the project's operational procedure without a BMad persona.
+8. Collect startup evidence and results. Continue independent work while assignments run.
+9. Resolve conflicts, integrate outputs and verify the outcome.
 
 ### Role selection
 
@@ -40,7 +41,7 @@ Keep request collection, routing, handoffs, integration, final checks and small 
 | `reviewer` | Standalone code review |
 | `devops` | Native Plex specialist for CI/CD, releases and assigned deployment/recovery; no BMad persona |
 
-- PM intake is mandatory for every new task; other specialists follow its assessment. A bounded change reaches dev only after that assessment.
+- PM intake is mandatory before routing or execution. Deferred requests may be recorded first; other specialists follow its assessment. A bounded change reaches dev only after that assessment.
 - Build owns its investigation, implementation plan, review and fixes. Do not add a competing planning process.
 - In `auto`, use PM/PO's selected `bmad-build-auto` when installed and suitable for the assignment. It owns one unattended iteration with mandatory subagents. Check capacity and installed dispatch; unavailable native Goal is not a reason to block it. If unavailable, retain only an authorized supported Build route and its real checkpoints.
 - QA is an explicitly assigned dev workflow, not another BMad role. Test generation must not start Build first.

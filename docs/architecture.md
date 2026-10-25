@@ -42,9 +42,10 @@ must be recovered before delegation.
 
 The root assigns ready work with outcome, inputs, authority, checks and return
 expectations. Writers have exclusive file ownership. Independent work may run in
-parallel within the shared assignment limit and native host limits. Every new task
-first receives PM intake. PM/PO selects the approach and further
-roles; root validates the compact assignment core before dispatch. Native Plan/Goal
+parallel within the shared assignment limit and native host limits. The coordinator
+can record deferred requests in [per-session state](../skills/plex/references/coordinator-state.md);
+PM intake is required before routing or executing them. PM/PO selects the approach
+and further roles; root validates the compact assignment core before dispatch. Native Plan/Goal
 is optional. See [role contracts](role-contracts.md#assignments-planning-and-goals).
 
 ## BMad workflow ownership

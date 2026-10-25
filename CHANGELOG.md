@@ -4,6 +4,15 @@ Important changes retained in Plex, grouped by release. Interfaces and configura
 may change before 1.0. Releases through v0.5.4 were previews; v0.5.5 and later are
 regular releases.
 
+## [0.13.0] — 2026-10-25
+
+- Add bounded coordinator session state with a shared template, an 8192-byte UTF-8 ceiling, field/count limits and a read-only validator.
+- Keep the current goal and user decisions visible, queue unrelated requests, and require PM intake before routing or execution; default to at most two active independent outcomes.
+- Compact state through retrievable references without silently dropping unfinished work; workers receive scoped assignments rather than the global queue.
+- Add a native DevOps specialist to both teams for assigned CI/CD, releases and deployment work, preserving separate publication/deployment authority.
+- Apply the revised BMad OpenAI specialist reasoning and Pro+/Ultra coordinator recommendations; document provider-specific profile policies.
+- Keep checkpoint data local and preserve it across configuration maintenance. Structural checks do not prove live efficiency or semantic preservation.
+
 ## [0.12.3] — 2026-10-24
 
 - Align coordinator recommendations across both teams and all four provider recipes: lightweight models through Pro+, then Sol/Sonnet or the inherited Google model for Ultra tiers.

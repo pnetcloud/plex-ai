@@ -33,6 +33,7 @@ Plex 在 Codex、Claude Code 和 Antigravity 中配置并协调智能体团队�
 
 | 版本 | 变更 |
 |---|---|
+| [v0.13.0](releases/v0.13.0.md) | 有界协调器状态、目标队列与 DevOps 专家。 |
 | [v0.12.3](releases/v0.12.3.md) | 统一团队及提供商的协调器建议。 |
 | [v0.12.2](releases/v0.12.2.md) | 重新配置受管角色并验证备份。 |
 | [v0.12.1](releases/v0.12.1.md) | 重新配置受管角色并验证备份。 |

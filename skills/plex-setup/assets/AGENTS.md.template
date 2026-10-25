@@ -22,9 +22,12 @@ This block is managed by the Plex installer; keep personal/project rules outside
 - Follow the skill's dispatch and naming contract; workflow-owned leaves follow
   their workflow contract.
 
-- With Plex active, every new task and unplanned subtask starts with a real
-  `plex-pm` intake call. Root does not classify complexity or readiness itself.
-- Wait for the assessment and its required specialist decisions before dev.
+- With Plex active, keep the coordinator-owned state described in the installed
+  `plex` skill's `coordinator-state` reference current. Related followups amend existing work; record unrelated requests
+  without dispatch, then get `plex-pm` intake before routing or execution. Batch
+  queued requests when one assessment can cover them.
+- Root does not classify readiness. Wait for PM's assessment and required
+  specialist decisions before dev.
   A missing/rejected role blocks that assignment; root must not take it over.
 - PM/PO owns the execution approach and 1–5 observable acceptance criteria.
   Follow the skill's assignment contract and validator. Native Plan/Goal is optional;
@@ -32,6 +35,8 @@ This block is managed by the Plex installer; keep personal/project rules outside
 - Validate Plex-owned responses against the current assignment and revision using
   the skill's response contract. Route help to the decision owner; resume with new
   evidence or a concrete decision, not an unchanged retry.
+- Pass each worker only its assigned goal and constraints; workers do not read the
+  coordinator's global queue.
 - Pass exact artifact paths/revisions. Return missing inputs to their owner;
   do not substitute a similarly named file or claim a check of another input.
 

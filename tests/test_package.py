@@ -44,6 +44,9 @@ class PackageTests(unittest.TestCase):
                         shutil.copy2(source, target)
             private = checkout / "skills/plex/private.txt"
             private.write_text("must not ship")
+            private_state = checkout / ".plex/work/session-a/state.json"
+            private_state.parent.mkdir(parents=True, exist_ok=True)
+            private_state.write_text('{"private":"session state"}')
             public = checkout / "skills/plex/references/new-guide.md"
             public.write_text("New reusable guide")
             cache = checkout / "skills/plex/__pycache__/skill.pyc"
@@ -52,6 +55,7 @@ class PackageTests(unittest.TestCase):
             with patch.object(INSTALLER, "ROOT", checkout):
                 package = INSTALLER.build_plugin("claude")
                 self.assertFalse((package / private.relative_to(checkout)).exists())
+                self.assertFalse((package / ".plex/work/session-a/state.json").exists())
                 self.assertFalse((package / cache.relative_to(checkout)).exists())
                 self.assertEqual((package / public.relative_to(checkout)).read_bytes(), public.read_bytes())
                 self.assertFalse((package / ".gitignore").exists())
@@ -90,7 +94,9 @@ class PackageTests(unittest.TestCase):
             task_flows = Path("skills/plex/references/task-flows.md")
             self.assertEqual((package / task_flows).read_bytes(), (ROOT / task_flows).read_bytes())
             for relative in ("references/assignments.md", "assets/assignment.json.template",
-                             "scripts/check_assignment.py", "assets/response.json.template"):
+                             "scripts/check_assignment.py", "assets/response.json.template",
+                             "assets/coordinator-state.template", "references/coordinator-state.md",
+                             "scripts/check_coordinator_state.py"):
                 source = Path("skills/plex") / relative
                 self.assertEqual((package / source).read_bytes(), (ROOT / source).read_bytes())
             skill_root = (package / manifest.get("skills", "./skills")).resolve()

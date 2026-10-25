@@ -4,7 +4,7 @@
 
 **The coordinator selects a subagent. BMad roles run their assigned workflows; DevOps uses project operational procedures.**
 
-Every new task first receives a short `plex-pm` intake assessment, without BMad activation or a PRD. Its route determines subsequent specialist and dev assignments. Use the project's existing task/spec format; required roles cannot be replaced by root.
+Before routing or executing new unrelated work, obtain a short `plex-pm` intake assessment; the coordinator may first record deferred requests in its [session state](../../skills/plex/references/coordinator-state.md). Related followups amend their existing outcome. Intake does not activate BMad or create a PRD. Use the project's existing task/spec format; required roles cannot be replaced by root.
 
 Six Plex subagents correspond to BMad personas; a seventh, `reviewer`, owns independent code-review workflows. We configure its model,
 reasoning and assignment boundaries; BMad supplies the workflow and its procedures.
@@ -40,7 +40,7 @@ skills with those names:
 - `REPLAN` — assess a change and revise the remaining work.
 - `STORE` — configure ticket storage and tracker integration.
 
-The coordinator starts every new Plex task with the matching
+For work selected for routing, the coordinator follows the matching
 [task flow](../../skills/plex/references/task-flows.md), stating the selected roles
 and completion check. Missing product decisions go to PM, specifications/tasks to
 PO and architectural decisions to architect before implementation. Existing

@@ -44,7 +44,7 @@ Koordinatoren verwenden Markdown-Überschriften; Zweck und Blöcke entsprechen d
 
 ## Verbindliche Aufgabenbewertung
 
-Nach Plex-Aktivierung geht jede neue Aufgabe und ungeplante Teilaufgabe zuerst an die native Rolle `plex-pm` für eine kurze Bewertung. Root entscheidet nicht selbst über Komplexität oder Umsetzungsreife. PM liefert Ziel/Ausschlüsse, fehlende Entscheidungen, Rollen/Reihenfolge, Aufgabenformat und Referenz, Dev-Vertrag mit Prüfungen sowie `ready`, `needs-specialist` oder `blocked`.
+Nach Plex-Aktivierung führt der Koordinator einen kompakten [Sitzungsstatus](../../../skills/plex/references/coordinator-state.md). Verwandte Followups aktualisieren das bestehende Ergebnis; unabhängige Anfragen dürfen vor einer Delegation vorgemerkt werden. Vor Routing oder Ausführung neuer oder vorgemerkter Arbeit ist eine kurze Bewertung durch `plex-pm` erforderlich. Root entscheidet nicht selbst über Komplexität oder Umsetzungsreife. PM liefert Ziel/Ausschlüsse, fehlende Entscheidungen, Rollen/Reihenfolge, Aufgabenformat und Referenz, Dev-Vertrag mit Prüfungen sowie `ready`, `needs-specialist` oder `blocked`.
 
 Im BMad-Team aktiviert diese rolleninterne Bewertung weder Persona noch Menü, PRD oder Build. Echte BMad-Aufträge behalten ihre Aktivierungspflichten. Anforderungen folgen dem vorhandenen Tracker-, Issue-, Spec- oder Story-Verfahren des Projekts; installierte PO-/Spec-Operationen verwenden, soweit unterstützt. Kein universelles `bmad-spec` voraussetzen und keine parallele Aufgabenablage einführen.
 
@@ -53,7 +53,7 @@ Nötige technische Entscheidungen gehen vor Dev an architect in BMad oder PM in 
 
 ## Aufgabenaufnahme und Routing
 
-Jede neue Plex-Aufgabe beginnt mit einer kurzen Route: Ergebnis, benötigte Rollen,
+Jede zur Weiterleitung ausgewählte Plex-Aufgabe beginnt mit einer kurzen Route: Ergebnis, benötigte Rollen,
 Reihenfolge und Abschlussprüfung. Root koordiniert; umfangreiche Planung und
 Umsetzung gehören den zuständigen Rollen. Der Skill definiert folgende
 [Arbeitsrouten](../../../skills/plex/references/task-flows.md):

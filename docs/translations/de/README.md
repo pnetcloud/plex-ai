@@ -49,12 +49,12 @@ Das Plugin allein konfiguriert kein Team. Im Dev-Modus ersetzen lokale Skill-Lin
 
 ## Ablauf
 
-Der aktuelle Chat bleibt Koordinator und behält sein Modell. Jede neue Aufgabe erhält zuerst eine kurze Bewertung durch `plex-pm`. Der Koordinator folgt dieser Route, sammelt notwendige Fachentscheidungen, beauftragt Dev und prüft das Ergebnis. Abgedeckte Schritte verwenden die Bewertung erneut.
+Der aktuelle Chat bleibt Koordinator und behält sein Modell. Verwandte Followups ergänzen die bestehende Arbeit; unabhängige Anfragen können ohne Dispatch vorgemerkt werden. Vor Routing oder Ausführung vorgemerkter Arbeit ist eine kurze Bewertung durch `plex-pm` erforderlich. Der Koordinator folgt der Route, sammelt Fachentscheidungen, beauftragt Dev und prüft das Ergebnis. Abgedeckte Schritte verwenden die Bewertung erneut.
 
 ```mermaid
 flowchart TD
-    A[Deine Aufgabe] --> B[Aktueller Chat koordiniert]
-    B --> P[Kurze PM-Bewertung]
+    A[Deine Aufgabe] --> B[Aktueller Chat aktualisiert den Status]
+    B --> P[PM-Bewertung vor dem Routing]
     P --> C[Ausgewählte Rollen bearbeiten Aufträge]
     C --> D[Koordinator integriert und prüft]
 ```

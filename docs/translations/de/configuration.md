@@ -20,6 +20,14 @@ Editierbare Datei im gewählten Installationsstamm: `.plex/preset.toml`.
 Interaktives **Reconfigure** zeigt geänderte verwaltete Rollenpfade, sichert deren geprüften Inhalt und erzeugt die Rollen aus dem gewählten Profil und den Preset-Überschreibungen neu. **Update only** stoppt weiterhin bei manuellen Änderungen. Fehlende oder fremde Dateien, Symlinks, geänderte Anweisungsblöcke, Client-Konflikte und Änderungen nach der Vorschau bleiben geschützt. Dauerhafte Modellwahl gehört in `.plex/preset.toml`.
 
 Beide Teams bieten sechs benannte Stufen sowie `inherit`. In den Anbieterdateien steht die Koordinator-Empfehlung zuerst in jeder Stufe. Haiku/Sonnet/Opus entsprechen ungefähr Luna/Sol/Astra; gleiche Qualität ist nicht nachgewiesen. Native Google-Profile verwenden Flash oder das Modell des Hauptchats; Ultra erhöht den angeforderten Effort. Claude in Antigravity verwendet Sonnet statt des nicht verfügbaren Haiku; genaue Modell-IDs benötigen Client-Unterstützung.
+
+Die Rollenrezepte sind je Team und Anbieter ausdrücklich festgelegt; die Profilübersicht in der README
+gilt nur für `pnet`. BMad empfiehlt im Codex-Profil Luna/xhigh für Pro+ und Sol/medium für Ultra,
+während `pnet` Luna/max und Sol/low verwendet. BMad OpenAI Ultra+ UX bleibt bei Astra/medium.
+DevOps hat in jedem Team-/Anbieterprofil einen eigenen Eintrag und übernimmt keine Einstellungen
+einer anderen Rolle. Die [pnet](../../../teams/pnet/profiles/) und
+[BMad](../../../teams/bmad/profiles/) TOML-Profile enthalten die genauen Rezepte; Setup zeigt
+effektive Werte nach Overrides.
 ```toml
 team = "pnet"
 model_profile = "plus"

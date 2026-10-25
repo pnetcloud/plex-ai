@@ -38,7 +38,7 @@ Claude 中 `delegation = false` 的角色还会通过 `disallowedTools` 禁用�
 
 ## 必须先评估任务
 
-激活 Plex 后，每个新任务和计划外子任务都必须先交给原生 `plex-pm` 做简短评估。Root 不自行判断复杂度或实现就绪状态。PM 返回目标与非目标、缺失决策、所需角色及顺序、项目任务格式与引用、开发契约及检查，以及 `ready`、`needs-specialist` 或 `blocked`。
+激活 Plex 后，协调者维护精简的[每会话状态](../../../skills/plex/references/coordinator-state.md)。相关 followup 更新现有结果；无关请求可先记录为待处理而不派发。路由或执行新请求、待处理请求前，必须由原生 `plex-pm` 简短评估。Root 不自行判断复杂度或实现就绪状态。PM 返回目标与非目标、缺失决策、所需角色及顺序、项目任务格式与引用、开发契约及检查，以及 `ready`、`needs-specialist` 或 `blocked`。
 
 在 BMad 团队中，这种角色内评估不激活 persona、菜单、PRD 或 Build。后续真正的 BMad 任务仍须遵守激活要求。需求应使用项目已有的 tracker、issue、spec 或 story 流程；在已安装且受支持时使用 PO/spec 操作。不强制所有版本提供 `bmad-spec`，也不引入平行任务存储。
 
@@ -47,7 +47,7 @@ Claude 中 `delegation = false` 的角色还会通过 `disallowedTools` 禁用�
 
 ## 任务接收与路由
 
-每项新的 Plex 任务先简述路线：预期结果、所需角色、执行顺序和完成检查。
+每项已选定路由的 Plex 任务先简述路线：预期结果、所需角色、执行顺序和完成检查。
 根协调者负责协调，将重要规划和实现交给对应角色。技能中定义了以下
 [工作路线](../../../skills/plex/references/task-flows.md)：
 

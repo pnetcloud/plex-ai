@@ -54,12 +54,14 @@ are preserved. BMad mode offers its selected dependencies and project initializa
 
 ## How it works
 
-**Your current chat remains the coordinator and keeps its model.** Every new task first goes to
-`plex-pm` for a short assessment. The coordinator follows that assessment, collects
-required specialist decisions, then assigns implementation and verifies the result.
-Independent assignments can run concurrently; covered steps reuse the assessment.
+**Your current chat remains the coordinator and keeps its model.** Before routing or
+executing unrelated work, the coordinator gets a short `plex-pm` assessment. It may
+record deferred requests in [per-session state](skills/plex/references/coordinator-state.md)
+first; related followups update existing work. The coordinator collects required
+specialist decisions, assigns implementation and verifies the result. Covered steps
+reuse the assessment.
 
-![Task flows through the current chat, mandatory PM assessment, needed specialists and a verified result.](docs/assets/readme/workflow.svg)
+![The coordinator updates session state, defers unrelated requests, obtains PM assessment before routing, then verifies scoped specialist work.](docs/assets/readme/workflow.svg)
 
 The diagram illustrates the workflow, not a separate application interface. A team is a toolbox,
 not a pipeline that must run every role. Plex works within your client's permissions.
@@ -128,7 +130,10 @@ Each cell shows **development → code review** in the bundled `pnet` team.
 
 - **Basic:** one base model across `pnet` roles. **Plus:** separate implementation and review models where configured.
 - **Pro:** more reasoning for selected roles; model families may stay the same. **Pro+:** Sol/Sonnet development and review. **Ultra:** Astra/Opus specialists join. **Ultra+:** higher reasoning effort.
-- **BMad:** the same development/review pairs, except Basic already uses Sol, Sonnet, `inherit` or Sonnet medium for review, respectively. Planning, architecture and other roles have their own settings.
+- **BMad:** uses team- and provider-specific role recipes; the table above is for `pnet`.
+  Its Codex coordinator recommendation is Luna/xhigh on Pro+ and Sol/medium on Ultra
+  (`pnet` uses Luna/max and Sol/low). BMad OpenAI Ultra+ UX remains Astra/medium,
+  and DevOps has its own provider settings.
 - **Inherit:** use client/session defaults. In the Gemini profiles, `inherit` is not a pinned Gemini Pro model.
 
 Configured IDs: Luna = `gpt-6-luna`, Sol = `gpt-6.1-sol`, Astra = `gpt-6-astra`.

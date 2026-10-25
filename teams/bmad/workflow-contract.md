@@ -1,9 +1,11 @@
 # BMad workflow execution contract
 
 Plex coordinates bounded assignments using actual installed BMad skills.
-Every new task starts with a short `plex-pm` intake assessment. This role-local
-consultation does not activate BMad or create a PRD; activation below applies to
-actual BMad assignments after intake. Resolve
+Before routing or executing a new task, unrelated request or decision outside an
+accepted plan, obtain a short `plex-pm` intake assessment. The coordinator may
+first record deferred work in its per-session state and batch related requests for
+one intake. This role-local consultation does not activate BMad or create a PRD;
+activation below applies to actual BMad assignments after intake. Resolve
 skills through the host's active inventory; missing or tied copies are blockers.
 
 `devops` is a native Plex operational specialist, not a BMad persona. PM intake

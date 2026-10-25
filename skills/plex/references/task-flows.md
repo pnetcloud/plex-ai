@@ -4,13 +4,14 @@ Use after explicit Plex activation and successful preflight.
 Follow the selected team's coordinator, installed workflows and project adapters.
 These routes assign work; BMad retains its procedures and checkpoints.
 
-## Intake: always delegate
+## Intake before routing
 
 1. Root locates the request, project instructions, existing task references and authority. Do not classify complexity, design the solution or declare the task ready.
-2. Call the checked `plex-pm` for every new task, even an apparently small fix, and every new task/decision outside an existing assessed plan. Reuse its identity with a new task label.
-3. Request a short intake assessment, not a PRD or a planning workflow by default. Supply intent, constraints, existing artifacts, interaction mode and write authority.
-4. PM returns: outcome/non-goals; accepted inputs and missing decisions; required roles/order; task format and canonical reference; dev contract and observable checks; `ready`, `needs-specialist` or `blocked` with evidence. PM/PO selects the execution approach through [assignment contracts](assignments.md); root does not choose it from apparent task size.
-5. Follow PM's route and collect required outputs before implementation. Root checks team/permission consistency and schedules work; it does not replace specialist judgment.
+2. Keep one coordinator-owned [session state](coordinator-state.md). Related followups amend their current outcome; record unrelated requests there without dispatch or intake.
+3. Before routing or executing a new unrelated request, queued item or decision outside an accepted plan, call the checked `plex-pm` for a short intake assessment. Batch related queued requests when one assessment covers them; reuse its identity with a new task label.
+4. Supply intent, constraints, existing artifacts, interaction mode and write authority. Do not activate a PRD or planning workflow by default.
+5. PM returns: outcome/non-goals; accepted inputs and missing decisions; required roles/order; task format and canonical reference; dev contract and observable checks; `ready`, `needs-specialist` or `blocked` with evidence. PM/PO selects the execution approach through [assignment contracts](assignments.md); root does not choose it from apparent task size.
+6. Follow PM's route and collect required outputs before implementation. Give each worker only its assigned goal, inputs and constraints; workers do not read the global queue. Root checks team/permission consistency and schedules work; it does not replace specialist judgment.
 
 ### Readiness and task format
 
