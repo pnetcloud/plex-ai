@@ -11,7 +11,10 @@ Root schedules their decisions; it does not become another manager.
 2. Use the existing issue/spec/story reference, or the current request for a task
    without one. No new tracker or mandatory assignment file. Pass JSON directly;
    store it only in an already authorized artifact area when useful for continuation.
-3. Include inputs, write/exclusion paths, accepted dependencies and acceptance.
+3. Include the assigned bounded result, its relation to the parent outcome, inputs,
+   write/exclusion paths, accepted dependencies and acceptance. When a user's outcome
+   spans steps, preserve its terminal owner/check in the existing outcome/acceptance;
+   include a representative real input when needed to make that check concrete.
    Dependencies list accepted decisions, not work still pending. Preserve the
    baseline and unrelated hunks from the coordinator's workspace handoff.
 4. Normally use three criteria, at most five; one is enough for a simple task.
@@ -119,6 +122,16 @@ bugs: its criteria require findings, not a positive verdict on the implementatio
 `request` is allowed only for `needs-decision`; `blocker` only for `blocked`.
 `completed` cannot contain an unresolved request or blocker.
 
+### Parent outcome and terminal delivery
+
+`completed` closes only the assigned work. PM/PO frames the user's parent outcome
+and retains its terminal owner and outcome-specific check in the existing handoff;
+the coordinator owns integration and closes that outcome only after the check has
+evidence. A completed prerequisite remains complete but does not prove parent
+delivery. For example, a passing build can complete a prerequisite; when the parent
+outcome is a running deployment, confirm the requested release is running on the
+named target before reporting delivery.
+
 Root checks a returned object before accepting it or using it as a dependent input:
 
 ```sh
@@ -151,8 +164,11 @@ host completion event before closing work; a progress message is never completio
   without new evidence, preserve partial results and report the actual constraint;
   do not repeat the whole workflow or create a manager consultation loop.
 - Return response-format errors once to the same author with exact diagnostics.
-  Do not reimplement or rerun its task. If still invalid, retain partial evidence
-  and report the validation failure; do not invent a valid result on its behalf.
+  The author may correct the envelope while retaining previously verified evidence
+  and its original source, revision and provenance. Do not rerun unchanged work or
+  checks, or invent evidence on the author's behalf; repeat them only when the
+  evidence changed or became invalid. If the correction is still invalid, retain
+  partial evidence and report the validation failure.
 - Send concise event-driven progress for a completed check/criterion, new risk or
   needed decision. Include what changed, evidence and next step. Do not repeat an
   unchanged update, wait for an ACK, or start a periodic manager review. No timer,

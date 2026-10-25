@@ -4,6 +4,14 @@ Important changes retained in Plex, grouped by release. Interfaces and configura
 may change before 1.0. Releases through v0.5.4 were previews; v0.5.5 and later are
 regular releases.
 
+## [0.13.1] — 2026-10-25
+
+- Keep bounded assignments linked to the parent outcome, its terminal owner and delivery check; use representative real inputs when needed.
+- Distinguish completed prerequisites from verified delivery in both coordinators.
+- Permit supported evidence-method alternatives within the same authority and scope while retaining acceptance, required checks and real permission boundaries.
+- Preserve valid evidence and provenance when the same author corrects a malformed response; avoid repeating unchanged work.
+- Clarify existing guidance in English, Russian, German and Simplified Chinese without changing assignment fields, session state, roles, models or BMad workflows.
+
 ## [0.13.0] — 2026-10-25
 
 - Add bounded coordinator session state with a shared template, an 8192-byte UTF-8 ceiling, field/count limits and a read-only validator.

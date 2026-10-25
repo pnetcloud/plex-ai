@@ -170,11 +170,30 @@ und einem JSON-Objekt auf stdin geprüft. Beide Prüfungen sind schreibgeschütz
 - `completed`: alle Auftragskriterien mit Nachweisen erfüllt; die empfangende Rolle
   prüft weiterhin die Abnahme. Reviewer können durch die Lieferung von Befunden abschließen.
 
+`completed` schließt nur diesen Auftrag ab. PM/PO formuliert das übergeordnete
+Benutzerziel und hält im bestehenden Handoff die zuständige Rolle und die Prüfung
+seines Endzustands fest; der Koordinator schließt das übergeordnete Ziel erst, wenn
+integrierte Nachweise diese Prüfung bestehen. Ein abgeschlossener
+Voraussetzungsauftrag ist noch keine Lieferung: Ein erfolgreicher Build kann eine
+Voraussetzung erfüllen, ein angefragtes laufendes Deployment erfordert jedoch die
+Prüfung des benannten Ziels.
+
+Ist eine Nachweismethode nicht verfügbar oder scheitert sie aus methodenspezifischem
+Grund, nutzen Sie eine unterstützte Alternative innerhalb derselben autorisierten
+Handlung und desselben Umfangs. Erhalten Sie dabei Abnahmekriterien und erforderliche
+Prüfungen; bitten Sie nicht allein wegen des Methodenwechsels um Erlaubnis.
+Eine Host-Ablehnung, geänderte Handlung/Umfang/Wirkung, eine Host-Grenze oder unklare
+Befugnis geht an die tatsächliche Berechtigungsstelle.
+
 Derselbe Ausführende setzt mit neuen Nachweisen, korrigierter Eingabe oder einer
 Entscheidung fort. Unveränderte Probleme erhalten weder ein neues Label noch einen
-Workflow-Neustart. Formatfehler gehen einmal an den Autor zurück; erneut ungültige
-Antworten werden mit ihren Teilergebnissen gemeldet, nicht endlos umformatiert.
-Fortschritt wird ereignisbasiert gemeldet: ohne Timer, neues Tokenlimit oder automatischen Modellwechsel.
+Workflow-Neustart. Einen Fehler der Antwortstruktur einmal mit genauer Diagnose an
+den Autor zurückgeben. Zuvor geprüfte Nachweise samt ursprünglichem Artefakt,
+Revision und Herkunft erhalten; Arbeit oder Prüfungen nur wiederholen, wenn sich
+die Nachweise ändern oder ungültig werden. Keine Nachweise im Namen des Autors
+ergänzen. Bleibt die Korrektur ungültig, Teilergebnisse behalten und melden statt
+endlos umzuformatieren. Fortschritt wird ereignisbasiert gemeldet: ohne Timer, neues
+Tokenlimit oder automatischen Modellwechsel.
 
 PM-Erstaufnahme und interne Workflow-Schritte behalten ihre Formate. Die äußere
 BMad-Rückgabe enthält weiterhin Aktivierungs- und Workflow-Nachweise. Alte Verträge

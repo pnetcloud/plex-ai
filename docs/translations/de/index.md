@@ -34,6 +34,7 @@ Englisch ist die gepflegte Quelle; Übersetzungen spiegeln die Dateinamen.
 
 | Version | Änderungen |
 |---|---|
+| [v0.13.1](releases/v0.13.1.md) | Begrenzte Aufträge, endgültige Lieferung und erhaltene Nachweise. |
 | [v0.13.0](releases/v0.13.0.md) | Begrenzter Koordinatorzustand, Zielwarteschlange und DevOps. |
 | [v0.12.3](releases/v0.12.3.md) | Abgestimmte Koordinator-Empfehlungen für Teams und Anbieter. |
 | [v0.12.2](releases/v0.12.2.md) | Geänderte Rollen mit geprüften Backups neu konfigurieren. |

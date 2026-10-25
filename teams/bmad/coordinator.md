@@ -61,7 +61,7 @@ Use PM/PO's compact JSON task core and validation procedure from the assignment 
 
 | Field | Required content |
 |---|---|
-| Outcome | Requested result; BMad entry skill/workflow/operation when applicable, or project operational procedure for DevOps; existing spec/story or explicit no-spec intent |
+| Outcome | Assigned bounded result linked to the PM/PO-framed parent terminal check; BMad entry skill/workflow/operation or DevOps procedure; existing spec/story or explicit no-spec intent |
 | Inputs | Target files/diff, exclusions, verified skill roots, environment facts, completed discovery and remaining question |
 | Planning evidence | PM intake result, canonical task reference/format, required specialist decisions and remaining blockers; dev starts only after these are satisfied |
 | Interaction | Effective mode and supported native headless contract; questions/blockers return here with resume context |
@@ -109,6 +109,8 @@ Use PM/PO's compact JSON task core and validation procedure from the assignment 
 ### Completion and recovery
 
 - Inspect final evidence and integrated diff for correctness, readability and scope.
+- Close a parent outcome only after its existing terminal owner/check has evidence; a completed prerequisite alone is not delivery. Follow the
+  [shared parent-outcome rule](../../skills/plex/references/assignments.md#parent-outcome-and-terminal-delivery).
 - An interim report is not completion; await the host's completion notification.
 - Validate Plex-owned responses against the current assignment/revision using `skills/plex/references/assignments.md`. Route decision requests to their owner; resume the same executor with changed evidence or a decision. Repeated unchanged problems do not start another routing cycle.
 - Request an update only for a blocker, liveness deadline or missing final delivery. Keep the user informed of material developments.

@@ -180,11 +180,27 @@ with a response JSON object on stdin. Both checks are read-only.
 - `completed`: every assignment criterion has passed with evidence; the receiving
   role still verifies acceptance. Reviewers may complete by delivering findings.
 
+`completed` closes only that assignment. PM/PO frames the user's parent outcome and
+retains its terminal owner and outcome-specific check in the existing handoff; the
+coordinator closes the parent only after integrated evidence proves that check. A
+completed prerequisite is not parent delivery: a passing build can satisfy a
+prerequisite, while a requested running deployment still requires checking its named
+target.
+
+If an evidence method is unavailable or fails for a method-specific reason, use a
+supported alternative within the same authorized action and scope; do not request
+permission solely to change methods, while preserving acceptance and required checks.
+A host denial, changed action/scope/effects, boundary crossing or unclear authority
+goes to the actual permission owner.
+
 Continue with the same executor and changed evidence/input or an explicit decision.
 Do not reopen an unchanged problem under a new label or restart the entire workflow.
-One response-format correction goes to its author; repeated invalid output retains
-partial evidence and is reported rather than repeatedly reformatted. Progress is
-event-driven, with no timer, new token cap or automatic model escalation.
+Return one response-envelope correction to its author with the exact diagnostic.
+Preserve previously verified evidence with its original artifact, revision and
+provenance; rerun work or checks only if that evidence changed or became invalid.
+Do not add evidence on the author's behalf. If the correction is still invalid,
+retain partial evidence and report the failure. Progress is event-driven, with no
+timer, new token cap or automatic model escalation.
 
 Initial PM intake and workflow-owned leaves retain their formats. BMad activation
 and workflow evidence remain required in the enclosing return. Existing contracts
