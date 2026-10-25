@@ -13,6 +13,12 @@
 | `balanced` | Resolve routine choices from requirements, code and conventions. Record reversible assumptions. Ask only for unresolved consequential user decisions or applicable checkpoints. |
 | `auto` | Do not ask or wait. Complete authorized work; return assumptions, open decisions, partial results and blockers. Missing answers block dependent work only. |
 
+## Route choice
+
+- In `interactive`, PM may return materially different task-appropriate routes with a recommendation; the root presents the choice to the user.
+- In `auto`, PM selects independently without optional route questions. `balanced` keeps the policy above.
+- Reuse a settled route without asking again. Route selection is separate from workflow plan approval and other genuine checkpoints; modes never bypass them. In `auto`, a checkpoint without an authorized headless path blocks that assignment.
+
 ## Workspace ownership
 
 - Existing uncommitted changes alone do not require confirmation. Work in the selected checkout; record its initial status and relevant pre-existing diff before assigning writes.

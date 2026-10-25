@@ -55,9 +55,13 @@ Definitions live in `teams/<team>/team.toml`, `agents/*.md` and `profiles/*.toml
 Vendor files declare one host and independent tier blocks; profiles have no include chain.
 Exact model IDs and effort settings belong there, not in duplicated documentation tables.
 
-`[skills]` binds each role to its entry skill. Optional `[[workflows.<role>]]`
-entries list the team's supported assignments: required `skill` and `description`,
-plus an optional `operation` menu code for dispatch inside a persona. For example:
+`[skills]` binds each role to its persona entry skill. Optional `[[workflows.<role>]]`
+entries list supported assignments: required `skill` and `description`, plus an
+optional `operation` menu code for dispatch inside that persona. Its absence only
+indicates that no persona-local menu code is specified; it does not select direct
+versus persona/menu mode or prove standalone eligibility. Existing outcome/input
+selects entry mode, and the selected installed skill's actual contract governs. The
+role key identifies the eligible executor. For example:
 
 ```toml
 [[workflows.analyst]]
@@ -71,8 +75,9 @@ description = "Write requirements and a specification from the supplied inputs."
 ```
 
 The resolver validates this catalog and includes it in `.plex/resolved.json`.
-The coordinator selects by description and passes explicit intent and parameters;
-the subagent checks installed dispatch and loads only the selected workflow.
+PM selects the minimal sufficient route from the full map in the exact snapshot;
+the root dispatches it with explicit intent and parameters. The subagent checks
+installed dispatch and loads only the selected workflow.
 Catalog entries do not eagerly activate skills, install BMad or grant approval.
 Workflow procedures remain in installed BMad. Edit the team catalog and refresh
 setup after changes; existing snapshots do not update automatically.
@@ -103,6 +108,13 @@ configuration. The coordinator passes it to all assignments. Subagents return
 questions to the coordinator; it reuses existing answers, groups necessary questions
 in balanced mode and continues independent work. In auto, unresolved gates block
 dependent work and are reported instead of waiting indefinitely.
+
+Route choice follows the effective mode: in `interactive`, PM may present materially
+different task-appropriate routes with a recommendation for the root to ask the user;
+in `auto`, PM chooses independently without optional route questions. `balanced`
+keeps its existing rule above. Reuse a settled route without asking again. Route
+selection does not approve a workflow plan or replace its genuine checkpoints; in
+`auto`, a checkpoint without an authorized headless path remains a blocker.
 
 For bounded artifact work, balanced/auto request native BMad headless execution
 where supported, using the installed workflow's contract. Unsupported routes keep

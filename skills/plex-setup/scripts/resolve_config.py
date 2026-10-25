@@ -318,6 +318,15 @@ def render_role(resolved: dict, host: str, role: str) -> str:
         raise ValueError(f"Role {role!r} is not active in resolved configuration")
     source = load_role(resolved["process"], role, resolved.get("team"))
     instructions = _inject_skill_bindings(source["instructions"], resolved.get("skills", {}).get(role, []))
+    if resolved["process"] == "bmad" and role in resolved.get("workflows", {}):
+        instructions = (
+            "For a persona or menu assignment, use the declared role skill below as the entry and "
+            "follow its activation. For a direct standalone workflow assignment, skip the persona/menu "
+            "activation steps below, resolve only the skill supplied by the coordinator, and follow its "
+            "own entry and return contract; the role binding is not a prerequisite. If both entries name "
+            "the same skill, activate it once. Load only the selected workflow.\n\n"
+            + instructions
+        )
     role_settings = resolved["hosts"][host][role]
 
     if host == "codex":

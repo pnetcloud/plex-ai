@@ -58,7 +58,7 @@ Coordinators use Markdown headings; their purpose and blocks match the role sour
 
 After Plex activation, the coordinator keeps compact [per-session state](../skills/plex/references/coordinator-state.md). Related followups amend their existing outcome; unrelated requests may be recorded as deferred without dispatch. Before routing or executing a new or queued request, the native `plex-pm` role provides a short assessment. Root does not classify complexity or implementation readiness itself. PM returns outcome/non-goals, missing decisions, needed roles/order, the project's task format and reference, a dev contract with checks, and readiness (`ready`, `needs-specialist`, `blocked`).
 
-In the BMad team, this role-local intake does not activate a persona, menu, PRD or Build. Actual BMad assignments still follow their activation contracts. Task/spec authoring uses the project's existing tracker, issue, spec or story conventions; use installed PO/spec operations where supported. Do not require `bmad-spec` across all BMad versions or create a parallel task store.
+In the BMad team, this role-local intake does not activate a persona, menu, PRD or Build. Actual BMad assignments still follow their entry contracts. Task/spec authoring uses the project's existing tracker, issue, spec or story conventions; use a supported PO operation or cataloged standalone spec workflow where available. A direct workflow uses its own entry contract without an unrelated persona prerequisite. Do not require `bmad-spec` across all BMad versions or create a parallel task store.
 
 Required technical decisions go to architect in BMad or PM in pnet before dev. A detailed request or small diff does not prove design readiness. Reuse an assessment for covered workflow steps and unchanged continuation; new decisions outside it return to PM. Missing/rejected required roles block their assignments: root may report status and gather bounded context but cannot take over their design or implementation. This adds a specialist-result prerequisite, not another user approval prompt.
 
@@ -84,15 +84,21 @@ questions and consult the relevant specialist again when scope or assumptions
 change. Flow selection adds no user approval gate; installed workflow checks
 and analyst authorization still apply. A small mechanical task can stay local.
 
+For BMad selection, PM reads the full `workflows` map once from the exact snapshot
+passed by root and returns the minimal sufficient route, its purpose, eligible role,
+entry, sequence and expected canonical output/input. When interactive options are
+presented, root dispatches the user's settled choice; otherwise it dispatches PM's
+settled route. Root integrates the result and does not substitute its own route.
+
 ## Responsibilities
 
 | Role | Outcome |
 |---|---|
-| pm | Scope, acceptance and a bounded implementation contract; BMad PM owns PRD work |
+| pm | First intake, route selection and acceptance; BMad PM owns product requirements, PRDs and assigned standalone spec work |
 | explorer | Read-only map of relevant project code and checks |
 | researcher | External primary-source evidence and uncertainty |
 | analyst | Bounded domain research; BMad use requires direct request or approval |
-| po | BMad specifications, tickets, tracking and change planning |
+| po | BMad specification/task workflows, ticket breakdown, tracking and replanning |
 | ux | Implementable user flows, states and design constraints |
 | architect | Technical boundaries, invariants and decisions |
 | dev | Implementation and relevant checks; selected BMad execution workflow |
@@ -109,9 +115,9 @@ new risk, a material change or an explicit request.
 
 ## BMad startup
 
-- Persona roles: execute entry activation, then dispatch the selected operation.
-- Reviewer: activate the review workflow directly.
-- Workflow leaves: follow the supplied recipe; do not restart the parent workflow.
+- Persona/menu assignments: activate the declared entry persona, then dispatch the selected operation.
+- Direct standalone assignments: use the selected workflow's own activation and return contract; do not activate an unrelated persona or menu first.
+- Reviewer: activate the review workflow directly. Workflow leaves follow the supplied recipe without restarting the parent.
 - Startup and final return cite the resolved skill path, activation evidence,
   selected workflow/operation and reached step. A greeting or role name is insufficient.
 - The coordinator reports requested activation as pending until evidence is available.
@@ -125,6 +131,13 @@ Preserve the selected rendered route, required review cycles and genuine user ga
 An applicable early exit skips later checkpoints in that step; verify its condition
 and target before escalating. Correct a false gate in the same assignment without
 inventing approval. A completed spec alone is not a reason to stop for permission.
+
+Reuse concrete accepted requirements for implementation. If they are missing, the
+selected spec or Build route produces concrete requirements before code; do not
+create a PRD, epic, story or duplicate specification by default. In `interactive`,
+PM sends materially different route options and a recommendation through root to
+the user; `auto` selects without optional route questions. `balanced` keeps its
+existing policy. Reuse a settled route and keep workflow gates intact.
 
 Nested delegation requires authority and available capacity. Preserve leaf prompts
 and context contracts; do not dispatch a leaf review to a wrapper that starts

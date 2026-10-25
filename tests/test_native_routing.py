@@ -47,6 +47,18 @@ class NativeRoutingTests(unittest.TestCase):
         self.assertTrue(C.uninstall_project(self.root, 'codex')['routing_settings_removed'])
         self.assertEqual(self.config.read_text(), personal + '\n[agents]\ndisable_direct_message = true\n')
 
+    def test_bmad_direct_entry_guidance_is_rendered_without_changing_pnet_roles(self):
+        C.apply_project(self.root, 'codex', team='bmad', model_profile='inherit')
+        pm = (self.root / C.host_role_relpath('codex', 'pm')).read_text()
+        self.assertIn('For a direct standalone workflow assignment', pm)
+        self.assertIn('bmad-agent-pm', pm)
+        self.assertNotIn('bmad-spec', pm)
+
+        C.apply_project(self.root, 'codex', team='pnet', model_profile='inherit')
+        dev = (self.root / C.host_role_relpath('codex', 'dev')).read_text()
+        self.assertNotIn('For a direct standalone workflow assignment', dev)
+        self.assertNotIn('bmad-agent-dev', dev)
+
     def test_existing_matching_values_are_not_adopted(self):
         original = '[features.multi_agent_v2]\nhide_spawn_agent_metadata = false\ntool_namespace = "agents"\n'
         self.config.write_text(original)

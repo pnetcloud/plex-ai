@@ -46,7 +46,7 @@ Koordinatoren verwenden Markdown-Überschriften; Zweck und Blöcke entsprechen d
 
 Nach Plex-Aktivierung führt der Koordinator einen kompakten [Sitzungsstatus](../../../skills/plex/references/coordinator-state.md). Verwandte Followups aktualisieren das bestehende Ergebnis; unabhängige Anfragen dürfen vor einer Delegation vorgemerkt werden. Vor Routing oder Ausführung neuer oder vorgemerkter Arbeit ist eine kurze Bewertung durch `plex-pm` erforderlich. Root entscheidet nicht selbst über Komplexität oder Umsetzungsreife. PM liefert Ziel/Ausschlüsse, fehlende Entscheidungen, Rollen/Reihenfolge, Aufgabenformat und Referenz, Dev-Vertrag mit Prüfungen sowie `ready`, `needs-specialist` oder `blocked`.
 
-Im BMad-Team aktiviert diese rolleninterne Bewertung weder Persona noch Menü, PRD oder Build. Echte BMad-Aufträge behalten ihre Aktivierungspflichten. Anforderungen folgen dem vorhandenen Tracker-, Issue-, Spec- oder Story-Verfahren des Projekts; installierte PO-/Spec-Operationen verwenden, soweit unterstützt. Kein universelles `bmad-spec` voraussetzen und keine parallele Aufgabenablage einführen.
+Im BMad-Team aktiviert diese rolleninterne Bewertung weder Persona noch Menü, PRD oder Build. Echte BMad-Aufträge folgen ihrem jeweiligen Einstieg. Anforderungen nutzen das vorhandene Tracker-, Issue-, Spec- oder Story-Verfahren des Projekts; verwenden Sie unterstützte PO-Operationen oder katalogisierte eigenständige Spec-Workflows. Ein direkter Workflow folgt seinem eigenen Vertrag ohne Voraussetzung einer unbeteiligten Persona. Kein universelles `bmad-spec` voraussetzen und keine parallele Aufgabenablage einführen.
 
 Nötige technische Entscheidungen gehen vor Dev an architect in BMad oder PM in pnet. Ausführliche Anforderungen oder ein kleiner Diff beweisen keine Designreife. Bewertungen für abgedeckte Schritte und unveränderte Fortsetzung wiederverwenden; neue Entscheidungen gehen zurück an PM. Fehlende/abgelehnte Pflichtrollen blockieren ihren Auftrag: Root darf begrenzten Kontext sammeln und Status berichten, aber nicht deren Entwurf oder Umsetzung übernehmen. Dies verlangt ein Fachresultat, keine neue Benutzerfreigabe.
 
@@ -73,15 +73,22 @@ Annahmen den zuständigen Spezialisten erneut einbeziehen. Die Routenwahl schaff
 keine weitere Benutzerfreigabe; Workflowprüfungen und Analystenfreigabe bleiben
 gültig. Kleine mechanische Aufgaben können lokal bleiben.
 
+Für die BMad-Auswahl liest PM einmal die vollständige `workflows`-Karte aus dem
+exakten, von Root übergebenen Snapshot und gibt die minimal ausreichende Route
+zurück: Zweck, passende Rolle, Einstieg, Reihenfolge sowie erwartete kanonische
+Ein- und Ausgaben. Bei interaktiven Optionen delegiert Root die vom Nutzer gewählte
+Route; andernfalls die von PM festgelegte Route. Root integriert das Ergebnis und
+setzt keine eigene Route an ihre Stelle.
+
 ## Verantwortung
 
 | Rolle | Ergebnis |
 |---|---|
-| pm | Umfang, Abnahme und Umsetzungsvertrag; BMad PM verantwortet PRD |
+| pm | Erstbewertung, Routenwahl und Abnahme; BMad PM verantwortet Anforderungen, PRDs und zugewiesene eigenständige Specs |
 | explorer | Schreibgeschützte Karte relevanten Codes und bestehender Prüfungen |
 | researcher | Externe Primärquellen und Unsicherheiten |
 | analyst | Begrenzte Fachrecherche; BMad nur auf direkten Wunsch/Freigabe |
-| po | BMad-Spezifikationen, Tickets, Verfolgung und Neuplanung |
+| po | BMad-Spec- und Aufgabenworkflows, Ticket-Aufteilung, Verfolgung und Neuplanung |
 | ux | Umsetzbare Benutzerabläufe, Zustände und Gestaltung |
 | architect | Technische Grenzen, Invarianten und Entscheidungen |
 | dev | Umsetzung und Prüfungen; ausgewählter BMad-Ausführungsworkflow |
@@ -98,9 +105,9 @@ Risiko, wesentliche Änderung oder ausdrücklichen Wunsch.
 
 ## BMad-Start
 
-- Persona-Rollen: Einstiegsskill aktivieren, dann die zugewiesene Operation starten.
-- Reviewer: Review-Workflow direkt aktivieren.
-- Workflow-Unteraufträge: geliefertes Rezept ausführen; Elternworkflow nicht neu starten.
+- Persona-/Menüaufträge: deklarierten Einstieg aktivieren, dann die Operation starten.
+- Direkte eigenständige Workflows: ihrem eigenen Aktivierungs- und Rückgabevertrag folgen, ohne eine unbeteiligte Persona oder ein Menü voranzustellen.
+- Reviewer aktiviert den Review-Workflow direkt; Workflow-Unteraufträge führen ihr Rezept aus und starten den Elternworkflow nicht neu.
 - Startmeldung und Rückgabe nennen Skillpfad, Aktivierungsbelege,
   Workflow/Operation und erreichten Schritt. Gruß oder Rollenname reichen nicht.
 - Der Koordinator bestätigt Aktivierung erst anhand der Ausführungsbelege.
@@ -114,6 +121,14 @@ Gerenderte Route, Pflichtzyklen und echte Benutzerfreigaben bewahren. Ein anwend
 früher Ausstieg überspringt spätere Checkpoints desselben Schritts; Bedingung/Ziel vor
 Eskalation prüfen. Falsche Gates im selben Auftrag korrigieren, ohne Zustimmung zu
 erfinden. Eine fertige Spezifikation allein ist kein Grund für eine Freigabepause.
+
+Für Implementierungen konkrete akzeptierte Anforderungen wiederverwenden. Fehlen
+sie, erzeugt der ausgewählte Spec- oder Build-Weg vor dem Code konkrete Anforderungen;
+keine PRD, Epic, Story oder doppelte Spezifikation automatisch anlegen. In
+`interactive` sendet PM wesentlich unterschiedliche Routen samt Empfehlung über Root
+an den Nutzer; in `auto` wählt PM ohne optionale Routenfrage. `balanced` behält seine
+bisherige Regel. Eine festgelegte Route nicht erneut abfragen; echte Workflow-Prüfpunkte
+bleiben bestehen.
 
 Verschachtelung braucht Befugnis und Kapazität. Leaf-Prompts und Kontextverträge
 bewahren; Leaf-Reviews nicht an Wrapper geben, die neue vollständige Workflows starten.

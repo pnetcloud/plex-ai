@@ -137,20 +137,60 @@ class ConfigTests(unittest.TestCase):
         self.assertEqual(set(resolved["workflows"]), set(team["roles"]) - {"devops"})
         self.assertEqual(resolve({"team": "pnet"})["workflows"], {})
         self.assertEqual(resolved["skills"]["analyst"], ["bmad-agent-analyst"])
-        self.assertEqual({item["operation"] for item in resolved["workflows"]["po"]},
+        self.assertEqual({item["operation"] for item in resolved["workflows"]["po"]
+                          if "operation" in item},
                          {"SPEC", "TICKETS", "REFINE", "BOARD", "VALIDATE", "REPLAN", "STORE"})
-        self.assertTrue(all(item["skill"] == "bmad-agent-po" for item in resolved["workflows"]["po"]))
+        self.assertTrue(all(item["skill"] == "bmad-agent-po" for item in resolved["workflows"]["po"]
+                            if "operation" in item))
         self.assertIn("bmad-build-auto", {item["skill"] for item in resolved["workflows"]["dev"]})
+        for role, skill in (
+            ("pm", "bmad-spec"),
+            ("po", "bmad-create-epics-and-stories"),
+            ("po", "bmad-sprint-planning"),
+            ("po", "bmad-correct-course"),
+            ("dev", "bmad-walkthrough"),
+        ):
+            with self.subTest(role=role, skill=skill):
+                entry = next(item for item in resolved["workflows"][role] if item["skill"] == skill)
+                self.assertNotIn("operation", entry)
         for host in MODULE.HOSTS:
             text = MODULE.render_role(resolved, host, "analyst")
             self.assertNotIn("bmad-product-brief", text)
             self.assertNotIn("bmad-prfaq", text)
+
+    def test_direct_workflow_guidance_renders_only_for_bmad_on_each_host(self):
+        bmad = resolve({"team": "bmad"})
+        pnet = resolve({"team": "pnet"})
+        for host in MODULE.HOSTS:
+            for role in bmad["workflows"]:
+                with self.subTest(host=host, role=role):
+                    text = MODULE.render_role(bmad, host, role)
+                    self.assertIn("For a direct standalone workflow assignment", text)
+                    self.assertIn("skip the persona/menu activation steps below", text)
+                    for skill in bmad["skills"][role]:
+                        self.assertIn(skill, text)
+            self.assertNotIn("For a direct standalone workflow assignment",
+                             MODULE.render_role(pnet, host, "dev"))
+            self.assertNotIn("For a direct standalone workflow assignment",
+                             MODULE.render_role(bmad, host, "devops"))
+            for role, skill in (
+                ("pm", "bmad-spec"),
+                ("po", "bmad-create-epics-and-stories"),
+                ("po", "bmad-sprint-planning"),
+                ("po", "bmad-correct-course"),
+                ("dev", "bmad-walkthrough"),
+            ):
+                self.assertNotIn(skill, MODULE.render_role(bmad, host, role))
 
     def test_invalid_workflow_catalog_is_rejected(self):
         valid = {"skill": "bmad-build", "description": "Implement a change."}
         cases = [
             {"unknown": [valid]}, {"dev": []}, {"dev": "bmad-build"},
             {"dev": [valid, valid]}, {"dev": ["bmad-build"]},
+            {"pm": [{"skill": "bmad-spec", "description": "Write a spec."},
+                    {"skill": "bmad-spec", "description": "Another description."}]},
+            {"dev": [{"skill": "bmad-build", "description": "Run QA.", "operation": "QA"},
+                     {"skill": "bmad-build", "description": "Run checks.", "operation": "QA"}]},
             {"dev": [{"skill": "../other", "description": "Change."}]},
             {"dev": [{"skill": "bmad-build", "description": " "}]},
             {"dev": [{**valid, "operation": []}]},
@@ -190,6 +230,7 @@ class ConfigTests(unittest.TestCase):
                 self.assertEqual(roles_before, {p.name: p.read_bytes() for p in (project / ".codex/agents").iterdir()})
                 snapshot = json.loads((project / ".plex/resolved.json").read_text())
                 self.assertEqual(snapshot["workflows"]["analyst"][0]["description"], "Research with cited sources.")
+                self.assertEqual(snapshot["workflows"], tomllib.loads(team_path.read_text())["workflows"])
 
     def test_shared_tiers_reuse_each_clients_vendor_settings(self):
         for team in ('pnet', 'bmad'):
@@ -228,7 +269,18 @@ class ConfigTests(unittest.TestCase):
                 expected = MODULE._inject_skill_bindings(asset['instructions'],
                                                          resolved['skills'].get(role, []))
                 self.assertIn('developer_instructions = """\n', item['content'])
-                self.assertEqual(tomllib.loads(item['content'])['developer_instructions'], expected)
+                actual = tomllib.loads(item['content'])['developer_instructions']
+                if process == 'bmad' and role in resolved['workflows']:
+                    direct_entry_prefix = (
+                        "For a persona or menu assignment, use the declared role skill below as the entry and "
+                        "follow its activation. For a direct standalone workflow assignment, skip the persona/menu "
+                        "activation steps below, resolve only the skill supplied by the coordinator, and follow its "
+                        "own entry and return contract; the role binding is not a prerequisite. If both entries name "
+                        "the same skill, activate it once. Load only the selected workflow.\n\n"
+                    )
+                    self.assertEqual(actual, direct_entry_prefix + expected)
+                else:
+                    self.assertEqual(actual, expected)
 
     def test_antigravity_renders_only_explicit_native_tiers(self):
         for model in MODULE.ANTIGRAVITY_NATIVE_MODELS:

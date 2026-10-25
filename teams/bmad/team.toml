@@ -40,6 +40,10 @@ description = "Set up, refresh or audit project agent instructions."
 skill = "bmad-prd"
 description = "Create, update or validate product requirements."
 
+[[workflows.pm]]
+skill = "bmad-spec"
+description = "Create a concise specification from accepted requirements."
+
 [[workflows.po]]
 skill = "bmad-agent-po"
 operation = "SPEC"
@@ -75,6 +79,18 @@ skill = "bmad-agent-po"
 operation = "STORE"
 description = "Configure ticket storage or connect a tracker."
 
+[[workflows.po]]
+skill = "bmad-create-epics-and-stories"
+description = "Break accepted requirements into epics and stories."
+
+[[workflows.po]]
+skill = "bmad-sprint-planning"
+description = "Sequence accepted work into an implementation sprint."
+
+[[workflows.po]]
+skill = "bmad-correct-course"
+description = "Reassess changed scope and replan remaining work."
+
 [[workflows.ux]]
 skill = "bmad-ux"
 description = "Define user journeys, interaction states and product design."
@@ -98,6 +114,10 @@ description = "Generate automated API or end-to-end tests for implemented behavi
 [[workflows.dev]]
 skill = "bmad-retrospective"
 description = "Assess a completed epic using its implementation and verification evidence."
+
+[[workflows.dev]]
+skill = "bmad-walkthrough"
+description = "Walk through a feature and identify user-visible behavior or gaps."
 
 [[workflows.reviewer]]
 skill = "bmad-code-review"

@@ -4,6 +4,13 @@ Important changes retained in Plex, grouped by release. Interfaces and configura
 may change before 1.0. Releases through v0.5.4 were previews; v0.5.5 and later are
 regular releases.
 
+## [0.14.0] — 2026-10-25
+
+- Let PM select the minimal suitable BMad route from the complete role-keyed workflow map, with direct entries for PM specifications, PO planning workflows and Dev walkthroughs while retaining existing PO operations.
+- Distinguish direct workflow entry from persona/menu dispatch; use accepted requirements, avoid duplicate planning artifacts and preserve the selected workflow's real checks and gates.
+- Clarify route choice by interaction mode: interactive choices go through the root coordinator, auto selects independently and balanced behavior stays unchanged.
+- Align coordinator, PM, workflow and four-language guide contracts without changing pnet behavior, assignment schemas, profiles, models or session-state format.
+
 ## [0.13.1] — 2026-10-25
 
 - Keep bounded assignments linked to the parent outcome, its terminal owner and delivery check; use representative real inputs when needed.

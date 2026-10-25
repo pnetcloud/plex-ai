@@ -85,7 +85,7 @@ class PackageTests(unittest.TestCase):
             self.assertEqual(manifest["name"], manifests[0]["name"])
             self.assertEqual(manifest["version"], manifests[0]["version"])
         skill_sets = []
-        for package, manifest in zip(packages, manifests):
+        for package, manifest, host in zip(packages, manifests, hosts):
             for team in ("pnet", "bmad"):
                 coordinator = Path("teams") / team / "coordinator.md"
                 self.assertEqual((package / coordinator).read_bytes(), (ROOT / coordinator).read_bytes())
@@ -93,6 +93,33 @@ class PackageTests(unittest.TestCase):
             self.assertEqual((package / workflow_contract).read_bytes(), (ROOT / workflow_contract).read_bytes())
             task_flows = Path("skills/plex/references/task-flows.md")
             self.assertEqual((package / task_flows).read_bytes(), (ROOT / task_flows).read_bytes())
+            for relative in ("teams/bmad/team.toml", "teams/bmad/agents/pm.md",
+                             "skills/plex/references/interaction.md",
+                             "skills/plex-setup/scripts/resolve_config.py"):
+                source = Path(relative)
+                self.assertEqual((package / source).read_bytes(), (ROOT / source).read_bytes())
+            resolver_path = package / "skills/plex-setup/scripts/resolve_config.py"
+            resolver_spec = importlib.util.spec_from_file_location(f"packaged_config_{host}", resolver_path)
+            packaged_config = importlib.util.module_from_spec(resolver_spec)
+            resolver_spec.loader.exec_module(packaged_config)
+            bmad = packaged_config.resolve({"team": "bmad"})
+
+            def developer_instructions(resolved, role):
+                generated = packaged_config.render_role(resolved, host, role)
+                if host == "codex":
+                    return tomllib.loads(generated)["developer_instructions"]
+                sections = generated.split("---", 2)
+                self.assertEqual(len(sections), 3)
+                metadata = yaml.safe_load(sections[1])
+                self.assertEqual(metadata["name"], f"plex-{role}")
+                return sections[2].strip()
+
+            bmad_instructions = developer_instructions(bmad, "pm")
+            self.assertIn("For a direct standalone workflow assignment", bmad_instructions)
+            self.assertNotIn("bmad-spec", bmad_instructions)
+            pnet_instructions = developer_instructions(
+                packaged_config.resolve({"team": "pnet"}), "dev")
+            self.assertNotIn("For a direct standalone workflow assignment", pnet_instructions)
             for relative in ("references/assignments.md", "assets/assignment.json.template",
                              "scripts/check_assignment.py", "assets/response.json.template",
                              "assets/coordinator-state.template", "references/coordinator-state.md",

@@ -13,10 +13,22 @@ still applies, but BMad activation/entry evidence below does not apply to its
 CI/release/deployment assignments. Use the project's actual operational procedure
 and installed skills; report exact revision, authority and observed results.
 
-Use the checked team's workflow catalog to select the persona and requested workflow. A persona
-adds professional judgment and dispatch; the workflow owns its procedure. Direct
-workflow invocation is valid when supported by the assignment and installed skill.
-Do not copy personas, menus or version-specific workflow steps into handoffs.
+PM remains first intake and route selector. From the exact snapshot supplied by root,
+PM reads the full `workflows` map once and selects the minimal sufficient sequence.
+Return each step's purpose, role key (eligible executor), entry skill and optional
+operation, plus its expected canonical output/input. Root alone dispatches and integrates.
+
+The existing outcome/input selects invocation mode and may identify a persona/menu
+entry together with a workflow, or a direct workflow entry. Do not infer the mode from
+whether a catalog row has `operation`. In persona/menu mode, use the declared persona
+skill and dispatch a selected cataloged `operation` within it. In direct-workflow mode,
+follow the selected installed skill's actual entry, activation and return contract
+without an unrelated persona or menu prerequisite. The absence of optional `operation`
+only means no persona-local menu code is specified; it neither selects direct mode nor
+proves standalone eligibility. Preserve both modes, existing persona bindings and
+operation behavior. Identify the chosen entry in existing outcome/input. Do not add a
+required assignment field or copy personas, menus or version-specific workflow steps
+into handoffs.
 
 Read and follow the installed skill's activation, customization, runtime and workflow
 instructions. Resolve actual menu entries, rendering commands, review stages and
@@ -25,10 +37,19 @@ an explicit intent, input paths, scope, ownership and acceptance criteria. Dispa
 directly when the installed skill permits; do not ask for a menu choice already
 supplied. Return ambiguous assignments to the coordinator.
 
-Use PM for product requirements, PO for specifications/tickets/replanning, and
-architect for technical decisions when needed, rather than before every implementation. If a BMad workflow owns the work, respect its
-planning, review and human gates; do not create a competing team or skip its stages.
-QA is a test-generation assignment, not a mandatory stage for routine checks.
+Use PM for product requirements and explicitly assigned bounded PM product/spec
+workflows; use PO for ticket slicing, board/tracking, replanning and its cataloged
+spec/task workflows. Use Architect for material technical decisions when needed,
+rather than before every implementation.
+Build reuses concrete accepted requirements. If absent, the selected spec workflow
+or a Build route whose installed contract supports minimal-spec work produces them
+before code; otherwise resolve missing requirements before implementation. Do not
+automatically create a PRD, epic, story or duplicate specification. Respect the
+selected workflow's planning, review and human gates; do not create a competing team
+or skip its stages. Route questions
+follow the shared interaction policy, reuse settled choices and never bypass a
+genuine checkpoint. QA is a test-generation assignment, not a mandatory stage for
+routine checks.
 
 Only the coordinator assigns work and integrates results. Dependencies between
 artifacts do not authorize children to spawn other roles. Nested delegation requires
@@ -52,7 +73,7 @@ to the coordinator; a recommendation or elapsed time is not approval.
 
 | Executor | Required startup |
 |---|---|
-| analyst, pm, po, ux, architect, dev | Activate entry persona, then dispatch the assigned operation |
+| analyst, pm, po, ux, architect, dev | Persona/menu entry: activate its persona, then dispatch the selected operation/workflow. Direct entry: follow the selected skill's actual entry and activation contract |
 | reviewer | Activate the assigned review workflow directly |
 | Workflow-owned leaf | Execute the supplied technical recipe; do not restart a persona or parent workflow |
 

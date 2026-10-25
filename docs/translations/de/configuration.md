@@ -55,15 +55,21 @@ Definitionen liegen in `teams/<team>/team.toml`, `agents/*.md` und `profiles/*.t
 Anbieterdateien deklarieren einen Client und unabhängige Stufen, ohne Include-Ketten.
 Genaue Modell-IDs und Effort-Werte gehören dorthin, nicht in duplizierte Dokumentationstabellen.
 
-`[skills]` bindet jede Rolle an ihren Einstiegsskill. Optionale Einträge
+`[skills]` bindet jede Rolle an ihren Persona-Einstiegsskill. Optionale Einträge
 `[[workflows.<role>]]` enthalten `skill` und eine kurze `description` sowie optional
-`operation` als Menücode innerhalb einer Persona. Beispiel: Analyst verwendet
+`operation` als Menücode innerhalb einer Persona. Das Fehlen von `operation` bedeutet
+nur, dass kein persona-lokaler Menücode angegeben ist; es wählt weder den Direkt- noch
+den Persona/Menümodus und belegt keine Eignung für einen eigenständigen Einstieg.
+Der vorhandene outcome/input bestimmt den Einstiegsmodus; maßgeblich ist der tatsächliche
+Vertrag des ausgewählten installierten Skills. Der Rollenschlüssel nennt den zulässigen
+Executor. Beispiel: Analyst verwendet
 `skill = "bmad-deep-recon"`; PO verwendet `skill = "bmad-agent-po"` mit
 `operation = "SPEC"`. Jeder Eintrag benötigt eine Ergebnisbeschreibung.
 
 Der Resolver validiert den Katalog und speichert ihn in `.plex/resolved.json`.
-Der Koordinator wählt anhand der Beschreibung und übergibt Absicht und Parameter;
-der Subagent prüft den installierten Dispatch und lädt nur den gewählten Workflow.
+PM wählt die minimal ausreichende Route aus der vollständigen Karte im exakten
+Snapshot; Root delegiert die gewählte Route mit Absicht und Parametern. Der Subagent
+prüft den installierten Dispatch und lädt nur den gewählten Workflow.
 Der Katalog aktiviert nicht alle Skills, installiert kein BMad und ersetzt keine
 Freigabe. Die Abläufe bleiben im installierten BMad. Nach Katalogänderungen Setup
 aktualisieren; vorhandene Snapshots ändern sich nicht automatisch.
@@ -94,6 +100,13 @@ Eine ausdrückliche Wahl für einen Auftrag überschreibt den Modus ohne Speiche
 Der Koordinator übergibt ihn an alle Ausführenden. Subagenten melden Fragen an ihn;
 er nutzt bekannte Antworten, bündelt nötige Fragen in balanced und setzt unabhängige
 Arbeit fort. In auto blockiert ein offener Punkt nur abhängige Arbeit.
+
+Die Routenwahl folgt dem effektiven Modus: In `interactive` kann PM wesentlich
+unterschiedliche passende Routen mit Empfehlung vorschlagen; Root fragt den Nutzer.
+In `auto` wählt PM selbstständig und stellt keine optionalen Routenfragen.
+`balanced` behält die oben beschriebene Regel. Eine festgelegte Route wird nicht
+erneut abgefragt. Die Routenwahl genehmigt weder den Plan des Workflows noch ersetzt
+sie echte Prüfpunkte; in `auto` bleibt ein fehlender autorisierter Headless-Weg ein Blocker.
 
 Bei begrenzten Artefaktaufträgen nutzen balanced/auto natives BMad-Headless, soweit
 unterstützt. Sonst gelten echte Checkpoints; auto meldet einen Blocker, wenn ohne

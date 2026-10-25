@@ -50,13 +50,17 @@ Plex 不配置 token 预算。刷新时会移除旧 preset 中已停用的预算
 定义位于 `teams/<team>/team.toml`、`agents/*.md` 和 `profiles/*.toml`。
 供应商文件声明客户端和独立档位，不使用 include 链。精确模型 ID 和推理强度以源文件为准，避免在文档中重复维护。
 
-`[skills]` 将角色绑定到入口技能。可选的 `[[workflows.<role>]]` 条目包含必填的
-`skill` 和简短的 `description`，以及可选的角色内部菜单代码 `operation`。
+`[skills]` 将角色绑定到 persona 入口技能。可选的 `[[workflows.<role>]]` 条目包含必填的
+`skill` 和简短的 `description`，以及可选的 persona 内部菜单代码 `operation`。
+缺少 `operation` 仅表示未指定 persona 内菜单代码；它既不决定直接 workflow 模式还是
+persona/菜单模式，也不证明该技能可独立调用。现有 outcome/input 决定入口模式；
+以所选已安装技能的实际契约为准。角色键表示符合条件的执行者。
 例如 analyst 使用 `skill = "bmad-deep-recon"`；PO 使用 `skill = "bmad-agent-po"`
 和 `operation = "SPEC"`。每个条目都需要结果说明。
 
-解析器验证目录并将其保存到 `.plex/resolved.json`。协调者根据描述选择操作并传递明确意图和参数；
-子智能体验证已安装版本的分派规则，仅加载选定工作流。目录不会提前激活所有技能、安装 BMad 或代替批准。
+解析器验证目录并将其保存到 `.plex/resolved.json`。PM 从准确快照中的完整映射
+选择最小充分路线；Root 按该选择传递明确意图和参数。子智能体验证已安装版本的分派规则，
+仅加载选定工作流。目录不会提前激活所有技能、安装 BMad 或代替批准。
 具体流程仍由已安装的 BMad 提供。修改团队目录后请刷新安装；现有快照不会自动更新。
 
 `openai-plus`、`google-anthropic-plus` 等供应商配置 ID 可通过单客户端 `--host` 模式或解析器使用。
@@ -79,6 +83,11 @@ Plex 不配置 token 预算。刷新时会移除旧 preset 中已停用的预算
 用户明确指定的单次任务模式覆盖保存值，但不改写配置。协调者将模式传递给所有执行者。
 子智能体向协调者返回问题；协调者复用已知答案，在 balanced 中合并必要问题，并继续独立工作。
 auto 中未决事项只阻塞依赖它的工作。
+
+路线选择遵循当前有效模式：在 `interactive` 下，PM 可以提出差异明显的任务路线并给出建议，
+由 Root 向用户提问；在 `auto` 下，PM 自行选择，不提出可选的路线问题。`balanced` 保持上述规则。
+已确定的路线不再重复询问。路线选择不等于批准 workflow 计划，也不会绕过真实检查点；
+在 `auto` 下，没有获授权的 headless 路径仍须报告为阻塞。
 
 对于范围明确的产物任务，balanced/auto 在支持时使用 BMad 原生 headless 合约；
 不支持时仍遵守实际检查点。auto 无法在授权范围内继续时返回阻塞状态。

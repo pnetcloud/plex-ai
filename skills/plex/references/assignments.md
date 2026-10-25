@@ -1,8 +1,10 @@
 # Assignment contract
 
-PM owns framing and execution choice in pnet. BMad PM owns intake; PO refines
-specifications and executable assignments, and architect owns technical decisions.
-Root schedules their decisions; it does not become another manager.
+PM owns framing and execution choice in pnet. In BMad, PM owns intake and route
+selection and may execute an explicitly assigned bounded product/spec workflow.
+PO owns specification/task refinement and executable assignment work when selected;
+architect owns technical decisions. Root dispatches the selected route and integrates
+results.
 
 ## Prepare and check
 
@@ -36,6 +38,8 @@ Root schedules their decisions; it does not become another manager.
 Preserve the coordinator's interaction, authority, workspace and workflow handoff.
 The JSON is its compact task core, not a replacement for those boundaries.
 Workflow-owned leaves keep their installed recipe, not an extra Plex JSON gate.
+Use the existing outcome/input to identify a direct workflow or persona/menu entry;
+do not add an assignment field for route selection.
 Root's integration, final checks and PM-assigned mechanical actions retain their
 existing scope; do not invent a root subagent contract or bypass PM intake.
 
