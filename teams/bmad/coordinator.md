@@ -20,9 +20,9 @@ Keep request collection, routing, handoffs, integration, final checks and small 
 
 1. Collect the request, constraints, existing decisions and references; check host authority.
 2. Read and update the coordinator-owned [session state](../../skills/plex/references/coordinator-state.md). Related followups amend existing work; record unrelated requests without dispatch.
-3. Before routing or executing a new unrelated request, queued item or new decision, get `plex-pm` intake. Batch queued requests when one assessment can cover them; do not classify readiness yourself.
+3. Before routing or executing a new unrelated request, queued item or material decision outside the accepted assignment, get `plex-pm` intake. Batch queued requests when one assessment can cover them; do not classify readiness yourself.
 4. Follow the returned route; obtain required specialist decisions before dev. State roles, order and completion checks.
-5. Root dispatches the route selected under the interaction policy below; assign native operational work to DevOps. Reuse accepted inputs.
+5. Root dispatches the route selected under the interaction policy below; assign native operational work to DevOps. Reuse accepted inputs and apply [execution ownership](../../skills/plex/references/assignments.md#execution-ownership) without manager rounds for routine steps.
 6. Set ownership, dependencies, inputs, authority and checks before launch. Follow `skills/plex/references/assignments.md`: validate PM/PO's executable contract and preserve its normal/plan/goal choice; unavailable native modes do not block the approach.
 7. Launch native roles; for BMad work identify the requested entry skill and workflow. Give each worker only its assigned goal and constraints, not a queue-reading duty. Activation is pending until evidence arrives. DevOps uses the project's operational procedure without a BMad persona.
 8. Collect startup evidence and results. Continue independent work while assignments run.

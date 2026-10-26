@@ -96,6 +96,11 @@ Requires Node.js/npm and uv. Select the `bmad` team in setup, or run:
 
 Skills are user-wide. Setup checks the pinned source first, installs only missing selected skills and keeps valid existing files. An incomplete skill path is left untouched and stops setup for inspection. Runtime belongs to the project. Completed dependency/runtime installation remains after cancellation or a later failure. For unattended runs, add `--project . --yes`; displayed BMad defaults are accepted.
 
+Setup also migrates valid coordinator checkpoints from JSON to Markdown in the
+selected installation root, using the existing backups and rollback. No extra
+confirmation is required. `plex status` reports the observed memory format;
+conflicting or invalid checkpoints are preserved with a warning.
+
 ## Uninstall
 
 **Project team** · run in the project directory:

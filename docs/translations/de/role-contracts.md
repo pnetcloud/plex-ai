@@ -44,11 +44,25 @@ Koordinatoren verwenden Markdown-Überschriften; Zweck und Blöcke entsprechen d
 
 ## Verbindliche Aufgabenbewertung
 
+Neue Koordinatorzustände verwenden Markdown; bestehendes JSON bleibt lesbar.
+Die nur lesende Prüfung gibt beide Formate mit `--markdown` als Markdown aus.
+Setup migriert gültige kanonische JSON-Zustände im gewählten Installationsbereich
+automatisch, sichert Originale und entfernt alte Dateien nach der Prüfung.
+Konflikte bleiben erhalten; `plex status` zeigt das vorgefundene Speicherformat.
+Prüfungen alter Pfade liefern den neuen `canonical_path` derselben Sitzung.
+Erlaubt sind 32 KiB UTF-8 und 16 aktuelle Entscheidungen; exakte Verweise und
+Agentenkennungen beibehalten. Die Grenze beschränkt weder Kontext noch Ausführung.
+
+Nach der Bewertung führt Dev/DevOps gewöhnliche technische Schritte innerhalb
+des angenommenen Auftrags selbstständig aus. Für Eskalation, alternative Werkzeuge
+und unabhängige Arbeit während ausstehender Abnahme gilt die
+[gemeinsame Regel](../../../skills/plex/references/assignments.md#execution-ownership).
+
 Nach Plex-Aktivierung führt der Koordinator einen kompakten [Sitzungsstatus](../../../skills/plex/references/coordinator-state.md). Verwandte Followups aktualisieren das bestehende Ergebnis; unabhängige Anfragen dürfen vor einer Delegation vorgemerkt werden. Vor Routing oder Ausführung neuer oder vorgemerkter Arbeit ist eine kurze Bewertung durch `plex-pm` erforderlich. Root entscheidet nicht selbst über Komplexität oder Umsetzungsreife. PM liefert Aufgabenklasse, Ziel/Ausschlüsse, fehlende Entscheidungen, Rollen/Reihenfolge, Aufgabenformat und Referenz, Dev-Vertrag mit Prüfungen sowie `ready`, `needs-specialist` oder `blocked`.
 
 Im BMad-Team aktiviert diese rolleninterne Bewertung weder Persona noch Menü, PRD oder Build. Echte BMad-Aufträge folgen ihrem jeweiligen Einstieg. Anforderungen nutzen das vorhandene Tracker-, Issue-, Spec- oder Story-Verfahren des Projekts; verwenden Sie unterstützte PO-Operationen oder katalogisierte eigenständige Spec-Workflows. Ein direkter Workflow folgt seinem eigenen Vertrag ohne Voraussetzung einer unbeteiligten Persona. Kein universelles `bmad-spec` voraussetzen und keine parallele Aufgabenablage einführen.
 
-Nötige technische Entscheidungen gehen vor Dev an architect in BMad oder PM in pnet. Ausführliche Anforderungen oder ein kleiner Diff beweisen keine Designreife. Bewertungen für abgedeckte Schritte und unveränderte Fortsetzung wiederverwenden; neue Entscheidungen gehen zurück an PM. Fehlende/abgelehnte Pflichtrollen blockieren ihren Auftrag: Root darf begrenzten Kontext sammeln und Status berichten, aber nicht deren Entwurf oder Umsetzung übernehmen. Dies verlangt ein Fachresultat, keine neue Benutzerfreigabe.
+Nötige technische Entscheidungen gehen vor Dev an architect in BMad oder PM in pnet. Ausführliche Anforderungen oder ein kleiner Diff beweisen keine Designreife. Bewertungen für abgedeckte Schritte und unveränderte Fortsetzung wiederverwenden; wesentliche Entscheidungen außerhalb des Auftrags gehen zurück an PM. Fehlende/abgelehnte Pflichtrollen blockieren ihren Auftrag: Root darf begrenzten Kontext sammeln und Status berichten, aber nicht deren Entwurf oder Umsetzung übernehmen. Dies verlangt ein Fachresultat, keine neue Benutzerfreigabe.
 
 
 ## Aufgabenaufnahme und Routing

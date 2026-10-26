@@ -35,6 +35,136 @@ class ScopeTests(unittest.TestCase):
         self.env.start()
         self.addCleanup(self.env.stop)
 
+    def write_checkpoint(self, root, session="session-1"):
+        checker = C._coordinator_state_checker()
+        value, errors = checker.load_file(ROOT / "skills/plex/assets/coordinator-state.template")
+        self.assertEqual(errors, [])
+        value["session_id"] = session
+        path = root / ".plex/work" / (session + ".json")
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(value, ensure_ascii=False, indent=2) + "\n")
+        return path, value, checker
+
+    def test_memory_migrates_on_apply_for_all_clients_and_scopes_without_becoming_managed(self):
+        for scope in ("project", "user"):
+            for host in C.HOSTS:
+                with self.subTest(scope=scope, host=host):
+                    project = self.base / (scope + "-" + host)
+                    project.mkdir()
+                    root = C.installation_root(project, host, scope)
+                    legacy, value, checker = self.write_checkpoint(root)
+                    original = legacy.read_bytes()
+                    preview = C.check_project(project, host, scope)
+                    self.assertEqual(preview["coordinator_memory"]["status"], "needs_migration")
+                    self.assertTrue(legacy.exists())
+                    self.assertFalse(legacy.with_suffix(".md").exists())
+                    result = C.apply_project(project, host, team="pnet", scope=scope)
+                    markdown = legacy.with_suffix(".md")
+                    self.assertFalse(legacy.exists())
+                    self.assertEqual(checker.load_file(markdown), (value, []))
+                    backup = root / result["backup_dir"] / "coordinator-memory" / legacy.name
+                    self.assertEqual(backup.read_bytes(), original)
+                    self.assertEqual(result["coordinator_memory"]["format"], "markdown")
+                    self.assertEqual(result["coordinator_memory"]["migrated"], [".plex/work/session-1.md"])
+                    with patch.object(SETUP.shutil, "which", return_value=None):
+                        status = SETUP.plex_status(project, [host], scope)
+                    self.assertEqual(status["clients"][0]["coordinator_memory"]["format"], "markdown")
+                    value["active"][0]["next_action"] = "Continue the user's accepted work"
+                    markdown.write_text(checker.render_markdown(value))
+                    refreshed = C.apply_project(project, host, scope=scope)
+                    self.assertEqual(refreshed["coordinator_memory"]["migrated"], [])
+                    self.assertEqual(refreshed["written_roles"], [])
+                    self.assertIsNone(refreshed["backup_dir"])
+                    self.assertEqual(checker.load_file(markdown), (value, []))
+
+    def test_memory_conflicts_and_unrelated_artifacts_are_preserved(self):
+        legacy, value, checker = self.write_checkpoint(self.project)
+        original = legacy.read_bytes()
+        markdown = legacy.with_suffix(".md")
+        other = json.loads(json.dumps(value))
+        other["active"][0]["next_action"] = "Newer accepted action"
+        markdown.write_text(checker.render_markdown(other))
+        unrelated = legacy.parent / "assignment.json"
+        unrelated.write_bytes(original)
+        invalid, bad, _ = self.write_checkpoint(self.project, "invalid-session")
+        del bad["active"][0]["owner"]
+        invalid.write_text(json.dumps(bad))
+        result = C.apply_project(self.project, "codex", team="pnet")
+        self.assertEqual(result["coordinator_memory"]["status"], "attention")
+        self.assertEqual(len(result["coordinator_memory"]["issues"]), 2)
+        self.assertEqual(legacy.read_bytes(), original)
+        self.assertEqual(checker.load_file(markdown), (other, []))
+        self.assertEqual(unrelated.read_bytes(), original)
+        self.assertTrue(invalid.exists())
+        markdown.write_text(checker.render_markdown(value))
+        result = C.apply_project(self.project, "codex")
+        self.assertFalse(legacy.exists())
+        self.assertEqual(checker.load_file(markdown), (value, []))
+        self.assertTrue(invalid.exists())
+
+    def test_memory_migration_rolls_back_and_preserves_concurrent_updates(self):
+        for concurrent in (False, True):
+            with self.subTest(concurrent=concurrent):
+                project = self.base / ("concurrent" if concurrent else "failure")
+                project.mkdir()
+                legacy, value, checker = self.write_checkpoint(project)
+                original = legacy.read_bytes()
+                markdown = legacy.with_suffix(".md")
+                if concurrent:
+                    write = C._atomic_write_bytes
+                    value["active"][0]["next_action"] = "Worker's concurrent update"
+                    changed = json.dumps(value).encode()
+                    def racing_write(path, data):
+                        digest = write(path, data)
+                        if path == markdown:
+                            legacy.write_bytes(changed)
+                        return digest
+                    with patch.object(C, "_atomic_write_bytes", racing_write):
+                        with self.assertRaisesRegex(ValueError, "Concurrent modification"):
+                            C.apply_project(project, "codex", team="pnet")
+                    self.assertEqual(legacy.read_bytes(), changed)
+                else:
+                    archive = C._ApplyTransaction.archive
+                    def failing_archive(transaction, path, backup):
+                        archive(transaction, path, backup)
+                        if path == legacy:
+                            raise OSError("simulated memory migration failure")
+                    with patch.object(C._ApplyTransaction, "archive", failing_archive):
+                        with self.assertRaisesRegex(OSError, "simulated memory migration failure"):
+                            C.apply_project(project, "codex", team="pnet")
+                    self.assertEqual(legacy.read_bytes(), original)
+                self.assertFalse(markdown.exists())
+                self.assertFalse((project / ".plex/applied.json").exists())
+                self.assertFalse(list((project / ".codex/agents").glob("*.toml")))
+
+    def test_memory_migration_does_not_follow_symlinks(self):
+        legacy, value, _ = self.write_checkpoint(self.project)
+        original = legacy.read_bytes()
+        external = self.base / "external.md"
+        external.write_text("Unrelated content")
+        legacy.with_suffix(".md").symlink_to(external)
+        result = C.apply_project(self.project, "codex", team="pnet")
+        self.assertEqual(result["coordinator_memory"]["status"], "attention")
+        self.assertEqual(external.read_text(), "Unrelated content")
+        self.assertEqual(legacy.read_bytes(), original)
+
+    def test_memory_migration_keeps_markdown_private_and_preserves_ignore_rules(self):
+        subprocess.run(["git", "init", "-q", str(self.project)], check=True)
+        (self.project / ".gitignore").write_text("*.json\n")
+        legacy, _, _ = self.write_checkpoint(self.project)
+        ignore = legacy.parent / ".gitignore"
+        original = b"# Personal rules\n!keep.md\n"
+        ignore.write_bytes(original)
+        result = C.apply_project(self.project, "codex", team="pnet")
+        markdown = legacy.with_suffix(".md")
+        self.assertEqual(ignore.read_bytes(), original + b"*\n")
+        self.assertEqual((self.project / ".gitignore").read_text(), "*.json\n")
+        ignored = subprocess.run(["git", "-C", str(self.project), "check-ignore", "-q", "--no-index",
+                                  str(markdown.relative_to(self.project))])
+        self.assertEqual(ignored.returncode, 0)
+        backup = self.project / result["backup_dir"] / "coordinator-memory/.gitignore"
+        self.assertEqual(backup.read_bytes(), original)
+
     def files(self, root):
         return {p.relative_to(root): p.read_bytes() for p in root.rglob('*') if p.is_file()}
 
@@ -67,12 +197,17 @@ class ScopeTests(unittest.TestCase):
         state.parent.mkdir(parents=True)
         sentinel = b'{"session_id":"session-1","preserve":true}\n'
         state.write_bytes(sentinel)
+        markdown = state.with_suffix(".md")
+        markdown_sentinel = b'# Plex coordinator state\n\nPrivate runtime checkpoint.\n'
+        markdown.write_bytes(markdown_sentinel)
         for profile in ("inherit", "plus"):
             C.apply_project(self.project, "codex", team="pnet", model_profile=profile,
                             scope="project", instructions=True)
             self.assertEqual(state.read_bytes(), sentinel)
+            self.assertEqual(markdown.read_bytes(), markdown_sentinel)
         C.uninstall_project(self.project, "codex")
         self.assertEqual(state.read_bytes(), sentinel)
+        self.assertEqual(markdown.read_bytes(), markdown_sentinel)
 
     def test_instruction_template_rejects_invalid_managed_boundaries(self):
         template = self.base / 'skills/plex-setup/assets/AGENTS.md.template'

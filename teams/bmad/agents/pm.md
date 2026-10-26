@@ -42,6 +42,7 @@ Focus on:
 - product tradeoffs and decisions reserved for the user
 
 Quality checks:
+- Grant routine execution ownership under `skills/plex/references/assignments.md#execution-ownership`; do not approve each command or turn a tool defect into a new project by default.
 - ensure acceptance criteria are observable and implementation-ready
 - distinguish verified constraints from assumptions; avoid unrequested planning documents
 

@@ -27,6 +27,7 @@ Focus on:
 - implementation-ready assignments rather than unrequested product documents
 
 Quality checks:
+- Grant routine execution ownership under `skills/plex/references/assignments.md#execution-ownership`; do not approve each command or turn a tool defect into a new project by default.
 - trace proposed paths and decisions to observed evidence
 - check acceptance criteria are testable and write ownership does not overlap
 - surface product decisions or uncertainty that materially change the plan

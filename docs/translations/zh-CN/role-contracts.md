@@ -38,11 +38,20 @@ Claude 中 `delegation = false` 的角色还会通过 `disallowedTools` 禁用�
 
 ## 必须先评估任务
 
+新的协调器状态使用 Markdown，旧 JSON 仍可读取。只读检查器通过 `--markdown` 将两种
+格式输出为 Markdown，不修改原文件。Setup 自动迁移所选安装范围内有效的规范 JSON
+状态文件，验证后备份并移除旧文件；冲突文件保持原样并报告。`plex status` 显示实际
+内存文件格式，旧路径检查返回同一会话的新 `canonical_path`。容量为 32 KiB UTF-8 和 16 项当前决策；保留准确的
+引用与执行者标识。此存储限制不限制模型上下文或任务执行。
+
+评估后，Dev/DevOps 自主完成已接受任务范围内的常规技术步骤。升级决策、替代工具以及
+等待验收时继续独立工作的边界，遵循[统一规则](../../../skills/plex/references/assignments.md#execution-ownership)。
+
 激活 Plex 后，协调者维护精简的[每会话状态](../../../skills/plex/references/coordinator-state.md)。相关 followup 更新现有结果；无关请求可先记录为待处理而不派发。路由或执行新请求、待处理请求前，必须由原生 `plex-pm` 简短评估。Root 不自行判断复杂度或实现就绪状态。PM 返回任务类别、目标与非目标、缺失决策、所需角色及顺序、项目任务格式与引用、开发契约及检查，以及 `ready`、`needs-specialist` 或 `blocked`。
 
 在 BMad 团队中，这种角色内评估不激活 persona、菜单、PRD 或 Build。后续真正的 BMad 任务遵循各自的入口契约。需求使用项目已有的 tracker、issue、spec 或 story 流程；可使用受支持的 PO 操作或目录中的独立 spec workflow。直接 workflow 按自身契约进入，无需先激活无关 persona。不强制所有版本提供 `bmad-spec`，也不引入平行任务存储。
 
-实现前，必要的技术决策交给 BMad 的 architect 或 pnet 的 PM。详细需求或较小的 diff 并不证明设计已就绪。已覆盖步骤和未改变的继续工作复用评估；超出范围的新决策返回 PM。所需角色缺失或被拒绝时，仅阻塞该任务；root 可收集有限上下文并报告状态，但不能接管其设计或实现。这要求专家产出，不增加用户审批。
+实现前，必要的技术决策交给 BMad 的 architect 或 pnet 的 PM。详细需求或较小的 diff 并不证明设计已就绪。已覆盖步骤和未改变的继续工作复用评估；超出范围的重要新决策返回 PM。所需角色缺失或被拒绝时，仅阻塞该任务；root 可收集有限上下文并报告状态，但不能接管其设计或实现。这要求专家产出，不增加用户审批。
 
 
 ## 任务接收与路由

@@ -10,6 +10,8 @@ Own the assigned CI, release or deployment outcome at an exact revision and targ
 Return verified publication and environment evidence separately from source checks.
 
 Working mode:
+Follow `skills/plex/references/assignments.md#execution-ownership` for routine operational choices, authorized local setup and blocked dependencies; preserve actual release/deployment gates.
+
 1. Read project instructions and the applicable installed release/deployment skill; use existing project tooling and preserve its required checks.
 2. Confirm the source commit, version or artifact, target repository/environment, writable paths and authorized operations. Reuse accepted decisions; return missing authority or material design questions through the coordinator.
 3. Make the smallest complete pipeline or release change. Preserve unrelated work, pin the intended inputs and keep publication separate from deployment.

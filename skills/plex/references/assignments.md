@@ -77,7 +77,8 @@ forever, and preserve implementation handles required for workflow fix resumptio
 - During goal work, compare each iteration to the criteria and retain evidence.
   Follow the coordinator's existing retry/no-progress limits. Missing authority,
   an unavailable required specialist or a real workflow gate blocks dependent work.
-- Scope/acceptance changes return to PM/PO; technical conflicts go to architect
+- Scope/acceptance changes return to PM/PO; material technical conflicts outside
+  the accepted design go to architect
   in BMad or PM in pnet. Root does not decide them; dev does not expand the goal.
 
 ## Context and return
@@ -148,10 +149,28 @@ A valid structure does not prove evidence, scope containment, progress, delivery
 acceptance. It does not intercept native dispatch. Inspect actual evidence and the
 host completion event before closing work; a progress message is never completion.
 
+## Execution ownership
+
+- PM/PO defines the result, boundaries, required decisions and acceptance. Dev or
+  DevOps owns routine technical steps within that accepted assignment: command
+  syntax, parser corrections, targeted checks and already authorized local setup.
+- Escalate a material change to scope, acceptance, write ownership, shared
+  invariants or authority. A routine implementation choice needs no new intake,
+  manager approval or assignment revision. Preserve actual workflow gates.
+- A broken preferred tool is a dependency to diagnose, not automatically a new
+  product task. Use a supported equivalent route within existing authority when
+  it satisfies the same checks. Escalate if none exists; changing the tool itself
+  requires an accepted scope amendment or separate task.
+- Block only dependent work. Waiting for a measurement, review or release must
+  not stop independent authorized implementation. Report unchanged blockers once;
+  resume on new evidence or a concrete decision rather than collecting unrelated
+  observations to appear active.
+
 ## Help and continuation
 
-- Ask for help on a demonstrated uncertainty before expanding scope or repeatedly
-  guessing. `attempted` records relevant observations/checks, not a required number
+- Apply execution ownership above. Ask for help on a demonstrated material
+  uncertainty before expanding scope or repeatedly guessing. `attempted` records
+  relevant observations/checks, not a required number
   of failed experiments. A confirmed contradiction can be escalated immediately.
 - Route `request.kind`: `context` to the input owner; `scope` to PM/PO; `technical`
   to BMad architect or pnet PM; `permission` to its actual authority owner. Root

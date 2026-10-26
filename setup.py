@@ -863,6 +863,20 @@ def apply_skills(plan):
         raise
 
 
+def coordinator_memory_summary(memory):
+    if not memory:
+        return
+    label = memory["format"] if memory["format"] != "none" else "markdown (default)"
+    field("Memory", f"{label} · {memory['markdown']} Markdown, {memory['json']} legacy JSON",
+          "ok" if memory["status"] == "in_sync" else "warn")
+    if memory.get("migrated"):
+        notice(f"Migrated {len(memory['migrated'])} coordinator checkpoints to Markdown; originals backed up.", "ok")
+    elif memory["json"] and not memory["issues"]:
+        notice("Legacy coordinator checkpoints migrate automatically when setup is applied.")
+    for issue in memory["issues"]:
+        notice(issue, "warn")
+
+
 def plex_status(project, clients, scope=None):
     version = json.loads((ROOT / "plugins/codex/.codex-plugin/plugin.json").read_text())["version"]
     reports = []
@@ -917,6 +931,7 @@ def plex_status(project, clients, scope=None):
                         "roles": state.get("installed_roles", []), "plugin": plugin, "dev_source": dev_source, "skill_aliases": skill_aliases,
                         "native_capacity": state.get("native_capacity"),
                         "proposed_capacity": state.get("proposed_capacity"),
+                        "coordinator_memory": report.get("coordinator_memory"),
                         "conflicts": report.get("conflicts", [])})
     return {"version": version, "source": str(ROOT), "clients": reports}
 
@@ -966,6 +981,7 @@ def maintenance(args):
                 field("Status", item["status"], tone)
                 field("Team / profile", f"{item['team'] or '—'} / {item['profile'] or '—'}")
                 field("Plugin", item["plugin"], tone)
+                coordinator_memory_summary(item.get("coordinator_memory"))
                 if item.get("native_capacity"):
                     field("Plex assignments", f"{item['native_capacity'].get('assignment_limit')} unfinished assignments")
                     capacity_summary(item["native_capacity"], item.get("proposed_capacity"))
@@ -979,8 +995,10 @@ def maintenance(args):
                     notice(f"Conflict: {conflict}", "error")
             print()
             notice("Configuration/plugin checks only; runtime model routing is not verified.")
-        return int(any(item["conflicts"] or item["configured"] and
-                       (item["status"] != "in_sync" or item["plugin"] not in {"enabled", "development"})
+        return int(any(item["conflicts"]
+                       or (item.get("coordinator_memory") or {}).get("status") == "attention"
+                       or item["configured"] and (item["status"] != "in_sync"
+                                                  or item["plugin"] not in {"enabled", "development"})
                        for item in result["clients"]))
     scope = args.scope or "project"
     skill_root = CONFIG.installation_root(project, "codex", scope) if "codex" in clients else None
@@ -1444,6 +1462,7 @@ def main(argv=None, *, shared_profile=False, selection=None, setup_mode=None):
                 field("Archive", f"plex-{role}", "warn")
         commands = [] if args.roles_only or dev_enabled else plugin_commands(args.host, args.scope)
         heading("Skills and dependencies")
+        coordinator_memory_summary(state.get("coordinator_memory"))
         if dev_enabled:
             field("Dev source", ROOT, "command")
             field("Project skills", ".agents/skills/plex, .agents/skills/plex-setup", "muted")
@@ -1533,6 +1552,7 @@ def main(argv=None, *, shared_profile=False, selection=None, setup_mode=None):
         if commands and dev_plan and dev_plan["was_development"]:
             verify_plugin(args.host, project)
         notice(f"{len(result['installed_roles'])} roles; configuration in sync.", "ok")
+        coordinator_memory_summary(result.get("coordinator_memory"))
         if result.get("native_capacity"):
             capacity_summary(result["native_capacity"])
         if result.get("archived_other_agents"):

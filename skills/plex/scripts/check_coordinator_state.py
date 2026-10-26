@@ -4,17 +4,76 @@
 import argparse
 import json
 from pathlib import Path
+import re
 import sys
 
 
-MAX_BYTES = 8192
-MAX_ITEMS = {"queued": 8, "paused": 8, "recently_completed": 4, "decisions": 8}
+MAX_BYTES = 32768
+MAX_ITEMS = {"queued": 8, "paused": 8, "recently_completed": 4, "decisions": 16}
 ROOT_KEYS = {"version", "session_id", "primary_id", "active", *MAX_ITEMS}
 OUTCOME_KEYS = {"id", "goal", "reference", "owner", "authorization", "priority",
                 "next_action", "blocker", "resume_condition"}
 COMPLETED_KEYS = {"id", "goal", "reference", "owner", "authorization", "priority",
                   "result_reference"}
 DECISION_KEYS = {"id", "decision", "authority", "reference", "active_limit"}
+SECTIONS = {"Active": "active", "Queued": "queued", "Paused": "paused",
+            "Completed": "recently_completed", "Decisions": "decisions"}
+
+
+def parse_markdown(text):
+    """Read the documented headings and JSON-valued Markdown fields."""
+    lines = text.strip().splitlines()
+    if not lines or lines[0] != "# Plex coordinator state":
+        raise ValueError("expected '# Plex coordinator state'")
+    state, section, item = {}, None, None
+    for number, line in enumerate(lines[1:], 2):
+        if not line.strip():
+            continue
+        if line.startswith("## "):
+            title = line[3:]
+            if title not in SECTIONS:
+                raise ValueError(f"line {number}: unknown section {title!r}")
+            section = SECTIONS[title]
+            if section in state:
+                raise ValueError(f"line {number}: duplicate section {title!r}")
+            state[section], item = [], None
+        elif line.startswith("### "):
+            if section is None:
+                raise ValueError(f"line {number}: item requires a section")
+            identifier = json.loads(line[4:])
+            if not isinstance(identifier, str):
+                raise ValueError(f"line {number}: item ID must be a JSON string")
+            item = {"id": identifier}
+            state[section].append(item)
+        else:
+            match = re.fullmatch(r"- \*\*([a-z_]+):\*\* (.+)", line)
+            if not match or (section is not None and item is None):
+                raise ValueError(f"line {number}: expected a field or item heading")
+            key, raw = match.groups()
+            target = state if section is None else item
+            if key in target:
+                raise ValueError(f"line {number}: duplicate field {key!r}")
+            target[key] = json.loads(raw, object_pairs_hook=_unique_object,
+                                     parse_constant=_reject_constant)
+    return state
+
+
+def render_markdown(state):
+    """Render one validated state without maintaining a second representation."""
+    scalar = lambda value: json.dumps(value, ensure_ascii=False)
+    lines = ["# Plex coordinator state", ""]
+    for key in ("version", "session_id", "primary_id"):
+        lines.append(f"- **{key}:** {scalar(state[key])}")
+    for title, field in SECTIONS.items():
+        lines.extend(("", f"## {title}"))
+        for item in state[field]:
+            lines.extend(("", f"### {scalar(item['id'])}", ""))
+            for key in ("goal", "next_action", "owner", "blocker", "resume_condition",
+                        "reference", "result_reference", "authorization", "priority",
+                        "decision", "authority", "active_limit"):
+                if key in item:
+                    lines.append(f"- **{key}:** {scalar(item[key])}")
+    return "\n".join(lines) + "\n"
 
 
 def _unique_object(pairs):
@@ -60,7 +119,7 @@ def _outcome(item, path, errors, goal_limit=512, paused=False, completed=False):
     _string(item["id"], f"{path}.id", errors, limit=64)
     _string(item["goal"], f"{path}.goal", errors, limit=goal_limit)
     _string(item["reference"], f"{path}.reference", errors)
-    _string(item["owner"], f"{path}.owner", errors, limit=64)
+    _string(item["owner"], f"{path}.owner", errors)
     _string(item["authorization"], f"{path}.authorization", errors)
     _string(item["priority"], f"{path}.priority", errors)
     if completed:
@@ -154,36 +213,75 @@ def validate(state):
     return errors
 
 
-def validate_bytes(raw):
-    """Validate UTF-8 JSON bytes, including their serialized whitespace."""
+def load_bytes(raw):
+    """Decode and validate bounded UTF-8 JSON or the Markdown state format."""
     if not isinstance(raw, (bytes, bytearray)):
-        return ["state input must be bytes"]
+        return None, ["state input must be bytes"]
     if len(raw) > MAX_BYTES:
-        return [f"state exceeds {MAX_BYTES} UTF-8 bytes"]
+        return None, [f"state exceeds {MAX_BYTES} UTF-8 bytes"]
+    format_name = "JSON"
     try:
-        value = json.loads(bytes(raw).decode("utf-8"), object_pairs_hook=_unique_object,
-                           parse_constant=_reject_constant)
+        text = bytes(raw).decode("utf-8")
+        if text.lstrip().startswith("#"):
+            format_name = "Markdown"
+            value = parse_markdown(text)
+        else:
+            value = json.loads(text, object_pairs_hook=_unique_object,
+                               parse_constant=_reject_constant)
     except (UnicodeError, ValueError, RecursionError) as error:
-        return [f"invalid state JSON: {error}"]
-    return validate(value)
+        return None, [f"invalid state {format_name}: {error}"]
+    errors = validate(value)
+    return (None if errors else value), errors
+
+
+def validate_bytes(raw):
+    return load_bytes(raw)[1]
+
+
+def state_path(path):
+    path = Path(path)
+    if path.suffix == ".json" and not path.exists() and not path.is_symlink():
+        migrated = path.with_suffix(".md")
+        if migrated.is_file():
+            return migrated
+    return path
+
+
+def load_file(path):
+    """Read no more than one byte past the limit before validating a file."""
+    try:
+        actual = state_path(path)
+        with actual.open("rb") as stream:
+            value, errors = load_bytes(stream.read(MAX_BYTES + 1))
+        if actual != Path(path) and value is not None and value["session_id"] != actual.stem:
+            return None, ["migrated state session_id does not match the requested session"]
+        return value, errors
+    except OSError as error:
+        return None, [f"cannot read state: {error}"]
 
 
 def validate_file(path):
-    """Read no more than one byte past the limit before validating a file."""
-    try:
-        with Path(path).open("rb") as stream:
-            return validate_bytes(stream.read(MAX_BYTES + 1))
-    except OSError as error:
-        return [f"cannot read state: {error}"]
+    return load_file(path)[1]
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("state", type=Path, help="Session state JSON file to check")
+    parser.add_argument("state", type=Path, help="Session state Markdown or legacy JSON file")
+    parser.add_argument("--markdown", action="store_true",
+                        help="Print validated Markdown without modifying the input")
     args = parser.parse_args()
-    errors = validate_file(args.state)
-    print(json.dumps({"status": "invalid" if errors else "valid", "errors": errors},
-                     ensure_ascii=False))
+    state, errors = load_file(args.state)
+    if args.markdown and not errors:
+        rendered = render_markdown(state)
+        errors = validate_bytes(rendered.encode("utf-8"))
+        if not errors:
+            print(rendered, end="")
+            return 0
+    result = {"status": "invalid" if errors else "valid", "errors": errors}
+    actual = state_path(args.state)
+    if not errors and actual != args.state:
+        result["canonical_path"] = str(actual)
+    print(json.dumps(result, ensure_ascii=False))
     return 1 if errors else 0
 
 

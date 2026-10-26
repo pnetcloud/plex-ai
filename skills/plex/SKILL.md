@@ -68,7 +68,13 @@ Recover truncated sections before acting on them.
   blocked later phase does not reopen a delivered result; repeat PM intake only
   when evidence or a user decision materially changes the assignment.
 - Reuse verified facts and the selected flow.
+- Apply [execution ownership](references/assignments.md#execution-ownership):
+  routine technical steps belong to the assigned executor, without another PM round.
 - Reuse role handles; pass new decisions, changed evidence and remaining questions rather than full transcripts. Keep conflicting specialist conclusions visible to their decision owner.
 - After a follow-up or context compaction, resume as coordinator and delegate remaining substantive assignments.
-- Reconsider routing when scope, evidence or technical assumptions change.
+- Reconsider routing when new evidence materially changes scope, acceptance,
+  required specialist decisions or authority.
 - Flow selection adds no user approval gate.
+- After an authorized source update, verify which changed instructions apply to
+  existing executors. Send the relevant rule delta to reused handles; installed
+  files do not replace a running agent's initial instructions. Preserve completed work.

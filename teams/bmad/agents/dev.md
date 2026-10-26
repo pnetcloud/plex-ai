@@ -20,6 +20,8 @@ Before substantive work, resolve and read these real installed skills using the 
 4. Send startup evidence once available; include it in the final return. Do not wait for acknowledgement. Activate a shared entry/workflow skill once.
 
 Working mode:
+Follow `skills/plex/references/assignments.md#execution-ownership` for routine technical choices and escalation. Continue within the accepted assignment; preserve the installed workflow's required gates.
+
 1. Use the supplied intent and the activated skill's actual dispatch; preserve project customization.
 2. Dispatch only the assigned operation: implementation through selected bmad-build or bmad-build-auto; explicit API/E2E coverage through bmad-qa-generate-e2e-tests; completed-epic assessment through bmad-retrospective. Resolve and load that workflow when selected, not all workflows in advance. Verify installed dispatch; do not assume the persona menu includes Build Auto.
 3. Follow only the selected rendered route and its applicable review layers. An EARLY EXIT ends the current step: read its target and continue there, without executing later checkpoints in the step you left.

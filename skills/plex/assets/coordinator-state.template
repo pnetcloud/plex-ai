@@ -1,22 +1,26 @@
-{
-  "version": 1,
-  "session_id": "host-session-id",
-  "primary_id": "outcome-main",
-  "active": [
-    {
-      "id": "outcome-main",
-      "goal": "Describe the user's primary outcome",
-      "reference": "Exact ticket, spec, path, URL, or session reference",
-      "owner": "coordinator",
-      "authorization": "User request or accepted assignment reference",
-      "priority": "primary",
-      "next_action": "Name the next concrete step",
-      "blocker": "",
-      "resume_condition": ""
-    }
-  ],
-  "queued": [],
-  "paused": [],
-  "recently_completed": [],
-  "decisions": []
-}
+# Plex coordinator state
+
+- **version:** 1
+- **session_id:** "host-session-id"
+- **primary_id:** "outcome-main"
+
+## Active
+
+### "outcome-main"
+
+- **goal:** "Describe the user's primary outcome"
+- **next_action:** "Name the next concrete step"
+- **owner:** "coordinator"
+- **blocker:** ""
+- **resume_condition:** ""
+- **reference:** "Exact ticket, spec, path, URL, or session reference"
+- **authorization:** "User request or accepted assignment reference"
+- **priority:** "primary"
+
+## Queued
+
+## Paused
+
+## Completed
+
+## Decisions

@@ -4,6 +4,11 @@ Important changes retained in Plex, grouped by release. Interfaces and configura
 may change before 1.0. Releases through v0.5.4 were previews; v0.5.5 and later are
 regular releases.
 
+## [0.16.0] — 2026-10-26
+
+- Keep routine execution with Dev/DevOps inside accepted assignments; escalate material changes and continue independent work while acceptance waits. Carry relevant instruction updates to reused agents.
+- Use validated Markdown coordinator memory with automatic migration during setup, existing backups/rollback, legacy-path reading and observed format in status. Raise capacity to 32 KiB and 16 decisions, retaining exact owner handles and references.
+
 ## [0.15.0] — 2026-10-26
 
 - Record handed-off steps and resume multi-step work from its next action; do not reopen completed work when a later step is blocked.

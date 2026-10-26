@@ -75,7 +75,8 @@ def state():
 
 class CoordinatorStateTests(unittest.TestCase):
     def setUp(self):
-        self.value = json.loads(TEMPLATE.read_text(encoding="utf-8"))
+        self.value, errors = MODULE.load_bytes(TEMPLATE.read_bytes())
+        self.assertEqual(errors, [])
 
     def invalid(self, value, needle=None):
         errors = MODULE.validate(value)
@@ -87,6 +88,82 @@ class CoordinatorStateTests(unittest.TestCase):
         before = TEMPLATE.read_bytes()
         self.assertEqual(MODULE.validate(self.value), [])
         self.assertEqual(TEMPLATE.read_bytes(), before)
+
+    def test_markdown_roundtrip_preserves_metadata_references_and_escaped_text(self):
+        data = state()
+        data["active"][0]["goal"] = 'Verify "quoted" input | 界\n## Paused\n<script>'
+        data["paused"] = [outcome('id "quoted"', resume_condition="Accepted evidence arrives")]
+        data["recently_completed"] = [completed("done")]
+        data["decisions"] = [decision("slots", active_limit=2)]
+        rendered = MODULE.render_markdown(data).encode("utf-8")
+        value, errors = MODULE.load_bytes(rendered)
+        self.assertEqual(errors, [])
+        self.assertEqual(value, data)
+        legacy, errors = MODULE.load_bytes(json.dumps(data).encode("utf-8"))
+        self.assertEqual(errors, [])
+        self.assertEqual(legacy, value)
+        self.assertEqual(MODULE.render_markdown(value).encode("utf-8"), rendered)
+
+    def test_markdown_rejects_ambiguous_fields_sections_and_item_identity(self):
+        text = MODULE.render_markdown(state())
+        cases = [
+            text.replace('# Plex coordinator state', '# Another format', 1),
+            text.replace('- **version:** 1', '- **version:** 1\n- **version:** 1', 1),
+            text + '\n## Active\n',
+            text + '\n## Unknown\n',
+            text.replace('## Active', '### "orphan"\n## Active', 1),
+            text.replace('### "main"', '- **goal:** "orphan"\n### "main"', 1),
+            text.replace('### "main"', '### 3', 1),
+            text.replace('- **owner:** "coordinator"', '- **id:** "other"', 1),
+            text.replace('- **owner:** "coordinator"', '- **owner:** {"x": 1, "x": 2}', 1),
+            text + '\nUnstructured notes\n',
+            text.replace('- **version:** 1', '- **version:** true', 1),
+            text.replace('## Paused', '', 1),
+        ]
+        for invalid in cases:
+            with self.subTest(text=invalid):
+                self.assertTrue(MODULE.validate_bytes(invalid.encode("utf-8")))
+        duplicate = state()
+        duplicate["queued"].append(outcome("main"))
+        self.assertTrue(MODULE.validate_bytes(MODULE.render_markdown(duplicate).encode("utf-8")))
+
+    def test_markdown_cli_conversion_does_not_write_or_hide_invalid_state(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            source = root / "legacy.json"
+            before = json.dumps(state()).encode("utf-8")
+            source.write_bytes(before)
+            result = subprocess.run([sys.executable, str(SCRIPT), str(source), "--markdown"],
+                                    capture_output=True, cwd=temp)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            converted, errors = MODULE.load_bytes(result.stdout)
+            self.assertEqual(errors, [])
+            self.assertEqual(converted, state())
+            self.assertEqual(source.read_bytes(), before)
+            self.assertEqual(list(root.iterdir()), [source])
+            source.write_text('# Plex coordinator state\n## Unknown\n')
+            before = source.read_bytes()
+            result = subprocess.run([sys.executable, str(SCRIPT), str(source), "--markdown"],
+                                    capture_output=True, cwd=temp)
+            self.assertEqual(result.returncode, 1)
+            self.assertEqual(json.loads(result.stdout)["status"], "invalid")
+            self.assertEqual(source.read_bytes(), before)
+
+    def test_migrated_legacy_path_redirects_only_to_the_same_session(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            legacy = root / "session-123.json"
+            markdown = legacy.with_suffix(".md")
+            markdown.write_text(MODULE.render_markdown(state()))
+            self.assertEqual(MODULE.load_file(legacy), (state(), []))
+            result = subprocess.run([sys.executable, str(SCRIPT), str(legacy)],
+                                    capture_output=True, cwd=temp)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(json.loads(result.stdout)["canonical_path"], str(markdown))
+            self.assertFalse(legacy.exists())
+            wrong = root / "another-session.md"
+            wrong.write_text(markdown.read_text())
+            self.assertTrue(MODULE.validate_file(wrong.with_suffix(".json")))
 
     def test_private_work_ignore_rule_covers_session_state(self):
         with tempfile.TemporaryDirectory() as temp:
@@ -171,7 +248,7 @@ class CoordinatorStateTests(unittest.TestCase):
         self.invalid(data, "active_limit")
 
         for field, allowed in (("queued", 8), ("paused", 8), ("recently_completed", 4),
-                               ("decisions", 8)):
+                               ("decisions", 16)):
             data = state()
             if field == "paused":
                 data[field] = [outcome(f"paused-{i}", resume_condition="resume after blocker clears")
@@ -230,14 +307,14 @@ class CoordinatorStateTests(unittest.TestCase):
 
         data = state()
         data["active"][0]["id"] = data["primary_id"] = "i" * 64
-        data["active"][0]["owner"] = "o" * 64
+        data["active"][0]["owner"] = "o" * 512
         data["active"][0]["next_action"] = "n" * 256
         data["active"][0]["blocker"] = "b" * 256
         data["active"][0]["resume_condition"] = "r" * 256
         data["active"][0]["reference"] = "é" * 512
         self.assertEqual(MODULE.validate(data), [])
         for field, value, needle in (("id", "i" * 65, "id"),
-                                     ("owner", "o" * 65, "owner"),
+                                     ("owner", "o" * 513, "owner"),
                                      ("next_action", "n" * 257, "next_action"),
                                      ("blocker", "b" * 257, "blocker"),
                                      ("resume_condition", "r" * 257, "resume_condition"),
@@ -273,11 +350,24 @@ class CoordinatorStateTests(unittest.TestCase):
         self.assertEqual(compacted["paused"][0]["reference"], original["paused"][0]["reference"])
         self.assertEqual(compacted["decisions"], original["decisions"])
 
+    def test_readable_checkpoint_keeps_long_handles_and_more_than_eight_decisions(self):
+        data = state()
+        owner = "/root/plex_dev_" + "bounded_implementation_" * 4
+        data["active"][0]["owner"] = owner
+        data["decisions"] = [decision(f"decision-{i}", decision="Accepted scope: " + "x" * 450,
+                                      reference=f"/workspace/tasks/decision-{i}.md#" + "a" * 64)
+                             for i in range(16)]
+        raw = (json.dumps(data, ensure_ascii=False, indent=2) + "\n").encode("utf-8")
+        self.assertGreater(len(raw), 8192)
+        self.assertEqual(MODULE.validate_bytes(raw), [])
+        self.assertEqual(json.loads(raw)["active"][0]["owner"], owner)
+        self.assertEqual(len(json.loads(raw)["decisions"]), 16)
+
     def test_utf8_byte_limit_and_cli_are_read_only(self):
         raw = json.dumps(state(), ensure_ascii=False, separators=(",", ":")).encode("utf-8")
-        exact = raw + b" " * (8192 - len(raw))
+        exact = raw + b" " * (32768 - len(raw))
         self.assertEqual(MODULE.validate_bytes(exact), [])
-        self.assertTrue(any("8192" in error for error in MODULE.validate_bytes(exact + b" ")))
+        self.assertTrue(any("32768" in error for error in MODULE.validate_bytes(exact + b" ")))
         self.assertTrue(MODULE.validate_bytes(b"{\xff"))
         self.assertTrue(MODULE.validate_bytes(b'{"version":1,"version":1}'))
         deeply_nested = b"[" * 1100 + b"0" + b"]" * 1100

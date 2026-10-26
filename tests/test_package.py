@@ -47,6 +47,8 @@ class PackageTests(unittest.TestCase):
             private_state = checkout / ".plex/work/session-a/state.json"
             private_state.parent.mkdir(parents=True, exist_ok=True)
             private_state.write_text('{"private":"session state"}')
+            private_markdown = private_state.with_suffix(".md")
+            private_markdown.write_text("# Private session state")
             public = checkout / "skills/plex/references/new-guide.md"
             public.write_text("New reusable guide")
             cache = checkout / "skills/plex/__pycache__/skill.pyc"
@@ -56,6 +58,7 @@ class PackageTests(unittest.TestCase):
                 package = INSTALLER.build_plugin("claude")
                 self.assertFalse((package / private.relative_to(checkout)).exists())
                 self.assertFalse((package / ".plex/work/session-a/state.json").exists())
+                self.assertFalse((package / private_markdown.relative_to(checkout)).exists())
                 self.assertFalse((package / cache.relative_to(checkout)).exists())
                 self.assertEqual((package / public.relative_to(checkout)).read_bytes(), public.read_bytes())
                 self.assertFalse((package / ".gitignore").exists())

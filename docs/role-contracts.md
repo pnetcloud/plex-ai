@@ -56,11 +56,24 @@ Coordinators use Markdown headings; their purpose and blocks match the role sour
 
 ## Mandatory intake
 
+New coordinator checkpoints use Markdown; existing JSON remains readable. The
+read-only checker can render either format with `--markdown`. Setup automatically
+migrates valid canonical JSON checkpoints in the selected root, backs up originals
+and removes old files after verification. Conflicts remain intact and are reported;
+`plex status` shows the observed memory format. Old-path checks return the migrated
+`canonical_path` for the same session. Memory allows
+32 KiB of UTF-8 and 16 current decisions; preserve exact references and owner
+handles. This storage guard is not a model context or execution budget.
+
+After intake, Dev/DevOps owns routine technical steps within the accepted
+assignment. Apply the shared [execution-ownership rule](../skills/plex/references/assignments.md#execution-ownership)
+for escalation, alternative tooling and independent work while acceptance waits.
+
 After Plex activation, the coordinator keeps compact [per-session state](../skills/plex/references/coordinator-state.md). Related followups amend their existing outcome; unrelated requests may be recorded as deferred without dispatch. Before routing or executing a new or queued request, the native `plex-pm` role provides a short assessment. Root does not classify complexity or implementation readiness itself. PM returns task class, outcome/non-goals, missing decisions, needed roles/order, the project's task format and reference, a dev contract with checks, and readiness (`ready`, `needs-specialist`, `blocked`).
 
 In the BMad team, this role-local intake does not activate a persona, menu, PRD or Build. Actual BMad assignments still follow their entry contracts. Task/spec authoring uses the project's existing tracker, issue, spec or story conventions; use a supported PO operation or cataloged standalone spec workflow where available. A direct workflow uses its own entry contract without an unrelated persona prerequisite. Do not require `bmad-spec` across all BMad versions or create a parallel task store.
 
-Required technical decisions go to architect in BMad or PM in pnet before dev. A detailed request or small diff does not prove design readiness. Reuse an assessment for covered workflow steps and unchanged continuation; new decisions outside it return to PM. Missing/rejected required roles block their assignments: root may report status and gather bounded context but cannot take over their design or implementation. This adds a specialist-result prerequisite, not another user approval prompt.
+Required technical decisions go to architect in BMad or PM in pnet before dev. A detailed request or small diff does not prove design readiness. Reuse an assessment for covered workflow steps and unchanged continuation; material decisions outside it return to PM. Missing/rejected required roles block their assignments: root may report status and gather bounded context but cannot take over their design or implementation. This adds a specialist-result prerequisite, not another user approval prompt.
 
 
 ## Task intake and routing

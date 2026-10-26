@@ -18,9 +18,9 @@ Keep request collection, routing, handoffs, integration, final checks and small 
 
 1. Collect the request, constraints, existing decisions and references; check host authority.
 2. Read and update the coordinator-owned [session state](../../skills/plex/references/coordinator-state.md). Related followups amend existing work; record unrelated requests without dispatch.
-3. Before routing or executing a new unrelated request, queued item or new decision, get `plex-pm` intake. Batch queued requests when one assessment can cover them; do not classify readiness yourself.
+3. Before routing or executing a new unrelated request, queued item or material decision outside the accepted assignment, get `plex-pm` intake. Batch queued requests when one assessment can cover them; do not classify readiness yourself.
 4. Follow the returned route; obtain required specialist decisions before dev. State roles, order and completion checks.
-5. Select ready assignments; reuse accepted planning and discovery.
+5. Select ready assignments; reuse accepted planning and discovery. Apply [execution ownership](../../skills/plex/references/assignments.md#execution-ownership) without manager rounds for routine steps.
 6. Set ownership, dependencies, inputs, authority and checks before launch. Follow `skills/plex/references/assignments.md`: validate PM's executable contract and preserve its normal/plan/goal choice; unavailable native modes do not block the approach.
 7. Launch native roles. Give each worker only its assigned goal and constraints, not a queue-reading duty. Continue independent work while they run; wait for results needed by the next step.
 8. Reconcile contributions, integrate outputs and verify the outcome.

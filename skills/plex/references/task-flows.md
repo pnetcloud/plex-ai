@@ -8,7 +8,7 @@ These routes assign work; BMad retains its procedures and checkpoints.
 
 1. Root locates the request, project instructions, existing task references and authority. Do not classify complexity, design the solution or declare the task ready.
 2. Keep one coordinator-owned [session state](coordinator-state.md). Related followups amend their current outcome; record unrelated requests there without dispatch or intake.
-3. Before routing or executing a new unrelated request, queued item or decision outside an accepted plan, call the checked `plex-pm` for a short intake assessment. Batch related queued requests when one assessment covers them; reuse its identity with a new task label.
+3. Before routing or executing a new unrelated request, queued item or material decision outside an accepted plan, call the checked `plex-pm` for a short intake assessment. Batch related queued requests when one assessment covers them; reuse its identity with a new task label.
 4. Supply intent, constraints, existing artifacts, interaction mode and write authority. Do not activate a PRD or planning workflow by default.
 5. PM returns: task class; outcome/non-goals; accepted inputs and missing decisions; required roles/order; task format and canonical reference; dev contract and observable checks; `ready`, `needs-specialist` or `blocked` with evidence. PM/PO selects the execution approach through [assignment contracts](assignments.md); root does not choose it from apparent task size.
 6. Follow PM's route and collect required outputs before implementation. Give each worker only its assigned goal, inputs and constraints; workers do not read the global queue. Root checks team/permission consistency and schedules work; it does not replace specialist judgment.
@@ -48,6 +48,10 @@ These routes assign work; BMad retains its procedures and checkpoints.
 - In `auto`, PM/PO selects installed `bmad-build-auto` for suitable unattended implementation: one workflow iteration, not an endless loop. Verify its actual dispatch, mandatory subagents and capacity. If unavailable, use `bmad-build` only through an authorized supported route; never skip its checkpoints. Native Goal availability does not decide workflow readiness.
 - Separate reviewer/QA: only for required independent proof, explicit review or a concrete evidence gap. Use only roles in the selected team.
 - Root may perform a mechanical step only when the PM assessment explicitly assigns it; this never bypasses intake.
+- Apply [execution ownership](assignments.md#execution-ownership): the assigned
+  executor handles routine technical steps without another PM round. Freeze only
+  the inputs under comparison; continue independent authorized implementation
+  while measurement or acceptance is pending.
 
 ## 2. Resolve a product, UX or architecture decision
 
@@ -85,8 +89,8 @@ These routes assign work; BMad retains its procedures and checkpoints.
   or possible prior effects block ACK, replay or mutation, but do not block an
   isolated fix that safely holds unknown cases.
 - Use the repository's established test route. If a runner stops before tests,
-  classify the exact environment failure and make one targeted correction or mark
-  that check blocked; do not create repeated pre-test gates.
+  correct the evidenced environment failure within the assignment and applicable
+  retry rules, or mark that check blocked; do not create repeated pre-test gates.
 - New scope or architectural decision → flow 2 for that question.
 - Resume the implementation owner with the diagnosis. Verify the original failure and affected behavior.
 - Use reviewer/QA when independent proof is required and the role exists in the selected team.
@@ -114,6 +118,9 @@ These routes assign work; BMad retains its procedures and checkpoints.
 
 - DevOps owns the assigned pipeline/release/deployment paths; application fixes remain with dev. Use reviewer for required independent review.
 - Pass the exact source SHA/artifact, target, project procedure, checks and existing authorization. Publication and deployment are separate operations.
+- Check required-role availability before accepting the operational route. A
+  missing role blocks its assignment, not the whole team; do not hide that blocker
+  behind repeated measurements or substitute another role without authority.
 - DevOps is a native Plex specialist in both teams; do not require a BMad persona or invent a workflow binding for it.
 - Reuse valid checks for the same revision. Verify publication, installation and runtime state separately; inspect state after interrupted operations before retrying.
 
@@ -122,7 +129,7 @@ These routes assign work; BMad retains its procedures and checkpoints.
 | Change | Consult |
 |---|---|
 | Scope or acceptance | PM / PO, as supported by the team |
-| Technical assumptions | Architect where available; pnet PM for technical planning |
+| Material technical assumptions outside the accepted assignment | Architect where available; pnet PM for technical planning |
 
 - Ask a bounded question; reuse accepted work.
 - Do not restart all stages for each message or routine implementation detail.

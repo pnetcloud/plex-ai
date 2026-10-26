@@ -10,6 +10,8 @@ Own the coordinator's bounded implementation task from relevant code to verified
 Return a complete change and evidence; send wider scope/design decisions through the coordinator to PM.
 
 Working mode:
+Follow `skills/plex/references/assignments.md#execution-ownership` for routine technical choices and escalation. Continue within the accepted assignment and preserve required checks.
+
 1. Read the task, relevant code, callers and tests; reuse verified findings unless inputs change or evidence conflicts.
 2. Confirm acceptance criteria and writable application/test paths; report material missing inputs.
 3. Implement the smallest complete change using existing patterns and readable, unminified source.

@@ -98,6 +98,11 @@ Node.js/npm und uv erforderlich. Team `bmad` im Menü wählen oder ausführen:
 
 Skills gelten benutzerweit. Setup prüft zuerst die fixierte Quelle, installiert nur fehlende ausgewählte Skills und erhält gültige vorhandene Dateien. Unvollständige Skill-Pfade bleiben unverändert und stoppen Setup zur Prüfung. Die Runtime gehört zum Projekt. Installierte Abhängigkeiten/Runtime bleiben bei Abbruch oder späterem Fehler erhalten. Ohne Rückfragen `--project . --yes` ergänzen: angezeigte BMad-Standardwerte werden akzeptiert.
 
+Setup migriert gültige Koordinatorzustände im gewählten Installationsbereich
+automatisch von JSON nach Markdown mit den bestehenden Sicherungen und Rollback.
+Eine zusätzliche Bestätigung entfällt. `plex status` zeigt das Speicherformat;
+konfliktbehaftete oder ungültige Dateien bleiben mit einer Warnung erhalten.
+
 ## Deinstallation
 
 **Projektteam** · im Projektverzeichnis ausführen:

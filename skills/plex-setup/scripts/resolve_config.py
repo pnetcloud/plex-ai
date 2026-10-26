@@ -3,6 +3,7 @@
 import argparse
 from datetime import datetime, timezone
 import hashlib
+import importlib.util
 import json
 import os
 from pathlib import Path
@@ -1101,6 +1102,84 @@ def _inspect_host_state(
     }
 
 
+def _coordinator_state_checker():
+    path = ROOT / "skills/plex/scripts/check_coordinator_state.py"
+    spec = importlib.util.spec_from_file_location("plex_coordinator_state", path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def plan_coordinator_memory(root):
+    """Read canonical session checkpoints; leave assignments and other artifacts alone."""
+    summary = {"preferred_format": "markdown", "format": "none", "status": "in_sync",
+               "markdown": 0, "json": 0, "issues": []}
+    migrations = []
+    try:
+        work = _ensure_safe_project_path(root, ".plex/work")
+        if not work.is_dir():
+            return summary, migrations
+        _ensure_safe_project_path(root, ".plex/work/.gitignore")
+        checker = _coordinator_state_checker()
+        for candidate in sorted(work.iterdir()):
+            if candidate.suffix not in {".json", ".md"}:
+                continue
+            try:
+                path = _ensure_safe_project_path(root, str(candidate.relative_to(root.resolve())))
+                if not path.is_file():
+                    continue
+                with path.open("rb") as stream:
+                    before = stream.read(checker.MAX_BYTES + 1)
+                try:
+                    if path.suffix == ".md":
+                        if not before.lstrip().startswith(b"# Plex coordinator state"):
+                            continue
+                        identity = checker.parse_markdown(before.decode("utf-8"))
+                    else:
+                        identity = json.loads(before)
+                except (UnicodeError, ValueError, RecursionError):
+                    if path.suffix == ".md" or re.fullmatch(r"[0-9a-f-]{36}", path.stem):
+                        summary["issues"].append(f"Unreadable coordinator memory left unchanged: {path.name}")
+                    continue
+                if (not isinstance(identity, dict)
+                        or not {"session_id", "primary_id", "active"} <= identity.keys()
+                        or identity["session_id"] != path.stem):
+                    continue
+                kind = "markdown" if path.suffix == ".md" else "json"
+                summary[kind] += 1
+                state, errors = checker.load_bytes(before)
+                if errors:
+                    summary["issues"].append(f"Coordinator memory left unchanged: {path.name}: {'; '.join(errors)}")
+                    continue
+                if kind == "markdown":
+                    continue
+                target = _ensure_safe_project_path(root, str(path.with_suffix(".md").relative_to(root.resolve())))
+                after = checker.render_markdown(state).encode("utf-8")
+                errors = checker.validate_bytes(after)
+                if errors:
+                    summary["issues"].append(f"Cannot convert coordinator memory {path.name}: {'; '.join(errors)}")
+                    continue
+                existing = None
+                if target.exists():
+                    with target.open("rb") as stream:
+                        existing = stream.read(checker.MAX_BYTES + 1)
+                    saved, errors = checker.load_bytes(existing)
+                    if errors or saved != state:
+                        summary["issues"].append(f"Different coordinator memory already exists: {target.name}; both files kept")
+                        continue
+                    after = existing
+                migrations.append({"source": path, "target": target, "before": before,
+                                   "target_before": existing, "after": after})
+            except (OSError, ValueError) as error:
+                summary["issues"].append(str(error))
+    except (OSError, ValueError) as error:
+        summary["issues"].append(str(error))
+    summary["format"] = ("mixed" if summary["markdown"] and summary["json"]
+                         else "markdown" if summary["markdown"] else "json" if summary["json"] else "none")
+    summary["status"] = ("attention" if summary["issues"] else "needs_migration" if summary["json"] else "in_sync")
+    return summary, migrations
+
+
 def check_project(project_root: Path, host: str | None = None, scope="project", max_agents=None,
                   replace_modified_roles=None) -> dict:
     if scope in {"user", "auto"} and host not in HOSTS:
@@ -1194,6 +1273,7 @@ def check_project(project_root: Path, host: str | None = None, scope="project", 
         "conflicts": all_conflicts,
         "hosts": host_reports,
         "other_hosts_needing_refresh": other_hosts_needing_refresh,
+        "coordinator_memory": plan_coordinator_memory(project_root)[0],
     }
 
 
@@ -1515,8 +1595,13 @@ def _apply_project(
         ):
             raise ValueError("Codex configuration changed after preview; review the new plan and retry.")
     retire_roles = sorted(set(old_files.keys()) - set(resolved["roles"]))
+    _, memory_migrations = plan_coordinator_memory(project_root)
 
     paths = {preset_path, resolved_path, applied_path}
+    for migration in memory_migrations:
+        paths.update((migration["source"], migration["target"]))
+    if memory_migrations:
+        paths.add(_ensure_safe_project_path(project_root, ".plex/work/.gitignore"))
     paths.update(_ensure_safe_project_path(project_root, path) for path in archive_agents)
     if instruction_plan:
         paths.add(instruction_plan["path"])
@@ -1525,6 +1610,10 @@ def _apply_project(
     if routing_plan:
         paths.add(routing_plan["path"])
     transaction = _ApplyTransaction(project_root, paths)
+    for migration in memory_migrations:
+        if (transaction.original[migration["source"]] != migration["before"]
+                or transaction.original[migration["target"]] != migration["target_before"]):
+            raise ValueError("Coordinator memory changed during migration planning; current files preserved")
     for relpath, digest in replace_modified_roles.items():
         current = transaction.original[_ensure_safe_project_path(project_root, relpath)]
         if current is None or sha256_bytes(current) != digest:
@@ -1669,6 +1758,28 @@ def _apply_project(
         receipt_bytes = (json.dumps(receipt, indent=2, sort_keys=True) + "\n").encode("utf-8")
         if transaction.original[applied_path] != receipt_bytes:
             transaction.write(applied_path, receipt_bytes)
+        migrated_memory = []
+        if memory_migrations:
+            ignore = _ensure_safe_project_path(project_root, ".plex/work/.gitignore")
+            before = transaction.original[ignore]
+            content = before or b""
+            if content.splitlines()[-1:] != [b"*"]:
+                after = content + (b"\n" if content and not content.endswith(b"\n") else b"") + b"*\n"
+                if before is not None:
+                    backup = ensure_backup() / "coordinator-memory"
+                    backup.mkdir(exist_ok=True)
+                    _atomic_write_bytes(backup / ".gitignore", before)
+                transaction.write(ignore, after)
+        for migration in memory_migrations:
+            source, target = migration["source"], migration["target"]
+            if migration["target_before"] != migration["after"]:
+                transaction.write(target, migration["after"])
+            backup = ensure_backup() / "coordinator-memory" / source.name
+            backup.parent.mkdir(exist_ok=True)
+            transaction.archive(source, backup)
+            if sha256_bytes(backup.read_bytes()) != sha256_bytes(migration["before"]):
+                raise ValueError(f"Coordinator memory backup verification failed: {source.name}")
+            migrated_memory.append(str(target.relative_to(project_root.resolve())))
         transaction.check()
 
         other_hosts = {}
@@ -1713,6 +1824,8 @@ def _apply_project(
             "written_roles": written_roles,
             "archived_roles": archived_roles,
             "archived_other_agents": list(archive_agents),
+            "coordinator_memory": {**plan_coordinator_memory(project_root)[0],
+                                   "migrated": migrated_memory},
             "backup_dir": (
                 str(backup_dir.relative_to(project_root.resolve()))
                 if backup_dir is not None
