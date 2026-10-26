@@ -74,6 +74,12 @@ Der Katalog aktiviert nicht alle Skills, installiert kein BMad und ersetzt keine
 Freigabe. Die Abläufe bleiben im installierten BMad. Nach Katalogänderungen Setup
 aktualisieren; vorhandene Snapshots ändern sich nicht automatisch.
 
+Vor der Installation offizieller BMad-Benutzerskills prüft Setup den Katalog der
+fixierten Quelle und bricht vor Änderungen ab, wenn ein angeforderter Skill fehlt.
+Installiert werden nur fehlende Skills; gültige vorhandene Dateien bleiben erhalten.
+Nach einem Teilfehler kann Setup erneut ausgeführt werden, ohne bereits installierte
+Skills erneut anzufordern.
+
 Anbieterspezifische IDs wie `openai-plus` oder `google-anthropic-plus` sind über
 Einzelclient-Setup mit `--host` und den Resolver verfügbar. Multi-Client-Setup mit
 `--client` nutzt gemeinsame Stufen. Das Einzelclient-Custom-Menü bearbeitet Rollen-

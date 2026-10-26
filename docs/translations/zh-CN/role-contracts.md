@@ -38,7 +38,7 @@ Claude 中 `delegation = false` 的角色还会通过 `disallowedTools` 禁用�
 
 ## 必须先评估任务
 
-激活 Plex 后，协调者维护精简的[每会话状态](../../../skills/plex/references/coordinator-state.md)。相关 followup 更新现有结果；无关请求可先记录为待处理而不派发。路由或执行新请求、待处理请求前，必须由原生 `plex-pm` 简短评估。Root 不自行判断复杂度或实现就绪状态。PM 返回目标与非目标、缺失决策、所需角色及顺序、项目任务格式与引用、开发契约及检查，以及 `ready`、`needs-specialist` 或 `blocked`。
+激活 Plex 后，协调者维护精简的[每会话状态](../../../skills/plex/references/coordinator-state.md)。相关 followup 更新现有结果；无关请求可先记录为待处理而不派发。路由或执行新请求、待处理请求前，必须由原生 `plex-pm` 简短评估。Root 不自行判断复杂度或实现就绪状态。PM 返回任务类别、目标与非目标、缺失决策、所需角色及顺序、项目任务格式与引用、开发契约及检查，以及 `ready`、`needs-specialist` 或 `blocked`。
 
 在 BMad 团队中，这种角色内评估不激活 persona、菜单、PRD 或 Build。后续真正的 BMad 任务遵循各自的入口契约。需求使用项目已有的 tracker、issue、spec 或 story 流程；可使用受支持的 PO 操作或目录中的独立 spec workflow。直接 workflow 按自身契约进入，无需先激活无关 persona。不强制所有版本提供 `bmad-spec`，也不引入平行任务存储。
 
@@ -58,6 +58,12 @@ Claude 中 `delegation = false` 的角色还会通过 `disallowedTools` 禁用�
 | 故障原因未知 | PM 评估 → 有边界的诊断 → 修复 → 验证 → 协调者 |
 | 请求审查 | PM 评估 → reviewer → 协调者 |
 | CI/CD、发布或指定部署 | PM 评估 → devops → 必要检查/审查 → 协调器 |
+
+何时需要 Architect 或 UX，请遵循[任务路由规则](../../../skills/plex/references/task-flows.md)；这两个角色按需参与，不是默认阶段。
+
+对于原因未知的故障，一旦失败路径和原因足以支持安全修复，就应结束诊断。生产环境中
+事件身份或已有副作用不明时，应阻止 ACK、重放或数据变更，但不应阻止会安全挂起未知
+情况的隔离代码修复。
 
 仅使用所选团队角色：pnet 的 PM 也负责技术规划；BMad 分设 PM、PO、UX 和架构师。
 复用已接受的计划，跳过已解决的问题；范围或假设变化时再咨询对应专家。
@@ -159,7 +165,9 @@ workflow，保留其必需子代理和终止状态。否则使用获授权且受
 `completed` 仅完成该任务。PM/PO 负责界定用户的上层目标，并在现有交接中保留
 该目标的终态负责人和具体检查；协调器只有在整合后的证据通过该检查后才能关闭
 上层目标。已完成的前置任务不等于交付：构建成功可以完成一个前置任务，而用户
-要求可运行的部署时，仍需检查指定目标环境。
+要求可运行的部署时，仍需检查指定目标环境。多步骤工作中，每个已交接结果都应
+记录在[协调器状态](../../../skills/plex/references/coordinator-state.md)中，并推进
+上层目标的 `next_action`；后续步骤受阻时，不应重新打开或重复已交付结果。
 
 如果证据方法不可用，或因方法本身的问题失败，应在同一授权操作和范围内改用
 受支持的方法，并保留验收标准和必需检查；不要仅为更换方法而再次请求权限。

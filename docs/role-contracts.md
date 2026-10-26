@@ -56,7 +56,7 @@ Coordinators use Markdown headings; their purpose and blocks match the role sour
 
 ## Mandatory intake
 
-After Plex activation, the coordinator keeps compact [per-session state](../skills/plex/references/coordinator-state.md). Related followups amend their existing outcome; unrelated requests may be recorded as deferred without dispatch. Before routing or executing a new or queued request, the native `plex-pm` role provides a short assessment. Root does not classify complexity or implementation readiness itself. PM returns outcome/non-goals, missing decisions, needed roles/order, the project's task format and reference, a dev contract with checks, and readiness (`ready`, `needs-specialist`, `blocked`).
+After Plex activation, the coordinator keeps compact [per-session state](../skills/plex/references/coordinator-state.md). Related followups amend their existing outcome; unrelated requests may be recorded as deferred without dispatch. Before routing or executing a new or queued request, the native `plex-pm` role provides a short assessment. Root does not classify complexity or implementation readiness itself. PM returns task class, outcome/non-goals, missing decisions, needed roles/order, the project's task format and reference, a dev contract with checks, and readiness (`ready`, `needs-specialist`, `blocked`).
 
 In the BMad team, this role-local intake does not activate a persona, menu, PRD or Build. Actual BMad assignments still follow their entry contracts. Task/spec authoring uses the project's existing tracker, issue, spec or story conventions; use a supported PO operation or cataloged standalone spec workflow where available. A direct workflow uses its own entry contract without an unrelated persona prerequisite. Do not require `bmad-spec` across all BMad versions or create a parallel task store.
 
@@ -77,6 +77,12 @@ planning and implementation to the owning roles. The skill's
 | Unexplained failure | PM intake → bounded investigation → fix → verification → coordinator |
 | Review request | PM intake → reviewer → coordinator |
 | CI/CD, release or assigned deployment | PM intake → devops → required checks/review → coordinator |
+
+Use the shared [task-routing rules](../skills/plex/references/task-flows.md) to decide when Architect or UX is needed; they are conditional specialists, not default stages.
+
+For an unexplained failure, stop diagnosis once the failing path and cause support
+a safe repair. Unknown production identity/effects gate ACK, replay or mutation,
+not an isolated fix that fails closed.
 
 Only the selected team's roles apply: pnet PM also owns technical planning;
 BMad separates PM, PO, UX and architect. Reuse accepted plans, skip resolved
@@ -198,7 +204,9 @@ retains its terminal owner and outcome-specific check in the existing handoff; t
 coordinator closes the parent only after integrated evidence proves that check. A
 completed prerequisite is not parent delivery: a passing build can satisfy a
 prerequisite, while a requested running deployment still requires checking its named
-target.
+target. For multi-step work, record each handed-off result in the
+[coordinator state](../skills/plex/references/coordinator-state.md) and advance the
+parent's `next_action`; a blocked successor does not reopen a delivered step.
 
 If an evidence method is unavailable or fails for a method-specific reason, use a
 supported alternative within the same authorized action and scope; do not request

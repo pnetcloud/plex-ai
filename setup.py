@@ -19,6 +19,7 @@ import importlib.util
 import json
 import os
 from pathlib import Path
+import re
 import shlex
 import shutil
 import subprocess
@@ -473,9 +474,39 @@ def bmad_required_skills():
     return sorted(names)
 
 
-def bmad_install_commands(host):
+def bmad_missing_skills(host):
+    root = bmad_user_skills(host)
+    missing = []
+    for name in bmad_required_skills():
+        path = root / name
+        if (path.exists() or path.is_symlink()) and not (path / "SKILL.md").is_file():
+            raise ValueError(f"Existing BMad skill path is incomplete; left unchanged: {path}")
+        if not (path / "SKILL.md").is_file():
+            missing.append(name)
+    return missing
+
+
+def parse_bmad_source_skills(output):
+    output = re.sub(r"\x1b(?:[@-_]|\[[0-?]*[ -/]*[@-~])", "", output)
+    output = output.replace("\r", "").replace("\b", "")
+    if "Available Skills" not in output or "Use --skill <name>" not in output:
+        raise ValueError("Could not verify the pinned BMad skill catalog; no user skills were changed.")
+    return {name for line in output.splitlines() if line.startswith("│    ")
+            for name in [line[5:].strip()] if re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", name)}
+
+
+def bmad_source_skills(project):
+    output = run(["npx", "--yes", SKILLS_CLI, "add", BMAD_SKILLS_SOURCE, "--list"], project)
+    skills = parse_bmad_source_skills(output)
+    if not skills:
+        raise ValueError("The pinned BMad source returned an empty skill catalog; no user skills were changed.")
+    return skills
+
+
+def bmad_install_commands(host, skills=None):
+    skills = bmad_required_skills() if skills is None else skills
     return [["npx", "--yes", SKILLS_CLI, "add", BMAD_SKILLS_SOURCE, "--global",
-             "--agent", BMAD_AGENTS[host], "--skill", *bmad_required_skills(), "--yes"]]
+             "--agent", BMAD_AGENTS[host], "--skill", *skills, "--yes"]]
 
 
 def bmad_user_skills(host):
@@ -487,19 +518,28 @@ def bmad_user_skills(host):
 
 
 def install_bmad_dependencies(project, host):
+    missing = bmad_missing_skills(host)
+    if not missing:
+        notice("All required official BMad skills are already installed; existing files were kept.", "ok")
+        return
     if not shutil.which("npx"):
         raise ValueError("Installing official BMad skills requires Node.js/npm (npx). Install them and retry.")
+    available = bmad_source_skills(project)
+    unsupported = sorted(set(missing) - available)
+    if unsupported:
+        raise ValueError("Pinned official BMad source does not provide required skills: "
+                         f"{', '.join(unsupported)}. No user skills were changed.")
     heading("Install BMad dependencies")
-    notice("Installing the selected official BMad skills for this user. Existing selected "
-           "user skill files may be replaced; other projects share them. Installed plugins "
-           "are not changed. These changes remain after cancellation or later failure.", "warn")
-    for command in bmad_install_commands(host):
+    notice(f"Installing {len(missing)} missing official BMad skills for this user. Existing "
+           "skills are kept; other projects share these user-level files. Installed plugins "
+           "are not changed.", "warn")
+    for command in bmad_install_commands(host, missing):
         show_command(command)
         run(command, project)
-    root = bmad_user_skills(host)
-    missing = [name for name in bmad_required_skills() if not (root / name / "SKILL.md").is_file()]
+    missing = bmad_missing_skills(host)
     if missing:
-        raise ValueError(f"Official BMad installation is incomplete: {', '.join(missing)}")
+        raise ValueError("Official BMad installation is incomplete: " + ", ".join(missing)
+                         + ". Existing skills were kept; retry to install only missing skills.")
 
 
 BMAD_RUNTIME_SCRIPTS = ("resolve_config.py", "resolve_customization.py", "render_skill.py")
@@ -1019,7 +1059,7 @@ def main(argv=None, *, shared_profile=False, selection=None, setup_mode=None):
     team_options.add_argument("--interaction", choices=CONFIG.INTERACTIONS,
                         help="Interaction mode: interactive, balanced (default), auto; preserve saved selection")
     team_options.add_argument("--max-agents", type=int, help="Shared limit of concurrent Plex assignments (positive integer)")
-    bmad_options.add_argument("--install-bmad", action="store_true", help="Install the selected official BMad user skills; may replace selected skill files; project scope also initializes runtime")
+    bmad_options.add_argument("--install-bmad", action="store_true", help="Install missing official BMad user skills; project scope also initializes runtime")
     bmad_options.add_argument("--init-bmad", action="store_true", help="Initialize missing project runtime using installed official BMad setup; --yes accepts module defaults")
     bmad_options.add_argument("--bmad-skill", type=Path, help="Installed bmad setup skill directory; otherwise discover supported installed sources")
     target_options.add_argument("--dev", action=argparse.BooleanOptionalAction, default=None,
@@ -1186,7 +1226,7 @@ def main(argv=None, *, shared_profile=False, selection=None, setup_mode=None):
                 except BMadNotInstalled:
                     if not interactive or args.install_bmad:
                         raise
-                    notice("Official BMad setup is missing. Install the selected user skills; this may replace selected skill files and affects other projects. Existing plugins remain unchanged.", "warn")
+                    notice("Official BMad setup is missing. Install only missing selected user skills; other projects share these files. Existing plugins remain unchanged.", "warn")
                     if choose("Install required official BMad skills for this user?", {
                         "yes": "Install the team skill set, then initialize this project",
                         "no": "Cancel; keep user skills and project unchanged",
@@ -1434,9 +1474,13 @@ def main(argv=None, *, shared_profile=False, selection=None, setup_mode=None):
             field("BMad runtime", project / "_bmad", "command")
         if args.dry_run:
             if resolved["process"] == "bmad" and args.install_bmad:
-                notice("BMad selected user-skill installation plan (existing selected skill files may be replaced):", "warn")
-                for command in bmad_install_commands(args.host):
-                    show_command(command)
+                missing_skills = bmad_missing_skills(args.host)
+                if missing_skills:
+                    notice(f"BMad will install {len(missing_skills)} missing user skills after checking the pinned source:", "warn")
+                    for command in bmad_install_commands(args.host, missing_skills):
+                        show_command(command)
+                else:
+                    notice("All required BMad user skills are already installed; no skill files will be changed.", "ok")
             if resolved["process"] == "bmad" and args.scope == "project" and not bmad_runtime_ready(project):
                 notice("BMad runtime is missing: normal setup will offer official initialization.", "warn")
             notice("Preview only. No files or plugins changed.", "ok")

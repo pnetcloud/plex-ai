@@ -33,6 +33,7 @@ Plex 在 Codex、Claude Code 和 Antigravity 中配置并协调智能体团队�
 
 | 版本 | 变更 |
 |---|---|
+| [v0.15.0](releases/v0.15.0.md) | 从已交付步骤继续、分类任务路由并安全安装 BMad 技能。 |
 | [v0.14.0](releases/v0.14.0.md) | PM 优先选择 BMad 工作流并支持直接入口。 |
 | [v0.13.1](releases/v0.13.1.md) | 有界任务、最终交付与证据保留。 |
 | [v0.13.0](releases/v0.13.0.md) | 有界协调器状态、目标队列与 DevOps 专家。 |

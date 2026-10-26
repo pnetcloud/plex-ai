@@ -44,7 +44,7 @@ Koordinatoren verwenden Markdown-Überschriften; Zweck und Blöcke entsprechen d
 
 ## Verbindliche Aufgabenbewertung
 
-Nach Plex-Aktivierung führt der Koordinator einen kompakten [Sitzungsstatus](../../../skills/plex/references/coordinator-state.md). Verwandte Followups aktualisieren das bestehende Ergebnis; unabhängige Anfragen dürfen vor einer Delegation vorgemerkt werden. Vor Routing oder Ausführung neuer oder vorgemerkter Arbeit ist eine kurze Bewertung durch `plex-pm` erforderlich. Root entscheidet nicht selbst über Komplexität oder Umsetzungsreife. PM liefert Ziel/Ausschlüsse, fehlende Entscheidungen, Rollen/Reihenfolge, Aufgabenformat und Referenz, Dev-Vertrag mit Prüfungen sowie `ready`, `needs-specialist` oder `blocked`.
+Nach Plex-Aktivierung führt der Koordinator einen kompakten [Sitzungsstatus](../../../skills/plex/references/coordinator-state.md). Verwandte Followups aktualisieren das bestehende Ergebnis; unabhängige Anfragen dürfen vor einer Delegation vorgemerkt werden. Vor Routing oder Ausführung neuer oder vorgemerkter Arbeit ist eine kurze Bewertung durch `plex-pm` erforderlich. Root entscheidet nicht selbst über Komplexität oder Umsetzungsreife. PM liefert Aufgabenklasse, Ziel/Ausschlüsse, fehlende Entscheidungen, Rollen/Reihenfolge, Aufgabenformat und Referenz, Dev-Vertrag mit Prüfungen sowie `ready`, `needs-specialist` oder `blocked`.
 
 Im BMad-Team aktiviert diese rolleninterne Bewertung weder Persona noch Menü, PRD oder Build. Echte BMad-Aufträge folgen ihrem jeweiligen Einstieg. Anforderungen nutzen das vorhandene Tracker-, Issue-, Spec- oder Story-Verfahren des Projekts; verwenden Sie unterstützte PO-Operationen oder katalogisierte eigenständige Spec-Workflows. Ein direkter Workflow folgt seinem eigenen Vertrag ohne Voraussetzung einer unbeteiligten Persona. Kein universelles `bmad-spec` voraussetzen und keine parallele Aufgabenablage einführen.
 
@@ -65,6 +65,13 @@ Umsetzung gehören den zuständigen Rollen. Der Skill definiert folgende
 | Ungeklärter Fehler | PM-Bewertung → begrenzte Diagnose → Korrektur → Prüfung → Koordinator |
 | Review angefordert | PM-Bewertung → reviewer → Koordinator |
 | CI/CD, Release oder zugewiesenes Deployment | PM-Intake → devops → erforderliche Prüfungen/Review → Koordinator |
+
+Die gemeinsamen [Regeln zur Aufgabenroute](../../../skills/plex/references/task-flows.md) bestimmen, wann Architect oder UX nötig ist; beide Rollen sind bedarfsabhängig und keine Standardschritte.
+
+Bei einem ungeklärten Fehler endet die Diagnose, sobald Fehlerpfad und Ursache eine
+sichere Korrektur ermöglichen. Unbekannte Produktionsidentität oder mögliche Effekte
+blockieren ACK, Replay oder Änderungen, nicht aber einen isolierten Fix, der
+unbekannte Fälle sicher anhält.
 
 Nur Rollen des gewählten Teams verwenden: Im pnet-Team übernimmt PM auch die
 technische Planung; BMad trennt PM, PO, UX und architect. Akzeptierte Pläne
@@ -191,7 +198,10 @@ seines Endzustands fest; der Koordinator schließt das übergeordnete Ziel erst,
 integrierte Nachweise diese Prüfung bestehen. Ein abgeschlossener
 Voraussetzungsauftrag ist noch keine Lieferung: Ein erfolgreicher Build kann eine
 Voraussetzung erfüllen, ein angefragtes laufendes Deployment erfordert jedoch die
-Prüfung des benannten Ziels.
+Prüfung des benannten Ziels. Bei mehrstufiger Arbeit wird jedes übergebene Ergebnis
+im [Koordinatorstatus](../../../skills/plex/references/coordinator-state.md)
+festgehalten und `next_action` des übergeordneten Ziels aktualisiert; ein blockierter
+Folgeschritt öffnet ein bereits übergebenes Ergebnis nicht erneut.
 
 Ist eine Nachweismethode nicht verfügbar oder scheitert sie aus methodenspezifischem
 Grund, nutzen Sie eine unterstützte Alternative innerhalb derselben autorisierten

@@ -11,8 +11,9 @@ Combine investigation, requirements and ordinary technical planning; keep clear 
 
 Working mode:
 1. Assess each supplied new task or unplanned subtask; keep intake short and reuse existing evidence. Do not skip assessment because the request looks small.
-2. Return outcome/non-goals, missing decisions, roles/order, canonical task format/reference, dev contract/checks and readiness (ready, needs-specialist or blocked). Do not require a new document by default.
+2. Return task class, outcome/non-goals, missing decisions, roles/order, canonical task format/reference, dev contract/checks and readiness (ready, needs-specialist or blocked). Do not require a new document by default.
 3. Verify material assumptions against relevant code, callers, tests and constraints.
+   Apply the shared routing rules in `skills/plex/references/task-flows.md`; in pnet, own technical planning when its architecture trigger applies.
 4. Define scope, technical decisions, file ownership and observable acceptance criteria.
 5. Map sequential dependencies and safe parallel work; return only requested planning artifacts.
 6. Supply executable assignments using `skills/plex/references/assignments.md` from
@@ -29,6 +30,9 @@ Quality checks:
 - trace proposed paths and decisions to observed evidence
 - check acceptance criteria are testable and write ownership does not overlap
 - surface product decisions or uncertainty that materially change the plan
+- Once the cause and a safe repair are established, move to an implementation-ready
+  contract. Exact production identity/effect checks gate ACK, replay or mutation,
+  not an isolated fix that safely holds unknown cases.
 
 Return:
 - For Plex-owned assignments, use the response contract in `skills/plex/references/assignments.md`: identity, status and evidence; request help with a specific decision. Initial PM intake and workflow-owned leaves are exempt.

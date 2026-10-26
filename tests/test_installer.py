@@ -376,32 +376,87 @@ class InstallerTests(unittest.TestCase):
             plan.assert_not_called()
             self.assertEqual(list(Path(temp).iterdir()), [])
 
-    def test_bmad_dependency_installation_is_selected_and_verified_for_each_client(self):
+    def test_bmad_skill_catalog_parser_handles_cli_terminal_output(self):
+        spec = importlib.util.spec_from_file_location("plex_bmad_catalog", ROOT / "setup.py")
+        installer = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(installer)
+        output = ("\x1b[?25l◇ Available Skills\r\n│\r\n│    bmad\r\n│\r\n"
+                  "│    bmad-agent-po\r\n│\r\n└ Use --skill <name> to install specific skills\n\x1b[?25h")
+        self.assertEqual(installer.parse_bmad_source_skills(output), {"bmad", "bmad-agent-po"})
+
+    def test_bmad_dependency_installation_preflights_and_only_installs_missing_skills(self):
         spec = importlib.util.spec_from_file_location("plex_bmad_dependencies", ROOT / "setup.py")
         installer = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(installer)
         for host, agent in installer.BMAD_AGENTS.items():
             with self.subTest(host=host), tempfile.TemporaryDirectory() as temp, redirect_stdout(io.StringIO()):
                 root = Path(temp)
-                def run(command, project):
-                    self.assertIn(installer.BMAD_SKILLS_SOURCE, command)
-                    self.assertEqual(command[command.index("--agent") + 1], agent)
-                    self.assertIn("bmad-agent-po", command)
-                    self.assertNotIn("*", command)
-                    for name in installer.bmad_required_skills():
-                        path = root / name / "SKILL.md"
-                        path.parent.mkdir(parents=True, exist_ok=True)
-                        path.write_text("fixture")
+                required = installer.bmad_required_skills()
+                retained = required[0]
+                retained_path = root / retained / "SKILL.md"
+                retained_path.parent.mkdir(parents=True)
+                retained_path.write_text("keep this version")
+
+                def catalog(names):
+                    return ("◇ Available Skills\n│\n" + "".join(f"│    {name}\n│\n" for name in names)
+                            + "└ Use --skill <name> to install specific skills\n")
+
+                def run_with_catalog(source_names, install_names):
+                    def run(command, project):
+                        self.assertIn(installer.BMAD_SKILLS_SOURCE, command)
+                        if "--list" in command:
+                            return catalog(source_names)
+                        self.assertEqual(command[command.index("--agent") + 1], agent)
+                        self.assertEqual(command[command.index("--skill") + 1:-1], install_names)
+                        self.assertEqual(command[-1], "--yes")
+                        self.assertNotIn("*", command)
+                        for name in install_names:
+                            path = root / name / "SKILL.md"
+                            path.parent.mkdir(parents=True, exist_ok=True)
+                            path.write_text("fixture")
+                    return run
+
+                missing = [name for name in required if name != retained]
                 with patch.object(installer.shutil, "which", return_value="npx"), \
                         patch.object(installer, "bmad_user_skills", return_value=root), \
-                        patch.object(installer, "run", side_effect=run):
-                    installer.install_bmad_dependencies(ROOT, host)
-                (root / "bmad-agent-po/SKILL.md").unlink()
-                with patch.object(installer.shutil, "which", return_value="npx"), \
-                        patch.object(installer, "bmad_user_skills", return_value=root), \
-                        patch.object(installer, "run"):
-                    with self.assertRaisesRegex(ValueError, "bmad-agent-po"):
+                        patch.object(installer, "run", side_effect=run_with_catalog(
+                            [name for name in required if name != "bmad-agent-po"], missing)) as run:
+                    with self.assertRaisesRegex(ValueError, "bmad-agent-po.*No user skills were changed"):
                         installer.install_bmad_dependencies(ROOT, host)
+                    self.assertEqual(run.call_count, 1)
+                self.assertEqual(retained_path.read_text(), "keep this version")
+                self.assertFalse((root / "bmad-agent-po/SKILL.md").exists())
+
+                with patch.object(installer.shutil, "which", return_value="npx"), \
+                        patch.object(installer, "bmad_user_skills", return_value=root), \
+                        patch.object(installer, "run", side_effect=run_with_catalog(required, missing)) as run:
+                    installer.install_bmad_dependencies(ROOT, host)
+                    self.assertEqual(run.call_count, 2)
+                self.assertEqual(retained_path.read_text(), "keep this version")
+                self.assertTrue(all((root / name / "SKILL.md").is_file() for name in required))
+
+    def test_bmad_install_skips_complete_skills_and_protects_incomplete_paths(self):
+        spec = importlib.util.spec_from_file_location("plex_bmad_skip", ROOT / "setup.py")
+        installer = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(installer)
+        with tempfile.TemporaryDirectory() as temp, redirect_stdout(io.StringIO()):
+            root = Path(temp)
+            for name in installer.bmad_required_skills():
+                path = root / name / "SKILL.md"
+                path.parent.mkdir(parents=True)
+                path.write_text("existing")
+            with patch.object(installer, "bmad_user_skills", return_value=root), \
+                    patch.object(installer, "run", side_effect=AssertionError("unnecessary command")), \
+                    patch.object(installer.shutil, "which", side_effect=AssertionError("unnecessary npx check")):
+                installer.install_bmad_dependencies(ROOT, "codex")
+            incomplete = root / "bmad-agent-po"
+            (incomplete / "SKILL.md").unlink()
+            (incomplete / "notes.txt").write_text("user data")
+            with patch.object(installer, "bmad_user_skills", return_value=root), \
+                    patch.object(installer, "run", side_effect=AssertionError("must not overwrite")):
+                with self.assertRaisesRegex(ValueError, "left unchanged"):
+                    installer.install_bmad_dependencies(ROOT, "codex")
+            self.assertEqual((incomplete / "notes.txt").read_text(), "user data")
 
     def test_missing_bmad_plugins_offer_installation_or_clean_cancel(self):
         spec = importlib.util.spec_from_file_location("plex_bmad_offer", ROOT / "setup.py")

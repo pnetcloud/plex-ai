@@ -16,7 +16,7 @@ The schema is versioned and the arrays name each item's current state:
 | `active` | Work currently being executed. Two outcomes total may be active by default, including the primary. |
 | `queued` | Unrelated requests recorded for later routing or execution. |
 | `paused` | Unfinished work with a concrete resume condition. |
-| `recently_completed` | Up to four compact result references, retained only after handoff. |
+| `recently_completed` | Up to four compact references to handed-off results, including completed steps of an unfinished larger outcome. |
 | `decisions` | Up to eight priority, supersession and authority records. |
 
 Each open outcome keeps its ID, goal, canonical source reference, owner, user
@@ -34,12 +34,19 @@ current override; without one, the limit is two.
 
 ## Lifecycle
 
-- A related followup amends its existing outcome and assignment. Do not create a
-  duplicate or ask routine scheduling questions.
+- A related followup amends its existing outcome and assignment. For multi-step
+  work, record each handed-off deliverable in `recently_completed` and advance the
+  parent's `next_action`. An unfinished parent or blocked successor never reopens
+  a delivered step. Do not create a duplicate outcome or ask routine scheduling
+  questions.
 - Record an unrelated request in `queued` without launching PM intake or workers.
   Before choosing its route or executing it, obtain PM intake; batch queued
-  requests when one assessment can cover their order and readiness. Do not repeat
-  intake for an accepted assignment or unchanged continuation.
+  requests when one assessment can cover their order and readiness. Before any
+  dispatch, check the accepted assignment and `recently_completed`; reuse them and
+  continue from the recorded `next_action`. Repeat intake only when new evidence
+  or a user decision materially changes the scope, criteria, owner or route. A
+  repeated `continue`, context compaction or unchanged blocker does not by itself
+  reset a completed step or accepted intake.
 - Follow explicit user priorities and supersession decisions. Otherwise finish the
   primary before opening another direction. If an explicit urgent request
   preempts it, save a concrete resume point and account for its real executors and

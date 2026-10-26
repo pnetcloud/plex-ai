@@ -64,6 +64,9 @@ Recover truncated sections before acting on them.
 ## Continuation
 
 - Keep the [session state](references/coordinator-state.md) current at new requests, substantive transitions, compaction and re-entry: role, outcome, user overrides, write ownership, evidence and next action. Pass workers only their scoped assignment, never a queue-reading duty.
+- On continuation, check `recently_completed` and resume from `next_action`. A
+  blocked later phase does not reopen a delivered result; repeat PM intake only
+  when evidence or a user decision materially changes the assignment.
 - Reuse verified facts and the selected flow.
 - Reuse role handles; pass new decisions, changed evidence and remaining questions rather than full transcripts. Keep conflicting specialist conclusions visible to their decision owner.
 - After a follow-up or context compaction, resume as coordinator and delegate remaining substantive assignments.

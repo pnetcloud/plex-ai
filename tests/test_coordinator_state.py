@@ -122,6 +122,24 @@ class CoordinatorStateTests(unittest.TestCase):
             with self.subTest(statement=statement):
                 self.assertIn(statement, reference)
 
+    def test_pm_task_classification_uses_one_shared_routing_contract(self):
+        reference = " ".join(
+            (ROOT / "skills/plex/references/task-flows.md").read_text().split()
+        )
+        for task_class in ("`execution-ready`", "`product-ux`", "`architecture`", "`diagnosis`"):
+            self.assertIn(task_class, reference)
+        self.assertIn("a new/changed capability spans subsystem/service/data-store boundaries", reference)
+        self.assertIn("change stays within a known component/boundary", reference)
+        self.assertIn("changes a shared interface, data owner or invariant", reference)
+        self.assertIn("affected architecture is missing/contradictory", reference)
+        self.assertIn("PM includes the class and required role order", reference)
+        for role in ("pnet", "bmad"):
+            prompt = (ROOT / "teams" / role / "agents/pm.md").read_text()
+            with self.subTest(role=role):
+                self.assertIn("Return task class", prompt)
+                self.assertIn("skills/plex/references/task-flows.md", prompt)
+                self.assertNotIn("Route only new or materially unresolved shared invariants", prompt)
+
     def test_structure_primary_and_item_ids_are_checked(self):
         for value in (None, [], "state", 1):
             with self.subTest(value=value):

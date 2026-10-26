@@ -34,6 +34,7 @@ Englisch ist die gepflegte Quelle; Übersetzungen spiegeln die Dateinamen.
 
 | Version | Änderungen |
 |---|---|
+| [v0.15.0](releases/v0.15.0.md) | Fortsetzung nach erledigten Übergaben, Aufgabenrouting und sichere BMad-Installation. |
 | [v0.14.0](releases/v0.14.0.md) | PM-first-Auswahl von BMad-Abläufen und direkte Workflow-Einstiege. |
 | [v0.13.1](releases/v0.13.1.md) | Begrenzte Aufträge, endgültige Lieferung und erhaltene Nachweise. |
 | [v0.13.0](releases/v0.13.0.md) | Begrenzter Koordinatorzustand, Zielwarteschlange und DevOps. |

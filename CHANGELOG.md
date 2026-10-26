@@ -4,6 +4,13 @@ Important changes retained in Plex, grouped by release. Interfaces and configura
 may change before 1.0. Releases through v0.5.4 were previews; v0.5.5 and later are
 regular releases.
 
+## [0.15.0] — 2026-10-26
+
+- Record handed-off steps and resume multi-step work from its next action; do not reopen completed work when a later step is blocked.
+- Classify by scope and unresolved decision, not labels such as bug or feature: send ready contained work to Dev, product/UX questions to PM/PO and UX as needed, cross-boundary architecture decisions to BMad Architect (pnet PM owns technical planning), and unknown causes to diagnosis.
+- End diagnosis when evidence supports a safe repair; avoid repeated pre-test gates and keep production identity/effect checks on actions that can change production state.
+- Validate the pinned BMad skill catalog before installation, install only missing skills and preserve valid existing files. Align BMad workflow entries with skills actually present in the pinned source.
+
 ## [0.14.0] — 2026-10-25
 
 - Let PM select the minimal suitable BMad route from the complete role-keyed workflow map, with direct entries for PM specifications, PO planning workflows and Dev walkthroughs while retaining existing PO operations.

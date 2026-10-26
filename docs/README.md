@@ -36,6 +36,7 @@ English is the maintained source; translations mirror these filenames.
 
 | Version | Changes |
 |---|---|
+| [v0.15.0](releases/v0.15.0.md) | Resume from completed handoffs; classify routes and safely install BMad skills. |
 | [v0.14.0](releases/v0.14.0.md) | PM-first BMad route selection and direct workflow entries. |
 | [v0.13.1](releases/v0.13.1.md) | Bounded assignments, terminal delivery and preserved evidence. |
 | [v0.13.0](releases/v0.13.0.md) | Bounded coordinator focus, session state and DevOps specialists. |

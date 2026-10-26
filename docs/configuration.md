@@ -82,6 +82,11 @@ Catalog entries do not eagerly activate skills, install BMad or grant approval.
 Workflow procedures remain in installed BMad. Edit the team catalog and refresh
 setup after changes; existing snapshots do not update automatically.
 
+Before installing official BMad user skills, setup checks the pinned source catalog
+and stops before writing if a requested skill is unavailable. It installs only
+missing skills, keeps valid existing files, and can be retried after a partial
+installation without reinstalling skills that already succeeded.
+
 Vendor-specific IDs such as `openai-plus` or `google-anthropic-plus` are available
 through single-client `--host` setup and the resolver. Multi-client `--client` setup
 uses shared tiers. The single-client custom menu edits per-role overrides on a named

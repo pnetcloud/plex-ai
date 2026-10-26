@@ -10,7 +10,7 @@ These routes assign work; BMad retains its procedures and checkpoints.
 2. Keep one coordinator-owned [session state](coordinator-state.md). Related followups amend their current outcome; record unrelated requests there without dispatch or intake.
 3. Before routing or executing a new unrelated request, queued item or decision outside an accepted plan, call the checked `plex-pm` for a short intake assessment. Batch related queued requests when one assessment covers them; reuse its identity with a new task label.
 4. Supply intent, constraints, existing artifacts, interaction mode and write authority. Do not activate a PRD or planning workflow by default.
-5. PM returns: outcome/non-goals; accepted inputs and missing decisions; required roles/order; task format and canonical reference; dev contract and observable checks; `ready`, `needs-specialist` or `blocked` with evidence. PM/PO selects the execution approach through [assignment contracts](assignments.md); root does not choose it from apparent task size.
+5. PM returns: task class; outcome/non-goals; accepted inputs and missing decisions; required roles/order; task format and canonical reference; dev contract and observable checks; `ready`, `needs-specialist` or `blocked` with evidence. PM/PO selects the execution approach through [assignment contracts](assignments.md); root does not choose it from apparent task size.
 6. Follow PM's route and collect required outputs before implementation. Give each worker only its assigned goal, inputs and constraints; workers do not read the global queue. Root checks team/permission consistency and schedules work; it does not replace specialist judgment.
 
 ### Readiness and task format
@@ -20,7 +20,16 @@ These routes assign work; BMad retains its procedures and checkpoints.
 - If BMad owns the spec/ticket format, dispatch the installed PO operation or spec skill supported by that version. `bmad-spec` is an option when installed, not a universal prerequisite. External record mutation still needs the project's authority.
 - In BMad, PM reads the full `workflows` map once from the exact snapshot passed by root and selects the minimal sufficient route. Return each step's purpose, eligible role, exact entry, sequence and expected canonical output/input; root alone dispatches and integrates.
 - Reuse concrete accepted requirements for a ready bug or executable contract and send it to Dev Build. For a small new capability, use an assigned standalone spec workflow or Build's supported minimal-spec route before code. For larger unresolved requirements, select only the workflows needed to settle them; do not require a PRD, epic or story by default.
-- Requirements describe the desired result; they do not prove that a technical solution is settled. Route only new or materially unresolved shared invariants or material tradeoffs to Architect. Routine diagnosis and correction within accepted requirements stays with Dev Build. Preserve pnet PM's technical-planning ownership; this Architect trigger applies to BMad routing.
+- Classify by the planned change and unresolved decision, not labels like bug or feature:
+
+  | Class | Route |
+  |---|---|
+  | `execution-ready` — change stays within a known component/boundary; outcome, acceptance and implementation path are clear | Dev Build; no extra specialist |
+  | `product-ux` — product scope, acceptance or user experience is unresolved | PM/PO; UX only for user journeys, interaction states or design decisions |
+  | `architecture` — a new/changed capability spans subsystem/service/data-store boundaries, changes a shared interface, data owner or invariant, or affected architecture is missing/contradictory | Architect before dev in BMad; PM owns the technical plan in pnet |
+  | `diagnosis` — failure cause is unknown | Dev investigates; pnet explorer maps unfamiliar code. Route a design decision only if diagnosis shows one is needed |
+
+- PM includes the class and required role order in the intake. Reuse accepted decisions and the selected team's installed workflow catalog.
 - Only a specialist-produced or explicitly user-approved decision covering the current scope can satisfy a missing planning result. Root's previous analysis, a small diff or the label "bugfix" cannot.
 - Routine steps already covered by the assessment, workflow-owned leaves, status questions and unchanged continuation reuse that assessment. Intake itself does not recursively require another intake.
 - Missing/rejected required roles block their assignments. Root may gather bounded context and report status, but must not do the blocked planning/design/implementation locally or substitute generic agents.
@@ -40,9 +49,9 @@ These routes assign work; BMad retains its procedures and checkpoints.
 - Separate reviewer/QA: only for required independent proof, explicit review or a concrete evidence gap. Use only roles in the selected team.
 - Root may perform a mechanical step only when the PM assessment explicitly assigns it; this never bypasses intake.
 
-## 2. Substantial new task
+## 2. Resolve a product, UX or architecture decision
 
-**Use:** substantial work needs product requirements, specification/task breakdown, UX or architectural decisions before implementation.
+**Use:** PM classified an unresolved product, UX or architectural decision that needs its owner before implementation.
 
 `coordinator → PM intake → required specialists → dev → required checks/review → coordinator`
 
@@ -67,8 +76,17 @@ These routes assign work; BMad retains its procedures and checkpoints.
 `coordinator → PM intake → assigned investigation/design → dev fix → required verification → coordinator`
 
 - pnet: `explorer` maps unfamiliar code; `dev` owns reproduction and technical diagnosis.
-- BMad: PM assigns the needed domain investigation/design before dev; Build retains implementation investigation. Do not invent an explorer role.
+- BMad: Dev Build owns code-path investigation. Return only a product or architectural decision found during diagnosis to PM/PO/Architect; do not invent an explorer role.
 - Establish evidence and a failing check before selecting the fix.
+- End diagnosis when the failing path and cause support a safe repair. Record
+  unresolved facts as fail-closed behavior or acceptance checks; investigate further
+  only when a specific answer could change the fix, scope or safety.
+- Separate code repair from recovery of the held production item. Unknown identity
+  or possible prior effects block ACK, replay or mutation, but do not block an
+  isolated fix that safely holds unknown cases.
+- Use the repository's established test route. If a runner stops before tests,
+  classify the exact environment failure and make one targeted correction or mark
+  that check blocked; do not create repeated pre-test gates.
 - New scope or architectural decision → flow 2 for that question.
 - Resume the implementation owner with the diagnosis. Verify the original failure and affected behavior.
 - Use reviewer/QA when independent proof is required and the role exists in the selected team.

@@ -96,7 +96,7 @@ Node.js/npm und uv erforderlich. Team `bmad` im Menü wählen oder ausführen:
 | Ausgewählte offizielle Skills und Projekt-Runtime installieren | `plex --team bmad --client codex --install-bmad` |
 | Mit vorhandenen Skills initialisieren | `plex --team bmad --client codex --init-bmad` |
 
-Skills gelten benutzerweit; ausgewählte Skill-Dateien können ersetzt werden. Die Runtime gehört zum Projekt. Installierte Abhängigkeiten/Runtime bleiben bei Abbruch oder späterem Fehler erhalten. Ohne Rückfragen `--project . --yes` ergänzen: angezeigte BMad-Standardwerte werden akzeptiert.
+Skills gelten benutzerweit. Setup prüft zuerst die fixierte Quelle, installiert nur fehlende ausgewählte Skills und erhält gültige vorhandene Dateien. Unvollständige Skill-Pfade bleiben unverändert und stoppen Setup zur Prüfung. Die Runtime gehört zum Projekt. Installierte Abhängigkeiten/Runtime bleiben bei Abbruch oder späterem Fehler erhalten. Ohne Rückfragen `--project . --yes` ergänzen: angezeigte BMad-Standardwerte werden akzeptiert.
 
 ## Deinstallation
 

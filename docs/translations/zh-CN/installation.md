@@ -95,7 +95,7 @@ Codex 原生角色选择还需要受信任的项目配置和新会话。安装�
 | 安装选定官方技能并初始化项目 runtime | `plex --team bmad --client codex --install-bmad` |
 | 使用已安装技能初始化 | `plex --team bmad --client codex --init-bmad` |
 
-技能为用户共享，选定技能文件可能被替换。Runtime 属于项目。取消或后续失败时，已安装依赖/runtime 会保留。无人值守运行可添加 `--project . --yes`，接受显示的 BMad 默认值。
+技能为用户共享。Setup 会先核对固定版本的来源，只安装缺失的所选技能并保留已有的有效文件。遇到不完整的技能目录时会保持原样并停止，等待检查。Runtime 属于项目。取消或后续失败时，已安装依赖/runtime 会保留。无人值守运行可添加 `--project . --yes`，接受显示的 BMad 默认值。
 
 ## 卸载
 

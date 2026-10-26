@@ -40,10 +40,6 @@ description = "Set up, refresh or audit project agent instructions."
 skill = "bmad-prd"
 description = "Create, update or validate product requirements."
 
-[[workflows.pm]]
-skill = "bmad-spec"
-description = "Create a concise specification from accepted requirements."
-
 [[workflows.po]]
 skill = "bmad-agent-po"
 operation = "SPEC"
@@ -78,18 +74,6 @@ description = "Assess changed scope and revise the remaining work."
 skill = "bmad-agent-po"
 operation = "STORE"
 description = "Configure ticket storage or connect a tracker."
-
-[[workflows.po]]
-skill = "bmad-create-epics-and-stories"
-description = "Break accepted requirements into epics and stories."
-
-[[workflows.po]]
-skill = "bmad-sprint-planning"
-description = "Sequence accepted work into an implementation sprint."
-
-[[workflows.po]]
-skill = "bmad-correct-course"
-description = "Reassess changed scope and replan remaining work."
 
 [[workflows.ux]]
 skill = "bmad-ux"

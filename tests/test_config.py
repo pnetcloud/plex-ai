@@ -143,16 +143,11 @@ class ConfigTests(unittest.TestCase):
         self.assertTrue(all(item["skill"] == "bmad-agent-po" for item in resolved["workflows"]["po"]
                             if "operation" in item))
         self.assertIn("bmad-build-auto", {item["skill"] for item in resolved["workflows"]["dev"]})
-        for role, skill in (
-            ("pm", "bmad-spec"),
-            ("po", "bmad-create-epics-and-stories"),
-            ("po", "bmad-sprint-planning"),
-            ("po", "bmad-correct-course"),
-            ("dev", "bmad-walkthrough"),
-        ):
-            with self.subTest(role=role, skill=skill):
-                entry = next(item for item in resolved["workflows"][role] if item["skill"] == skill)
-                self.assertNotIn("operation", entry)
+        unavailable = {"bmad-spec", "bmad-create-epics-and-stories",
+                       "bmad-sprint-planning", "bmad-correct-course"}
+        catalog_skills = {entry["skill"] for entries in resolved["workflows"].values() for entry in entries}
+        self.assertTrue(unavailable.isdisjoint(catalog_skills))
+        self.assertIn("bmad-walkthrough", {item["skill"] for item in resolved["workflows"]["dev"]})
         for host in MODULE.HOSTS:
             text = MODULE.render_role(resolved, host, "analyst")
             self.assertNotIn("bmad-product-brief", text)
@@ -173,13 +168,9 @@ class ConfigTests(unittest.TestCase):
                              MODULE.render_role(pnet, host, "dev"))
             self.assertNotIn("For a direct standalone workflow assignment",
                              MODULE.render_role(bmad, host, "devops"))
-            for role, skill in (
-                ("pm", "bmad-spec"),
-                ("po", "bmad-create-epics-and-stories"),
-                ("po", "bmad-sprint-planning"),
-                ("po", "bmad-correct-course"),
-                ("dev", "bmad-walkthrough"),
-            ):
+            for role, skill in (("pm", "bmad-spec"), ("po", "bmad-create-epics-and-stories"),
+                                ("po", "bmad-sprint-planning"), ("po", "bmad-correct-course"),
+                                ("dev", "bmad-walkthrough")):
                 self.assertNotIn(skill, MODULE.render_role(bmad, host, role))
 
     def test_invalid_workflow_catalog_is_rejected(self):
