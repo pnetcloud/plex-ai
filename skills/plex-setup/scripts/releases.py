@@ -65,6 +65,12 @@ def update_checkout(checkout, version=None, development=False, dry_run=False):
             raise ValueError(f"Unrelated checkout left unchanged: {checkout}")
         if git(checkout, "status", "--porcelain"):
             raise ValueError("Checkout has local changes; commit or move them before updating")
+        try:
+            current = json.loads((checkout / "plugins/codex/.codex-plugin/plugin.json").read_text())["version"]
+            current = f"v{current}" if isinstance(current, str) and current.strip() else "unknown"
+        except (OSError, ValueError, KeyError, TypeError):
+            current = "unknown"
+        message(f"Plex update: {current} → {target}")
         if dry_run:
             message(f"Would update {checkout} to {target}")
             return target
@@ -72,6 +78,7 @@ def update_checkout(checkout, version=None, development=False, dry_run=False):
         git(checkout, "fetch", "origin", *(["main"] if development else ["tag", target]))
         git(checkout, "checkout", "--detach", "FETCH_HEAD" if development else target)
     else:
+        message(f"Plex install: not installed → {target}")
         if dry_run:
             message(f"Would install {target} in {checkout}")
             return target

@@ -74,6 +74,8 @@ When a team is already installed:
 
 Explicit CLI options still apply. `plex` uses the current checkout; `plex update` downloads a newer published release, including previews.
 
+Before downloading, update shows the current source version and selected target, for example `Plex update: v0.17.0 → v0.17.1`. Preview shows the same transition; an unreadable current version is labelled `unknown`.
+
 ## Dev mode
 
 - Codex, **project scope only**. Both Plex skill folders link to the source checkout; keep it available.

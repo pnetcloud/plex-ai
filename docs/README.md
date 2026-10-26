@@ -36,6 +36,7 @@ English is the maintained source; translations mirror these filenames.
 
 | Version | Changes |
 |---|---|
+| [v0.17.1](releases/v0.17.1.md) | Show current and target versions before update or preview. |
 | [v0.17.0](releases/v0.17.0.md) | Readable Markdown agent handoffs with validated contracts and legacy JSON compatibility. |
 | [v0.16.2](releases/v0.16.2.md) | Readable TOML metadata, automatic migration and full-context reminders. |
 | [v0.16.0](releases/v0.16.0.md) | Execution ownership and Markdown memory with automatic migration. |

@@ -4,6 +4,10 @@ Important changes retained in Plex, grouped by release. Interfaces and configura
 may change before 1.0. Releases through v0.5.4 were previews; v0.5.5 and later are
 regular releases.
 
+## [0.17.1] — 2026-10-26
+
+- Show the current source version and selected target before Plex update downloads or preview; label first installs and unknown current versions explicitly.
+
 ## [0.17.0] — 2026-10-26
 
 - Use readable Markdown assignment and response templates with structural validation across both teams. Keep legacy JSON contracts readable, preserve identity/status/evidence checks and client-owned workflow formats.

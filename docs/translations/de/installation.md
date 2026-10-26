@@ -76,6 +76,8 @@ Bei einem bereits installierten Team:
 
 Explizite CLI-Optionen gelten weiterhin. `plex` nutzt den aktuellen Checkout; `plex update` lädt einen neueren veröffentlichten Release einschließlich Vorschauen.
 
+Vor dem Download erscheinen die aktuelle Quellversion und das gewählte Ziel, etwa `Plex update: v0.17.0 → v0.17.1`. Die Vorschau zeigt denselben Übergang; eine nicht lesbare aktuelle Version erscheint als `unknown`.
+
 ## Entwicklungsmodus
 
 - Nur Codex und Bereich **project**. Beide Plex-Skill-Ordner verweisen auf den Quellcheckout; dieser muss verfügbar bleiben.

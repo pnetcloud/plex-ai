@@ -7,6 +7,7 @@ import subprocess
 import tempfile
 import unittest
 from unittest.mock import patch
+from contextlib import redirect_stdout
 
 ROOT=Path(__file__).resolve().parents[1]
 SPEC=importlib.util.spec_from_file_location('test_releases',ROOT/'skills/plex-setup/scripts/releases.py')
@@ -58,3 +59,46 @@ class ReleaseTests(unittest.TestCase):
             self.assertEqual(setup.call_args.args[0],[str(ROOT/'setup.sh'),'--project','/example','--yes'])
             self.assertEqual(M.main(['--checkout',str(ROOT),'--dry-run']),0)
             self.assertEqual(setup.call_count,1)
+
+    def test_version_transition_is_shown_before_fetch_and_in_preview(self):
+        with tempfile.TemporaryDirectory() as temp:
+            checkout = Path(temp)
+            (checkout / '.git').mkdir()
+            manifest = checkout / 'plugins/codex/.codex-plugin/plugin.json'
+            manifest.parent.mkdir(parents=True)
+            def git(path, *args):
+                if args == ('remote', 'get-url', 'origin'): return M.REPOSITORY
+                if args == ('status', '--porcelain'): return ''
+                if args[0] == 'fetch':
+                    self.assertIn('Plex update: v0.17.0 → v0.17.1', output.getvalue())
+                return 'abc1234'
+            for dry_run in (True, False):
+                manifest.write_text('{"version":"0.17.0"}')
+                with patch.object(M, 'published_release', return_value='v0.17.1'), patch.object(M, 'git', side_effect=git) as calls, redirect_stdout(io.StringIO()) as output:
+                    M.update_checkout(checkout, dry_run=dry_run)
+                self.assertIn('Plex update: v0.17.0 → v0.17.1', output.getvalue())
+                self.assertEqual(any(call.args[1] == 'fetch' for call in calls.call_args_list), not dry_run)
+            for raw in ('{broken', '{"version":null}', '[]'):
+                manifest.write_text(raw)
+                with patch.object(M, 'published_release', return_value='v0.17.1'), patch.object(M, 'git', side_effect=lambda path, *args: M.REPOSITORY if args[0]=='remote' else ''), redirect_stdout(io.StringIO()) as output:
+                    M.update_checkout(checkout, dry_run=True)
+                self.assertIn('Plex update: unknown → v0.17.1', output.getvalue())
+            manifest.unlink()
+            with patch.object(M, 'git', side_effect=lambda path, *args: M.REPOSITORY if args[0]=='remote' else ''), redirect_stdout(io.StringIO()) as output:
+                M.update_checkout(checkout, development=True, dry_run=True)
+            self.assertIn('Plex update: unknown → main', output.getvalue())
+
+    def test_initial_install_and_same_version_are_explicit(self):
+        with tempfile.TemporaryDirectory() as temp, patch.object(M, 'published_release', return_value='v0.17.0'):
+            checkout = Path(temp) / 'absent'
+            with redirect_stdout(io.StringIO()) as output:
+                M.update_checkout(checkout, dry_run=True)
+            self.assertIn('Plex install: not installed → v0.17.0', output.getvalue())
+            self.assertFalse(checkout.exists())
+            (checkout / '.git').mkdir(parents=True)
+            manifest = checkout / 'plugins/codex/.codex-plugin/plugin.json'
+            manifest.parent.mkdir(parents=True)
+            manifest.write_text('{"version":"0.17.0"}')
+            with patch.object(M, 'git', side_effect=lambda path, *args: M.REPOSITORY if args[0]=='remote' else ''), redirect_stdout(io.StringIO()) as output:
+                M.update_checkout(checkout, dry_run=True)
+            self.assertIn('Plex update: v0.17.0 → v0.17.0', output.getvalue())

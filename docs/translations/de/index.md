@@ -34,6 +34,7 @@ Englisch ist die gepflegte Quelle; Übersetzungen spiegeln die Dateinamen.
 
 | Version | Änderungen |
 |---|---|
+| [v0.17.1](releases/v0.17.1.md) | Aktuelle und gewählte Version vor Update und Vorschau anzeigen. |
 | [v0.17.0](releases/v0.17.0.md) | Lesbare Markdown-Agentenverträge mit Validierung und JSON-Kompatibilität. |
 | [v0.16.2](releases/v0.16.2.md) | Lesbare TOML-Metadaten, automatische Migration und vollständiger Kontext. |
 | [v0.16.0](releases/v0.16.0.md) | Eigenständige Ausführung und Markdown-Zustand mit automatischer Migration. |
