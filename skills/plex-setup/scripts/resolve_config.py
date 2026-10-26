@@ -9,6 +9,7 @@ import os
 from pathlib import Path
 import re
 import shutil
+import shlex
 import sys
 import tempfile
 import tomllib
@@ -646,6 +647,85 @@ def plan_instructions(root: Path, host: str, scope: str, record=None, dev=None) 
             "record": {"relpath": relpath, "sha256": sha256_bytes(block)}}
 
 
+CLAUDE_PACKAGE_CHECKERS = (
+    "skills/plex/scripts/check_assignment.py",
+    "skills/plex/scripts/check_coordinator_state.py",
+    "skills/plex-setup/scripts/resolve_config.py check",
+)
+
+
+def claude_package_root() -> Path:
+    """Return the source or native package executing this resolver."""
+    return ROOT
+
+
+def claude_permission_rules(package=None, process=None) -> list[str]:
+    package = Path(package or claude_package_root())
+    rules = [f"Read(/{package}/**)"]
+    for checker in CLAUDE_PACKAGE_CHECKERS:
+        script, *arguments = checker.split()
+        command = shlex.join(["python3", str(package / script), *arguments])
+        rules.append(f"Bash({command}:*)")
+    if process == "bmad":
+        # Reading official skills does not authorize arbitrary runtime commands.
+        for skills in (user_root("claude") / "skills", Path.home() / ".agents/skills"):
+            rules += [f"Read(/{skills}/bmad*/**)", f"Read(/{skills}/bmod*/**)"]
+    return rules
+
+
+def _claude_settings(root: Path, scope: str):
+    relpath = "settings.json" if scope == "user" else ".claude/settings.local.json"
+    path = _ensure_safe_project_path(root, relpath)
+    before = path.read_bytes() if path.exists() else None
+    try:
+        settings = json.loads(before) if before is not None and before.strip() else {}
+    except ValueError:
+        raise ValueError(f"Invalid Claude settings {relpath}; settings preserved") from None
+    settings = table(settings, f"Claude settings {relpath}")
+    permissions = table(settings.get("permissions", {}), f"Claude settings {relpath} permissions")
+    allow = permissions.get("allow", [])
+    if not isinstance(allow, list) or not all(isinstance(rule, str) for rule in allow):
+        raise ValueError(f"Invalid Claude permissions.allow in {relpath}; settings preserved")
+    return relpath, path, before, settings, permissions, allow
+
+
+def _claude_settings_bytes(settings, permissions, allow) -> bytes:
+    permissions = {**permissions, "allow": allow} if allow else {k: v for k, v in permissions.items() if k != "allow"}
+    settings = {**settings, "permissions": permissions} if permissions else {k: v for k, v in settings.items() if k != "permissions"}
+    return (json.dumps(settings, indent=2, ensure_ascii=False) + "\n").encode("utf-8")
+
+
+def plan_claude_permissions(root, scope, record=None, remove=False, process=None, package=None):
+    """Own only package/checker access and the selected team's skill reads."""
+    relpath, path, before, settings, permissions, allow = _claude_settings(Path(root), scope)
+    owned = list(record["rules"]) if record else []
+    if record and record["relpath"] != relpath:
+        raise ValueError("Managed Claude permission rules moved; settings preserved")
+    if remove:
+        after_allow = [rule for rule in allow if rule not in owned]
+        after = _claude_settings_bytes(settings, permissions, after_allow) if after_allow != allow else before
+        if record and record.get("created") and after is not None and json.loads(after) == {}:
+            after = None
+        return {"path": path, "before": before, "after": after, "record": None}
+    if any(rule not in allow for rule in owned):
+        raise ValueError(f"Managed Claude permission rules changed or missing in {relpath}; settings preserved")
+    if package is None:
+        # Cache-owned checkers know their own root; checkout status reuses the installed path.
+        package = ROOT if (ROOT / ".claude-plugin/plugin.json").is_file() else (record or {}).get("package", ROOT)
+    package = Path(package)
+    if not package.is_absolute():
+        raise ValueError("Claude package path must be absolute")
+    desired = claude_permission_rules(package=package, process=process)
+    kept = [rule for rule in allow if rule not in owned or rule in desired]
+    added = [rule for rule in desired if rule not in kept]
+    rules = [rule for rule in desired if rule in owned or rule in added]
+    after_allow = kept + added
+    after = _claude_settings_bytes(settings, permissions, after_allow) if after_allow != allow else before
+    created = bool(record.get("created")) if record else before is None
+    return {"path": path, "before": before, "after": after,
+            "record": {"relpath": relpath, "rules": rules, "created": created, "package": str(package)} if rules else None}
+
+
 def _marker_span(text: str, start: str, end: str, label: str):
     if start.strip() not in text and end.strip() not in text:
         return None
@@ -1015,7 +1095,7 @@ def _validate_receipt_structure(data: dict, scope="project") -> dict:
             {
                 "host", "team", "model_profile", "process", "roles",
                 "skills", "max_agents", "role_settings", "files", "source_sha256", "instructions", "routing",
-                "capacity",
+                "capacity", "permissions",
             },
             f"applied.toml.hosts.{host}",
         )
@@ -1041,6 +1121,15 @@ def _validate_receipt_structure(data: dict, scope="project") -> dict:
             expected = "config.toml" if scope == "user" else ".codex/config.toml"
             if host != "codex" or capacity.get("relpath") != expected or not isinstance(capacity.get("sha256"), str) or not re.fullmatch(r"[0-9a-f]{64}", capacity["sha256"]):
                 raise ValueError("Invalid managed Codex capacity receipt")
+        if "permissions" in record:
+            permissions = table(record["permissions"], "permissions")
+            keys(permissions, {"relpath", "rules", "created", "package"}, "permissions")
+            expected = "settings.json" if scope == "user" else ".claude/settings.local.json"
+            rules = permissions.get("rules")
+            if (host != "claude" or permissions.get("relpath") != expected or not isinstance(permissions.get("created"), bool)
+                    or not isinstance(rules, list) or not rules or not all(isinstance(rule, str) and rule for rule in rules)
+                    or not isinstance(permissions.get("package"), str) or not Path(permissions["package"]).is_absolute()):
+                raise ValueError("Invalid managed Claude permissions receipt")
         files = table(record.get("files", {}), f"applied.toml.hosts.{host}.files")
         for role, file_info in files.items():
             if not isinstance(role, str) or not re.fullmatch(r"[a-z][a-z0-9_-]*", role):
@@ -1110,6 +1199,14 @@ def _inspect_host_state(
             routing_stale = routing["before"] != routing["after"]
             native_capacity = routing["native_capacity"]
             proposed_capacity = routing["proposed_capacity"]
+        except (OSError, ValueError) as error:
+            conflicts.append(str(error))
+    permissions_stale = False
+    if host == "claude" and receipt_record:
+        try:
+            permissions = plan_claude_permissions(project_root, scope, receipt_record.get("permissions"),
+                                                  process=(resolved or receipt_record).get("process"))
+            permissions_stale = permissions["before"] != permissions["after"]
         except (OSError, ValueError) as error:
             conflicts.append(str(error))
     existing_plex_files = {}
@@ -1193,7 +1290,7 @@ def _inspect_host_state(
         status = "conflict"
     elif not receipt_record and not existing_plex_files:
         status = "needs_setup"
-    elif missing_roles or outdated_roles or retire_roles or not receipt_matches_desired or instructions_stale or routing_stale:
+    elif missing_roles or outdated_roles or retire_roles or not receipt_matches_desired or instructions_stale or routing_stale or permissions_stale:
         status = "needs_refresh"
     else:
         status = "in_sync"
@@ -1587,7 +1684,7 @@ def other_codex_agents(root, roles, scope="project"):
 
 def apply_project(project_root, host, team=None, model_profile=None, max_agents=None, reset_overrides=False,
                   host_overrides=None, scope="project", instructions=False, interaction=None, archive_agents=None,
-                  expected_routing_plan=None, replace_modified_roles=None):
+                  expected_routing_plan=None, replace_modified_roles=None, claude_package=None):
     project_root = installation_root(Path(project_root), host, scope)
     lock = _ensure_safe_project_path(project_root, ".plex/.apply.lock")
     lock.parent.mkdir(parents=True, exist_ok=True)
@@ -1599,7 +1696,7 @@ def apply_project(project_root, host, team=None, model_profile=None, max_agents=
     try:
         return _apply_project(project_root, host, team, model_profile, max_agents, reset_overrides, host_overrides,
                               scope, instructions, interaction, archive_agents, expected_routing_plan,
-                              replace_modified_roles)
+                              replace_modified_roles, claude_package)
     finally:
         lock.unlink()
 
@@ -1618,6 +1715,7 @@ def _apply_project(
     archive_agents: dict | None = None,
     expected_routing_plan: dict | None = None,
     replace_modified_roles: dict | None = None,
+    claude_package: Path | None = None,
 ) -> dict:
     if host not in HOSTS:
         raise ValueError(f"Unknown host: {host!r}")
@@ -1709,6 +1807,9 @@ def _apply_project(
             for key in ("native_routing", "capacity_record", "native_capacity", "proposed_capacity")
         ):
             raise ValueError("Codex configuration changed after preview; review the new plan and retry.")
+    permission_plan = (plan_claude_permissions(project_root, scope, old_host_record.get("permissions"),
+                                               process=resolved["process"], package=claude_package)
+                       if host == "claude" else None)
     retire_roles = sorted(set(old_files.keys()) - set(resolved["roles"]))
     _, memory_migrations = plan_coordinator_memory(project_root)
 
@@ -1726,6 +1827,8 @@ def _apply_project(
         paths.add(_ensure_safe_project_path(project_root, host_role_relpath(host, role, scope)))
     if routing_plan:
         paths.add(routing_plan["path"])
+    if permission_plan:
+        paths.add(permission_plan["path"])
     transaction = _ApplyTransaction(project_root, paths)
     for migration in metadata_migrations:
         if (transaction.original[migration["source"]] != migration["before"]
@@ -1743,6 +1846,8 @@ def _apply_project(
         raise ValueError("Codex config changed after planning; review and retry")
     if instruction_plan and transaction.original[instruction_plan["path"]] != instruction_plan["before"]:
         raise ValueError("Instruction file changed after planning; review and retry")
+    if permission_plan and transaction.original[permission_plan["path"]] != permission_plan["before"]:
+        raise ValueError("Claude settings changed after planning; review and retry")
     for path, original in ((preset_path, existing_preset_bytes),
                            (resolved_path, existing_resolved_bytes),
                            (applied_path, existing_applied_bytes)):
@@ -1854,6 +1959,11 @@ def _apply_project(
                 (ensure_backup() / "config.before.toml").write_bytes(routing_plan["before"])
             transaction.write(routing_plan["path"], routing_plan["after"])
 
+        if permission_plan and permission_plan["before"] != permission_plan["after"]:
+            if permission_plan["before"] is not None:
+                (ensure_backup() / "settings.before.json").write_bytes(permission_plan["before"])
+            transaction.write(permission_plan["path"], permission_plan["after"])
+
         receipt["hosts"][host] = {
             "host": host,
             "team": resolved["team"],
@@ -1870,6 +1980,8 @@ def _apply_project(
             receipt["hosts"][host]["routing"] = routing_plan["record"]
         if routing_plan and routing_plan["capacity_record"]:
             receipt["hosts"][host]["capacity"] = routing_plan["capacity_record"]
+        if permission_plan and permission_plan["record"]:
+            receipt["hosts"][host]["permissions"] = permission_plan["record"]
         instruction_record = instruction_plan["record"] if instruction_plan else old_host_record.get("instructions")
         if instruction_record:
             receipt["hosts"][host]["instructions"] = instruction_record
@@ -2030,10 +2142,14 @@ def uninstall_project(project_root, host, scope="project", dry_run=False):
                 if span is None:
                     raise ValueError("Managed Codex routing changed or missing; config preserved")
                 routing_plan["after"] = (text[:span[0]] + text[span[1]:]).encode()
+        permission_plan = (plan_claude_permissions(root, scope, record["permissions"], remove=True)
+                           if record.get("permissions") else None)
         snapshot = _ensure_safe_project_path(root, ".plex/resolved.toml")
         if not snapshot.is_file() and metadata_exists(snapshot):
             snapshot = legacy_metadata_path(snapshot)
         paths = {receipt_path, *roles}
+        if permission_plan:
+            paths.add(permission_plan["path"])
         if instruction_path:
             paths.add(instruction_path)
         if not remaining and snapshot.is_file():
@@ -2050,11 +2166,14 @@ def uninstall_project(project_root, host, scope="project", dry_run=False):
             raise ValueError("Concurrent instruction change; retry uninstall")
         if routing_plan and transaction.original[routing_plan["path"]] != routing_plan["before"]:
             raise ValueError("Concurrent Codex config change; retry uninstall")
+        if permission_plan and transaction.original[permission_plan["path"]] != permission_plan["before"]:
+            raise ValueError("Concurrent Claude settings change; retry uninstall")
         result = {"status": "planned" if dry_run else "uninstalled", "host": host, "scope": scope,
                   "root": str(root), "removed_roles": list(record.get("files", {})),
                   "instruction_block_removed": instruction_path is not None,
                   "routing_settings_removed": bool(routing_plan and record.get("routing")),
                   "capacity_settings_removed": bool(routing_plan and record.get("capacity")),
+                  "permission_rules_removed": bool(permission_plan and permission_plan["before"] != permission_plan["after"]),
                   "backup_dir": None}
         if dry_run:
             return result
@@ -2072,6 +2191,12 @@ def uninstall_project(project_root, host, scope="project", dry_run=False):
                     _check_capacity_input_snapshot(routing_plan["inherited_snapshot"])
                 (backup / "config.before.toml").write_bytes(routing_plan["before"])
                 transaction.write(routing_plan["path"], routing_plan["after"])
+            if permission_plan and permission_plan["before"] != permission_plan["after"]:
+                (backup / "settings.before.json").write_bytes(permission_plan["before"])
+                if permission_plan["after"] is None:
+                    transaction.archive(permission_plan["path"], backup / permission_plan["path"].name)
+                else:
+                    transaction.write(permission_plan["path"], permission_plan["after"])
             for path, digest in roles.items():
                 transaction.archive(path, backup / path.name)
                 if sha256_bytes((backup / path.name).read_bytes()) != digest:

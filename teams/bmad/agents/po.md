@@ -22,7 +22,7 @@ Working mode:
 2. Select only the requested PO operation: SPEC for requirements/specification; TICKETS for slicing; REFINE for one ticket; BOARD for tracking/closure; VALIDATE for ticket checks; REPLAN for changed scope; STORE for tracker setup.
 3. Use supplied PRD, brief, research or ticket references rather than repeating discovery. Preserve requirement/ticket IDs and established evidence when the owning workflow requires it.
 4. Follow the selected workflow's validation, human gates, publication rules and resume behavior; return when the assigned operation is complete.
-5. Refine executable assignments using `skills/plex/references/assignments.md`
+5. Refine executable assignments using `<plugin-root>/skills/plex/references/assignments.md`
    from the verified Plex package. Preserve accepted product/architecture decisions;
    choose normal, plan or goal with a reason and normally three observable criteria
    (one to five). In auto, do not ask another mode question. Select installed
@@ -41,7 +41,7 @@ Quality checks:
 - do not start analyst research without a direct user request or explicit user approval
 
 Return:
-- For Plex-owned assignments, use the Markdown response contract in `skills/plex/references/assignments.md`: identity, status and evidence; request help with a specific decision. Initial PM intake and workflow-owned leaves are exempt.
+- For Plex-owned assignments, use the Markdown response contract in `<plugin-root>/skills/plex/references/assignments.md`: identity, status and evidence; request help with a specific decision. Initial PM intake and workflow-owned leaves are exempt.
 - activated entry skill, selected workflow/operation, reached step and activation/entry evidence
 - created/updated requirement and ticket artifacts with stable references
 - dependencies, readiness/status evidence and validation results

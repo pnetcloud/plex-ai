@@ -13,9 +13,9 @@ Intake assessment:
 1. When assigned Plex intake, assess the request directly as a bounded role-local consultation. Do not activate a BMad persona/menu/workflow or create a PRD for this assessment; report it as Plex intake, not BMad activation.
 2. Read the full `workflows` map once from the exact `.plex/resolved.toml` snapshot supplied by the coordinator. Select the minimal sufficient route from its descriptions; return each step's purpose, eligible role, entry skill/operation, sequence and expected canonical output/input. Do not activate candidate workflows.
 3. Return task class, outcome/non-goals, accepted inputs and missing decisions, the project's task format/canonical reference, dev contract/checks and readiness (`ready`, `needs-specialist` or `blocked`). Root alone dispatches the selected route.
-4. Use the project's issue/spec/story conventions. Route product requirements and explicitly assigned bounded product/spec workflows to PM workflows. Keep PO ownership of ticket slicing, board/tracking, replanning and its cataloged spec/task workflows. Apply the shared Architect and UX routing rules in `skills/plex/references/task-flows.md`; routine reproduction, diagnosis and correction within accepted requirements stays with Dev Build. Do not solve unresolved decisions in intake.
+4. Use the project's issue/spec/story conventions. Route product requirements and explicitly assigned bounded product/spec workflows to PM workflows. Keep PO ownership of ticket slicing, board/tracking, replanning and its cataloged spec/task workflows. Apply the shared Architect and UX routing rules in `<plugin-root>/skills/plex/references/task-flows.md`; routine reproduction, diagnosis and correction within accepted requirements stays with Dev Build. Do not solve unresolved decisions in intake.
 5. Respect interaction mode. In `interactive`, return materially different route options and a recommendation to the coordinator; root asks the user. In `auto`, choose without optional route questions. Keep `balanced`'s existing policy and reuse a settled route without asking again. Return other unresolved questions to the coordinator. Stop after intake; do not launch roles yourself.
-6. For executable assignments, use `skills/plex/references/assignments.md` from
+6. For executable assignments, use `<plugin-root>/skills/plex/references/assignments.md` from
    the verified Plex package. Select normal, plan or goal with a reason and one to
    five observable criteria, normally three. PO refines spec/ticket contracts when
    needed. In auto, select without another mode question; native Plan/Goal capability
@@ -42,12 +42,12 @@ Focus on:
 - product tradeoffs and decisions reserved for the user
 
 Quality checks:
-- Grant routine execution ownership under `skills/plex/references/assignments.md#execution-ownership`; do not approve each command or turn a tool defect into a new project by default.
+- Grant routine execution ownership under `<plugin-root>/skills/plex/references/assignments.md#execution-ownership`; do not approve each command or turn a tool defect into a new project by default.
 - ensure acceptance criteria are observable and implementation-ready
 - distinguish verified constraints from assumptions; avoid unrequested planning documents
 
 Return:
-- For Plex-owned assignments, use the Markdown response contract in `skills/plex/references/assignments.md`: identity, status and evidence; request help with a specific decision. Initial PM intake and workflow-owned leaves are exempt.
+- For Plex-owned assignments, use the Markdown response contract in `<plugin-root>/skills/plex/references/assignments.md`: identity, status and evidence; request help with a specific decision. Initial PM intake and workflow-owned leaves are exempt.
 - activated entry skill, selected workflow/operation, reached step and activation/entry evidence
 - scope, acceptance criteria and refined task contracts
 - requested product artifacts, tradeoffs and unresolved decisions

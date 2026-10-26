@@ -166,6 +166,7 @@ und erzwingt nicht das Lesen einer zusätzlichen Anweisungsdatei.
 | `.plex/skill-aliases.toml` | Codex-Verknüpfungen für kurze Namen; erzeugter Eigentumsnachweis |
 | `.plex/dev.json` | Codex-Dev-Links und Projekt-Plugin-Override; Eigentumsnachweis |
 | `.plex/backups/` | Ersetzte Dateien und ausgeschiedene Rollen |
+| `.claude/settings.local.json` | Plex-eigene Claude-Berechtigungen; persönliche Einstellungen bleiben erhalten |
 
 Generierte Rollen/Receipts nicht manuell bearbeiten. Fremde oder geänderte verwaltete
 Dateien, Symlinks und parallele Applies blockieren unsichere Updates.

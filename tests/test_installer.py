@@ -193,6 +193,23 @@ class InstallerTests(unittest.TestCase):
             self.assertEqual(fallback.returncode, 0, fallback.stderr)
             self.assertTrue((project / ".plex/applied.toml").is_file())
 
+    def test_wrong_claude_cache_version_does_not_write_roles(self):
+        spec = importlib.util.spec_from_file_location("plex_cache_guard", ROOT / "setup.py")
+        installer = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(installer)
+        with tempfile.TemporaryDirectory() as temp, redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()):
+            home = Path(temp).resolve() / 'home'
+            project = Path(temp).resolve() / 'project'
+            project.mkdir()
+            package = home / 'cache/old'
+            (package / '.claude-plugin').mkdir(parents=True)
+            (package / '.claude-plugin/plugin.json').write_text('{"name":"pnet-plex","version":"0.0.1"}')
+            inventory = json.dumps([{'id': 'pnet-plex@pnet-plex', 'scope': 'user', 'enabled': True, 'installPath': str(package)}])
+            with patch.dict(os.environ, {'HOME': str(home), 'CLAUDE_CONFIG_DIR': str(home / '.claude')}), patch.object(installer, 'build_plugin'), patch.object(installer.shutil, 'which', return_value='/bin/claude'), patch.object(installer, 'run', return_value=inventory):
+                self.assertEqual(installer.main(['--host', 'claude', '--project', str(project), '--team', 'pnet', '--yes', '--no-command']), 1)
+            self.assertFalse((project / '.claude/agents/plex-pm.md').exists())
+            self.assertFalse((project / '.claude/settings.local.json').exists())
+
     def test_full_install_shares_plugin_and_creates_command_with_local_team(self):
         spec = importlib.util.spec_from_file_location("plex_full_installer", ROOT / "setup.py")
         installer = importlib.util.module_from_spec(spec)
@@ -203,7 +220,10 @@ class InstallerTests(unittest.TestCase):
             project.mkdir()
             (project / "CLAUDE.md").write_text("Personal rules.\n")
             env = {"HOME": str(home), "CLAUDE_CONFIG_DIR": str(home / ".claude")}
-            inventory = json.dumps([{"id": "pnet-plex@pnet-plex", "scope": "user", "enabled": True}])
+            package = home / 'cache/pnet-plex'
+            (package / '.claude-plugin').mkdir(parents=True)
+            (package / '.claude-plugin/plugin.json').write_text(json.dumps({'name': 'pnet-plex', 'version': json.loads((ROOT / 'plugins/claude/.claude-plugin/plugin.json').read_text())['version']}))
+            inventory = json.dumps([{"id": "pnet-plex@pnet-plex", "scope": "user", "enabled": True, "installPath": str(package)}])
             with patch.dict(os.environ, env), patch.object(installer, "build_plugin"), \
                     patch.object(installer.shutil, "which", return_value="/bin/claude"), \
                     patch.object(installer, "run", return_value=inventory) as run:
@@ -256,7 +276,10 @@ class InstallerTests(unittest.TestCase):
                         target.write_text("existing Plex checkout")
                     command.symlink_to(target)
                 before = os.readlink(command) if command.is_symlink() else command.read_text()
-                inventory = json.dumps([{"id": "pnet-plex@pnet-plex", "scope": "user", "enabled": True}])
+                package = home / 'cache/pnet-plex'
+                (package / '.claude-plugin').mkdir(parents=True)
+                (package / '.claude-plugin/plugin.json').write_text(json.dumps({'name': 'pnet-plex', 'version': json.loads((ROOT / 'plugins/claude/.claude-plugin/plugin.json').read_text())['version']}))
+                inventory = json.dumps([{"id": "pnet-plex@pnet-plex", "scope": "user", "enabled": True, "installPath": str(package)}])
                 with patch.dict(os.environ, {"HOME": str(home)}), \
                         patch.object(installer, "build_plugin"), \
                         patch.object(installer.shutil, "which", return_value="/bin/claude"), \
@@ -407,6 +430,7 @@ class InstallerTests(unittest.TestCase):
                         if "--list" in command:
                             return catalog(source_names)
                         self.assertEqual(command[command.index("--agent") + 1], agent)
+                        self.assertEqual("--copy" in command, host == "claude")
                         self.assertEqual(command[command.index("--skill") + 1:-1], install_names)
                         self.assertEqual(command[-1], "--yes")
                         self.assertNotIn("*", command)

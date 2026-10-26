@@ -13,6 +13,8 @@ results.
 2. Use the existing issue/spec/story reference, or the current request for a task
    without one. No new tracker or mandatory assignment file. Pass Markdown directly;
    store it only in an already authorized artifact area when useful for continuation.
+   Pass the verified absolute package path in Inputs; keep contextual headers inside
+   the contract rather than prepending text before `# Plex assignment`.
 3. Include the assigned bounded result, its relation to the parent outcome, inputs,
    write/exclusion paths, accepted dependencies and acceptance. When a user's outcome
    spans steps, preserve its terminal owner/check in the existing outcome/acceptance;
@@ -170,7 +172,9 @@ python3 <plugin-root>/skills/plex/scripts/check_assignment.py --resolved <root>/
 ```
 
 Pass the response on stdin; supply the current accepted contract via an authorized
-temporary file when it exists only in conversation. The checker is read-only.
+temporary file when it exists only in conversation. Prefer the Git-ignored `.plex/work/`
+when an authorized artifact file is needed and the host restricts access to system
+temporary directories. No persistent contract file is required. The checker is read-only.
 A valid structure does not prove evidence, scope containment, progress, delivery or
 acceptance. It does not intercept native dispatch. Inspect actual evidence and the
 host completion event before closing work; a progress message is never completion.

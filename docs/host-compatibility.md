@@ -7,7 +7,7 @@ Hosts execute agents; model vendors supply models. A vendor profile does not add
 | Client | Plex integration | Verification coverage |
 |---|---|---|
 | OpenAI Codex | Native TOML roles, plugin and scope/instruction support | Isolated installation/configuration and live task trials |
-| Anthropic Claude Code | Native Markdown roles and plugin installation path | Native CLI 2.1.306: manifest validation, isolated plugin installation and both-team configuration; live model trials remain unverified |
+| Anthropic Claude Code | Native Markdown roles and plugin installation path | Native CLI 2.1.310: manifest validation, isolated plugin installation and both-team configuration; live model trials remain unverified |
 | Google Antigravity | Native Markdown roles and plugin package | Installation/configuration and selected live model trials |
 
 Coverage is bounded by the tested versions and settings; see [testing](testing.md).
@@ -42,3 +42,7 @@ See the [Claude subagent reference](https://code.claude.com/docs/en/sub-agents).
 Model and effort support depend on the installed client and model. Session/provider
 overrides, including `CLAUDE_CODE_SUBAGENT_MODEL_FORCE` and `CLAUDE_CODE_EFFORT_LEVEL`,
 can take precedence over role settings; inspect actual execution before claiming routing.
+
+Claude setup manages narrow allow rules in `.claude/settings.local.json` (user scope: `settings.json` in the Claude config root). Full setup gets the actual plugin cache path from the native inventory and explicitly updates an existing plugin cache. Roles-only refresh keeps the saved package path; a standalone resolver uses its own package/source root. Existing personal rules are preserved. Changed owned rules are conflicts; uninstall removes only Plex-owned rules, with backups and rollback. BMad adds read access to installed skill roots, not blanket runtime execution. Claude BMad installation uses `--copy`, keeping shared Codex skill copies separate.
+
+Assignments carry the verified absolute plugin path in Markdown Inputs. Display/configuration checks do not prove active-session permissions or model routing; restart Claude after updating its plugin. Tests cover native CLI 2.1.310 installation, cache upgrades and configuration, not every model/profile combination.

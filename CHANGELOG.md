@@ -4,6 +4,12 @@ Important changes retained in Plex, grouped by release. Interfaces and configura
 may change before 1.0. Releases through v0.5.4 were previews; v0.5.5 and later are
 regular releases.
 
+## [0.18.0] — 2026-10-26
+
+- Manage narrow Claude permissions for the installed Plex cache and read-only checkers, preserving personal settings and using existing backups/rollback; uninstall removes only owned rules.
+- Refresh existing Claude plugin caches explicitly during setup and use the native installed path instead of the build export. Install Claude BMad skills with `--copy` to preserve the shared Codex copies.
+- Pass the verified package path inside Markdown assignment Inputs and resolve role references against it; preserve existing Markdown/JSON compatibility and workflow-owned formats.
+
 ## [0.17.1] — 2026-10-26
 
 - Show the current source version and selected target before Plex update downloads or preview; label first installs and unknown current versions explicitly.

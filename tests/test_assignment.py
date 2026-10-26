@@ -277,7 +277,7 @@ class MarkdownTests(unittest.TestCase):
                     "Исправить результат.\n\n```text\n## Literal heading\n```\n\nKeep **details**.")
         text = text.replace("- **check:** Command or observation proving it",
                             "- **check:** Run check\n  and inspect its output")
-        for item in ("Relevant source and accepted plan references", "Assigned application and test paths",
+        for item in ("Plex package: <plugin-root> (absolute path verified by preflight)", "Relevant source and accepted plan references", "Assigned application and test paths",
                      "Paths and pre-existing changes to preserve", "Accepted specialist decisions required before this assignment"):
             text = text.replace("- " + item, "")
         data = MODULE.read_contract(text)

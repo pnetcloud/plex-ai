@@ -7,7 +7,7 @@ Clients führen Agenten aus; Modellanbieter liefern Modelle. Ein Anbieterprofil 
 | Client | Plex-Integration | Verifizierter Umfang |
 |---|---|---|
 | OpenAI Codex | TOML-Rollen, Plugin, Bereiche und Anweisungen | Isolierte Installation/Konfiguration und Live-Aufgaben |
-| Anthropic Claude Code | Markdown-Rollen und Plugininstallationspfad | CLI 2.1.306: Manifestvalidierung, isolierte Plugininstallation und Konfiguration beider Teams; Live-Modelltests unbestätigt |
+| Anthropic Claude Code | Markdown-Rollen und Plugininstallationspfad | CLI 2.1.310: Manifestvalidierung, isolierte Plugininstallation und Konfiguration beider Teams; Live-Modelltests unbestätigt |
 | Google Antigravity | Markdown-Rollen und Pluginpaket | Installation/Konfiguration und ausgewählte Live-Modelltests |
 
 Die Abdeckung gilt nur für getestete Versionen/Einstellungen; siehe [Tests](testing.md).
@@ -43,3 +43,7 @@ Modell- und Effort-Unterstützung hängen von Client und Modell ab. Sitzungs- un
 Anbietervorgaben, darunter `CLAUDE_CODE_SUBAGENT_MODEL_FORCE` und
 `CLAUDE_CODE_EFFORT_LEVEL`, können Rolleneinstellungen übersteuern. Tatsächliche
 Ausführung prüfen, bevor Routing als bestätigt gilt.
+
+Claude-Setup verwaltet gezielte Allow-Regeln in `.claude/settings.local.json` (Benutzerbereich: `settings.json` im Claude-Konfigurationsordner). Die vollständige Installation ermittelt den tatsächlichen Cache-Pfad aus dem nativen Inventar und aktualisiert einen vorhandenen Plugin-Cache ausdrücklich. Roles-only-Refresh erhält den gespeicherten Paketpfad; ein eigenständiger Resolver verwendet seine eigene Paket-/Quellwurzel. Persönliche Regeln bleiben erhalten. Geänderte verwaltete Regeln gelten als Konflikt; die Deinstallation entfernt nur Plex-eigene Regeln, mit Backup und Rollback. BMad erhält Lesezugriff auf installierte Skill-Verzeichnisse, keine pauschale Runtime-Ausführung. BMad wird für Claude mit `--copy` installiert, getrennt von gemeinsam genutzten Codex-Skills.
+
+Der geprüfte absolute Plugin-Pfad steht in Markdown Inputs. Dateiprüfungen beweisen weder Berechtigungen aktiver Sitzungen noch Modellrouting; Claude nach einem Plugin-Update neu starten. Tests umfassen CLI 2.1.310, Installation, Cache-Updates und Konfiguration, nicht jede Modell-/Profilkombination.

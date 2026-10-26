@@ -19,6 +19,7 @@ description: Coordinate coding agents when the user invokes Plex or explicitly r
 - Keep request collection, integration, final checks and small mechanical actions local.
 - Keep the root's session model and permissions; do not spawn another coordinator.
 - Follow project instructions and host permissions.
+- Pass the verified absolute `Plex package: <plugin-root>` as an Inputs item in each Markdown assignment; for initial intake, include it in the consultation context. Roles resolve package references against that path.
 
 Select the checked native `plex-<role>` for each Plex-owned assignment:
 

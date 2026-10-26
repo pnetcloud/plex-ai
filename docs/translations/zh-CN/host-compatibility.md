@@ -7,7 +7,7 @@
 | 客户端 | Plex 集成 | 验证范围 |
 |---|---|---|
 | OpenAI Codex | 原生 TOML 角色、插件、范围与指令支持 | 隔离环境安装配置和实际任务测试 |
-| Anthropic Claude Code | 原生 Markdown 角色和插件安装路径 | CLI 2.1.306：清单验证、隔离环境插件安装及两支团队配置；尚未验证模型实际执行 |
+| Anthropic Claude Code | 原生 Markdown 角色和插件安装路径 | CLI 2.1.310：清单验证、隔离环境插件安装及两支团队配置；尚未验证模型实际执行 |
 | Google Antigravity | 原生 Markdown 角色和插件包 | 安装配置及部分模型的实际任务测试 |
 
 覆盖范围限于测试过的版本和设置，参见[测试](testing.md)。
@@ -37,3 +37,7 @@ Plex 通过 `Agent.subagent_type` 选择原生角色。任务标签放入 `descr
 模型和 effort 支持取决于客户端及模型。会话或供应商设置（包括
 `CLAUDE_CODE_SUBAGENT_MODEL_FORCE` 和 `CLAUDE_CODE_EFFORT_LEVEL`）可能覆盖角色设置；
 确认路由前应检查实际执行情况。
+
+Claude 安装器在 `.claude/settings.local.json` 中管理限定范围的 allow 规则（用户级为 Claude 配置目录中的 `settings.json`）。完整安装从原生清单获取真实插件缓存路径，并显式更新已有缓存。仅角色刷新保留已记录的包路径；独立运行的 resolver 使用自身包或源码根目录。保留个人规则；修改托管规则会产生冲突。卸载仅删除 Plex 自有规则，并使用备份与回滚。BMad 仅增加已安装技能目录的读取权限，不授予通用 runtime 执行权限。Claude 的 BMad 安装采用 `--copy`，与 Codex 共享技能副本分离。
+
+经过核验的插件绝对路径通过 Markdown Inputs 传递。文件检查不能证明活动会话权限或模型路由；更新插件后请重启 Claude。测试覆盖 CLI 2.1.310 的安装、缓存更新及配置，而非所有模型和配置组合。

@@ -208,6 +208,7 @@ change the host's fallback configuration or make it read an additional instructi
 | `.plex/skill-aliases.toml` | Codex short-name links; generated ownership receipt |
 | `.plex/dev.json` | Codex dev links and project plugin override; generated ownership receipt |
 | `.plex/backups/` | Replaced files and retired roles |
+| `.claude/settings.local.json` | Claude owned package permissions; personal settings preserved |
 
 Do not hand-edit generated roles or receipts. Foreign files, changed managed files,
 symlinks and concurrent applies block unsafe updates. Resolve the reported conflict

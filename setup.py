@@ -403,6 +403,7 @@ def plugin_commands(host, scope="project"):
     return [
         ["claude", "plugin", "marketplace", "add", str(ROOT)],
         ["claude", "plugin", "install", "pnet-plex@pnet-plex", "--scope", "user"],
+        ["claude", "plugin", "update", "pnet-plex@pnet-plex", "--scope", "user"],
     ]
 
 
@@ -505,8 +506,10 @@ def bmad_source_skills(project):
 
 def bmad_install_commands(host, skills=None):
     skills = bmad_required_skills() if skills is None else skills
+    # Keep Claude installs separate from the shared skills used by Codex.
+    copy = ["--copy"] if host == "claude" else []
     return [["npx", "--yes", SKILLS_CLI, "add", BMAD_SKILLS_SOURCE, "--global",
-             "--agent", BMAD_AGENTS[host], "--skill", *skills, "--yes"]]
+             "--agent", BMAD_AGENTS[host], *copy, "--skill", *skills, "--yes"]]
 
 
 def bmad_user_skills(host):
@@ -653,7 +656,7 @@ def verify_plugin(host, project):
         matches = (item.get("id") == "pnet-plex@pnet-plex" and item.get("scope") == "user"
                    if host == "claude" else item.get("name") == "pnet-plex")
         if matches and item.get("enabled") is True and not item.get("errors"):
-            return
+            return item
     raise ValueError("Plex plugin is not installed and enabled for this host/project; inspect the host's plugin settings")
 
 
@@ -968,6 +971,8 @@ def removal_report(results, preview=False):
             field("Role selection", "Remove owned Codex routing settings" if preview else "Owned Codex routing settings removed")
         if item.get("capacity_settings_removed"):
             field("Codex capacity", "Remove owned native limit" if preview else "Owned native limit removed")
+        if item.get("permission_rules_removed"):
+            field("Package access", "Remove owned Claude allow rules" if preview else "Owned Claude allow rules removed")
         if item.get("remove_dev_links_and_override"):
             field("Dev mode", "Remove owned links and plugin override")
         if item.get("remove_skill_aliases"):
@@ -1445,6 +1450,10 @@ def main(argv=None, *, shared_profile=False, selection=None, setup_mode=None):
         if args.host == "codex":
             field("Role selection", "Native Codex role metadata exposed; managed settings in config.toml")
             notice("Project settings require a trusted project and a new client session; installed files alone do not prove role availability.")
+        if args.host == "claude":
+            settings = "settings.json" if args.scope == "user" else ".claude/settings.local.json"
+            field("Package access", config_root / settings, "muted")
+            notice("Owned allow rules let Plex roles read the plugin package and run its read-only checkers.")
         if shortcut:
             field("Command", shortcut, "command")
         if state.get("resolved"):
@@ -1537,6 +1546,7 @@ def main(argv=None, *, shared_profile=False, selection=None, setup_mode=None):
         if resolved["process"] == "bmad" and args.scope == "project":
             run([sys.executable, str(project / "_bmad/scripts/resolve_config.py"),
                  "--project-root", str(project)], project)
+        plugin_info = None
         if commands:
             check_capacity_preview(capacity_preview)
             heading("1 / 2  Install native plugin")
@@ -1545,7 +1555,7 @@ def main(argv=None, *, shared_profile=False, selection=None, setup_mode=None):
             for command in commands:
                 run(command, project)
             if not (dev_plan and dev_plan["was_development"]):
-                verify_plugin(args.host, project)
+                plugin_info = verify_plugin(args.host, project)
             notice("Shared plugin installed.", "ok")
         heading(f"2 / 2  Apply {args.scope} roles" if commands else f"Apply {args.scope} roles")
         if (preset.read_bytes() if preset.is_file() else None) != source_bytes:
@@ -1554,12 +1564,25 @@ def main(argv=None, *, shared_profile=False, selection=None, setup_mode=None):
             current = instruction_plan["path"].read_bytes() if instruction_plan["path"].is_file() else None
             if current != instruction_plan["before"]:
                 raise ValueError("Instruction file changed after preview; review and retry.")
+        claude_package = None
+        if args.host == "claude" and commands:
+            installed_path = (plugin_info or {}).get("installPath")
+            if not isinstance(installed_path, str) or not Path(installed_path).is_absolute():
+                raise ValueError("Claude plugin inventory lacks an absolute installPath; roles left unchanged")
+            claude_package = Path(installed_path).resolve()
+            manifest = json.loads((claude_package / ".claude-plugin/plugin.json").read_text())
+            if not isinstance(manifest, dict) or manifest.get("name") != "pnet-plex":
+                raise ValueError("Claude installPath does not identify the Plex package; roles left unchanged")
+            expected_version = json.loads((ROOT / "plugins/claude/.claude-plugin/plugin.json").read_text())["version"]
+            if manifest.get("version") != expected_version:
+                raise ValueError("Claude plugin cache version differs from this checkout; roles left unchanged")
         with apply_skills(dev_plan) if dev_plan else nullcontext():
             result = CONFIG.apply_project(project, args.host, args.team, args.model_profile,
                                           max_agents=args.max_agents, host_overrides=host_overrides, interaction=args.interaction,
                                           scope=args.scope, instructions=args.instructions, archive_agents=archive_agents,
                                           expected_routing_plan=capacity_preview,
-                                          replace_modified_roles=replace_modified_roles.get(args.host))
+                                          replace_modified_roles=replace_modified_roles.get(args.host),
+                                          claude_package=claude_package)
         for client in refresh_clients:
             if client != args.host:
                 other_instructions = bool(receipt["hosts"][client].get("instructions")) if setup_mode == "refresh" else args.instructions

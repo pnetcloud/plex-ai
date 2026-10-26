@@ -36,6 +36,7 @@ English is the maintained source; translations mirror these filenames.
 
 | Version | Changes |
 |---|---|
+| [v0.18.0](releases/v0.18.0.md) | Claude cache updates, managed package access and compatible Markdown handoffs. |
 | [v0.17.1](releases/v0.17.1.md) | Show current and target versions before update or preview. |
 | [v0.17.0](releases/v0.17.0.md) | Readable Markdown agent handoffs with validated contracts and legacy JSON compatibility. |
 | [v0.16.2](releases/v0.16.2.md) | Readable TOML metadata, automatic migration and full-context reminders. |

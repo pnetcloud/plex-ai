@@ -138,6 +138,7 @@ Antigravity 按 `GEMINI.md`、项目 `AGENTS.md` 的顺序。用户范围的 Cod
 | `.plex/skill-aliases.toml` | Codex 短名称链接；自动生成的所有权记录 |
 | `.plex/dev.json` | Codex 开发链接与项目插件覆盖；所有权记录 |
 | `.plex/backups/` | 被替换的文件和移除的角色备份 |
+| `.claude/settings.local.json` | Claude 托管包权限；保留个人设置 |
 
 不要手动编辑生成的角色或 receipt。无归属文件、被修改的托管文件、符号链接和并行应用操作
 会阻止不安全更新。刷新前解决报告的冲突，并保留备份。交互式 Reconfigure 可按上述方式替换受管角色修改。

@@ -297,7 +297,7 @@ class PackageTests(unittest.TestCase):
             self.assertTrue(installed[0]["enabled"])
             manifest = read_json(export / ".claude-plugin/plugin.json")
             self.assertEqual(installed[0]["version"], manifest["version"])
-            package = Path(installed[0]["installPath"])
+            package = Path(installed[0]["installPath"]).resolve()
             script = package / "skills/plex-setup/scripts/resolve_config.py"
             for team in ("pnet", "bmad"):
                 project = Path(temp) / team
@@ -313,6 +313,48 @@ class PackageTests(unittest.TestCase):
                 self.assertIn("plex:managed:start", (project / "CLAUDE.md").read_text())
                 self.assertEqual(len(list((project / ".claude/agents").glob("plex-*.md"))),
                                  len(INSTALLER.CONFIG.resolve({"team": team})["roles"]))
+
+            # Exercise the checkout entrypoint too: it must grant the cache path, not .build.
+            project = Path(temp) / "pnet"
+            result = subprocess.run([sys.executable, str(ROOT / "setup.py"), "--host", "claude",
+                                     "--project", str(project), "--team", "pnet", "--yes", "--no-command"],
+                                    env=env, text=True, capture_output=True, timeout=60)
+            self.assertEqual(result.returncode, 0, result.stderr or result.stdout)
+            permissions = json.loads((project / ".claude/settings.local.json").read_text())["permissions"]["allow"]
+            self.assertIn(f"Read(/{package}/**)", permissions)
+            self.assertFalse(any(str(export) in rule for rule in permissions))
+            receipt = tomllib.loads((project / ".plex/applied.toml").read_text())
+            self.assertEqual(receipt["hosts"]["claude"]["permissions"]["package"], str(package))
+
+    @unittest.skipUnless(shutil.which("claude"), "Claude Code CLI is not installed")
+    def test_native_claude_update_refreshes_existing_cache(self):
+        with tempfile.TemporaryDirectory(prefix="plex-claude-upgrade-") as temp:
+            root = Path(temp)
+            market = root / "market"
+            (market / ".claude-plugin").mkdir(parents=True)
+            plugin = market / "plugin"
+            (plugin / ".claude-plugin").mkdir(parents=True)
+            (market / ".claude-plugin/marketplace.json").write_text(json.dumps({
+                "name": "plex-upgrade-fixture", "owner": {"name": "Fixture"},
+                "plugins": [{"name": "pnet-plex", "source": "./plugin"}]}))
+            manifest = plugin / ".claude-plugin/plugin.json"
+            manifest.write_text('{"name":"pnet-plex","version":"0.0.1"}')
+            env = {**os.environ, "CLAUDE_CONFIG_DIR": str(root / "config"), "DISABLE_AUTOUPDATER": "1"}
+            def run(*args):
+                result = subprocess.run(["claude", "plugin", *args], cwd=root, env=env,
+                                        capture_output=True, text=True, timeout=60)
+                self.assertEqual(result.returncode, 0, result.stderr or result.stdout)
+                return result.stdout
+            run("marketplace", "add", str(market))
+            identity = "pnet-plex@plex-upgrade-fixture"
+            run("install", identity, "--scope", "user")
+            manifest.write_text('{"name":"pnet-plex","version":"0.0.2"}')
+            run("marketplace", "add", str(market))
+            for command in INSTALLER.plugin_commands("claude")[1:]:
+                run(*[identity if arg == "pnet-plex@pnet-plex" else arg for arg in command[2:]])
+            installed = json.loads(run("list", "--json"))[0]
+            self.assertEqual(installed["version"], "0.0.2")
+            self.assertTrue((Path(installed["installPath"]) / ".claude-plugin/plugin.json").is_file())
 
     @unittest.skipUnless(shutil.which("agy"), "Antigravity CLI is not installed")
     def test_native_antigravity_validate_and_install(self):

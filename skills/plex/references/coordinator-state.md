@@ -117,7 +117,7 @@ Run the read-only state check before opening the file in conversation context; i
 at most 32769 bytes and reports oversized files without dumping their contents:
 
 ```sh
-python3 skills/plex/scripts/check_coordinator_state.py .plex/work/<session-id>.md
+python3 <plugin-root>/skills/plex/scripts/check_coordinator_state.py .plex/work/<session-id>.md
 ```
 
 Exit 0 means the structure and limits pass; exit 1 returns a JSON error list. If a

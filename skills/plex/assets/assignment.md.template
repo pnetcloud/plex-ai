@@ -15,6 +15,7 @@ One bounded result agreed by PM/PO
 
 ## Inputs
 
+- Plex package: <plugin-root> (absolute path verified by preflight)
 - Relevant source and accepted plan references
 
 ## Writable paths
