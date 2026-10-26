@@ -41,6 +41,116 @@ def sha256_bytes(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
+def metadata_toml(data):
+    """Serialize Plex metadata using ordinary tables and arrays of tables."""
+    if not isinstance(data, dict):
+        raise ValueError("Plex metadata must be a table")
+    lines = []
+    def quoted_key(key):
+        return key if isinstance(key, str) and re.fullmatch(r"[A-Za-z0-9_-]+", key) else json.dumps(key, ensure_ascii=False)
+    def scalar(value):
+        if isinstance(value, str):
+            return json.dumps(value, ensure_ascii=False).replace("\x7f", "\\u007f")
+        if type(value) is bool:
+            return "true" if value else "false"
+        if type(value) is int:
+            return str(value)
+        if isinstance(value, list):
+            return "[" + ", ".join(scalar(item) for item in value) + "]"
+        raise ValueError(f"Unsupported TOML metadata value: {type(value).__name__}")
+    def emit(table, path=(), array=False):
+        if path:
+            header = ".".join(quoted_key(key) for key in path)
+            lines.extend(("", f"[[{header}]]" if array else f"[{header}]"))
+        for key, value in table.items():
+            if not isinstance(value, dict) and not (isinstance(value, list) and value and all(isinstance(v, dict) for v in value)):
+                lines.append(f"{quoted_key(key)} = {scalar(value)}")
+        for key, value in table.items():
+            if isinstance(value, dict):
+                emit(value, (*path, key))
+            elif isinstance(value, list) and value and all(isinstance(v, dict) for v in value):
+                for item in value:
+                    emit(item, (*path, key), array=True)
+    emit(data)
+    text = "\n".join(lines).lstrip("\n") + "\n"
+    if tomllib.loads(text) != data:
+        raise ValueError("TOML metadata roundtrip failed")
+    return text
+
+
+def legacy_metadata_path(path):
+    path = Path(path)
+    if path.suffix == ".toml" and path.stem in {"applied", "resolved", "skill-aliases"}:
+        legacy = path.with_suffix(".json")
+        if legacy.is_symlink():
+            raise ValueError(f"Legacy metadata symlink preserved: {legacy}")
+        return legacy
+    return None
+
+
+def metadata_exists(path):
+    legacy = legacy_metadata_path(path)
+    return Path(path).is_file() or legacy is not None and legacy.is_file()
+
+
+def _metadata_object(pairs):
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError(f"Duplicate metadata key: {key}")
+        result[key] = value
+    return result
+
+
+def _metadata_bytes(raw, suffix):
+    return tomllib.loads(raw.decode("utf-8")) if suffix == ".toml" else json.loads(raw, object_pairs_hook=_metadata_object)
+
+
+def read_metadata(path):
+    path = Path(path)
+    if path.is_symlink():
+        raise ValueError(f"Metadata symlink preserved: {path}")
+    legacy = legacy_metadata_path(path)
+    def read(source):
+        return _metadata_bytes(source.read_bytes(), source.suffix)
+    if path.is_file():
+        data = read(path)
+        if legacy is not None and legacy.is_file() and read(legacy) != data:
+            raise ValueError(f"Conflicting TOML and JSON metadata; both preserved: {path.name}")
+        return data
+    return read(legacy if legacy is not None and legacy.is_file() else path)
+
+
+def plan_metadata_migrations(root):
+    migrations = []
+    for name in ("resolved", "applied", "skill-aliases"):
+        target = _ensure_safe_project_path(root, f".plex/{name}.toml")
+        legacy = legacy_metadata_path(target)
+        if legacy.is_file():
+            before = legacy.read_bytes()
+            data = _metadata_bytes(before, ".json")
+            target_before = target.read_bytes() if target.is_file() else None
+            if target_before is not None and _metadata_bytes(target_before, ".toml") != data:
+                raise ValueError(f"Conflicting TOML and JSON metadata; both preserved: {target.name}")
+            migrations.append({"source": legacy, "target": target,
+                               "before": before, "target_before": target_before,
+                               "after": metadata_toml(data).encode("utf-8")})
+    return migrations
+
+
+def metadata_status(root):
+    current, legacy = [], []
+    for name in ("resolved", "applied", "skill-aliases"):
+        path = _ensure_safe_project_path(root, f".plex/{name}.toml")
+        old = legacy_metadata_path(path)
+        if path.is_file():
+            current.append(path.name)
+        if old.is_file():
+            legacy.append(old.name)
+    return {"preferred_format": "toml", "format": "mixed" if current and legacy else "toml" if current else "json" if legacy else "none",
+            "legacy_files": legacy}
+
+
 def table(value, label):
     if not isinstance(value, dict):
         raise ValueError(f"{label}: expected a table")
@@ -894,12 +1004,12 @@ def plan_codex_routing(root, scope, record=None, max_agents=None, capacity_recor
 
 
 def _validate_receipt_structure(data: dict, scope="project") -> dict:
-    data = table(data, "applied.json")
-    keys(data, {"hosts"}, "applied.json")
-    hosts_table = table(data.get("hosts", {}), "applied.json.hosts")
-    keys(hosts_table, set(HOSTS), "applied.json.hosts")
+    data = table(data, "applied.toml")
+    keys(data, {"hosts"}, "applied.toml")
+    hosts_table = table(data.get("hosts", {}), "applied.toml.hosts")
+    keys(hosts_table, set(HOSTS), "applied.toml.hosts")
     for host, record in hosts_table.items():
-        record = table(record, f"applied.json.hosts.{host}")
+        record = table(record, f"applied.toml.hosts.{host}")
         keys(
             record,
             {
@@ -907,10 +1017,10 @@ def _validate_receipt_structure(data: dict, scope="project") -> dict:
                 "skills", "max_agents", "role_settings", "files", "source_sha256", "instructions", "routing",
                 "capacity",
             },
-            f"applied.json.hosts.{host}",
+            f"applied.toml.hosts.{host}",
         )
         if record.get("host") != host:
-            raise ValueError(f"applied.json.hosts.{host}: mismatched host field")
+            raise ValueError(f"applied.toml.hosts.{host}: mismatched host field")
         if "instructions" in record:
             instruction = table(record["instructions"], "instructions")
             keys(instruction, {"relpath", "sha256"}, "instructions")
@@ -931,20 +1041,20 @@ def _validate_receipt_structure(data: dict, scope="project") -> dict:
             expected = "config.toml" if scope == "user" else ".codex/config.toml"
             if host != "codex" or capacity.get("relpath") != expected or not isinstance(capacity.get("sha256"), str) or not re.fullmatch(r"[0-9a-f]{64}", capacity["sha256"]):
                 raise ValueError("Invalid managed Codex capacity receipt")
-        files = table(record.get("files", {}), f"applied.json.hosts.{host}.files")
+        files = table(record.get("files", {}), f"applied.toml.hosts.{host}.files")
         for role, file_info in files.items():
             if not isinstance(role, str) or not re.fullmatch(r"[a-z][a-z0-9_-]*", role):
                 raise ValueError("Invalid managed role name")
-            file_info = table(file_info, f"applied.json.hosts.{host}.files.{role}")
-            keys(file_info, {"relpath", "sha256"}, f"applied.json.hosts.{host}.files.{role}")
+            file_info = table(file_info, f"applied.toml.hosts.{host}.files.{role}")
+            keys(file_info, {"relpath", "sha256"}, f"applied.toml.hosts.{host}.files.{role}")
             expected_rel = host_role_relpath(host, role, scope)
             if file_info.get("relpath") != expected_rel:
                 raise ValueError(
-                    f"applied.json.hosts.{host}.files.{role}: invalid relpath {file_info.get('relpath')!r}"
+                    f"applied.toml.hosts.{host}.files.{role}: invalid relpath {file_info.get('relpath')!r}"
                 )
             digest = file_info.get("sha256")
             if not isinstance(digest, str) or not re.fullmatch(r"[0-9a-f]{64}", digest):
-                raise ValueError(f"applied.json.hosts.{host}.files.{role}: invalid sha256")
+                raise ValueError(f"applied.toml.hosts.{host}.files.{role}: invalid sha256")
     return data
 
 
@@ -1027,7 +1137,7 @@ def _inspect_host_state(
     for role in existing_plex_files:
         if role not in receipt_files:
             conflicts.append(
-                f"Unmanaged file collision: {host_role_relpath(host, role, scope)} is not owned by .plex/applied.json"
+                f"Unmanaged file collision: {host_role_relpath(host, role, scope)} is not owned by .plex/applied.toml"
             )
 
     rendered = {}
@@ -1193,8 +1303,11 @@ def check_project(project_root: Path, host: str | None = None, scope="project", 
     try:
         _ensure_safe_project_path(project_root, ".plex")
         preset_path = _ensure_safe_project_path(project_root, ".plex/preset.toml")
-        resolved_path = _ensure_safe_project_path(project_root, ".plex/resolved.json")
-        applied_path = _ensure_safe_project_path(project_root, ".plex/applied.json")
+        resolved_path = _ensure_safe_project_path(project_root, ".plex/resolved.toml")
+        applied_path = _ensure_safe_project_path(project_root, ".plex/applied.toml")
+        legacy_metadata_path(resolved_path)
+        legacy_metadata_path(applied_path)
+        metadata = metadata_status(project_root)
     except ValueError as err:
         return {"status": "conflict", "conflicts": [str(err)], "hosts": {}}
 
@@ -1211,22 +1324,22 @@ def check_project(project_root: Path, host: str | None = None, scope="project", 
     snapshot_in_sync = False
     if resolved is not None:
         expected_snapshot = {**resolved, "source_sha256": source_sha256}
-        if resolved_path.is_file():
+        if metadata_exists(resolved_path):
             try:
-                saved_snapshot = json.loads(resolved_path.read_text(encoding="utf-8"))
+                saved_snapshot = read_metadata(resolved_path)
                 if saved_snapshot == expected_snapshot:
                     snapshot_in_sync = True
             except (OSError, UnicodeError, ValueError) as err:
-                conflicts.append(f"Invalid .plex/resolved.json: {err}")
+                conflicts.append(f"Invalid .plex/resolved.toml: {err}")
 
     receipt = {"hosts": {}}
-    if applied_path.is_file():
+    if metadata_exists(applied_path):
         try:
             receipt = _validate_receipt_structure(
-                json.loads(applied_path.read_text(encoding="utf-8")), scope
+                read_metadata(applied_path), scope
             )
         except (OSError, UnicodeError, ValueError) as err:
-            conflicts.append(f"Invalid .plex/applied.json: {err}")
+            conflicts.append(f"Invalid .plex/applied.toml: {err}")
 
     target_hosts = (host,) if host else HOSTS
     host_reports = {}
@@ -1274,6 +1387,7 @@ def check_project(project_root: Path, host: str | None = None, scope="project", 
         "hosts": host_reports,
         "other_hosts_needing_refresh": other_hosts_needing_refresh,
         "coordinator_memory": plan_coordinator_memory(project_root)[0],
+        "metadata": metadata,
     }
 
 
@@ -1451,8 +1565,8 @@ def other_codex_agents(root, roles, scope="project"):
     """Return other agent paths and hashes; None means manual cleanup is required."""
     directory = host_agents_relpath("codex", scope)
     folder = _ensure_safe_project_path(root, directory)
-    receipt_path = _ensure_safe_project_path(root, ".plex/applied.json")
-    receipt = _validate_receipt_structure(json.loads(receipt_path.read_text()), scope) if receipt_path.is_file() else {"hosts": {}}
+    receipt_path = _ensure_safe_project_path(root, ".plex/applied.toml")
+    receipt = _validate_receipt_structure(read_metadata(receipt_path), scope) if metadata_exists(receipt_path) else {"hosts": {}}
     protected = {host_role_relpath("codex", role, scope) for role in roles}
     protected.update(item["relpath"] for item in receipt["hosts"].get("codex", {}).get("files", {}).values())
     config = _ensure_safe_project_path(root, "config.toml" if scope == "user" else ".codex/config.toml")
@@ -1510,8 +1624,9 @@ def _apply_project(
     project_root = Path(project_root)
     _ensure_safe_project_path(project_root, ".plex")
     preset_path = _ensure_safe_project_path(project_root, ".plex/preset.toml")
-    resolved_path = _ensure_safe_project_path(project_root, ".plex/resolved.json")
-    applied_path = _ensure_safe_project_path(project_root, ".plex/applied.json")
+    resolved_path = _ensure_safe_project_path(project_root, ".plex/resolved.toml")
+    applied_path = _ensure_safe_project_path(project_root, ".plex/applied.toml")
+    metadata_migrations = plan_metadata_migrations(project_root)
     if scope == "project":
         _ensure_safe_project_path(project_root, host_dotdir(host))
     _ensure_safe_project_path(project_root, host_agents_relpath(host, scope))
@@ -1553,12 +1668,12 @@ def _apply_project(
     resolved = resolve(candidate_config)
     source_sha256 = sha256_bytes(candidate_preset_bytes)
     resolved_snapshot = {**resolved, "source_sha256": source_sha256}
-    candidate_resolved_bytes = (json.dumps(resolved_snapshot, indent=2, sort_keys=True) + "\n").encode("utf-8")
+    candidate_resolved_bytes = metadata_toml(resolved_snapshot).encode("utf-8")
 
     receipt = {"hosts": {}}
-    if existing_applied_bytes is not None:
+    if metadata_exists(applied_path):
         receipt = _validate_receipt_structure(
-            json.loads(existing_applied_bytes.decode("utf-8")), scope
+            read_metadata(applied_path), scope
         )
 
     archive_agents = archive_agents or {}
@@ -1598,6 +1713,8 @@ def _apply_project(
     _, memory_migrations = plan_coordinator_memory(project_root)
 
     paths = {preset_path, resolved_path, applied_path}
+    for migration in metadata_migrations:
+        paths.update((migration["source"], migration["target"]))
     for migration in memory_migrations:
         paths.update((migration["source"], migration["target"]))
     if memory_migrations:
@@ -1610,6 +1727,10 @@ def _apply_project(
     if routing_plan:
         paths.add(routing_plan["path"])
     transaction = _ApplyTransaction(project_root, paths)
+    for migration in metadata_migrations:
+        if (transaction.original[migration["source"]] != migration["before"]
+                or transaction.original[migration["target"]] != migration["target_before"]):
+            raise ValueError("Plex metadata changed during migration planning; files preserved")
     for migration in memory_migrations:
         if (transaction.original[migration["source"]] != migration["before"]
                 or transaction.original[migration["target"]] != migration["target_before"]):
@@ -1662,9 +1783,9 @@ def _apply_project(
 
         if existing_resolved_bytes is not None and existing_resolved_bytes != candidate_resolved_bytes:
             if resolved_path.read_bytes() != existing_resolved_bytes:
-                raise ValueError("Concurrent modification detected on .plex/resolved.json")
+                raise ValueError("Concurrent modification detected on .plex/resolved.toml")
             bdir = ensure_backup()
-            (bdir / "resolved.json").write_bytes(existing_resolved_bytes)
+            (bdir / "resolved.toml").write_bytes(existing_resolved_bytes)
 
         for relpath, digest in archive_agents.items():
             path = _ensure_safe_project_path(project_root, relpath)
@@ -1755,9 +1876,20 @@ def _apply_project(
             for other in receipt["hosts"].values():
                 if other.get("instructions", {}).get("relpath") == instruction_record["relpath"]:
                     other["instructions"] = instruction_record
-        receipt_bytes = (json.dumps(receipt, indent=2, sort_keys=True) + "\n").encode("utf-8")
+        receipt_bytes = metadata_toml(receipt).encode("utf-8")
         if transaction.original[applied_path] != receipt_bytes:
             transaction.write(applied_path, receipt_bytes)
+        migrated_metadata = []
+        for migration in metadata_migrations:
+            source, target = migration["source"], migration["target"]
+            if target not in {applied_path, resolved_path} and transaction.original[target] != migration["after"]:
+                transaction.write(target, migration["after"])
+            backup = ensure_backup() / "metadata" / source.name
+            backup.parent.mkdir(exist_ok=True)
+            transaction.archive(source, backup)
+            if sha256_bytes(backup.read_bytes()) != sha256_bytes(migration["before"]):
+                raise ValueError(f"Metadata backup verification failed: {source.name}")
+            migrated_metadata.append(str(target.relative_to(project_root.resolve())))
         migrated_memory = []
         if memory_migrations:
             ignore = _ensure_safe_project_path(project_root, ".plex/work/.gitignore")
@@ -1824,6 +1956,7 @@ def _apply_project(
             "written_roles": written_roles,
             "archived_roles": archived_roles,
             "archived_other_agents": list(archive_agents),
+            "migrated_metadata": migrated_metadata,
             "coordinator_memory": {**plan_coordinator_memory(project_root)[0],
                                    "migrated": migrated_memory},
             "backup_dir": (
@@ -1848,7 +1981,9 @@ def _apply_project(
 def uninstall_project(project_root, host, scope="project", dry_run=False):
     """Remove unchanged receipt-owned roles/blocks; retain preferences and shared plugins."""
     root = installation_root(Path(project_root), host, scope)
-    receipt_path = _ensure_safe_project_path(root, ".plex/applied.json")
+    receipt_path = _ensure_safe_project_path(root, ".plex/applied.toml")
+    if not receipt_path.is_file() and metadata_exists(receipt_path):
+        receipt_path = legacy_metadata_path(receipt_path)
     if not receipt_path.is_file():
         return {"status": "unconfigured", "host": host, "scope": scope, "removed_roles": []}
     lock = _ensure_safe_project_path(root, ".plex/.apply.lock")
@@ -1860,7 +1995,7 @@ def uninstall_project(project_root, host, scope="project", dry_run=False):
             raise ValueError("Another apply/uninstall holds .plex/.apply.lock") from None
     try:
         before_receipt = receipt_path.read_bytes()
-        receipt = _validate_receipt_structure(json.loads(before_receipt), scope)
+        receipt = _validate_receipt_structure(read_metadata(receipt_path), scope)
         record = receipt["hosts"].get(host)
         if record is None:
             return {"status": "unconfigured", "host": host, "scope": scope, "removed_roles": []}
@@ -1895,7 +2030,9 @@ def uninstall_project(project_root, host, scope="project", dry_run=False):
                 if span is None:
                     raise ValueError("Managed Codex routing changed or missing; config preserved")
                 routing_plan["after"] = (text[:span[0]] + text[span[1]:]).encode()
-        snapshot = _ensure_safe_project_path(root, ".plex/resolved.json")
+        snapshot = _ensure_safe_project_path(root, ".plex/resolved.toml")
+        if not snapshot.is_file() and metadata_exists(snapshot):
+            snapshot = legacy_metadata_path(snapshot)
         paths = {receipt_path, *roles}
         if instruction_path:
             paths.add(instruction_path)
@@ -1926,7 +2063,7 @@ def uninstall_project(project_root, host, scope="project", dry_run=False):
         backup = _create_backup_dir(root, host)
         result["backup_dir"] = str(backup.relative_to(root.resolve()))
         try:
-            (backup / "applied.before.json").write_bytes(before_receipt)
+            (backup / f"applied.before{receipt_path.suffix}").write_bytes(before_receipt)
             if instruction_path:
                 (backup / "instructions.before.md").write_bytes(instruction_before)
                 transaction.write(instruction_path, instruction_after)
@@ -1940,11 +2077,13 @@ def uninstall_project(project_root, host, scope="project", dry_run=False):
                 if sha256_bytes((backup / path.name).read_bytes()) != digest:
                     raise ValueError(f"Backup verification failed: {path.name}")
             if remaining:
-                transaction.write(receipt_path, (json.dumps({"hosts": remaining}, indent=2, sort_keys=True) + "\n").encode())
+                text = (json.dumps({"hosts": remaining}, indent=2, sort_keys=True) + "\n"
+                        if receipt_path.suffix == ".json" else metadata_toml({"hosts": remaining}))
+                transaction.write(receipt_path, text.encode())
             else:
-                transaction.archive(receipt_path, backup / "applied.json")
+                transaction.archive(receipt_path, backup / receipt_path.name)
                 if snapshot in paths:
-                    transaction.archive(snapshot, backup / "resolved.json")
+                    transaction.archive(snapshot, backup / snapshot.name)
         except (OSError, ValueError, KeyboardInterrupt) as error:
             failures = transaction.rollback()
             if failures:

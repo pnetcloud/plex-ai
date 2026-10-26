@@ -4,6 +4,16 @@
 
 [Installation, dev mode and all CLI options](installation.md).
 
+## Generated state files
+
+Plex stores `applied.toml`, `resolved.toml` and `skill-aliases.toml` alongside
+`preset.toml` in `.plex/`. Setup automatically migrates their legacy JSON files
+when configuration is applied, using verified backups and rollback. Read-only
+status/preview supports old installations without modifying them. Conflicting
+JSON/TOML copies are preserved and reported; matching copies are consolidated.
+`plex status` shows the observed config format. CLI `--json` output remains JSON.
+Edit durable settings in `preset.toml`; the other files are generated.
+
 ## Teams and profiles
 
 | Team | Roles | Workflow |
@@ -74,7 +84,7 @@ operation = "SPEC"
 description = "Write requirements and a specification from the supplied inputs."
 ```
 
-The resolver validates this catalog and includes it in `.plex/resolved.json`.
+The resolver validates this catalog and includes it in `.plex/resolved.toml`.
 PM selects the minimal sufficient route from the full map in the exact snapshot;
 the root dispatches it with explicit intent and parameters. The subagent checks
 installed dispatch and loads only the selected workflow.
@@ -193,9 +203,9 @@ change the host's fallback configuration or make it read an additional instructi
 | File | Ownership |
 |---|---|
 | `.plex/preset.toml` | Editable team/profile/overrides |
-| `.plex/resolved.json` | Generated effective snapshot |
-| `.plex/applied.json` | Per-client receipt and managed hashes |
-| `.plex/skill-aliases.json` | Codex short-name links; generated ownership receipt |
+| `.plex/resolved.toml` | Generated effective snapshot |
+| `.plex/applied.toml` | Per-client receipt and managed hashes |
+| `.plex/skill-aliases.toml` | Codex short-name links; generated ownership receipt |
 | `.plex/dev.json` | Codex dev links and project plugin override; generated ownership receipt |
 | `.plex/backups/` | Replaced files and retired roles |
 

@@ -4,6 +4,16 @@
 
 [Installation, Entwicklungsmodus und alle CLI-Optionen](installation.md).
 
+## Generierte Zustandsdateien
+
+Plex speichert `applied.toml`, `resolved.toml` und `skill-aliases.toml` neben
+`preset.toml` in `.plex/`. Setup migriert frühere JSON-Dateien automatisch beim
+Anwenden der Konfiguration mit geprüften Sicherungen und Rollback. Status und
+Vorschau lesen alte Installationen ohne Änderungen. Abweichende JSON/TOML-Kopien
+bleiben als Konflikt erhalten; gleiche Kopien werden zusammengeführt.
+`plex status` zeigt das Format. CLI-Ausgaben mit `--json` bleiben JSON. Dauerhafte
+Einstellungen gehören in `preset.toml`; die anderen Dateien werden generiert.
+
 ## Teams und Profile
 
 | Team | Rollen | Ablauf |
@@ -66,7 +76,7 @@ Executor. Beispiel: Analyst verwendet
 `skill = "bmad-deep-recon"`; PO verwendet `skill = "bmad-agent-po"` mit
 `operation = "SPEC"`. Jeder Eintrag benötigt eine Ergebnisbeschreibung.
 
-Der Resolver validiert den Katalog und speichert ihn in `.plex/resolved.json`.
+Der Resolver validiert den Katalog und speichert ihn in `.plex/resolved.toml`.
 PM wählt die minimal ausreichende Route aus der vollständigen Karte im exakten
 Snapshot; Root delegiert die gewählte Route mit Absicht und Parametern. Der Subagent
 prüft den installierten Dispatch und lädt nur den gewählten Workflow.
@@ -151,9 +161,9 @@ und erzwingt nicht das Lesen einer zusätzlichen Anweisungsdatei.
 | Datei | Zuständigkeit |
 |---|---|
 | `.plex/preset.toml` | Editierbares Team/Profil/Overrides |
-| `.plex/resolved.json` | Generierter effektiver Snapshot |
-| `.plex/applied.json` | Client-Receipt und verwaltete Hashes |
-| `.plex/skill-aliases.json` | Codex-Verknüpfungen für kurze Namen; erzeugter Eigentumsnachweis |
+| `.plex/resolved.toml` | Generierter effektiver Snapshot |
+| `.plex/applied.toml` | Client-Receipt und verwaltete Hashes |
+| `.plex/skill-aliases.toml` | Codex-Verknüpfungen für kurze Namen; erzeugter Eigentumsnachweis |
 | `.plex/dev.json` | Codex-Dev-Links und Projekt-Plugin-Override; Eigentumsnachweis |
 | `.plex/backups/` | Ersetzte Dateien und ausgeschiedene Rollen |
 

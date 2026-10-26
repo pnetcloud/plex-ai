@@ -30,7 +30,7 @@ class InstallerTests(unittest.TestCase):
             preset = tomllib.loads((Path(temp) / ".plex/preset.toml").read_text())
             self.assertNotIn("coordinator_token_budget", preset)
             self.assertNotIn("subagent_token_budget", preset)
-            snapshot = json.loads((Path(temp) / ".plex/resolved.json").read_text())
+            snapshot = tomllib.loads((Path(temp) / ".plex/resolved.toml").read_text())
             self.assertEqual(snapshot["interaction"], "auto")
             for host in ("codex", "claude"):
                 self.assertEqual(installer.CONFIG.check_project(Path(temp), host)["status"], "in_sync")
@@ -113,10 +113,10 @@ class InstallerTests(unittest.TestCase):
             start, end = installer.CONFIG.instruction_span(content)
             legacy = content[start:end].replace(installer.CONFIG.PLEX_START, b"<!-- plex:start -->").replace(installer.CONFIG.PLEX_END, b"<!-- plex:end -->")
             file.write_bytes(b"Personal instructions.\n" + legacy + b"\n")
-            receipt_path = project / ".plex/applied.json"
-            receipt = json.loads(receipt_path.read_text())
+            receipt_path = project / ".plex/applied.toml"
+            receipt = tomllib.loads(receipt_path.read_text())
             receipt["hosts"]["codex"]["instructions"]["sha256"] = installer.CONFIG.sha256_bytes(legacy)
-            receipt_path.write_text(json.dumps(receipt))
+            receipt_path.write_text(installer.CONFIG.metadata_toml(receipt))
             with patch.object(installer.sys.stdin, "isatty", return_value=True), \
                     patch.object(installer, "choose", side_effect=lambda label, choices, default: "refresh" if label == "Existing Plex installation" else "yes"):
                 self.assertEqual(installer.main(["--project", temp, "--scope", "project", "--client", "codex", "--roles-only"]), 0)
@@ -135,10 +135,10 @@ class InstallerTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp, redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()):
             project = Path(temp).resolve()
             installer.CONFIG.apply_project(project, "codex")
-            receipt_path = project / ".plex/applied.json"
-            receipt = json.loads(receipt_path.read_text())
+            receipt_path = project / ".plex/applied.toml"
+            receipt = tomllib.loads(receipt_path.read_text())
             receipt["future_format"] = 999
-            receipt_path.write_text(json.dumps(receipt))
+            receipt_path.write_text(installer.CONFIG.metadata_toml(receipt))
             before = {p: p.read_bytes() for p in project.rglob("*") if p.is_file()}
             with patch.object(installer, "build_plugin") as build:
                 self.assertEqual(installer.main(["--project", temp, "--client", "codex", "--roles-only", "--yes"]), 1)
@@ -191,7 +191,7 @@ class InstallerTests(unittest.TestCase):
                 capture_output=True, text=True, timeout=15,
             )
             self.assertEqual(fallback.returncode, 0, fallback.stderr)
-            self.assertTrue((project / ".plex/applied.json").is_file())
+            self.assertTrue((project / ".plex/applied.toml").is_file())
 
     def test_full_install_shares_plugin_and_creates_command_with_local_team(self):
         spec = importlib.util.spec_from_file_location("plex_full_installer", ROOT / "setup.py")
@@ -363,7 +363,7 @@ class InstallerTests(unittest.TestCase):
                                              "--team", "bmad", "--roles-only", "--no-instructions"]), 0)
             plan.assert_not_called()
             self.assertFalse((Path(temp) / "_bmad").exists())
-            self.assertEqual(json.loads((Path(temp) / ".plex/resolved.json").read_text())["team"], "pnet")
+            self.assertEqual(tomllib.loads((Path(temp) / ".plex/resolved.toml").read_text())["team"], "pnet")
 
     def test_bmad_init_dry_run_never_discovers_or_writes_runtime(self):
         spec = importlib.util.spec_from_file_location("plex_bmad_preview", ROOT / "setup.py")
@@ -654,7 +654,7 @@ class InstallerTests(unittest.TestCase):
             self.assertEqual(inventory.returncode, 0, inventory.stderr)
             installed = json.loads(inventory.stdout)["installed"]
             self.assertTrue(any(p["name"] == "pnet-plex" and p["enabled"] for p in installed))
-            self.assertTrue((project / ".plex/applied.json").is_file())
+            self.assertTrue((project / ".plex/applied.toml").is_file())
             self.assertEqual(
                 {path.stem for path in (project / ".codex/agents").glob("*.toml")},
                 {"plex-pm", "plex-explorer", "plex-researcher", "plex-dev", "plex-reviewer", "plex-qa", "plex-devops"},
@@ -698,7 +698,7 @@ class InstallerTests(unittest.TestCase):
             self.assertEqual(inventory.returncode, 0, inventory.stderr)
             installed = json.loads(inventory.stdout)
             self.assertTrue(any(p["name"] == "pnet-plex" and p["enabled"] for p in installed))
-            self.assertTrue((project / ".plex/applied.json").is_file())
+            self.assertTrue((project / ".plex/applied.toml").is_file())
             self.assertEqual(
                 {path.stem for path in (project / ".agents/agents").glob("*.md")},
                 {"plex-pm", "plex-explorer", "plex-researcher", "plex-dev", "plex-reviewer", "plex-qa", "plex-devops"},

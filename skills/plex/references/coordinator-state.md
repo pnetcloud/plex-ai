@@ -7,6 +7,14 @@ Never merge different sessions. This state is private runtime context, not a tic
 store, package asset, global memory or worker inbox. Workers receive only their
 assigned goal, inputs and constraints; they do not read the coordinator's queue.
 
+The checkpoint is a continuation aid, not an exhaustive task list or a limit on
+the coordinator's context. Use the full available session, applicable instructions,
+accepted requirements and current evidence. Omission from this file does not cancel
+a requirement, correction or commitment; explicit user supersession still applies.
+Reconcile missing or conflicting details against their authoritative source and
+amend the checkpoint. Do not discard useful session context or repeat unchanged
+intake merely because the checkpoint is incomplete.
+
 Existing JSON state remains readable. Reuse the exact carried path; never create
 a second state for the same session or choose between files by modification time.
 Setup automatically migrates valid JSON checkpoints in the selected installation

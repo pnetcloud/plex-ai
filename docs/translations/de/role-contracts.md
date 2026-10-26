@@ -44,6 +44,9 @@ Koordinatoren verwenden Markdown-Überschriften; Zweck und Blöcke entsprechen d
 
 ## Verbindliche Aufgabenbewertung
 
+Der Checkpoint unterstützt die Fortsetzung; verfügbaren Sitzungskontext und
+angenommene Anforderungen weiter nutzen. Ausgelassene Details gelten bis zu ihrer Ablösung.
+
 Neue Koordinatorzustände verwenden Markdown; bestehendes JSON bleibt lesbar.
 Die nur lesende Prüfung gibt beide Formate mit `--markdown` als Markdown aus.
 Setup migriert gültige kanonische JSON-Zustände im gewählten Installationsbereich

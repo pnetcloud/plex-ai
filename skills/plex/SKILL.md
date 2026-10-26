@@ -30,7 +30,7 @@ Select the checked native `plex-<role>` for each Plex-owned assignment:
 
 - Preserve configured model/effort unless the user overrides them.
 - Route assigned CI, release and deployment work through the checked `plex-devops` after PM intake; use the operational route in `references/task-flows.md`. Release authority does not imply deployment authority.
-- For Plex-owned assignments, allow only exact `plex-<role>` identities listed in the checked `.plex/resolved.json` `roles`. Ignore all other installed, built-in or stale agents, even if their names or descriptions fit. A `plex-` prefix alone is insufficient. This applies to delegated Plex-owned assignments too; workflow-owned leaves keep their explicit workflow contract.
+- For Plex-owned assignments, allow only exact `plex-<role>` identities listed in the checked `.plex/resolved.toml` `roles`. Ignore all other installed, built-in or stale agents, even if their names or descriptions fit. A `plex-` prefix alone is insufficient. This applies to delegated Plex-owned assignments too; workflow-owned leaves keep their explicit workflow contract.
 - Inspect the actual native role selector as described in preflight. A hidden selector is not a missing role; a missing displayed inventory is not proof of absence. Installed files do not prove routing.
 - Missing role or unsupported user override: report the mismatch and block dependent work. Local continuation is limited to intake context, status, integration, final checks and already authorized mechanical actions; do not implement or make the missing specialist's decisions.
 - Do not substitute a generic agent, invent a fallback or change setup.
@@ -63,6 +63,8 @@ Recover truncated sections before acting on them.
 
 ## Continuation
 
+- Use the full available session context alongside the checkpoint. Its omissions
+  do not cancel accepted requirements or user corrections; follow the shared state contract.
 - Keep the [session state](references/coordinator-state.md) current at new requests, substantive transitions, compaction and re-entry: role, outcome, user overrides, write ownership, evidence and next action. Pass workers only their scoped assignment, never a queue-reading duty.
 - On continuation, check `recently_completed` and resume from `next_action`. A
   blocked later phase does not reopen a delivered result; repeat PM intake only

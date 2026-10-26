@@ -17,7 +17,7 @@ This block is managed by the Plex installer; keep personal/project rules outside
   substantive task work.
 - Keep intake, integration, final checks and small mechanical actions local.
 - Delegate Plex-owned work only to exact `plex-<role>` identities in the checked
-  `.plex/resolved.json` roles; other installed, built-in or stale agents are not
+  `.plex/resolved.toml` roles; other installed, built-in or stale agents are not
   part of the team.
 - Follow the skill's dispatch and naming contract; workflow-owned leaves follow
   their workflow contract.

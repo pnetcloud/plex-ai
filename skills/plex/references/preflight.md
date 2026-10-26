@@ -30,7 +30,10 @@ Exit code zero or manually compared hashes are insufficient.
 
 ## 3. Read the snapshot
 
-Read `<root>/.plex/resolved.json`; do not reconstruct configuration layers.
+Read `<root>/.plex/resolved.toml`; do not reconstruct configuration layers.
+For a legacy JSON-only installation, use the checked `resolved` object returned
+by the check above. Setup migrates the file on its next apply; preflight remains
+read-only, and the assignment checker accepts either snapshot format.
 
 | Field | Use |
 |---|---|

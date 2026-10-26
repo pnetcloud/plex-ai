@@ -134,7 +134,7 @@ class ScopeTests(unittest.TestCase):
                             C.apply_project(project, "codex", team="pnet")
                     self.assertEqual(legacy.read_bytes(), original)
                 self.assertFalse(markdown.exists())
-                self.assertFalse((project / ".plex/applied.json").exists())
+                self.assertFalse((project / ".plex/applied.toml").exists())
                 self.assertFalse(list((project / ".codex/agents").glob("*.toml")))
 
     def test_memory_migration_does_not_follow_symlinks(self):
@@ -236,10 +236,10 @@ class ScopeTests(unittest.TestCase):
                 start, end = C.instruction_span(content)
                 legacy = content[start:end].replace(C.PLEX_START, C.LEGACY_PLEX_MARKERS[0]).replace(C.PLEX_END, C.LEGACY_PLEX_MARKERS[1])
                 file.write_bytes(content[:start] + legacy + content[end:])
-                receipt_path = project / ".plex/applied.json"
-                receipt = json.loads(receipt_path.read_text())
+                receipt_path = project / ".plex/applied.toml"
+                receipt = tomllib.loads(receipt_path.read_text())
                 receipt["hosts"]["codex"]["instructions"]["sha256"] = C.sha256_bytes(legacy)
-                receipt_path.write_text(json.dumps(receipt))
+                receipt_path.write_text(C.metadata_toml(receipt))
                 if action == "refresh":
                     self.assertEqual(C.check_project(project, "codex")["status"], "needs_refresh")
                     C.apply_project(project, "codex", instructions=True)
@@ -320,7 +320,7 @@ class ScopeTests(unittest.TestCase):
         file.write_text('personal text')
         original_write = C._atomic_write_bytes
         def fail_receipt(path, data):
-            if path.name == 'applied.json':
+            if path.name == 'applied.toml':
                 raise OSError('receipt failure')
             return original_write(path, data)
         with patch.object(C, '_atomic_write_bytes', side_effect=fail_receipt):
@@ -328,7 +328,7 @@ class ScopeTests(unittest.TestCase):
                 C.apply_project(self.project, 'codex', instructions=True)
         self.assertEqual(file.read_text(), 'personal text')
         self.assertFalse(any((self.project / '.codex/agents').glob('plex-*')))
-        self.assertFalse((self.project / '.plex/applied.json').exists())
+        self.assertFalse((self.project / '.plex/applied.toml').exists())
 
     def test_concurrent_outside_instruction_edit_is_preserved_on_rollback(self):
         file = self.project / 'AGENTS.md'
@@ -346,7 +346,7 @@ class ScopeTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'Concurrent modification'):
                 C.apply_project(self.project, 'codex', instructions=True)
         self.assertEqual(file.read_text(), 'personal text\nconcurrent user note')
-        self.assertFalse((self.project / '.plex/applied.json').exists())
+        self.assertFalse((self.project / '.plex/applied.toml').exists())
 
     @unittest.skipUnless(shutil.which('codex'), 'Codex CLI unavailable')
     def test_native_user_codex_install_and_config_loading(self):

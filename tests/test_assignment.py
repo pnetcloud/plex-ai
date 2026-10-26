@@ -23,6 +23,19 @@ class AssignmentTests(unittest.TestCase):
         self.assignment = json.loads(TEMPLATE.read_text())
         self.snapshot = {"roles": ["pm", "dev", "reviewer"]}
 
+    def test_cli_reads_legacy_json_and_redirects_after_toml_migration(self):
+        with tempfile.TemporaryDirectory() as temp:
+            legacy = Path(temp) / "resolved.json"
+            legacy.write_text(json.dumps(self.snapshot))
+            for migrated in (False, True):
+                if migrated:
+                    legacy.unlink()
+                    legacy.with_suffix(".toml").write_text('roles = ["pm", "dev", "reviewer"]\n')
+                result = subprocess.run([sys.executable, str(SCRIPT), "--resolved", str(legacy)],
+                                        input=json.dumps(self.assignment), capture_output=True, text=True)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertEqual(json.loads(result.stdout)["status"], "valid")
+
     def test_supported_modes_and_criterion_counts(self):
         for mode in ("normal", "plan", "goal"):
             for count in (1, 3, 5):
@@ -86,8 +99,8 @@ class AssignmentTests(unittest.TestCase):
     def test_cli_errors_are_json_and_no_files_are_changed(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
-            snapshot = root / "resolved.json"
-            snapshot.write_text(json.dumps(self.snapshot))
+            snapshot = root / "resolved.toml"
+            snapshot.write_text('roles = ["pm", "dev", "reviewer"]\n')
             baseline = snapshot.read_bytes()
             for raw, expected in ((json.dumps(self.assignment), 0), ("{bad", 1), ("[]", 1)):
                 result = subprocess.run(
@@ -203,9 +216,9 @@ class ResponseTests(unittest.TestCase):
     def test_response_cli_and_source_files_are_unchanged(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
-            paths = [root / "assignment.json", root / "resolved.json"]
+            paths = [root / "assignment.json", root / "resolved.toml"]
             paths[0].write_text(json.dumps(self.assignment))
-            paths[1].write_text(json.dumps(self.snapshot))
+            paths[1].write_text('roles = ["pm", "dev", "reviewer"]\n')
             before = [p.read_bytes() for p in paths]
             for raw, expected in ((json.dumps(self.response), 0), ("{broken", 1), ("[]", 1),
                                   (json.dumps({**self.response, "revision": 2}), 1)):

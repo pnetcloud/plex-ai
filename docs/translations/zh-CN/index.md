@@ -33,6 +33,7 @@ Plex 在 Codex、Claude Code 和 Antigravity 中配置并协调智能体团队�
 
 | 版本 | 变更 |
 |---|---|
+| [v0.16.1](releases/v0.16.1.md) | 易读 TOML、自动迁移及完整上下文提醒。 |
 | [v0.16.0](releases/v0.16.0.md) | 执行者自主工作与自动迁移的 Markdown 状态。 |
 | [v0.15.0](releases/v0.15.0.md) | 从已交付步骤继续、分类任务路由并安全安装 BMad 技能。 |
 | [v0.14.0](releases/v0.14.0.md) | PM 优先选择 BMad 工作流并支持直接入口。 |

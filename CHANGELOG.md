@@ -4,6 +4,11 @@ Important changes retained in Plex, grouped by release. Interfaces and configura
 may change before 1.0. Releases through v0.5.4 were previews; v0.5.5 and later are
 regular releases.
 
+## [0.16.1] — 2026-10-26
+
+- Store applied configuration, resolved snapshots and skill-alias receipts in TOML alongside the preset. Automatically migrate legacy JSON with checked backups, rollback, conflict detection and preserved settings; retain read-only legacy support and JSON CLI output.
+- Treat coordinator memory as a continuation aid: retain full available session context, accepted requirements and user corrections; checkpoint omissions do not cancel them.
+
 ## [0.16.0] — 2026-10-26
 
 - Keep routine execution with Dev/DevOps inside accepted assignments; escalate material changes and continue independent work while acceptance waits. Carry relevant instruction updates to reused agents.

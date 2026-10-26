@@ -115,7 +115,7 @@ class OtherAgentTests(unittest.TestCase):
         with patch.object(C, "_atomic_write_bytes", side_effect=fail_role):
             self.assertEqual(self.setup_project("--archive-other-agents"), 1)
         self.assertEqual(path.read_bytes(), original)
-        self.assertFalse((self.project / ".plex/applied.json").exists())
+        self.assertFalse((self.project / ".plex/applied.toml").exists())
 
     def test_changed_agent_after_preview_is_preserved(self):
         path = self.agent()

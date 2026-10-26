@@ -147,17 +147,17 @@ extra legacy `skills` bindings are rendered.
 
 When `resolve_config.py apply` runs, it enforces the full lifecycle automatically:
 1. **Preflight checks:** Validates all destinations, rejects symlinked parent paths or
-   files, checks `.plex/applied.json`, detects unmanaged file collisions (`plex-<role>`
+   files, checks `.plex/applied.toml`, detects unmanaged file collisions (`plex-<role>`
    files not in the receipt) and modified or missing previously managed files. Any
    preflight conflict aborts without changing the working configuration.
 2. **Backups & role archiving:** Moves deselected roles owned by the selected host's
-   receipt and copies replaced `.plex/preset.toml`, `.plex/resolved.json` and role
+   receipt and copies replaced `.plex/preset.toml`, `.plex/resolved.toml` and role
    files into `.plex/backups/<unique-run>/<host>/`, outside native discovery.
 3. **Atomic writes & read-back hashes:** Writes `.codex/agents/plex-<role>.toml`,
    `.claude/agents/plex-<role>.md`, or `.agents/agents/plex-<role>.md`,
-   `.plex/preset.toml` and `.plex/resolved.json` (with matching `source_sha256`),
+   `.plex/preset.toml` and `.plex/resolved.toml` (with matching `source_sha256`),
    verifying SHA-256 digests on read-back.
-4. **Independent host receipts:** Updates `hosts.<host>` in `.plex/applied.json` while
+4. **Independent host receipts:** Updates `hosts.<host>` in `.plex/applied.toml` while
    preserving other hosts' records and reporting in `other_host` / `other_hosts`
    whether other configured hosts differ from the new desired settings. Never claim
    multiple hosts switched from one host's run.

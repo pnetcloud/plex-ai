@@ -56,6 +56,9 @@ Coordinators use Markdown headings; their purpose and blocks match the role sour
 
 ## Mandatory intake
 
+The checkpoint assists continuation; use the full available session context and
+accepted requirements. Missing checkpoint details remain applicable until superseded.
+
 New coordinator checkpoints use Markdown; existing JSON remains readable. The
 read-only checker can render either format with `--markdown`. Setup automatically
 migrates valid canonical JSON checkpoints in the selected root, backs up originals

@@ -108,7 +108,7 @@ class ConfigTests(unittest.TestCase):
                         preset.write_text("coordinator_token_budget = 90000\nsubagent_token_budget = 30000\n" + preset.read_text())
                         apply_project(project, host, scope=scope)
                         self.assertEqual(tomllib.loads(preset.read_text()), original)
-                        snapshot = json.loads((root / ".plex/resolved.json").read_text())
+                        snapshot = tomllib.loads((root / ".plex/resolved.toml").read_text())
                         self.assertNotIn("coordinator_token_budget", snapshot)
                         self.assertNotIn("subagent_token_budget", snapshot)
                         self.assertEqual(check_project(project, host, scope)["status"], "in_sync")
@@ -124,7 +124,7 @@ class ConfigTests(unittest.TestCase):
             apply_project(project, "codex", interaction="auto")
             self.assertEqual(check_project(project, "codex")["status"], "in_sync")
             self.assertEqual(before, {p.name: p.read_bytes() for p in (project / ".codex/agents").iterdir()})
-            self.assertEqual(json.loads((project / ".plex/resolved.json").read_text())["interaction"], "auto")
+            self.assertEqual(tomllib.loads((project / ".plex/resolved.toml").read_text())["interaction"], "auto")
             apply_project(project, "codex", team="bmad")
             self.assertEqual(tomllib.loads((project / ".plex/preset.toml").read_text())["interaction"], "auto")
             apply_project(project, "codex", interaction="interactive")
@@ -219,7 +219,7 @@ class ConfigTests(unittest.TestCase):
                 apply_project(project, "codex")
                 self.assertEqual(check_project(project, "codex")["status"], "in_sync")
                 self.assertEqual(roles_before, {p.name: p.read_bytes() for p in (project / ".codex/agents").iterdir()})
-                snapshot = json.loads((project / ".plex/resolved.json").read_text())
+                snapshot = tomllib.loads((project / ".plex/resolved.toml").read_text())
                 self.assertEqual(snapshot["workflows"]["analyst"][0]["description"], "Research with cited sources.")
                 self.assertEqual(snapshot["workflows"], tomllib.loads(team_path.read_text())["workflows"])
 
@@ -339,7 +339,7 @@ class ConfigTests(unittest.TestCase):
                 self.assertEqual(check_project(project, "codex")["status"], "in_sync")
 
     def test_concurrent_metadata_edits_are_preserved_and_roles_rolled_back(self):
-        for relpath in (".plex/preset.toml", ".plex/resolved.json", ".plex/applied.json"):
+        for relpath in (".plex/preset.toml", ".plex/resolved.toml", ".plex/applied.toml"):
             with self.subTest(path=relpath), tempfile.TemporaryDirectory() as temp:
                 project = Path(temp).resolve()
                 apply_project(project, "codex", team="pnet")
@@ -475,8 +475,8 @@ class ConfigTests(unittest.TestCase):
                 apply_project(project, "codex", team=team, model_profile="plus", instructions=True)
                 parent_config = config.read_bytes()
                 instructions = (project / "AGENTS.md").read_bytes()
-                receipt_path = project / ".plex/applied.json"
-                receipt = json.loads(receipt_path.read_text())
+                receipt_path = project / ".plex/applied.toml"
+                receipt = tomllib.loads(receipt_path.read_text())
                 legacy_files = {}
                 for role, info in receipt["hosts"]["codex"]["files"].items():
                     path = project / info["relpath"]
@@ -485,7 +485,7 @@ class ConfigTests(unittest.TestCase):
                     path.write_bytes(legacy)
                     info["sha256"] = hashlib.sha256(legacy).hexdigest()
                     legacy_files[path] = legacy
-                receipt_path.write_text(json.dumps(receipt))
+                receipt_path.write_text(MODULE.metadata_toml(receipt))
                 result = apply_project(project, "codex", model_profile="pro", instructions=True)
                 self.assertEqual(check_project(project, "codex")["status"], "in_sync")
                 for path, legacy in legacy_files.items():

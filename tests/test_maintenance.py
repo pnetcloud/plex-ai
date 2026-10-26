@@ -2,6 +2,7 @@
 import importlib.util
 import io
 import json
+import tomllib
 import os
 from contextlib import redirect_stdout, redirect_stderr
 from pathlib import Path
@@ -64,8 +65,8 @@ class MaintenanceTests(unittest.TestCase):
         self.assertTrue((self.root / 'AGENTS.md').read_bytes().endswith(b'New personal rule\n'))
         self.assertEqual(foreign.read_text(), 'mine')
         self.assertTrue((self.root / '.plex/preset.toml').exists())
-        self.assertFalse((self.root / '.plex/applied.json').exists())
-        self.assertTrue((self.root / result['backup_dir'] / 'applied.json').exists())
+        self.assertFalse((self.root / '.plex/applied.toml').exists())
+        self.assertTrue((self.root / result['backup_dir'] / 'applied.toml').exists())
         self.assertEqual(C.uninstall_project(self.root, 'codex')['status'], 'unconfigured')
         self.install()
         self.assertEqual(C.check_project(self.root, 'codex')['status'], 'in_sync')
@@ -85,7 +86,7 @@ class MaintenanceTests(unittest.TestCase):
     def test_shared_instruction_block_survives_until_last_client(self):
         self.install()
         self.install('antigravity')
-        receipt = json.loads((self.root / '.plex/applied.json').read_text())
+        receipt = tomllib.loads((self.root / '.plex/applied.toml').read_text())
         self.assertEqual(receipt['hosts']['codex']['instructions']['relpath'],receipt['hosts']['antigravity']['instructions']['relpath'])
         C.uninstall_project(self.root, 'codex')
         self.assertIn(C.PLEX_START, (self.root / 'AGENTS.md').read_bytes())
@@ -160,7 +161,7 @@ class MaintenanceTests(unittest.TestCase):
         self.install()
         with patch.object(S.shutil, 'which', return_value='/stub/client'), patch.object(S, 'verify_plugin', side_effect=ValueError('plugin absent')), redirect_stdout(io.StringIO()):
             self.assertEqual(S.main(['status','--project',str(self.root),'--client','codex']),1)
-        (self.root / '.plex/resolved.json').unlink()
+        (self.root / '.plex/resolved.toml').unlink()
         with patch.object(S, 'verify_plugin'), redirect_stdout(io.StringIO()):
             self.assertEqual(S.main(['status','--project',str(self.root),'--client','codex']),1)
 

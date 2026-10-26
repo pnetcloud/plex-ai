@@ -749,18 +749,21 @@ def plan_skills(project, development=False, *, aliases=False, scope="project"):
     """Plan owned skill links; only dev mode manages a project plugin override."""
     project = CONFIG.installation_root(project, "codex", scope).resolve()
     receipt = CONFIG._ensure_safe_project_path(project, ".plex/dev.json")
-    alias_receipt = CONFIG._ensure_safe_project_path(project, ".plex/skill-aliases.json")
+    alias_receipt = CONFIG._ensure_safe_project_path(project, ".plex/skill-aliases.toml")
+    legacy_alias = CONFIG.legacy_metadata_path(alias_receipt)
     before = receipt.read_bytes() if receipt.exists() else None
     alias_before = alias_receipt.read_bytes() if alias_receipt.exists() else None
-    if before is not None and alias_before is not None:
+    legacy_alias_before = legacy_alias.read_bytes() if legacy_alias.is_file() else None
+    alias_exists = CONFIG.metadata_exists(alias_receipt)
+    if before is not None and alias_exists:
         raise ValueError("Conflicting Plex skill receipts; inspect before changing links")
-    saved = before if before is not None else alias_before
-    record = json.loads(saved) if saved is not None else None
+    saved = before if before is not None else alias_before if alias_before is not None else legacy_alias_before
+    record = json.loads(before) if before is not None else CONFIG.read_metadata(alias_receipt) if alias_exists else None
     if saved is not None and (not isinstance(record, dict) or set(record) != {"source", "config_block"}
                                or not isinstance(record["source"], str) or not Path(record["source"]).is_absolute()
                                or type(record["config_block"]) is not bool):
         raise ValueError("Invalid Plex skill receipt; inspect before changing links")
-    if (scope != "project" and (development or before is not None)) or (alias_before is not None and record["config_block"]):
+    if (scope != "project" and (development or before is not None)) or (alias_exists and record["config_block"]):
         raise ValueError("Only project development mode may own a plugin override")
     directory = ".agents/skills" if scope == "project" else "skills"
     CONFIG._ensure_safe_project_path(project, directory)
@@ -800,7 +803,10 @@ def plan_skills(project, development=False, *, aliases=False, scope="project"):
         files[config] = (config_before, text.encode() if text else None)
     after = (json.dumps({"source": str(source), "config_block": owned_block}, indent=2) + "\n").encode() if enabled else None
     files[receipt] = (before, after if development else None)
-    files[alias_receipt] = (alias_before, after if aliases and not development else None)
+    alias_after = CONFIG.metadata_toml({"source": str(source), "config_block": owned_block}).encode() if aliases and not development else None
+    files[alias_receipt] = (alias_before, alias_after)
+    if legacy_alias_before is not None:
+        files[legacy_alias] = (legacy_alias_before, None)
     return {"project": project, "enabled": enabled, "was_development": before is not None,
             "links": links, "files": files}
 
@@ -842,6 +848,14 @@ def apply_skills(plan):
             if before == after:
                 continue
             if after is None:
+                if path.name == "skill-aliases.json":
+                    backup = CONFIG._create_backup_dir(plan["project"], "codex") / "metadata"
+                    backup.mkdir()
+                    transaction.archive(path, backup / path.name)
+                    if CONFIG.sha256_bytes((backup / path.name).read_bytes()) != CONFIG.sha256_bytes(before):
+                        raise ValueError("Skill receipt migration backup verification failed")
+                    plan["metadata_backup_dir"] = str(backup.parent)
+                    continue
                 transaction.check()
                 transaction.changed.append((path, None))
                 path.unlink()
@@ -910,9 +924,9 @@ def plex_status(project, clients, scope=None):
                     plugin = str(error)
         skill_aliases = None
         if configured and client == "codex" and plugin != "development":
-            alias_receipt = CONFIG._ensure_safe_project_path(Path(report["root"]), ".plex/skill-aliases.json")
+            alias_receipt = CONFIG._ensure_safe_project_path(Path(report["root"]), ".plex/skill-aliases.toml")
             skill_aliases = "not_installed"
-            if alias_receipt.is_file():
+            if CONFIG.metadata_exists(alias_receipt):
                 try:
                     alias_plan = plan_skills(project, aliases=True, scope=report["scope"])
                     for path, before, after in alias_plan["links"]:
@@ -932,6 +946,7 @@ def plex_status(project, clients, scope=None):
                         "native_capacity": state.get("native_capacity"),
                         "proposed_capacity": state.get("proposed_capacity"),
                         "coordinator_memory": report.get("coordinator_memory"),
+                        "metadata": report.get("metadata"),
                         "conflicts": report.get("conflicts", [])})
     return {"version": version, "source": str(ROOT), "clients": reports}
 
@@ -981,6 +996,8 @@ def maintenance(args):
                 field("Status", item["status"], tone)
                 field("Team / profile", f"{item['team'] or '—'} / {item['profile'] or '—'}")
                 field("Plugin", item["plugin"], tone)
+                if item.get("metadata"):
+                    field("Config format", item["metadata"]["format"])
                 coordinator_memory_summary(item.get("coordinator_memory"))
                 if item.get("native_capacity"):
                     field("Plex assignments", f"{item['native_capacity'].get('assignment_limit')} unfinished assignments")
@@ -1003,8 +1020,8 @@ def maintenance(args):
     scope = args.scope or "project"
     skill_root = CONFIG.installation_root(project, "codex", scope) if "codex" in clients else None
     dev_plan = (plan_skills(project, scope=scope) if "codex" in clients and any(
-        CONFIG._ensure_safe_project_path(skill_root, name).is_file()
-        for name in (".plex/dev.json", ".plex/skill-aliases.json")) else None)
+        CONFIG.metadata_exists(CONFIG._ensure_safe_project_path(skill_root, name))
+        for name in (".plex/dev.json", ".plex/skill-aliases.toml")) else None)
     plans = [CONFIG.uninstall_project(project, client, scope, dry_run=True) for client in clients]
     if dev_plan:
         for plan in plans:
@@ -1150,8 +1167,8 @@ def main(argv=None, *, shared_profile=False, selection=None, setup_mode=None):
         dev_receipt = CONFIG._ensure_safe_project_path(project, ".plex/dev.json") if args.scope == "project" else None
         dev_enabled = args.host == "codex" and (args.dev if args.dev is not None else bool(dev_receipt and dev_receipt.exists()))
         alias_receipt = CONFIG._ensure_safe_project_path(
-            CONFIG.installation_root(project, "codex", args.scope), ".plex/skill-aliases.json") if args.host == "codex" else None
-        alias_enabled = args.host == "codex" and not dev_enabled and (not args.roles_only or alias_receipt.exists())
+            CONFIG.installation_root(project, "codex", args.scope), ".plex/skill-aliases.toml") if args.host == "codex" else None
+        alias_enabled = args.host == "codex" and not dev_enabled and (not args.roles_only or CONFIG.metadata_exists(alias_receipt))
         dev_plan = plan_skills(project, dev_enabled, aliases=alias_enabled, scope=args.scope) if args.host == "codex" and (
             dev_enabled or alias_enabled or bool(dev_receipt and dev_receipt.exists())) else None
         if dev_enabled and args.instructions is False:
@@ -1169,8 +1186,8 @@ def main(argv=None, *, shared_profile=False, selection=None, setup_mode=None):
         existing = tomllib.loads(source_bytes.decode("utf-8")) if source_bytes is not None else None
         if existing is not None:
             CONFIG.resolve(existing)
-        receipt_path = CONFIG._ensure_safe_project_path(config_root, ".plex/applied.json")
-        receipt = CONFIG._validate_receipt_structure(json.loads(receipt_path.read_text()), args.scope) if receipt_path.is_file() else {"hosts": {}}
+        receipt_path = CONFIG._ensure_safe_project_path(config_root, ".plex/applied.toml")
+        receipt = CONFIG._validate_receipt_structure(CONFIG.read_metadata(receipt_path), args.scope) if CONFIG.metadata_exists(receipt_path) else {"hosts": {}}
         installed = receipt["hosts"].get(args.host)
         if installed and interactive and setup_mode is None:
             changing = any(value is not None for value in (
@@ -1391,15 +1408,15 @@ def main(argv=None, *, shared_profile=False, selection=None, setup_mode=None):
         state = CONFIG.check_project(project, args.host, args.scope, max_agents=resolved["max_agents"],
                                      replace_modified_roles=replace_modified_roles)
         if archive_agents:
-            ignored = {f"Unmanaged file collision: {path} is not owned by .plex/applied.json" for path in archive_agents}
+            ignored = {f"Unmanaged file collision: {path} is not owned by .plex/applied.toml" for path in archive_agents}
             state["conflicts"] = [item for item in state["conflicts"] if item not in ignored]
         if state["conflicts"]:
             raise ValueError("\n".join(state["conflicts"]))
 
         refresh_clients = [args.host]
         if shared_profile and args.scope == "project":
-            receipt_path = CONFIG._ensure_safe_project_path(config_root, ".plex/applied.json")
-            receipt = CONFIG._validate_receipt_structure(json.loads(receipt_path.read_text())) if receipt_path.is_file() else {"hosts": {}}
+            receipt_path = CONFIG._ensure_safe_project_path(config_root, ".plex/applied.toml")
+            receipt = CONFIG._validate_receipt_structure(CONFIG.read_metadata(receipt_path)) if CONFIG.metadata_exists(receipt_path) else {"hosts": {}}
             for client in receipt["hosts"]:
                 if client != args.host:
                     if state["hosts"][client]["conflicts"]:
@@ -1411,8 +1428,8 @@ def main(argv=None, *, shared_profile=False, selection=None, setup_mode=None):
             args.instructions = True
         instruction_plan = None
         if args.instructions:
-            receipt_path = CONFIG._ensure_safe_project_path(config_root, ".plex/applied.json")
-            receipt = CONFIG._validate_receipt_structure(json.loads(receipt_path.read_text()), args.scope) if receipt_path.is_file() else {"hosts": {}}
+            receipt_path = CONFIG._ensure_safe_project_path(config_root, ".plex/applied.toml")
+            receipt = CONFIG._validate_receipt_structure(CONFIG.read_metadata(receipt_path), args.scope) if CONFIG.metadata_exists(receipt_path) else {"hosts": {}}
             record = receipt["hosts"].get(args.host, {}).get("instructions")
             instruction_plan = CONFIG.plan_instructions(config_root, args.host, args.scope, record, dev=dev_enabled)
 
@@ -1462,6 +1479,8 @@ def main(argv=None, *, shared_profile=False, selection=None, setup_mode=None):
                 field("Archive", f"plex-{role}", "warn")
         commands = [] if args.roles_only or dev_enabled else plugin_commands(args.host, args.scope)
         heading("Skills and dependencies")
+        if (state.get("metadata") or {}).get("legacy_files"):
+            notice("Legacy JSON settings migrate automatically to TOML when this plan is applied.")
         coordinator_memory_summary(state.get("coordinator_memory"))
         if dev_enabled:
             field("Dev source", ROOT, "command")
@@ -1552,6 +1571,9 @@ def main(argv=None, *, shared_profile=False, selection=None, setup_mode=None):
         if commands and dev_plan and dev_plan["was_development"]:
             verify_plugin(args.host, project)
         notice(f"{len(result['installed_roles'])} roles; configuration in sync.", "ok")
+        field("Config format", "TOML")
+        if dev_plan and dev_plan.get("metadata_backup_dir"):
+            field("Skill backups", dev_plan["metadata_backup_dir"], "muted")
         coordinator_memory_summary(result.get("coordinator_memory"))
         if result.get("native_capacity"):
             capacity_summary(result["native_capacity"])

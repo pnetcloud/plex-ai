@@ -5,7 +5,7 @@ Keep request collection, routing, handoffs, integration, final checks and small 
 
 ## Skill activation
 
-- For Plex-owned assignments, allow only exact `plex-<role>` identities listed in the checked `.plex/resolved.json` `roles`. Ignore all other installed, built-in or stale agents, even if their names or descriptions fit. A `plex-` prefix alone is insufficient. This applies to delegated Plex-owned assignments too; workflow-owned leaves keep their explicit workflow contract.
+- For Plex-owned assignments, allow only exact `plex-<role>` identities listed in the checked `.plex/resolved.toml` `roles`. Ignore all other installed, built-in or stale agents, even if their names or descriptions fit. A `plex-` prefix alone is insufficient. This applies to delegated Plex-owned assignments too; workflow-owned leaves keep their explicit workflow contract.
 
 - Remain the current root; keep its session model and permissions.
 - Use the checked configuration and native `plex-<role>` dispatch from `skills/plex/SKILL.md`. No generic-agent fallback.
@@ -45,7 +45,7 @@ Keep request collection, routing, handoffs, integration, final checks and small 
 - Build owns its investigation, implementation plan, review and fixes. Do not add a competing planning process.
 - In `auto`, use PM/PO's selected `bmad-build-auto` when installed and suitable for the assignment. It owns one unattended iteration with mandatory subagents. Check capacity and installed dispatch; unavailable native Goal is not a reason to block it. If unavailable, retain only an authorized supported Build route and its real checkpoints.
 - QA is an explicitly assigned dev workflow, not another BMad role. Test generation must not start Build first.
-- For BMad roles, validate the selected entry against the exact `.plex/resolved.json` snapshot; source: `teams/bmad/team.toml`. PM reads the full `workflows` map once to select the minimal sufficient route; root remains the sole dispatcher. In `interactive`, if PM returns materially different options, root presents them to the user with PM's recommendation and dispatches the route the user selects. Otherwise, root dispatches the settled PM route. DevOps instead reads the project's actual release/deployment procedure and applicable installed skills.
+- For BMad roles, validate the selected entry against the exact `.plex/resolved.toml` snapshot; source: `teams/bmad/team.toml`. PM reads the full `workflows` map once to select the minimal sufficient route; root remains the sole dispatcher. In `interactive`, if PM returns materially different options, root presents them to the user with PM's recommendation and dispatches the route the user selects. Otherwise, root dispatches the settled PM route. DevOps instead reads the project's actual release/deployment procedure and applicable installed skills.
 - Assign operational work to DevOps after PM intake, keeping reviewer independent. Supply exact revision, target, checks and publication/deployment authority separately; release authorization alone does not authorize deployment.
 - Pass PM's route with its purpose, eligible role, exact entry and sequence. Identify direct versus persona/menu entry in the existing outcome/input; pass the exact skill, optional operation and explicit intent. Do not add a required field or load candidate workflows during selection. For DevOps, pass the project's operational procedure and applicable installed skills instead.
 - For deep-recon, also pass service (`run`, `draft`, `process`), research type/decision shape, scope and expected output.
@@ -61,7 +61,7 @@ Use PM/PO's compact JSON task core and validation procedure from the assignment 
 | Field | Required content |
 |---|---|
 | Outcome | Assigned bounded result linked to the PM/PO-framed parent terminal check; BMad entry skill/workflow/operation or DevOps procedure; existing spec/story or explicit no-spec intent |
-| Inputs | For PM intake, the exact `.plex/resolved.json` snapshot and full `workflows` map; target files/diff, exclusions, verified skill roots, environment facts, completed discovery and remaining question |
+| Inputs | For PM intake, the exact `.plex/resolved.toml` snapshot and full `workflows` map; target files/diff, exclusions, verified skill roots, environment facts, completed discovery and remaining question |
 | Planning evidence | PM intake result, canonical task reference/format, required specialist decisions and remaining blockers; dev starts only after these are satisfied |
 | Interaction | Effective mode and supported native headless contract; questions/blockers return here with resume context |
 | Authority | Owned application/workflow-artifact paths or read-only scope; user exclusions and explicit nested-delegation authority |

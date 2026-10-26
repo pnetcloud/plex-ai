@@ -4,6 +4,14 @@
 
 [安装、开发模式与所有 CLI 参数](installation.md).
 
+## 生成的状态文件
+
+Plex 在 `.plex/` 中将 `applied.toml`、`resolved.toml` 和 `skill-aliases.toml` 与
+`preset.toml` 一同存储。应用配置时，Setup 自动迁移旧 JSON，并使用经过验证的备份与
+回滚。只读状态和预览可读取旧安装，不修改文件。内容不同的 JSON/TOML 副本保持原样
+并报告冲突；相同副本会合并。`plex status` 显示实际格式，CLI `--json` 输出仍为 JSON。
+持久设置在 `preset.toml` 中编辑，其余文件自动生成。
+
 ## 团队与配置档
 
 | 团队 | 角色 | 工作方式 |
@@ -58,7 +66,7 @@ persona/菜单模式，也不证明该技能可独立调用。现有 outcome/inp
 例如 analyst 使用 `skill = "bmad-deep-recon"`；PO 使用 `skill = "bmad-agent-po"`
 和 `operation = "SPEC"`。每个条目都需要结果说明。
 
-解析器验证目录并将其保存到 `.plex/resolved.json`。PM 从准确快照中的完整映射
+解析器验证目录并将其保存到 `.plex/resolved.toml`。PM 从准确快照中的完整映射
 选择最小充分路线；Root 按该选择传递明确意图和参数。子智能体验证已安装版本的分派规则，
 仅加载选定工作流。目录不会提前激活所有技能、安装 BMad 或代替批准。
 具体流程仍由已安装的 BMad 提供。修改团队目录后请刷新安装；现有快照不会自动更新。
@@ -125,9 +133,9 @@ Antigravity 按 `GEMINI.md`、项目 `AGENTS.md` 的顺序。用户范围的 Cod
 | 文件 | 用途 |
 |---|---|
 | `.plex/preset.toml` | 可编辑团队、配置档和覆盖设置 |
-| `.plex/resolved.json` | 自动生成的有效配置快照 |
-| `.plex/applied.json` | 客户端 receipt 与托管文件哈希 |
-| `.plex/skill-aliases.json` | Codex 短名称链接；自动生成的所有权记录 |
+| `.plex/resolved.toml` | 自动生成的有效配置快照 |
+| `.plex/applied.toml` | 客户端 receipt 与托管文件哈希 |
+| `.plex/skill-aliases.toml` | Codex 短名称链接；自动生成的所有权记录 |
 | `.plex/dev.json` | Codex 开发链接与项目插件覆盖；所有权记录 |
 | `.plex/backups/` | 被替换的文件和移除的角色备份 |
 

@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 """Validate a Plex assignment or response against an already checked snapshot.
 
-Usage: python3 check_assignment.py --resolved <root>/.plex/resolved.json < assignment.json
+Usage: python3 check_assignment.py --resolved <root>/.plex/resolved.toml < assignment.json
 Add --assignment <current-assignment.json> to validate a response on stdin.
 Read-only structural validation; does not establish authority or semantic readiness.
 """
 
 import argparse
 import json
+import tomllib
 from pathlib import Path
 import sys
 
@@ -160,12 +161,16 @@ def validate_response(response, assignment, snapshot):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--resolved", type=Path, required=True, help="Already checked .plex/resolved.json")
+    parser.add_argument("--resolved", type=Path, required=True, help="Already checked .plex/resolved.toml")
     parser.add_argument("--assignment", type=Path,
                         help="Validate a response from stdin against this current assignment JSON")
     args = parser.parse_args()
     try:
-        snapshot = json.loads(args.resolved.read_text(encoding="utf-8"))
+        path = args.resolved
+        if not path.exists() and path.stem == "resolved":
+            path = path.with_suffix(".toml" if path.suffix == ".json" else ".json")
+        raw = path.read_text(encoding="utf-8")
+        snapshot = tomllib.loads(raw) if path.suffix == ".toml" else json.loads(raw)
         value = json.load(sys.stdin)
         if args.assignment:
             assignment = json.loads(args.assignment.read_text(encoding="utf-8"))

@@ -45,7 +45,7 @@ class SkillAliasTests(unittest.TestCase):
         for path in links:
             self.assertTrue(path.is_symlink())
             self.assertEqual(path.resolve(), ROOT / "skills" / path.name)
-        receipt = self.project / ".plex/skill-aliases.json"
+        receipt = self.project / ".plex/skill-aliases.toml"
         before = receipt.read_bytes()
         self.assertEqual(self.setup_project("--roles-only"), 0)
         self.assertEqual(receipt.read_bytes(), before)
@@ -77,7 +77,7 @@ class SkillAliasTests(unittest.TestCase):
         self.assertEqual(self.setup_project("--dev"), 0)
         link = self.project / ".agents/skills/plex"
         self.assertEqual(link.resolve(), ROOT / "skills/plex")
-        self.assertFalse((self.project / ".plex/skill-aliases.json").exists())
+        self.assertFalse((self.project / ".plex/skill-aliases.toml").exists())
         self.assertEqual(self.setup_project("--no-dev"), 0)
         self.assertEqual(link.resolve(), ROOT / "skills/plex")
         self.assertFalse((self.project / ".plex/dev.json").exists())
@@ -101,14 +101,14 @@ class SkillAliasTests(unittest.TestCase):
         self.assertEqual(I.main(["status", "--project", str(self.project), "--client", "codex", "--json"]), 1)
         self.assertEqual(I.main(["uninstall", "--project", str(self.project), "--client", "codex", "--yes"]), 1)
         self.assertEqual(os.readlink(link), str(self.base / "foreign"))
-        self.assertTrue((self.project / ".plex/skill-aliases.json").is_file())
+        self.assertTrue((self.project / ".plex/skill-aliases.toml").is_file())
 
     def test_role_failure_rolls_back_aliases(self):
         with patch.object(I.CONFIG, "apply_project", side_effect=ValueError("role failure")) as apply:
             self.assertEqual(self.setup_project(), 1)
             apply.assert_called_once()
         self.assertFalse((self.project / ".agents/skills/plex").is_symlink())
-        self.assertFalse((self.project / ".plex/skill-aliases.json").exists())
+        self.assertFalse((self.project / ".plex/skill-aliases.toml").exists())
 
     def test_preview_and_roles_only_do_not_add_aliases(self):
         self.assertEqual(self.setup_project("--dry-run"), 0)
@@ -170,7 +170,7 @@ class SkillAliasTests(unittest.TestCase):
                     pass
 
     def test_invalid_receipt_is_preserved(self):
-        receipt = self.project / ".plex/skill-aliases.json"
+        receipt = self.project / ".plex/skill-aliases.toml"
         receipt.parent.mkdir()
         receipt.write_text("null")
         self.assertEqual(self.setup_project(), 1)

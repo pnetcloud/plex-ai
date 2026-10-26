@@ -27,7 +27,7 @@ results.
    and the snapshot already verified by preflight:
 
    ```sh
-   python3 <plugin-root>/skills/plex/scripts/check_assignment.py --resolved <root>/.plex/resolved.json
+   python3 <plugin-root>/skills/plex/scripts/check_assignment.py --resolved <root>/.plex/resolved.toml
    ```
 
    Supply the contract as JSON on stdin. Exit 0 and `status: valid` mean the
@@ -140,7 +140,7 @@ named target before reporting delivery.
 Root checks a returned object before accepting it or using it as a dependent input:
 
 ```sh
-python3 <plugin-root>/skills/plex/scripts/check_assignment.py --resolved <root>/.plex/resolved.json --assignment <current-assignment.json>
+python3 <plugin-root>/skills/plex/scripts/check_assignment.py --resolved <root>/.plex/resolved.toml --assignment <current-assignment.json>
 ```
 
 Pass the response on stdin; supply the current accepted contract via an authorized

@@ -38,6 +38,9 @@ Claude 中 `delegation = false` 的角色还会通过 `disallowedTools` 禁用�
 
 ## 必须先评估任务
 
+检查点用于辅助继续工作；仍应使用完整的可用会话上下文和已接受的需求。
+检查点中省略的细节在被明确替代前仍然有效。
+
 新的协调器状态使用 Markdown，旧 JSON 仍可读取。只读检查器通过 `--markdown` 将两种
 格式输出为 Markdown，不修改原文件。Setup 自动迁移所选安装范围内有效的规范 JSON
 状态文件，验证后备份并移除旧文件；冲突文件保持原样并报告。`plex status` 显示实际

@@ -35,7 +35,7 @@ class NativeRoutingTests(unittest.TestCase):
         installed = self.config.read_bytes()
         self.assertEqual(tomllib.loads(installed.decode())['features']['multi_agent_v2']['hide_spawn_agent_metadata'], False)
         self.assertEqual(tomllib.loads(installed.decode())['agents']['max_concurrent_threads_per_session'], 4)
-        receipt = json.loads((self.root / '.plex/applied.json').read_text())['hosts']['codex']
+        receipt = tomllib.loads((self.root / '.plex/applied.toml').read_text())['hosts']['codex']
         self.assertIn('capacity', receipt)
         self.assertEqual(C.check_project(self.root, 'codex')['status'], 'in_sync')
         C.apply_project(self.root, 'codex')
@@ -72,7 +72,7 @@ class NativeRoutingTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'personal setting preserved'):
             C.apply_project(self.root, 'codex', team='pnet')
         self.assertEqual(self.config.read_bytes(), original)
-        self.assertFalse((self.root / '.plex/applied.json').exists())
+        self.assertFalse((self.root / '.plex/applied.toml').exists())
         self.config.unlink()
         target = self.root / 'personal.toml'
         target.write_bytes(original)
@@ -93,7 +93,7 @@ class NativeRoutingTests(unittest.TestCase):
         self.config.write_text('# original\n')
         original = C._atomic_write_bytes
         def fail_receipt(path, data):
-            if path.name == 'applied.json':
+            if path.name == 'applied.toml':
                 raise OSError('injected receipt failure')
             return original(path, data)
         with patch.object(C, '_atomic_write_bytes', side_effect=fail_receipt):
@@ -101,7 +101,7 @@ class NativeRoutingTests(unittest.TestCase):
                 C.apply_project(self.root, 'codex', team='pnet')
         self.assertEqual(self.config.read_text(), '# original\n')
         self.assertEqual(list((self.root / '.codex/agents').glob('*.toml')), [])
-        self.assertFalse((self.root / '.plex/applied.json').exists())
+        self.assertFalse((self.root / '.plex/applied.toml').exists())
 
     def test_capacity_aliases_and_invalid_values_are_deterministic(self):
         cases = (
@@ -117,7 +117,7 @@ class NativeRoutingTests(unittest.TestCase):
                 parsed = tomllib.loads(self.config.read_text())['agents']
                 self.assertEqual(parsed.get('max_concurrent_threads_per_session'), canonical)
                 self.assertEqual(parsed.get('max_threads'), legacy)
-                self.assertNotIn('capacity', json.loads((self.root / '.plex/applied.json').read_text())['hosts']['codex'])
+                self.assertNotIn('capacity', tomllib.loads((self.root / '.plex/applied.toml').read_text())['hosts']['codex'])
                 native = C.check_project(self.root, 'codex')['hosts']['codex']['native_capacity']
                 self.assertEqual(native['value'], expected)
                 self.assertEqual(native['mismatch'], expected < 4)
@@ -146,7 +146,7 @@ class NativeRoutingTests(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     C.apply_project(self.root, 'codex', team='pnet', max_agents=4)
                 self.assertEqual(self.config.read_bytes(), before)
-                self.assertFalse((self.root / '.plex/applied.json').exists())
+                self.assertFalse((self.root / '.plex/applied.toml').exists())
                 for child in self.root.iterdir():
                     if child.name != 'codex-home':
                         if child.is_dir():
@@ -169,7 +169,7 @@ class NativeRoutingTests(unittest.TestCase):
                 after = {path.relative_to(project): path.read_bytes()
                          for path in project.rglob('*') if path.is_file()}
                 self.assertEqual(after, before)
-                self.assertFalse((project / '.plex/applied.json').exists())
+                self.assertFalse((project / '.plex/applied.toml').exists())
                 self.assertFalse((project / '.codex/agents').exists())
 
         C.apply_project(self.root, 'codex', team='pnet', max_agents=C.NATIVE_CODEX_INTEGER_MAX)
@@ -196,7 +196,7 @@ class NativeRoutingTests(unittest.TestCase):
         self.assertNotIn('agents', parsed)
         native = C.check_project(self.root, 'codex')['hosts']['codex']['native_capacity']
         self.assertEqual((native['value'], native['origin'], native['mismatch']), (2, 'inherited', True))
-        self.assertNotIn('capacity', json.loads((self.root / '.plex/applied.json').read_text())['hosts']['codex'])
+        self.assertNotIn('capacity', tomllib.loads((self.root / '.plex/applied.toml').read_text())['hosts']['codex'])
 
         C.uninstall_project(self.root, 'codex')
         global_config.unlink()
@@ -216,12 +216,12 @@ class NativeRoutingTests(unittest.TestCase):
         C.apply_project(self.root, 'codex', team='pnet', max_agents=4)
         original_block = '# plex-capacity:start\nmax_concurrent_threads_per_session = 4\n# plex-capacity:end\n'
         self.assertIn(original_block, self.config.read_text())
-        receipt_path = self.root / '.plex/applied.json'
-        original_capacity_receipt = json.loads(receipt_path.read_text())['hosts']['codex']['capacity']
+        receipt_path = self.root / '.plex/applied.toml'
+        original_capacity_receipt = tomllib.loads(receipt_path.read_text())['hosts']['codex']['capacity']
         profile.write_text('[agents]\nmax_concurrent_threads_per_session = 3\n')
         result = C.apply_project(self.root, 'codex', team='pnet', max_agents=8)
         self.assertIn(original_block, self.config.read_text())
-        self.assertEqual(json.loads(receipt_path.read_text())['hosts']['codex']['capacity'], original_capacity_receipt)
+        self.assertEqual(tomllib.loads(receipt_path.read_text())['hosts']['codex']['capacity'], original_capacity_receipt)
         self.assertEqual(result['native_capacity']['saved_target'], {'value': 4, 'origin': 'plex'})
         native = C.check_project(self.root, 'codex')['hosts']['codex']['native_capacity']
         self.assertIsNone(native['value'])
@@ -235,8 +235,8 @@ class NativeRoutingTests(unittest.TestCase):
         original_block = '# plex-capacity:start\nmax_concurrent_threads_per_session = 4\n# plex-capacity:end\n'
         self.assertIn(original_block, self.config.read_text())
         self.config.write_text(self.config.read_text() + 'max_threads = 4\n')
-        receipt_path = self.root / '.plex/applied.json'
-        original_record = json.loads(receipt_path.read_text())['hosts']['codex']['capacity']
+        receipt_path = self.root / '.plex/applied.toml'
+        original_record = tomllib.loads(receipt_path.read_text())['hosts']['codex']['capacity']
         (self.codex_home / 'work.config.toml').write_text(
             '[agents]\nmax_concurrent_threads_per_session = 3\n'
         )
@@ -248,7 +248,7 @@ class NativeRoutingTests(unittest.TestCase):
         self.assertEqual(parsed['agents']['max_concurrent_threads_per_session'], 4)
         self.assertEqual(parsed['agents']['max_threads'], 4)
         self.assertIn(original_block, updated)
-        self.assertEqual(json.loads(receipt_path.read_text())['hosts']['codex']['capacity'], original_record)
+        self.assertEqual(tomllib.loads(receipt_path.read_text())['hosts']['codex']['capacity'], original_record)
         self.assertEqual(result['native_capacity']['saved_target'], {'value': 4, 'origin': 'plex'})
 
     def test_ancestor_candidate_is_unknown_until_layer_applicability_is_proven(self):
@@ -263,7 +263,7 @@ class NativeRoutingTests(unittest.TestCase):
         self.assertIsNone(native['value'])
         self.assertEqual(native['origin'], 'unknown')
         self.assertTrue(native['uncertain'])
-        self.assertNotIn('capacity', json.loads((nested / '.plex/applied.json').read_text())['hosts']['codex'])
+        self.assertNotIn('capacity', tomllib.loads((nested / '.plex/applied.toml').read_text())['hosts']['codex'])
 
         self.config.unlink()
         managed = self.root / 'managed-project'
@@ -272,12 +272,12 @@ class NativeRoutingTests(unittest.TestCase):
         target = managed / '.codex/config.toml'
         capacity_before = '# plex-capacity:start\nmax_concurrent_threads_per_session = 4\n# plex-capacity:end\n'
         self.assertIn(capacity_before, target.read_text())
-        receipt_path = managed / '.plex/applied.json'
-        capacity_receipt = json.loads(receipt_path.read_text())['hosts']['codex']['capacity']
+        receipt_path = managed / '.plex/applied.toml'
+        capacity_receipt = tomllib.loads(receipt_path.read_text())['hosts']['codex']['capacity']
         self.config.write_text('[agents]\nmax_concurrent_threads_per_session = 2\n')
         C.apply_project(managed, 'codex', max_agents=8)
         self.assertIn(capacity_before, target.read_text())
-        self.assertEqual(json.loads(receipt_path.read_text())['hosts']['codex']['capacity'], capacity_receipt)
+        self.assertEqual(tomllib.loads(receipt_path.read_text())['hosts']['codex']['capacity'], capacity_receipt)
         status = C.check_project(managed, 'codex')['hosts']['codex']['native_capacity']
         self.assertIsNone(status['value'])
         self.assertEqual(status['saved_target'], {'value': 4, 'origin': 'plex'})
@@ -318,7 +318,7 @@ class NativeRoutingTests(unittest.TestCase):
             C.apply_project(self.root, 'codex', team='pnet', max_agents=4,
                             expected_routing_plan=preview)
         self.assertEqual(self.config.read_bytes(), changed_target)
-        self.assertFalse((self.root / '.plex/applied.json').exists())
+        self.assertFalse((self.root / '.plex/applied.toml').exists())
 
         self.config.write_text('# personal\n')
         preview = C.plan_codex_routing(self.root, 'project', max_agents=4)
@@ -328,7 +328,7 @@ class NativeRoutingTests(unittest.TestCase):
             C.apply_project(self.root, 'codex', team='pnet', max_agents=4,
                             expected_routing_plan=preview)
         self.assertEqual(self.config.read_text(), '# personal\n')
-        self.assertFalse((self.root / '.plex/applied.json').exists())
+        self.assertFalse((self.root / '.plex/applied.toml').exists())
 
     def test_capacity_layouts_render_under_the_real_agents_table(self):
         cases = (
@@ -363,12 +363,12 @@ class NativeRoutingTests(unittest.TestCase):
         self.assertEqual(tomllib.loads(user_config.read_text())['agents']['max_concurrent_threads_per_session'], 4)
         C.apply_project(self.root, 'codex', max_agents=8, scope='user')
         self.assertEqual(tomllib.loads(user_config.read_text())['agents']['max_concurrent_threads_per_session'], 8)
-        original_receipt = json.loads((self.codex_home / '.plex/applied.json').read_text())['hosts']['codex']['capacity']
+        original_receipt = tomllib.loads((self.codex_home / '.plex/applied.toml').read_text())['hosts']['codex']['capacity']
         profile = self.codex_home / 'work.config.toml'
         profile.write_text('[agents]\nmax_threads = 2\n')
         C.apply_project(self.root, 'codex', max_agents=10, scope='user')
         self.assertEqual(tomllib.loads(user_config.read_text())['agents']['max_concurrent_threads_per_session'], 8)
-        saved = json.loads((self.codex_home / '.plex/applied.json').read_text())['hosts']['codex']['capacity']
+        saved = tomllib.loads((self.codex_home / '.plex/applied.toml').read_text())['hosts']['codex']['capacity']
         self.assertEqual(saved, original_receipt)
         profile.write_text('[agents\ninvalid = true\n')
         C.uninstall_project(self.root, 'codex', scope='user')
@@ -388,7 +388,7 @@ class NativeRoutingTests(unittest.TestCase):
         current = self.config.read_text()
         self.assertNotIn('plex-capacity:start', current)
         self.assertIn('plex-routing:start', current)
-        self.assertNotIn('capacity', json.loads((self.root / '.plex/applied.json').read_text())['hosts']['codex'])
+        self.assertNotIn('capacity', tomllib.loads((self.root / '.plex/applied.toml').read_text())['hosts']['codex'])
         C.uninstall_project(self.root, 'codex')
         self.assertEqual(inherited.read_text(), '[agents]\nmax_concurrent_threads_per_session = 2\n')
 
@@ -399,7 +399,7 @@ class NativeRoutingTests(unittest.TestCase):
         current = tomllib.loads(self.config.read_text())['agents']
         self.assertNotIn('max_concurrent_threads_per_session', current)
         self.assertEqual(current['max_threads'], 4)
-        self.assertNotIn('capacity', json.loads((self.root / '.plex/applied.json').read_text())['hosts']['codex'])
+        self.assertNotIn('capacity', tomllib.loads((self.root / '.plex/applied.toml').read_text())['hosts']['codex'])
 
         C.uninstall_project(self.root, 'codex')
         shutil.rmtree(self.root / '.plex', ignore_errors=True)
@@ -450,16 +450,16 @@ class NativeRoutingTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'Inherited Codex config changed'):
                 C.apply_project(self.root, 'codex', team='pnet', max_agents=5)
         self.assertEqual(self.config.read_bytes(), original)
-        self.assertTrue((self.root / '.plex/applied.json').is_file())
+        self.assertTrue((self.root / '.plex/applied.toml').is_file())
         self.assertFalse((self.root / '.plex/.apply.lock').exists())
 
     def test_legacy_install_requires_refresh_for_native_controls(self):
         C.apply_project(self.root, 'codex', team='pnet')
-        receipt = self.root / '.plex/applied.json'
-        saved = json.loads(receipt.read_text())
+        receipt = self.root / '.plex/applied.toml'
+        saved = tomllib.loads(receipt.read_text())
         saved['hosts']['codex'].pop('routing')
         saved['hosts']['codex'].pop('capacity')
-        receipt.write_text(json.dumps(saved))
+        receipt.write_text(C.metadata_toml(saved))
         self.config.write_text('# legacy personal config\n')
         state = C.check_project(self.root, 'codex')['hosts']['codex']
         self.assertEqual(state['status'], 'needs_refresh')
