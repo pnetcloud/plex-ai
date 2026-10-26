@@ -112,7 +112,7 @@ class MetadataTests(unittest.TestCase):
                     legacy = root / ".plex/resolved.json"
                     def race(path, data):
                         digest = write(path, data)
-                        if path == target:
+                        if path.resolve() == target.resolve():
                             legacy.write_text(json.dumps({**saved["resolved"], "max_agents": 9}))
                         return digest
                     with patch.object(C._ApplyTransaction, "archive", fail) if case == "failure" else patch.object(C, "_atomic_write_bytes", race):

@@ -34,7 +34,7 @@ Englisch ist die gepflegte Quelle; Übersetzungen spiegeln die Dateinamen.
 
 | Version | Änderungen |
 |---|---|
-| [v0.16.1](releases/v0.16.1.md) | Lesbare TOML-Metadaten, automatische Migration und vollständiger Kontext. |
+| [v0.16.2](releases/v0.16.2.md) | Lesbare TOML-Metadaten, automatische Migration und vollständiger Kontext. |
 | [v0.16.0](releases/v0.16.0.md) | Eigenständige Ausführung und Markdown-Zustand mit automatischer Migration. |
 | [v0.15.0](releases/v0.15.0.md) | Fortsetzung nach erledigten Übergaben, Aufgabenrouting und sichere BMad-Installation. |
 | [v0.14.0](releases/v0.14.0.md) | PM-first-Auswahl von BMad-Abläufen und direkte Workflow-Einstiege. |

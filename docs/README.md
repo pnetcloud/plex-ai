@@ -36,7 +36,7 @@ English is the maintained source; translations mirror these filenames.
 
 | Version | Changes |
 |---|---|
-| [v0.16.1](releases/v0.16.1.md) | Readable TOML metadata, automatic migration and full-context reminders. |
+| [v0.16.2](releases/v0.16.2.md) | Readable TOML metadata, automatic migration and full-context reminders. |
 | [v0.16.0](releases/v0.16.0.md) | Execution ownership and Markdown memory with automatic migration. |
 | [v0.15.0](releases/v0.15.0.md) | Resume from completed handoffs; classify routes and safely install BMad skills. |
 | [v0.14.0](releases/v0.14.0.md) | PM-first BMad route selection and direct workflow entries. |
