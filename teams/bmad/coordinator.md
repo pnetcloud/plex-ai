@@ -56,7 +56,7 @@ Keep request collection, routing, handoffs, integration, final checks and small 
 ### Handoff contract
 
 Pass paths and a short digest, not full transcripts or copied files.
-Use PM/PO's compact JSON task core and validation procedure from the assignment contract. Intake and workflow-owned leaves are exempt. Reuse agent handles; send changed evidence, new decisions and the remaining question on continuation.
+Use PM/PO's compact Markdown task core and validation procedure from the assignment contract. Intake and workflow-owned leaves are exempt. Reuse agent handles; send changed evidence, new decisions and the remaining question on continuation.
 
 | Field | Required content |
 |---|---|

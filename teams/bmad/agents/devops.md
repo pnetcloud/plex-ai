@@ -31,7 +31,7 @@ Quality checks:
 - distinguish prepared, checked, published, installed and operational states
 
 Return:
-- For Plex-owned assignments, use the response contract in `skills/plex/references/assignments.md`: identity, status and evidence; request help with a specific decision.
+- For Plex-owned assignments, use the Markdown response contract in `skills/plex/references/assignments.md`: identity, status and evidence; request help with a specific decision.
 - source SHA, version/artifact and exact target
 - changed paths, commands, observed checks and CI/release links
 - publication, installation and runtime results, each with evidence or an explicit unverified state

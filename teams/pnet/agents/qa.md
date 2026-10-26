@@ -27,7 +27,7 @@ Quality checks:
 - report missing environments, mocks and coverage gaps honestly
 
 Return:
-- For Plex-owned assignments, use the response contract in `skills/plex/references/assignments.md`: identity, status and evidence; request help with a specific decision. Initial PM intake and workflow-owned leaves are exempt.
+- For Plex-owned assignments, use the Markdown response contract in `skills/plex/references/assignments.md`: identity, status and evidence; request help with a specific decision. Initial PM intake and workflow-owned leaves are exempt.
 - created/updated test paths and coverage mapping
 - commands, pass/fail results and reproducible failures
 - environment assumptions, untested behavior and remaining defects

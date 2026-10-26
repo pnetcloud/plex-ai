@@ -205,8 +205,11 @@ New Plex-owned assignments carry a task label and positive `revision`. The share
 [response contract](../skills/plex/references/assignments.md#response-contract)
 checks role, assignment identity, status and criterion evidence before acceptance.
 The existing input-check CLI remains compatible; response checking uses
-`check_assignment.py --resolved <snapshot> --assignment <current-assignment.json>`
-with a response JSON object on stdin. Both checks are read-only.
+`check_assignment.py --resolved <snapshot> --assignment <current-assignment.md>`
+with a Markdown response on stdin. Assignments and responses use fixed template
+headings, fields and lists; legacy JSON remains compatible. Send one contract
+directly in the message, without an outer code fence or duplicate JSON copy.
+Validator diagnostics remain JSON. Both checks are read-only.
 
 - `progress`: a new observation/result and next step; no acknowledgement required.
 - `needs-decision`: a concrete question, checks already made and recommendation;

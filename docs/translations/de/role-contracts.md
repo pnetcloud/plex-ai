@@ -168,7 +168,7 @@ Ausführbare Aufträge nutzen den [kompakten Vertrag](../../../skills/plex/refer
 und dessen schreibfreien Validator: Eingaben, Schreibgrenzen/Ausschlüsse, akzeptierte
 Abhängigkeiten, Bereitschaft und normalerweise drei beobachtbare Kriterien (eins bis fünf)
 mit jeweils einer Prüfung. Bestehende Issues/Specs/Stories bleiben maßgeblich. Erster
-PM-Intake und Workflow-Unteraufträge benötigen keinen zusätzlichen JSON-Vertrag.
+PM-Intake und Workflow-Unteraufträge benötigen keinen zusätzlichen Plex-Vertrag.
 Strukturprüfung beweist weder fachliche Bereitschaft noch Sandbox oder echten Dispatch.
 Die Kriteriengrenze gilt für die Auftragszusammenfassung; alle Spec-/Workflow-Prüfungen bleiben erhalten.
 
@@ -199,8 +199,11 @@ Neue Plex-Aufträge erhalten ein Aufgabenlabel und eine positive `revision`. Der
 [gemeinsame Antwortvertrag](../../../skills/plex/references/assignments.md#response-contract)
 prüft Rolle, Auftragsidentität, Status und Nachweise vor der Abnahme. Der bisherige
 CLI-Aufruf für Eingaben bleibt kompatibel. Antworten werden mit
-`check_assignment.py --resolved <snapshot> --assignment <current-assignment.json>`
-und einem JSON-Objekt auf stdin geprüft. Beide Prüfungen sind schreibgeschützt.
+`check_assignment.py --resolved <snapshot> --assignment <current-assignment.md>`
+und Markdown auf stdin geprüft. Aufträge und Antworten verwenden feste Überschriften,
+Felder und Listen aus den Vorlagen; JSON bleibt als Eingabe kompatibel. Ein Vertrag
+steht direkt im Nachrichtentext, ohne äußeren Codeblock oder zusätzliche JSON-Kopie.
+Die Prüfausgabe bleibt JSON. Beide Prüfungen sind schreibgeschützt.
 
 - `progress`: neues Ergebnis/Beobachtung und nächster Schritt; keine Bestätigung abwarten.
 - `needs-decision`: konkrete Frage, bereits ausgeführte Prüfungen und Empfehlung;

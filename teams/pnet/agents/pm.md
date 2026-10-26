@@ -36,7 +36,7 @@ Quality checks:
   not an isolated fix that safely holds unknown cases.
 
 Return:
-- For Plex-owned assignments, use the response contract in `skills/plex/references/assignments.md`: identity, status and evidence; request help with a specific decision. Initial PM intake and workflow-owned leaves are exempt.
+- For Plex-owned assignments, use the Markdown response contract in `skills/plex/references/assignments.md`: identity, status and evidence; request help with a specific decision. Initial PM intake and workflow-owned leaves are exempt.
 - verified findings, relevant paths and open questions
 - implementation boundary, technical invariants and dependencies
 - dev contract with inputs, writable files and acceptance checks

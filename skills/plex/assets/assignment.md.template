@@ -1,0 +1,42 @@
+# Plex assignment
+
+- **assignment:** plex_dev_task
+- **revision:** 1
+- **role:** plex-dev
+- **readiness:** ready
+
+## Reference
+
+Existing issue/spec/story reference, or current user request
+
+## Outcome
+
+One bounded result agreed by PM/PO
+
+## Inputs
+
+- Relevant source and accepted plan references
+
+## Writable paths
+
+- Assigned application and test paths
+
+## Excluded paths
+
+- Paths and pre-existing changes to preserve
+
+## Dependencies
+
+- Accepted specialist decisions required before this assignment
+
+## Acceptance
+
+### 1
+
+- **criterion:** Observable requested behavior
+- **check:** Command or observation proving it
+
+## Execution
+
+- **mode:** normal
+- **reason:** The task is ready and bounded

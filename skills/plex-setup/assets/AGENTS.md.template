@@ -30,7 +30,7 @@ This block is managed by the Plex installer; keep personal/project rules outside
   specialist decisions before dev.
   A missing/rejected role blocks that assignment; root must not take it over.
 - PM/PO owns the execution approach and 1–5 observable acceptance criteria.
-  Follow the skill's assignment contract and validator. Native Plan/Goal is optional;
+  Follow the skill's Markdown assignment contract and validator. Native Plan/Goal is optional;
   when unavailable, retain ordinary planning or bounded work toward the criteria.
 - Within an accepted assignment, Dev/DevOps owns routine technical steps under
   the skill's execution-ownership rule; do not request another PM round for each step.

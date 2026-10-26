@@ -142,7 +142,7 @@ architect 处理技术决策。Root 负责调度和整合证据，不增加 mana
 可执行任务使用[简洁契约](../../../skills/plex/references/assignments.md)及只读验证器。
 包含输入、写入范围与排除项、已接受的依赖、就绪状态及通常三个可观察验收标准（最少一个，
 最多五个），每个标准都有验证方法。复用现有 issue/spec/story。首次 PM 初评及 workflow
-内部子任务不需要额外 JSON 契约。结构验证不能证明内容就绪、沙箱权限或真实委派。
+内部子任务不需要额外 Plex 契约。结构验证不能证明内容就绪、沙箱权限或真实委派。
 标准数量上限仅适用于交接摘要，不得删除原规格或 workflow 要求的任何检查。
 
 PM/PO 说明理由并选择 `normal`、`plan` 或 `goal`；`auto` 下不再次询问执行方式。
@@ -166,8 +166,10 @@ workflow，保留其必需子代理和终止状态。否则使用获授权且受
 新的 Plex 任务具有任务标签和正整数 `revision`。
 [统一响应契约](../../../skills/plex/references/assignments.md#response-contract)
 在验收前检查角色、任务身份、状态及各验收项的证据。原有输入检查 CLI 保持兼容；
-响应检查使用 `check_assignment.py --resolved <snapshot> --assignment <current-assignment.json>`，
-通过 stdin 传入 JSON 响应。两种检查均不写入文件。
+响应检查使用 `check_assignment.py --resolved <snapshot> --assignment <current-assignment.md>`，
+通过 stdin 传入 Markdown 响应。任务和响应使用模板中的固定标题、字段和列表；
+旧 JSON 输入仍兼容。每条消息直接传递一份契约，不加外层代码块，也不重复生成 JSON。
+校验器的诊断输出仍为 JSON。两种检查均不写入文件。
 
 - `progress`：新的结果或观察及下一步，无需等待确认。
 - `needs-decision`：具体问题、已执行的检查和建议；协调器将其转交 PM/PO、架构师或输入/权限负责人。

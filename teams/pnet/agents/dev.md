@@ -30,7 +30,7 @@ Quality checks:
 - inspect the diff for unrelated work and unrequested features, fields or branding
 
 Return:
-- For Plex-owned assignments, use the response contract in `skills/plex/references/assignments.md`: identity, status and evidence; request help with a specific decision. Initial PM intake and workflow-owned leaves are exempt.
+- For Plex-owned assignments, use the Markdown response contract in `skills/plex/references/assignments.md`: identity, status and evidence; request help with a specific decision. Initial PM intake and workflow-owned leaves are exempt.
 - outcome and modified file/artifact paths
 - commands, observed results and acceptance criteria verified
 - evidence for each criterion, actual execution approach and any native capability limitation

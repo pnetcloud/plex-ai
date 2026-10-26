@@ -1,16 +1,141 @@
 #!/usr/bin/env python3
 """Validate a Plex assignment or response against an already checked snapshot.
 
-Usage: python3 check_assignment.py --resolved <root>/.plex/resolved.toml < assignment.json
-Add --assignment <current-assignment.json> to validate a response on stdin.
+Usage: python3 check_assignment.py --resolved <root>/.plex/resolved.toml < assignment.md
+Add --assignment <current-assignment.md> to validate a response on stdin.
+Markdown is the handoff format; legacy JSON remains readable.
 Read-only structural validation; does not establish authority or semantic readiness.
 """
 
 import argparse
 import json
+import re
 import tomllib
 from pathlib import Path
 import sys
+
+
+def _sections(lines, level):
+    """Split fixed headings, preserving headings inside fenced evidence."""
+    result, current, fence = {}, None, None
+    for line in lines:
+        marker = re.match(r"^(`{3,}|~{3,})(.*)$", line)
+        if marker:
+            token, rest = marker.groups()
+            if fence is None:
+                fence = token
+            elif token[0] == fence[0] and len(token) >= len(fence) and not rest.strip():
+                fence = None
+        heading = None if fence or marker else re.fullmatch(r"(#{1,6}) (.+)", line)
+        if heading and len(heading[1]) == level:
+            current = heading[2]
+            if current in result:
+                raise ValueError(f"duplicate heading: {current}")
+            result[current] = []
+        elif heading and len(heading[1]) < level:
+            raise ValueError(f"unexpected heading: {line}")
+        elif current is not None:
+            result[current].append(line)
+        elif line.strip():
+            raise ValueError(f"expected a level-{level} heading: {line}")
+    if fence:
+        raise ValueError("unclosed Markdown fence")
+    return result
+
+
+def _bullets(lines):
+    result = []
+    for line in lines:
+        if not line.strip():
+            continue
+        if line.startswith("- ") and line[2:].strip():
+            result.append(line[2:])
+        elif line.startswith("  ") and result:
+            result[-1] += "\n" + line[2:]
+        else:
+            raise ValueError(f"expected a '- ' list item or indented continuation: {line}")
+    return result
+
+
+def _fields(lines, allowed, lists=()):
+    values, current = {}, None
+    for line in lines:
+        if not line.strip():
+            continue
+        match = re.fullmatch(r"- \*\*([a-z_]+):\*\*(?: (.*))?", line)
+        if match:
+            current, value = match.groups()
+            if current not in allowed or current in values:
+                raise ValueError(f"unknown or duplicate field: {current}")
+            values[current] = [value] if value else []
+        elif line.startswith("  ") and current:
+            values[current].append(line[2:])
+        else:
+            raise ValueError(f"expected a bold field or indented continuation: {line}")
+    return {key: _bullets(value) if key in lists else "\n".join(value)
+            for key, value in values.items()}
+
+
+def _unique_object(pairs):
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError(f"duplicate JSON key: {key}")
+        result[key] = value
+    return result
+
+
+def read_contract(text):
+    """Decode the documented Markdown grammar into the existing validation schema."""
+    text = text.strip()
+    if not text.startswith("#"):
+        return json.loads(text, object_pairs_hook=_unique_object)
+    lines = text.splitlines()
+    if lines[0] not in ("# Plex assignment", "# Plex response"):
+        raise ValueError("expected '# Plex assignment' or '# Plex response'")
+    response = lines[0] == "# Plex response"
+    start = next((i for i, line in enumerate(lines[1:], 1) if line.startswith("## ")), len(lines))
+    result = _fields(lines[1:start], {"assignment", "revision", "role", "status"} if response
+                     else {"assignment", "revision", "role", "readiness"})
+    if not {"assignment", "revision"} <= result.keys():
+        raise ValueError("Markdown contracts require assignment and revision")
+    if "revision" in result:
+        if not re.fullmatch(r"[1-9][0-9]*", result["revision"]):
+            raise ValueError("revision must be a positive integer")
+        result["revision"] = int(result["revision"])
+    sections = _sections(lines[start:], 2)
+    strings = {"Summary": "summary", "Next": "next", "Notes": "notes"} if response else {
+        "Reference": "reference", "Outcome": "outcome"}
+    lists = {"Evidence": "evidence", "Artifacts": "artifacts"} if response else {
+        "Inputs": "inputs", "Dependencies": "dependencies"}
+    objects = {"Request": ({"kind", "question", "attempted", "recommendation"}, {"attempted"}),
+               "Blocker": ({"constraint", "evidence", "resume"}, {"evidence"})} if response else {
+        "Execution": ({"mode", "reason"}, set())}
+    for title, body in sections.items():
+        if title in strings:
+            result[strings[title]] = "\n".join(body).strip()
+        elif title in lists:
+            result[lists[title]] = _bullets(body)
+        elif title in objects:
+            result[title.lower()] = _fields(body, *objects[title])
+        elif not response and title in {"Writable paths", "Excluded paths"}:
+            result.setdefault("scope", {})["write" if title == "Writable paths" else "exclude"] = _bullets(body)
+        elif title == ("Criteria" if response else "Acceptance"):
+            items = []
+            for index, fields in _sections(body, 3).items():
+                if not re.fullmatch(r"[1-9][0-9]*", index):
+                    raise ValueError("criterion headings must be positive integer indexes")
+                item = _fields(fields, {"state", "evidence"} if response else {"criterion", "check"},
+                               {"evidence"} if response else set())
+                if response:
+                    item["index"] = int(index)
+                elif int(index) != len(items) + 1:
+                    raise ValueError("acceptance indexes must be consecutive from 1")
+                items.append(item)
+            result["criteria" if response else "acceptance"] = items
+        else:
+            raise ValueError(f"unknown section: {title}")
+    return result
 
 
 def nonempty(value):
@@ -163,7 +288,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--resolved", type=Path, required=True, help="Already checked .plex/resolved.toml")
     parser.add_argument("--assignment", type=Path,
-                        help="Validate a response from stdin against this current assignment JSON")
+                        help="Validate a response from stdin against this current Markdown or legacy JSON assignment")
     args = parser.parse_args()
     try:
         path = args.resolved
@@ -171,9 +296,9 @@ def main():
             path = path.with_suffix(".toml" if path.suffix == ".json" else ".json")
         raw = path.read_text(encoding="utf-8")
         snapshot = tomllib.loads(raw) if path.suffix == ".toml" else json.loads(raw)
-        value = json.load(sys.stdin)
+        value = read_contract(sys.stdin.read())
         if args.assignment:
-            assignment = json.loads(args.assignment.read_text(encoding="utf-8"))
+            assignment = read_contract(args.assignment.read_text(encoding="utf-8"))
             errors = validate_response(value, assignment, snapshot)
         else:
             errors = validate(value, snapshot)

@@ -28,7 +28,7 @@ Quality checks:
 - omit style-only preferences and do not invent a finding quota
 
 Return:
-- For Plex-owned assignments, use the response contract in `skills/plex/references/assignments.md`: identity, status and evidence; request help with a specific decision. Initial PM intake and workflow-owned leaves are exempt.
+- For Plex-owned assignments, use the Markdown response contract in `skills/plex/references/assignments.md`: identity, status and evidence; request help with a specific decision. Initial PM intake and workflow-owned leaves are exempt.
 - exact scope reviewed
 - findings with severity, location, trigger, impact and suggested fix/validation
 - observed check results, residual uncertainty and remaining runtime checks

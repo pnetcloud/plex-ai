@@ -8,10 +8,10 @@ results.
 
 ## Prepare and check
 
-1. PM/PO supplies the compact [JSON contract](../assets/assignment.json.template)
+1. PM/PO supplies the compact [Markdown contract](../assets/assignment.md.template)
    for each executable Plex-owned native subagent assignment. Initial PM intake is exempt.
 2. Use the existing issue/spec/story reference, or the current request for a task
-   without one. No new tracker or mandatory assignment file. Pass JSON directly;
+   without one. No new tracker or mandatory assignment file. Pass Markdown directly;
    store it only in an already authorized artifact area when useful for continuation.
 3. Include the assigned bounded result, its relation to the parent outcome, inputs,
    write/exclusion paths, accepted dependencies and acceptance. When a user's outcome
@@ -30,14 +30,14 @@ results.
    python3 <plugin-root>/skills/plex/scripts/check_assignment.py --resolved <root>/.plex/resolved.toml
    ```
 
-   Supply the contract as JSON on stdin. Exit 0 and `status: valid` mean the
+   Supply the contract as Markdown on stdin. Exit 0 and `status: valid` mean the
    structure passed; exit 1 reports errors. Return substantive corrections to
    PM/PO. This check grants no authority, checks no filesystem containment and
    does not prove semantic readiness or native role availability.
 
 Preserve the coordinator's interaction, authority, workspace and workflow handoff.
-The JSON is its compact task core, not a replacement for those boundaries.
-Workflow-owned leaves keep their installed recipe, not an extra Plex JSON gate.
+The Markdown is its compact task core, not a replacement for those boundaries.
+Workflow-owned leaves keep their installed recipe, not an extra Plex contract gate.
 Use the existing outcome/input to identify a direct workflow or persona/menu entry;
 do not add an assignment field for route selection.
 Root's integration, final checks and PM-assigned mechanical actions retain their
@@ -49,6 +49,31 @@ as in flight. Native live-thread slots may still include idle handles; check
 those limits separately. Report current active work and the planned batch before
 claiming a capacity blocker. Reuse handles without reserving a Plex assignment slot
 forever, and preserve implementation handles required for workflow fix resumption.
+
+## Markdown format
+
+- Send rendered Markdown as the message body, without an enclosing code fence.
+  Native tool envelopes remain client-owned; Plex cannot control their rendering.
+- Use the template's exact English headings and field keys; values may use the
+  working language. Keep one contract per message, without a second JSON copy.
+- Identity fields use `- **key:** value`. `revision` is a positive integer.
+  Continue a field or list item on lines indented by two spaces; ordinary sections
+  contain Markdown text. Use `- ` lists for inputs, paths, dependencies and artifacts;
+  retain required empty sections without placeholder items.
+- Acceptance uses consecutive `### 1` … `### 5` entries with `criterion` and `check`.
+  Response Criteria uses the acceptance index with `state` and `evidence` fields.
+  List fields (`evidence`, `attempted`) have an empty field line followed by
+  indented bullets, as in the response template.
+- Response sections: Summary; Evidence and Next for progress; Request and Next for
+  needs-decision; Blocker for blocked; Criteria and Artifacts for completed.
+  Request fields: `kind`, `question`, `attempted`, `recommendation`.
+  Blocker fields: `constraint`, `evidence`, `resume`. Optional Notes holds role-specific
+  findings and workflow activation/step evidence; reference longer artifacts.
+- Duplicate/unknown contract headings or fields and malformed lists fail validation.
+  Legacy JSON remains readable, including current `--assignment` files; do not
+  restart work or rewrite historical files merely to change format.
+  The checker still returns its small JSON diagnostic object; it does not rewrite
+  files, intercept dispatch or replace semantic acceptance.
 
 ## Choose execution
 
@@ -106,11 +131,12 @@ artifact area, not a new tracker. Reusing a handle does not reuse a previous tas
 identity. Legacy input contracts remain readable; attach identity before using the
 response check. Do not restart running work merely to add identity.
 
-Return a JSON object using the [response template](../assets/response.json.template).
+Return Markdown using the [response template](../assets/response.md.template).
 All responses require `assignment`, `revision`, exact native `role`, `status` and
-`summary`. Preserve role-specific findings and BMad activation/step evidence as
-additional fields or referenced artifacts. Intake and workflow-owned leaves retain
-their existing return formats; validate the enclosing Plex-owned assignment only.
+`summary`. Preserve role-specific findings and BMad activation/step evidence in
+Notes or referenced artifacts; legacy JSON may retain additional fields.
+Intake and workflow-owned leaves retain their existing return formats; validate
+the enclosing Plex-owned assignment only.
 
 | Status | Required fields | Meaning |
 |---|---|---|
@@ -140,7 +166,7 @@ named target before reporting delivery.
 Root checks a returned object before accepting it or using it as a dependent input:
 
 ```sh
-python3 <plugin-root>/skills/plex/scripts/check_assignment.py --resolved <root>/.plex/resolved.toml --assignment <current-assignment.json>
+python3 <plugin-root>/skills/plex/scripts/check_assignment.py --resolved <root>/.plex/resolved.toml --assignment <current-assignment.md>
 ```
 
 Pass the response on stdin; supply the current accepted contract via an authorized

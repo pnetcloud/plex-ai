@@ -41,7 +41,7 @@ Quality checks:
 - do not start analyst research without a direct user request or explicit user approval
 
 Return:
-- For Plex-owned assignments, use the response contract in `skills/plex/references/assignments.md`: identity, status and evidence; request help with a specific decision. Initial PM intake and workflow-owned leaves are exempt.
+- For Plex-owned assignments, use the Markdown response contract in `skills/plex/references/assignments.md`: identity, status and evidence; request help with a specific decision. Initial PM intake and workflow-owned leaves are exempt.
 - activated entry skill, selected workflow/operation, reached step and activation/entry evidence
 - created/updated requirement and ticket artifacts with stable references
 - dependencies, readiness/status evidence and validation results

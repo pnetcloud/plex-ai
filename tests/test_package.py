@@ -123,8 +123,8 @@ class PackageTests(unittest.TestCase):
             pnet_instructions = developer_instructions(
                 packaged_config.resolve({"team": "pnet"}), "dev")
             self.assertNotIn("For a direct standalone workflow assignment", pnet_instructions)
-            for relative in ("references/assignments.md", "assets/assignment.json.template",
-                             "scripts/check_assignment.py", "assets/response.json.template",
+            for relative in ("references/assignments.md", "assets/assignment.md.template",
+                             "scripts/check_assignment.py", "assets/response.md.template",
                              "assets/coordinator-state.template", "references/coordinator-state.md",
                              "scripts/check_coordinator_state.py"):
                 source = Path("skills/plex") / relative

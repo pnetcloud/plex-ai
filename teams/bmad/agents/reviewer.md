@@ -32,7 +32,7 @@ Quality checks:
 - allow an in-session fallback only when the installed workflow documents it; otherwise report unavailable nested delegation
 
 Return:
-- For Plex-owned assignments, use the response contract in `skills/plex/references/assignments.md`: identity, status and evidence; request help with a specific decision. Initial PM intake and workflow-owned leaves are exempt.
+- For Plex-owned assignments, use the Markdown response contract in `skills/plex/references/assignments.md`: identity, status and evidence; request help with a specific decision. Initial PM intake and workflow-owned leaves are exempt.
 - activated entry skill, selected workflow/operation, reached step and activation/entry evidence
 - review findings and supporting evidence from completed layers
 - review artifact paths, unresolved findings and actual human decision gates
