@@ -25,9 +25,8 @@ Codex 的 OpenAI、Claude Code 的 Anthropic、Antigravity 的 Google 设置。
 
 两个团队均提供六个命名档位及 `inherit`。提供商文件在每个档位中先列出协调器建议。Haiku/Sonnet/Opus 大致对应 Luna/Sol/Astra，但并未验证质量等价。Google 原生配置使用 Flash 或继承主会话模型，Ultra 档位提高请求的推理强度。Antigravity 中的 Claude 使用 Sonnet 替代不可用的 Haiku；具体模型 ID 需要客户端支持。
 
-各角色配方按团队和提供商分别明确配置；README 的配置表仅描述 `pnet`。例如，BMad Codex
-的主对话建议在 Pro+ 使用 Luna/xhigh、在 Ultra 使用 Sol/medium；`pnet` 对应为 Luna/max
-和 Sol/low。BMad OpenAI Ultra+ 的 UX 仍为 Astra/medium。每个团队和提供商都单独配置
+各角色配方按团队和提供商分别明确配置；README 的配置表仅描述 `pnet`。例如，BMad 的 Codex 主对话建议与 `pnet` 相同：Pro 使用 Terra/medium，Pro+ 使用 Terra/high。
+在 Ultra，BMad 建议 Sol/medium，`pnet` 建议 Sol/low。BMad OpenAI Ultra+ 的 UX 仍为 Astra/medium。每个团队和提供商都单独配置
 DevOps，不继承其他角色的设置。精确配方见 [pnet](../../../teams/pnet/profiles/) 和
 [BMad](../../../teams/bmad/profiles/) TOML profile；setup 会显示应用覆盖项后的有效设置。
 

@@ -122,17 +122,18 @@ Plex 是编码客户端内的 **AI 智能体编排器（AI agent orchestrator）
 
 | 客户端 / 模型提供商 | Basic | Plus | Pro | Pro+ | Ultra | Ultra+ |
 |---|---|---|---|---|---|---|
-| OpenAI Codex | Luna → Luna | Luna → Sol | Luna → Sol | Sol → Sol | Sol → Astra | Sol → Astra |
+| OpenAI Codex | Luna → Luna | Luna → Sol | Terra → Sol | Sol → Sol | Sol → Astra | Sol → Astra |
 | Claude Code / Anthropic | Haiku → Haiku | Haiku → Sonnet | Haiku → Sonnet | Sonnet → Sonnet | Sonnet → Opus | Sonnet → Opus |
 | Antigravity / Google Gemini | `flash` → `flash` | `flash` → `inherit` | `flash` → `inherit` | `inherit` → `inherit` | `inherit` → `inherit` | `inherit` → `inherit` |
 | Antigravity / Anthropic | Sonnet low → Sonnet low | Sonnet low → Sonnet medium | Sonnet low → Sonnet high | Sonnet medium → Sonnet high | Sonnet medium → Opus medium | Sonnet high → Opus high |
 
 - **Basic：** `pnet` 各角色使用同一基础模型。**Plus：** 在配置支持时，为实现和审查分配不同模型。
-- **Pro：** 提高部分角色的推理级别，模型系列可能不变。**Pro+：** Sol/Sonnet 负责开发与审查。**Ultra：** 引入 Astra/Opus 专家。**Ultra+：** 提高推理强度。
+- **Pro：** Codex 开发使用 Terra，其他客户端提高部分角色的推理级别。**Pro+：** Sol/Sonnet 负责开发与审查。**Ultra：** 引入 Astra/Opus 专家。**Ultra+：** 提高推理强度。
 - **BMad：** 开发与审查的配对相同，但 Basic 已分别使用 Sol、Sonnet、`inherit` 或 Sonnet medium 进行审查。规划、架构等角色有各自的设置。
+- **Codex 协调器：** 两个团队均建议 Pro 使用 Terra/medium，Pro+ 使用 Terra/high。
 - **Inherit：** 使用客户端或会话默认值。Gemini 配置中的 `inherit` 并不固定为某个 Gemini Pro 模型。
 
-配置中的标识符：Luna = `gpt-6-luna`，Sol = `gpt-6.1-sol`，Astra = `gpt-6-astra`。
+配置中的标识符：Luna = `gpt-6-luna`，Terra = `gpt-6.1-terra`，Sol = `gpt-6.1-sol`，Astra = `gpt-6-astra`。
 Claude Code 使用 `haiku`、`sonnet`、`opus` 别名；Antigravity 的 Anthropic 配置使用
 `claude-sonnet-5-5-{low,medium,high}` 和 `claude-opus-5-5-{low,medium,high}`。
 这些是随项目提供的设置，不保证模型可用性或成本节省。安装器会显示包含项目覆盖项的有效配置。

@@ -32,8 +32,8 @@ Interaktives **Reconfigure** zeigt geänderte verwaltete Rollenpfade, sichert de
 Beide Teams bieten sechs benannte Stufen sowie `inherit`. In den Anbieterdateien steht die Koordinator-Empfehlung zuerst in jeder Stufe. Haiku/Sonnet/Opus entsprechen ungefähr Luna/Sol/Astra; gleiche Qualität ist nicht nachgewiesen. Native Google-Profile verwenden Flash oder das Modell des Hauptchats; Ultra erhöht den angeforderten Effort. Claude in Antigravity verwendet Sonnet statt des nicht verfügbaren Haiku; genaue Modell-IDs benötigen Client-Unterstützung.
 
 Die Rollenrezepte sind je Team und Anbieter ausdrücklich festgelegt; die Profilübersicht in der README
-gilt nur für `pnet`. BMad empfiehlt im Codex-Profil Luna/xhigh für Pro+ und Sol/medium für Ultra,
-während `pnet` Luna/max und Sol/low verwendet. BMad OpenAI Ultra+ UX bleibt bei Astra/medium.
+gilt nur für `pnet`. Beide Teams empfehlen Terra/medium für den Codex-Hauptchat auf Pro
+und Terra/high auf Pro+. Auf Ultra empfiehlt BMad Sol/medium, `pnet` Sol/low. BMad OpenAI Ultra+ UX bleibt bei Astra/medium.
 DevOps hat in jedem Team-/Anbieterprofil einen eigenen Eintrag und übernimmt keine Einstellungen
 einer anderen Rolle. Die [pnet](../../../teams/pnet/profiles/) und
 [BMad](../../../teams/bmad/profiles/) TOML-Profile enthalten die genauen Rezepte; Setup zeigt

@@ -67,12 +67,12 @@ class OutputTests(unittest.TestCase):
         expected = {
             "pnet": {
                 "basic": "gpt-6-luna / high", "plus": "gpt-6-luna / high",
-                "pro": "gpt-6-luna / xhigh", "pro-plus": "gpt-6-luna / max",
+                "pro": "gpt-6.1-terra / medium", "pro-plus": "gpt-6.1-terra / high",
                 "ultra": "gpt-6.1-sol / low", "ultra-plus": "gpt-6.1-sol / high",
             },
             "bmad": {
                 "basic": "gpt-6-luna / high", "plus": "gpt-6-luna / high",
-                "pro": "gpt-6-luna / xhigh", "pro-plus": "gpt-6-luna / xhigh",
+                "pro": "gpt-6.1-terra / medium", "pro-plus": "gpt-6.1-terra / high",
                 "ultra": "gpt-6.1-sol / medium", "ultra-plus": "gpt-6.1-sol / high",
             },
         }

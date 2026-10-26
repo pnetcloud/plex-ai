@@ -517,7 +517,7 @@ class ConfigTests(unittest.TestCase):
         expected = {
             "openai-basic": ("gpt-6-luna", "gpt-6-luna"),
             "openai-plus": ("gpt-6.1-sol", "gpt-6-luna"),
-            "openai-pro": ("gpt-6.1-sol", "gpt-6-luna"),
+            "openai-pro": ("gpt-6.1-sol", "gpt-6.1-terra"),
             "openai-pro-plus": ("gpt-6.1-sol", "gpt-6.1-sol"),
             "openai-ultra": ("gpt-6-astra", "gpt-6.1-sol"),
             "openai-ultra-plus": ("gpt-6-astra", "gpt-6.1-sol"),
@@ -579,7 +579,8 @@ class ConfigTests(unittest.TestCase):
                     self.assertEqual(values, expected)
 
     def test_anthropic_role_balance_has_explicit_bmad_exceptions(self):
-        models = {"gpt-6-luna": "haiku", "gpt-6.1-sol": "sonnet", "gpt-6-astra": "opus"}
+        # Provider recipes remain independent; Terra does not change the existing Haiku role.
+        models = {"gpt-6-luna": "haiku", "gpt-6.1-terra": "haiku", "gpt-6.1-sol": "sonnet", "gpt-6-astra": "opus"}
         bmad_anthropic_exceptions = {
             "plus": {"devops": {"model": "sonnet", "reasoning": "medium"}},
             "pro": {
@@ -753,7 +754,7 @@ class ConfigTests(unittest.TestCase):
         providers = {
             "openai": ("codex", [
                 ("gpt-6-luna", "high"), ("gpt-6-luna", "high"),
-                ("gpt-6-luna", "xhigh"), ("gpt-6-luna", "max"),
+                ("gpt-6.1-terra", "medium"), ("gpt-6.1-terra", "high"),
                 ("gpt-6.1-sol", "low"), ("gpt-6.1-sol", "high"),
             ]),
             "anthropic": ("claude", [
@@ -774,7 +775,6 @@ class ConfigTests(unittest.TestCase):
             ]),
         }
         bmad_exceptions = {
-            ("openai", "pro-plus"): ("gpt-6-luna", "xhigh"),
             ("openai", "ultra"): ("gpt-6.1-sol", "medium"),
         }
         for team in ("pnet", "bmad"):

@@ -51,8 +51,8 @@ host = "codex"
 # ==================== Pro ====================
 
 [coordinator.pro]
-  model     = "gpt-6-luna"
-  reasoning = "xhigh"
+  model     = "gpt-6.1-terra"
+  reasoning = "medium"
 
 [profiles.pro.pm]
   model     = "gpt-6.1-sol"
@@ -67,7 +67,7 @@ host = "codex"
   reasoning = "low"
 
 [profiles.pro.dev]
-  model     = "gpt-6-luna"
+  model     = "gpt-6.1-terra"
   reasoning = "max"
 
 [profiles.pro.reviewer]
@@ -85,8 +85,8 @@ host = "codex"
 # ==================== Pro+ ====================
 
 [coordinator.pro-plus]
-  model     = "gpt-6-luna"
-  reasoning = "max"
+  model     = "gpt-6.1-terra"
+  reasoning = "high"
 
 [profiles.pro-plus.pm]
   model     = "gpt-6.1-sol"

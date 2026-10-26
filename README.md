@@ -123,20 +123,20 @@ Each cell shows **development → code review** in the bundled `pnet` team.
 
 | Client / model provider | Basic | Plus | Pro | Pro+ | Ultra | Ultra+ |
 |---|---|---|---|---|---|---|
-| OpenAI Codex | Luna → Luna | Luna → Sol | Luna → Sol | Sol → Sol | Sol → Astra | Sol → Astra |
+| OpenAI Codex | Luna → Luna | Luna → Sol | Terra → Sol | Sol → Sol | Sol → Astra | Sol → Astra |
 | Claude Code / Anthropic | Haiku → Haiku | Haiku → Sonnet | Haiku → Sonnet | Sonnet → Sonnet | Sonnet → Opus | Sonnet → Opus |
 | Antigravity / Google Gemini | `flash` → `flash` | `flash` → `inherit` | `flash` → `inherit` | `inherit` → `inherit` | `inherit` → `inherit` | `inherit` → `inherit` |
 | Antigravity / Anthropic | Sonnet low → Sonnet low | Sonnet low → Sonnet medium | Sonnet low → Sonnet high | Sonnet medium → Sonnet high | Sonnet medium → Opus medium | Sonnet high → Opus high |
 
 - **Basic:** one base model across `pnet` roles. **Plus:** separate implementation and review models where configured.
-- **Pro:** more reasoning for selected roles; model families may stay the same. **Pro+:** Sol/Sonnet development and review. **Ultra:** Astra/Opus specialists join. **Ultra+:** higher reasoning effort.
+- **Pro:** Terra development in Codex; more reasoning for selected roles in other clients. **Pro+:** Sol/Sonnet development and review. **Ultra:** Astra/Opus specialists join. **Ultra+:** higher reasoning effort.
 - **BMad:** uses team- and provider-specific role recipes; the table above is for `pnet`.
-  Its Codex coordinator recommendation is Luna/xhigh on Pro+ and Sol/medium on Ultra
-  (`pnet` uses Luna/max and Sol/low). BMad OpenAI Ultra+ UX remains Astra/medium,
+  Both teams recommend Terra/medium for the Codex coordinator on Pro and Terra/high on Pro+.
+  BMad recommends Sol/medium on Ultra (`pnet` uses Sol/low). BMad OpenAI Ultra+ UX remains Astra/medium,
   and DevOps has its own provider settings.
 - **Inherit:** use client/session defaults. In the Gemini profiles, `inherit` is not a pinned Gemini Pro model.
 
-Configured IDs: Luna = `gpt-6-luna`, Sol = `gpt-6.1-sol`, Astra = `gpt-6-astra`.
+Configured IDs: Luna = `gpt-6-luna`, Terra = `gpt-6.1-terra`, Sol = `gpt-6.1-sol`, Astra = `gpt-6-astra`.
 Claude Code uses `haiku`, `sonnet`, `opus` aliases; the Antigravity Anthropic profiles use
 `claude-sonnet-5-5-{low,medium,high}` and `claude-opus-5-5-{low,medium,high}`.
 These are shipped settings, not a guarantee of model availability or cost savings. Setup shows effective settings including project overrides.

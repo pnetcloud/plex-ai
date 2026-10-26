@@ -28,8 +28,8 @@ OpenAI для Codex, Anthropic для Claude Code и Google для Antigravity �
 Обе команды имеют шесть именованных планов и `inherit`. В файлах провайдеров рекомендация координатору стоит первой внутри каждого плана. Haiku/Sonnet/Opus приблизительно соответствуют Luna/Sol/Astra, но равенство качества не измерено. Native-профили Google используют Flash или наследуют модель главного чата; Ultra повышает запрошенный effort. Claude в Antigravity использует Sonnet вместо отсутствующего Haiku; точные ID требуют поддержки клиента.
 
 Настройки ролей задаются отдельно для каждой команды и провайдера; таблица профилей в README
-описывает только `pnet`. Например, рекомендация главному чату BMad/Codex на Pro+ — Luna/xhigh,
-а на Ultra — Sol/medium; `pnet` использует Luna/max и Sol/low. В BMad OpenAI Ultra+ роль UX
+описывает только `pnet`. В обеих командах рекомендация главному чату Codex: Pro — Terra/medium,
+Pro+ — Terra/high. На Ultra BMad рекомендует Sol/medium, а `pnet` — Sol/low. В BMad OpenAI Ultra+ роль UX
 остаётся Astra/medium. У DevOps есть отдельная запись в профиле каждой команды и провайдера;
 настройки других ролей не наследуются. Точные значения заданы в TOML-профилях
 [pnet](../../../teams/pnet/profiles/) и [BMad](../../../teams/bmad/profiles/), а setup показывает

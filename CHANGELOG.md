@@ -4,6 +4,10 @@ Important changes retained in Plex, grouped by release. Interfaces and configura
 may change before 1.0. Releases through v0.5.4 were previews; v0.5.5 and later are
 regular releases.
 
+## [0.18.1] — 2026-10-26
+
+- Use GPT-6.1 Terra for the Codex Pro developer, preserving max reasoning; recommend Terra/medium for Pro coordination and Terra/high for Pro+ in both teams. Other roles and providers retain their settings.
+
 ## [0.18.0] — 2026-10-26
 
 - Manage narrow Claude permissions for the installed Plex cache and read-only checkers, preserving personal settings and using existing backups/rollback; uninstall removes only owned rules.

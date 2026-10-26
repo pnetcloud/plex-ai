@@ -125,17 +125,18 @@ Jede Zelle zeigt **Entwicklung → Code-Review** für das mitgelieferte `pnet`-T
 
 | Client / Modellanbieter | Basic | Plus | Pro | Pro+ | Ultra | Ultra+ |
 |---|---|---|---|---|---|---|
-| OpenAI Codex | Luna → Luna | Luna → Sol | Luna → Sol | Sol → Sol | Sol → Astra | Sol → Astra |
+| OpenAI Codex | Luna → Luna | Luna → Sol | Terra → Sol | Sol → Sol | Sol → Astra | Sol → Astra |
 | Claude Code / Anthropic | Haiku → Haiku | Haiku → Sonnet | Haiku → Sonnet | Sonnet → Sonnet | Sonnet → Opus | Sonnet → Opus |
 | Antigravity / Google Gemini | `flash` → `flash` | `flash` → `inherit` | `flash` → `inherit` | `inherit` → `inherit` | `inherit` → `inherit` | `inherit` → `inherit` |
 | Antigravity / Anthropic | Sonnet low → Sonnet low | Sonnet low → Sonnet medium | Sonnet low → Sonnet high | Sonnet medium → Sonnet high | Sonnet medium → Opus medium | Sonnet high → Opus high |
 
 - **Basic:** ein Basismodell für alle `pnet`-Rollen. **Plus:** getrennte Modelle für Umsetzung und Review, sofern konfiguriert.
-- **Pro:** höhere Reasoning-Stufen für ausgewählte Rollen; Modellfamilien können gleich bleiben. **Pro+:** Sol/Sonnet für Entwicklung und Review. **Ultra:** Spezialisten mit Astra/Opus. **Ultra+:** höherer Reasoning-Effort.
+- **Pro:** Terra für Codex-Entwicklung; höhere Reasoning-Stufen für ausgewählte Rollen anderer Clients. **Pro+:** Sol/Sonnet für Entwicklung und Review. **Ultra:** Spezialisten mit Astra/Opus. **Ultra+:** höherer Reasoning-Effort.
 - **BMad:** dieselben Entwicklungs-/Review-Paare, aber Basic nutzt für Review bereits Sol, Sonnet, `inherit` beziehungsweise Sonnet medium. Planung, Architektur und weitere Rollen haben eigene Einstellungen.
+- **Codex-Koordinator:** beide Teams empfehlen Terra/medium für Pro und Terra/high für Pro+.
 - **Inherit:** Vorgaben des Clients/der Sitzung. In Gemini-Profilen legt `inherit` kein bestimmtes Gemini-Pro-Modell fest.
 
-Konfigurierte IDs: Luna = `gpt-6-luna`, Sol = `gpt-6.1-sol`, Astra = `gpt-6-astra`.
+Konfigurierte IDs: Luna = `gpt-6-luna`, Terra = `gpt-6.1-terra`, Sol = `gpt-6.1-sol`, Astra = `gpt-6-astra`.
 Claude Code nutzt die Aliase `haiku`, `sonnet`, `opus`; die Anthropic-Profile in Antigravity verwenden
 `claude-sonnet-5-5-{low,medium,high}` und `claude-opus-5-5-{low,medium,high}`.
 Dies sind mitgelieferte Einstellungen, keine Garantie für Modellverfügbarkeit oder Einsparungen. Setup zeigt die wirksamen Einstellungen einschließlich Projektüberschreibungen.

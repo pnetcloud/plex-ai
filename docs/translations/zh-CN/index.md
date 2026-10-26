@@ -33,6 +33,7 @@ Plex 在 Codex、Claude Code 和 Antigravity 中配置并协调智能体团队�
 
 | 版本 | 变更 |
 |---|---|
+| [v0.18.1](releases/v0.18.1.md) | Codex Pro 使用 Terra 开发，更新 Pro/Pro+ 协调器建议。 |
 | [v0.18.0](releases/v0.18.0.md) | Claude 缓存更新、托管包访问与兼容的 Markdown 交接。 |
 | [v0.17.1](releases/v0.17.1.md) | 更新与预览前显示当前版本和目标版本。 |
 | [v0.17.0](releases/v0.17.0.md) | 易读的 Markdown 智能体契约、结构校验及旧 JSON 兼容。 |

@@ -29,8 +29,8 @@ Profiles describe settings, not measured quality levels.
 Both teams provide six named tiers plus `inherit`. Coordinator recommendations appear first within each tier in the provider files. Anthropic uses Haiku/Sonnet/Opus as approximate Luna/Sol/Astra counterparts; these are not measured equivalents. Google native profiles use Flash or inherit the main-chat model, with higher requested effort for Ultra tiers. Claude on Antigravity substitutes Sonnet for unavailable Haiku; exact model IDs require host support.
 
 Role recipes are explicit per team and provider; the profile table in the README describes `pnet`
-only. For example, BMad's Codex main-chat recommendation is Luna/xhigh on Pro+ and Sol/medium
-on Ultra, while `pnet` uses Luna/max and Sol/low. BMad OpenAI Ultra+ UX remains Astra/medium.
+only. Both teams recommend Terra/medium for the Codex main chat on Pro and Terra/high
+on Pro+. On Ultra, BMad recommends Sol/medium while `pnet` uses Sol/low. BMad OpenAI Ultra+ UX remains Astra/medium.
 DevOps has its own entry in each team/provider profile; it does not inherit another role's
 settings. See the [pnet](../teams/pnet/profiles/) and [BMad](../teams/bmad/profiles/) profile
 files for exact recipes; setup shows effective settings after overrides.
