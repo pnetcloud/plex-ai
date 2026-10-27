@@ -39,7 +39,7 @@ Keep request collection, routing, handoffs, integration, final checks and small 
 
 - PM intake is mandatory before routing or execution. Deferred requests may be recorded first; other roles follow PM's assessment, and root cannot bypass it as "clear work".
 - Reuse role outputs instead of repeating discovery. Required-role failure is a blocker, not permission for root to perform that work.
-- Review inspects the change; QA exercises behavior. Neither is automatic after sufficient workflow-owned verification.
+- Independent code review is the default implementation-acceptance gate; QA remains a separate behavior check. A completed applicable BMad Build independent review counts once; absent or unproven review routes the exact candidate and requirements to reviewer. Reuse evidence only while candidate and requirements are unchanged, review material changes, and a later explicit human override remains authoritative.
 - QA test edits require ownership; production edits remain with dev.
 - Assign operational work to DevOps after PM intake; keep independent review with reviewer. Supply exact revision, target, existing procedure and publication/deployment authority separately.
 - The role catalog does not increase concurrency. Team default: three; honor applied `max_agents` and native limits.

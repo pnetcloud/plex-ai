@@ -50,14 +50,25 @@ class NativeRoutingTests(unittest.TestCase):
     def test_bmad_direct_entry_guidance_is_rendered_without_changing_pnet_roles(self):
         C.apply_project(self.root, 'codex', team='bmad', model_profile='inherit')
         pm = (self.root / C.host_role_relpath('codex', 'pm')).read_text()
+        po = (self.root / C.host_role_relpath('codex', 'po')).read_text()
+        bmad_dev = (self.root / C.host_role_relpath('codex', 'dev')).read_text()
         self.assertIn('For a direct standalone workflow assignment', pm)
         self.assertIn('bmad-agent-pm', pm)
         self.assertNotIn('bmad-spec', pm)
+        self.assertIn('semantic validation', pm.lower())
+        self.assertIn("installed generation's equivalent", pm.lower())
+        self.assertIn('PO `VALIDATE`', po)
+        self.assertIn('semantic validation', po.lower())
+        self.assertIn('same Dev', po)
+        self.assertIn('safe boundary', po)
+        self.assertIn('independent review', bmad_dev.lower())
+        self.assertIn('configured review mode is not proof', bmad_dev.lower())
 
         C.apply_project(self.root, 'codex', team='pnet', model_profile='inherit')
         dev = (self.root / C.host_role_relpath('codex', 'dev')).read_text()
         self.assertNotIn('For a direct standalone workflow assignment', dev)
         self.assertNotIn('bmad-agent-dev', dev)
+        self.assertIn('self-review is not independent', dev.lower())
 
     def test_existing_matching_values_are_not_adopted(self):
         original = '[features.multi_agent_v2]\nhide_spawn_agent_metadata = false\ntool_namespace = "agents"\n'

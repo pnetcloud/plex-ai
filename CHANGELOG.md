@@ -4,6 +4,12 @@ Important changes retained in Plex, grouped by release. Interfaces and configura
 may change before 1.0. Releases through v0.5.4 were previews; v0.5.5 and later are
 regular releases.
 
+## [0.19.0] — 2026-10-27
+
+- Require semantic validation of newly authored or materially revised executable BMad requirements before implementation, tied to the installed operation, project adapter and exact requirements bundle. Build may investigate and draft first; the gate pauses only code work and resumes the same Dev after material gaps are resolved.
+- Require independent review of the exact candidate and requirements before acceptance. A completed, evidenced independent Build review counts once; otherwise use the standalone reviewer. Preserve explicit human overrides and accepted work already in progress.
+- Apply the contracts in both teams and their documentation without changing assignment schemas or saved settings.
+
 ## [0.18.1] — 2026-10-26
 
 - Use GPT-6.1 Terra for the Codex Pro developer, preserving max reasoning; recommend Terra/medium for Pro coordination and Terra/high for Pro+ in both teams. Other roles and providers retain their settings.

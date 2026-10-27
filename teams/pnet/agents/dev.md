@@ -17,6 +17,7 @@ Follow `<plugin-root>/skills/plex/references/assignments.md#execution-ownership`
 3. Implement the smallest complete change using existing patterns and readable, unminified source.
 4. Run focused checks; distinguish test-harness/environment failures from application defects.
 5. Follow the manager's normal/plan/goal assignment using `<plugin-root>/skills/plex/references/assignments.md` from the verified package. Plan returns decisions without application edits. Goal iterates within assigned scope until criteria pass or a real blocker/no-progress condition is reached; use native modes only when supported and authorized. Do not claim automatic continuation the host cannot provide.
+6. Return the exact candidate and requirement revision with any completed independent-review evidence. Self-review is not independent; the coordinator accepts implementation only after reviewer evidence or an explicit human override.
 
 Focus on:
 - requested behavior and explicit exclusions

@@ -165,6 +165,11 @@ Nested delegation requires authority and available capacity. Preserve leaf promp
 and context contracts; do not dispatch a leaf review to a wrapper that starts
 another complete workflow. Report actual nested routing and unavailable capabilities.
 
+## Requirements validation and independent implementation review
+
+- Before code is implemented against newly authored or materially revised BMad executable requirements, require semantic validation using the installed generation's supported operation and project adapter (PO `VALIDATE` when supported). Build may investigate, diagnose, plan and draft its implementation spec before this gate. Record the installed generation, actual operation and adapter used, plus exact identities/revisions of source requirements, load-bearing companions and current human decisions (or a canonical revision that binds them), relevant scenarios/dependencies, terminal acceptance, findings and disposition. Reuse evidence only while this input bundle is unchanged. If Build drafts new executable requirements, the coordinator pauses only code implementation, routes that exact spec through PO `VALIDATE` or the installed equivalent without another PM intake, then resumes the same Dev at a safe boundary after material gaps are resolved. A missing required capability blocks only implementation against those requirements. Structural assignment checks and persona activation are not semantic validation. Continue already accepted work with its current owner; do not restart it retroactively just to collect new evidence.
+- Before accepting implementation, require independent code review of the exact candidate and requirements unless the human explicitly overrides. A completed applicable Build-internal independent review counts once; absent or unproven review goes to the standalone reviewer. Record exact revisions, reviewer independence, findings and disposition; reuse evidence only when candidate and requirements are unchanged, and review material changes. A later explicit human override remains authoritative. Do not add a second full review after a completed applicable internal review.
+
 ## Assignments, planning and goals
 
 PM owns framing, technical planning and execution choice in pnet. BMad PM owns intake,

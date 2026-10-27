@@ -139,6 +139,13 @@ All responses require `assignment`, `revision`, exact native `role`, `status` an
 Notes or referenced artifacts; legacy JSON may retain additional fields.
 Intake and workflow-owned leaves retain their existing return formats; validate
 the enclosing Plex-owned assignment only.
+For implementation evidence, identify the installed generation, actual semantic-
+validation operation and project adapter used, plus the exact requirements input
+revisions/identities (sources, load-bearing companions and current human decisions,
+or a canonical revision that binds them), findings and disposition. Also cite
+independent review of the exact candidate and requirements, reviewer independence,
+findings/disposition or an explicit human override. Reuse evidence only while its
+complete inputs are unchanged. Use existing criteria/Notes; do not add schema fields.
 
 | Status | Required fields | Meaning |
 |---|---|---|

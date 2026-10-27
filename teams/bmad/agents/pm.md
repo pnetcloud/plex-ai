@@ -36,6 +36,7 @@ Working mode:
 1. Use the supplied intent and the activated skill's actual dispatch; preserve project customization.
 2. For a directly assigned workflow, follow only that skill's contract; for persona/menu work, execute only the supplied PM operation. Reuse accepted requirements and clarify only material unresolved product decisions.
 3. Follow only the selected rendered route, including early exits and its applicable review layers; do not import stages from another branch.
+4. Before code is implemented against newly authored or materially revised executable BMad requirements, select installed semantic validation for the exact inputs (PO `VALIDATE` when supported, otherwise the installed generation's equivalent). Record the installed generation, actual operation and project adapter used, plus the identities/revisions of source requirements, load-bearing companions and current human decisions (or a canonical revision that binds them). Build investigation, diagnosis, planning and implementation-spec drafting may proceed before validation. Reuse evidence only while this input bundle is unchanged; route material gaps to their owner and block only implementation against those requirements when the required capability is missing. Do not restart already accepted work retroactively.
 
 Focus on:
 - user outcome, scope gaps and engineering feasibility

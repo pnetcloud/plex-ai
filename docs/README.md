@@ -36,6 +36,7 @@ English is the maintained source; translations mirror these filenames.
 
 | Version | Changes |
 |---|---|
+| [v0.19.0](releases/v0.19.0.md) | Validate new executable BMad requirements before code and require independent candidate review. |
 | [v0.18.1](releases/v0.18.1.md) | Terra development on Codex Pro and Terra coordinator recommendations for Pro/Pro+. |
 | [v0.18.0](releases/v0.18.0.md) | Claude cache updates, managed package access and compatible Markdown handoffs. |
 | [v0.17.1](releases/v0.17.1.md) | Show current and target versions before update or preview. |
