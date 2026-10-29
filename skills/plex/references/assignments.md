@@ -203,6 +203,25 @@ host completion event before closing work; a progress message is never completio
   resume on new evidence or a concrete decision rather than collecting unrelated
   observations to appear active.
 
+## Coordinator supervision
+
+- Track the next observable acceptance milestone and latest verified result in the
+  existing assignment/checkpoint. Match checks to the actual criteria; component
+  tests alone do not prove an integration outcome.
+- When successive reports leave the same milestone unresolved without new
+  evidence, inspect the referenced diff, artifact or check. Request the missing
+  integration, attempted step and next discriminating check from the same executor
+  only if that readback leaves them unresolved. Reuse the answer on unchanged polls.
+  Messages and tool waits alone do not establish progress or completion.
+- If implementation is advancing within scope, let that executor continue without
+  repeated status requests. Otherwise obtain a concrete changed technical step;
+  route only a demonstrated unresolved decision to its owner. Do not restart Build,
+  add a manager cycle or stop a live worker solely because the task is taking time.
+- Use interruptible waits within host limits and back off unchanged polls. A wait
+  timeout is not a new result and does not justify another worker message. User
+  updates report verified changes, decisions or blockers; honor required host update
+  cadence without inventing progress from unchanged observations.
+
 ## Help and continuation
 
 - Apply execution ownership above. Ask for help on a demonstrated material

@@ -71,6 +71,8 @@ Recover truncated sections before acting on them.
   blocked later phase does not reopen a delivered result; repeat PM intake only
   when evidence or a user decision materially changes the assignment.
 - Reuse verified facts and the selected flow.
+- Apply [coordinator supervision](references/assignments.md#coordinator-supervision):
+  verify advancement toward acceptance rather than relaying repeated statuses.
 - Apply [execution ownership](references/assignments.md#execution-ownership):
   routine technical steps belong to the assigned executor, without another PM round.
 - Reuse role handles; pass new decisions, changed evidence and remaining questions rather than full transcripts. Keep conflicting specialist conclusions visible to their decision owner.

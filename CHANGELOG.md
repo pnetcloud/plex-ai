@@ -4,6 +4,11 @@ Important changes retained in Plex, grouped by release. Interfaces and configura
 may change before 1.0. Releases through v0.5.4 were previews; v0.5.5 and later are
 regular releases.
 
+## [0.19.2] — 2026-10-29
+
+- Supervise delegated work against observable acceptance milestones: check repeated unchanged reports against actual artifacts, reuse answers and let advancing executors continue without status-request or planning loops.
+- Reconcile checkpoint owners, blockers and next actions with current accepted assignments; preserve completed work, real workflow gates and host constraints without adding timers or budgets.
+
 ## [0.19.1] — 2026-10-29
 
 - Allow Codex refresh and profile changes when routing comments were removed but all required settings still match. Preserve those settings without retaining ownership; real routing changes, missing values and damaged markers remain conflicts.

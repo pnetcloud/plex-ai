@@ -85,6 +85,10 @@ current override; without one, the limit is two.
   delivered evidence. Advance to the next needed implementation, check or delivery
   action. An unchanged observation does not resolve a blocker. Independent ready
   assignments may proceed while another outcome awaits acceptance.
+  Reconcile the recorded owner, blocker and next action with the latest accepted
+  assignment and actual executor result; an outdated checkpoint is not a reason
+  to reopen an earlier phase. Record the next observable acceptance milestone,
+  not merely "wait for the agent".
 - Read this file when handling a new request, resuming after compaction or re-entry,
   and before selecting the next bounded step. Compact at substantive transitions
   and before context compaction. Keep the primary goal, user decisions, unfinished

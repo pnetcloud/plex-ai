@@ -36,6 +36,7 @@ English is the maintained source; translations mirror these filenames.
 
 | Version | Changes |
 |---|---|
+| [v0.19.2](releases/v0.19.2.md) | Acceptance-based supervision and current checkpoints without repeated coordination loops. |
 | [v0.19.1](releases/v0.19.1.md) | Recover matching Codex routing after comment removal; clearer Terra coordinator guidance. |
 | [v0.19.0](releases/v0.19.0.md) | Validate new executable BMad requirements before code and require independent candidate review. |
 | [v0.18.1](releases/v0.18.1.md) | Terra development on Codex Pro and Terra coordinator recommendations for Pro/Pro+. |

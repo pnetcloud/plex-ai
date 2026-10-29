@@ -251,3 +251,10 @@ bleiben lesbar; Identität für neue Antwortprüfungen ergänzen, ohne laufende 
 neu zu starten. Plex auffrischen und eine neue Clientsitzung öffnen, um die Anweisungen
 zu laden. Strukturprüfung beweist keine Nachweisqualität, verhindert nicht jede
 Schleife und erzwingt keinen nativen Dispatch; Live-Verhalten separat prüfen.
+
+Der Koordinator prüft den Fortschritt zum nächsten beobachtbaren Abnahmeergebnis.
+Wiederholte Statusmeldungen erfordern eine gezielte Prüfung des genannten Artefakts
+oder Prüfergebnisses, keine neue Planungsrunde. Verantwortlicher, Blocker und nächster
+Schritt im Checkpoint müssen dem aktuellen angenommenen Auftrag entsprechen.
+Ein vorankommender Ausführender arbeitet ohne wiederholte Statusanfragen weiter.
+Siehe [Ausführungsaufsicht](../../../skills/plex/references/assignments.md#coordinator-supervision).

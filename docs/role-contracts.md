@@ -253,3 +253,9 @@ without identity remain readable; attach identity for new response checks withou
 restarting active work. Refresh Plex and start a new client session to load the new
 instructions. Structural validity does not prove evidence quality, prevent every
 loop, or enforce native dispatch; live behavior must be evaluated separately.
+
+Coordinator supervision checks advancement toward the next observable acceptance
+milestone. Repeated status messages trigger a bounded check of the referenced
+artifact or result, not another planning loop. Keep the checkpoint's owner, blocker
+and next action aligned with current accepted work; let an advancing executor
+continue without repeated status requests. See [supervision](../skills/plex/references/assignments.md#coordinator-supervision).
