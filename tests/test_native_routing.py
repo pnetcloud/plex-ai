@@ -100,6 +100,45 @@ class NativeRoutingTests(unittest.TestCase):
         self.assertEqual(self.config.read_bytes(), modified)
         self.assertEqual(C.check_project(self.root, 'codex')['status'], 'conflict')
 
+    def test_lost_routing_comments_preserve_matching_values_on_refresh_and_uninstall(self):
+        for refresh in (False, True):
+            with self.subTest(refresh=refresh), tempfile.TemporaryDirectory() as temp:
+                root = Path(temp)
+                config = root / '.codex/config.toml'
+                config.parent.mkdir()
+                config.write_text('[agents]\nmax_concurrent_threads_per_session = 8\n')
+                C.apply_project(root, 'codex', team='pnet')
+                config.write_text(config.read_text().replace('# plex-routing:start\n', '').replace('# plex-routing:end\n', ''))
+                normalized = config.read_bytes()
+                preview = C.check_project(root, 'codex')
+                self.assertEqual(preview['status'], 'in_sync')
+                self.assertEqual(config.read_bytes(), normalized)
+                if refresh:
+                    C.apply_project(root, 'codex', model_profile='pro-plus')
+                    self.assertEqual(config.read_bytes(), normalized)
+                    receipt = tomllib.loads((root / '.plex/applied.toml').read_text())
+                    self.assertNotIn('routing', receipt['hosts']['codex'])
+                    C.apply_project(root, 'codex')
+                    self.assertEqual(config.read_bytes(), normalized)
+                C.uninstall_project(root, 'codex')
+                self.assertEqual(config.read_bytes(), normalized)
+
+    def test_lost_routing_comments_do_not_authorize_missing_or_changed_settings(self):
+        for replacement in ('', 'tool_namespace = "personal"\n'):
+            with self.subTest(replacement=replacement), tempfile.TemporaryDirectory() as temp:
+                root = Path(temp)
+                C.apply_project(root, 'codex', team='pnet')
+                config = root / '.codex/config.toml'
+                text = config.read_text().replace('# plex-routing:start\n', '').replace('# plex-routing:end\n', '')
+                config.write_text(text.replace('tool_namespace = "agents"\n', replacement))
+                before = {p.relative_to(root): p.read_bytes() for p in root.rglob('*') if p.is_file()}
+                with self.assertRaisesRegex(ValueError, 'routing changed or missing'):
+                    C.apply_project(root, 'codex', model_profile='pro-plus')
+                with self.assertRaisesRegex(ValueError, 'routing changed or missing'):
+                    C.uninstall_project(root, 'codex')
+                after = {p.relative_to(root): p.read_bytes() for p in root.rglob('*') if p.is_file()}
+                self.assertEqual(after, before)
+
     def test_write_failure_rolls_back_roles_config_and_receipt(self):
         self.config.write_text('# original\n')
         original = C._atomic_write_bytes

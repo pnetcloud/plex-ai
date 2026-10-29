@@ -908,8 +908,17 @@ def plan_codex_routing(root, scope, record=None, max_agents=None, capacity_recor
     text = (before or b"").decode("utf-8")
     route_start, route_end = "# plex-routing:start\n", "# plex-routing:end\n"
     route_span = _marker_span(text, route_start, route_end, "routing")
+    required = {"hide_spawn_agent_metadata": False, "tool_namespace": "agents"}
     if record:
-        if record["relpath"] != relpath or route_span is None or sha256_bytes(text[slice(*route_span)].encode()) != record["sha256"]:
+        if record["relpath"] != relpath:
+            raise ValueError("Managed Codex routing changed or missing; config preserved")
+        if route_span is None:
+            native = table(table(tomllib.loads(text).get("features", {}), "Codex features").get("multi_agent_v2", {}), "Codex multi_agent_v2")
+            if any(type(native.get(key)) is not type(value) or native[key] != value for key, value in required.items()):
+                raise ValueError("Managed Codex routing changed or missing; config preserved")
+            # A config rewrite may remove comments; retain matching values without claiming ownership.
+            record = None
+        elif sha256_bytes(text[slice(*route_span)].encode()) != record["sha256"]:
             raise ValueError("Managed Codex routing changed or missing; config preserved")
     elif route_span is not None:
         raise ValueError("Unmanaged Plex routing block; config preserved")
@@ -927,7 +936,6 @@ def plan_codex_routing(root, scope, record=None, max_agents=None, capacity_recor
     config = tomllib.loads(without_capacity)
     features = table(config.get("features", {}), "Codex features")
     native = table(features.get("multi_agent_v2", {}), "Codex multi_agent_v2")
-    required = {"hide_spawn_agent_metadata": False, "tool_namespace": "agents"}
     for key, value in required.items():
         if key in native and (type(native[key]) is not type(value) or native[key] != value):
             raise ValueError(f"Codex features.multi_agent_v2.{key} conflicts with Plex role selection; personal setting preserved")
@@ -2136,7 +2144,7 @@ def uninstall_project(project_root, host, scope="project", dry_run=False):
             routing_plan = plan_codex_routing(
                 root, scope, record.get("routing"), capacity_record=record.get("capacity")
             )
-            if record.get("routing"):
+            if routing_plan["record"]:
                 text = routing_plan["after"].decode("utf-8")
                 span = _marker_span(text, "# plex-routing:start\n", "# plex-routing:end\n", "routing")
                 if span is None:

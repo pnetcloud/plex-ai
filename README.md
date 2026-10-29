@@ -119,6 +119,8 @@ Choose three independent settings: **team** (`pnet` or BMad workflows),
 ### Models by profile
 
 These are **Plex configuration profiles**, independent of provider subscription plans.
+For **multi-agent orchestration in OpenAI Codex**, **GPT-6.1 Terra** (`gpt-6.1-terra`) is the recommended **coordinator model** in both `pnet` and BMad: **Pro — medium**, **Pro+ — high** reasoning. Select it in the main chat; Plex does not switch the running chat model.
+
 Each cell shows **development → code review** in the bundled `pnet` team.
 
 | Client / model provider | Basic | Plus | Pro | Pro+ | Ultra | Ultra+ |
@@ -131,7 +133,6 @@ Each cell shows **development → code review** in the bundled `pnet` team.
 - **Basic:** one base model across `pnet` roles. **Plus:** separate implementation and review models where configured.
 - **Pro:** Terra development in Codex; more reasoning for selected roles in other clients. **Pro+:** Sol/Sonnet development and review. **Ultra:** Astra/Opus specialists join. **Ultra+:** higher reasoning effort.
 - **BMad:** uses team- and provider-specific role recipes; the table above is for `pnet`.
-  Both teams recommend Terra/medium for the Codex coordinator on Pro and Terra/high on Pro+.
   BMad recommends Sol/medium on Ultra (`pnet` uses Sol/low). BMad OpenAI Ultra+ UX remains Astra/medium,
   and DevOps has its own provider settings.
 - **Inherit:** use client/session defaults. In the Gemini profiles, `inherit` is not a pinned Gemini Pro model.

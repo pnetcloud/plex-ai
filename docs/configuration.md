@@ -37,6 +37,8 @@ files for exact recipes; setup shows effective settings after overrides.
 
 Interactive **Reconfigure** shows edited receipt-owned role paths, backs up their previewed content and regenerates them from the selected profile and preset overrides. **Update only** still stops on manual edits. Missing or unmanaged files, symlinks, edited instruction blocks, client configuration conflicts and changes after preview remain protected. Put durable model choices in `.plex/preset.toml`.
 
+If a Codex config rewrite removes Plex routing comments while preserving all required routing values, refresh keeps the values and relinquishes ownership of them. Uninstall then preserves them too. Missing or conflicting values, edited marked blocks and malformed markers still stop changes for review.
+
 Edit `.plex/preset.toml` in the selected installation root:
 
 ```toml

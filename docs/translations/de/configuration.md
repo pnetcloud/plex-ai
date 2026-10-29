@@ -29,6 +29,8 @@ Profile beschreiben Einstellungen, keine gemessenen Qualitätsstufen.
 Editierbare Datei im gewählten Installationsstamm: `.plex/preset.toml`.
 Interaktives **Reconfigure** zeigt geänderte verwaltete Rollenpfade, sichert deren geprüften Inhalt und erzeugt die Rollen aus dem gewählten Profil und den Preset-Überschreibungen neu. **Update only** stoppt weiterhin bei manuellen Änderungen. Fehlende oder fremde Dateien, Symlinks, geänderte Anweisungsblöcke, Client-Konflikte und Änderungen nach der Vorschau bleiben geschützt. Dauerhafte Modellwahl gehört in `.plex/preset.toml`.
 
+Entfernt eine Neuschreibung der Codex-Konfiguration die Plex-Routing-Kommentare, während alle erforderlichen Werte erhalten bleiben, behält die Aktualisierung diese Werte bei und gibt deren Verwaltung auf. Auch die Deinstallation bewahrt sie. Fehlende oder widersprüchliche Werte, bearbeitete markierte Blöcke und beschädigte Marker stoppen Änderungen weiterhin zur Prüfung.
+
 Beide Teams bieten sechs benannte Stufen sowie `inherit`. In den Anbieterdateien steht die Koordinator-Empfehlung zuerst in jeder Stufe. Haiku/Sonnet/Opus entsprechen ungefähr Luna/Sol/Astra; gleiche Qualität ist nicht nachgewiesen. Native Google-Profile verwenden Flash oder das Modell des Hauptchats; Ultra erhöht den angeforderten Effort. Claude in Antigravity verwendet Sonnet statt des nicht verfügbaren Haiku; genaue Modell-IDs benötigen Client-Unterstützung.
 
 Die Rollenrezepte sind je Team und Anbieter ausdrücklich festgelegt; die Profilübersicht in der README

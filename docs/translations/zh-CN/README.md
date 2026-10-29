@@ -118,6 +118,8 @@ Plex 是编码客户端内的 **AI 智能体编排器（AI agent orchestrator）
 ### 各配置档的模型
 
 这些是 **Plex 配置档**，与提供商的订阅套餐无关。
+在 `pnet` 和 BMad 团队中，**OpenAI Codex 多智能体编排与协调**推荐使用 **GPT-6.1 Terra**（`gpt-6.1-terra`）作为**协调器模型（coordinator model）**：**Pro — medium**，**Pro+ — high** 推理强度。请在主对话中选择该模型；Plex 不会切换正在运行的对话模型。
+
 每个单元格表示内置 `pnet` 团队的 **开发 → 代码审查**。
 
 | 客户端 / 模型提供商 | Basic | Plus | Pro | Pro+ | Ultra | Ultra+ |
@@ -130,7 +132,6 @@ Plex 是编码客户端内的 **AI 智能体编排器（AI agent orchestrator）
 - **Basic：** `pnet` 各角色使用同一基础模型。**Plus：** 在配置支持时，为实现和审查分配不同模型。
 - **Pro：** Codex 开发使用 Terra，其他客户端提高部分角色的推理级别。**Pro+：** Sol/Sonnet 负责开发与审查。**Ultra：** 引入 Astra/Opus 专家。**Ultra+：** 提高推理强度。
 - **BMad：** 开发与审查的配对相同，但 Basic 已分别使用 Sol、Sonnet、`inherit` 或 Sonnet medium 进行审查。规划、架构等角色有各自的设置。
-- **Codex 协调器：** 两个团队均建议 Pro 使用 Terra/medium，Pro+ 使用 Terra/high。
 - **Inherit：** 使用客户端或会话默认值。Gemini 配置中的 `inherit` 并不固定为某个 Gemini Pro 模型。
 
 配置中的标识符：Luna = `gpt-6-luna`，Terra = `gpt-6.1-terra`，Sol = `gpt-6.1-sol`，Astra = `gpt-6-astra`。

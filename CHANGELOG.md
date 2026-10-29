@@ -4,6 +4,11 @@ Important changes retained in Plex, grouped by release. Interfaces and configura
 may change before 1.0. Releases through v0.5.4 were previews; v0.5.5 and later are
 regular releases.
 
+## [0.19.1] — 2026-10-29
+
+- Allow Codex refresh and profile changes when routing comments were removed but all required settings still match. Preserve those settings without retaining ownership; real routing changes, missing values and damaged markers remain conflicts.
+- State the full GPT-6.1 Terra coordinator recommendation in the four main README versions.
+
 ## [0.19.0] — 2026-10-27
 
 - Require semantic validation of newly authored or materially revised executable BMad requirements before implementation, tied to the installed operation, project adapter and exact requirements bundle. Build may investigate and draft first; the gate pauses only code work and resumes the same Dev after material gaps are resolved.

@@ -121,6 +121,8 @@ Drei unabhängige Einstellungen: **Team** (`pnet` oder BMad-Workflows),
 ### Modelle nach Profil
 
 Dies sind **Plex-Konfigurationsprofile**, unabhängig von den Abonnements der Anbieter.
+Für die **Multi-Agent-Orchestrierung und Koordination in OpenAI Codex** ist **GPT-6.1 Terra** (`gpt-6.1-terra`) das empfohlene **Koordinator-Modell** in `pnet` und BMad: **Pro — medium**, **Pro+ — high** als Reasoning-Stufe. Wähle es im Hauptchat; Plex wechselt das Modell des laufenden Chats nicht.
+
 Jede Zelle zeigt **Entwicklung → Code-Review** für das mitgelieferte `pnet`-Team.
 
 | Client / Modellanbieter | Basic | Plus | Pro | Pro+ | Ultra | Ultra+ |
@@ -133,7 +135,6 @@ Jede Zelle zeigt **Entwicklung → Code-Review** für das mitgelieferte `pnet`-T
 - **Basic:** ein Basismodell für alle `pnet`-Rollen. **Plus:** getrennte Modelle für Umsetzung und Review, sofern konfiguriert.
 - **Pro:** Terra für Codex-Entwicklung; höhere Reasoning-Stufen für ausgewählte Rollen anderer Clients. **Pro+:** Sol/Sonnet für Entwicklung und Review. **Ultra:** Spezialisten mit Astra/Opus. **Ultra+:** höherer Reasoning-Effort.
 - **BMad:** dieselben Entwicklungs-/Review-Paare, aber Basic nutzt für Review bereits Sol, Sonnet, `inherit` beziehungsweise Sonnet medium. Planung, Architektur und weitere Rollen haben eigene Einstellungen.
-- **Codex-Koordinator:** beide Teams empfehlen Terra/medium für Pro und Terra/high für Pro+.
 - **Inherit:** Vorgaben des Clients/der Sitzung. In Gemini-Profilen legt `inherit` kein bestimmtes Gemini-Pro-Modell fest.
 
 Konfigurierte IDs: Luna = `gpt-6-luna`, Terra = `gpt-6.1-terra`, Sol = `gpt-6.1-sol`, Astra = `gpt-6-astra`.

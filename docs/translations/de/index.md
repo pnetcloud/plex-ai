@@ -34,6 +34,7 @@ Englisch ist die gepflegte Quelle; Übersetzungen spiegeln die Dateinamen.
 
 | Version | Änderungen |
 |---|---|
+| [v0.19.1](releases/v0.19.1.md) | Passendes Codex-Routing nach entfernten Kommentaren erhalten; klarere Terra-Empfehlung. |
 | [v0.19.0](releases/v0.19.0.md) | Neue ausführbare BMad-Anforderungen vor der Umsetzung prüfen und Kandidaten unabhängig reviewen. |
 | [v0.18.1](releases/v0.18.1.md) | Terra-Entwicklung in Codex Pro und Koordinator-Empfehlungen für Pro/Pro+. |
 | [v0.18.0](releases/v0.18.0.md) | Claude-Cache-Updates, verwalteter Paketzugriff und Markdown-Übergaben. |
