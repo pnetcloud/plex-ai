@@ -629,7 +629,7 @@ class InstallerTests(unittest.TestCase):
             worker = tomllib.loads((root / ".codex/agents/plex-dev.toml").read_text())
             reviewer = tomllib.loads((root / ".codex/agents/plex-reviewer.toml").read_text())
             self.assertEqual(worker["model_reasoning_effort"], "max")
-            self.assertEqual(reviewer["model"], "gpt-6.1-sol")
+            self.assertEqual(reviewer["model"], "gpt-6.2-sol")
 
     def test_invalid_input_and_missing_bmad_stop_without_writes(self):
         with tempfile.TemporaryDirectory(prefix="plex-installer-invalid-") as temp:

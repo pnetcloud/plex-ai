@@ -516,11 +516,11 @@ class ConfigTests(unittest.TestCase):
         })
         expected = {
             "openai-basic": ("gpt-6-luna", "gpt-6-luna"),
-            "openai-plus": ("gpt-6.1-sol", "gpt-6-luna"),
-            "openai-pro": ("gpt-6.1-sol", "gpt-6.1-terra"),
-            "openai-pro-plus": ("gpt-6.1-sol", "gpt-6.1-sol"),
-            "openai-ultra": ("gpt-6-astra", "gpt-6.1-sol"),
-            "openai-ultra-plus": ("gpt-6-astra", "gpt-6.1-sol"),
+            "openai-plus": ("gpt-6.2-sol", "gpt-6-luna"),
+            "openai-pro": ("gpt-6.2-sol", "gpt-6.1-terra"),
+            "openai-pro-plus": ("gpt-6.2-sol", "gpt-6.2-sol"),
+            "openai-ultra": ("gpt-6.2-astra", "gpt-6.2-sol"),
+            "openai-ultra-plus": ("gpt-6.2-astra", "gpt-6.2-sol"),
             "anthropic-basic": ("haiku", "haiku"),
             "anthropic-plus": ("sonnet", "haiku"),
             "anthropic-pro": ("sonnet", "haiku"),
@@ -544,15 +544,15 @@ class ConfigTests(unittest.TestCase):
             )
             resolved = resolve({"team": "bmad", "model_profile": profile})["hosts"][host]
             self.assertEqual(resolved["architect"]["model"], strong)
-            review_model = {"openai-basic": "gpt-6.1-sol", "anthropic-basic": "sonnet",
+            review_model = {"openai-basic": "gpt-6.2-sol", "anthropic-basic": "sonnet",
                             "google-basic": "inherit", "google-anthropic-basic": "claude-sonnet-5-5-medium",
                             "google-anthropic-plus": "claude-sonnet-5-5-medium"}.get(profile, strong)
             self.assertEqual(resolved["reviewer"]["model"], review_model)
-            pm = {"openai-pro-plus": "gpt-6.1-sol", "anthropic-pro-plus": "sonnet",
+            pm = {"openai-pro-plus": "gpt-6.2-sol", "anthropic-pro-plus": "sonnet",
                   "google-anthropic-plus": "claude-sonnet-5-5-low",
                   "google-anthropic-pro": "claude-sonnet-5-5-medium",
                   "google-anthropic-pro-plus": "claude-sonnet-5-5-medium",
-                  "openai-ultra": "gpt-6.1-sol", "openai-ultra-plus": "gpt-6.1-sol",
+                  "openai-ultra": "gpt-6.2-sol", "openai-ultra-plus": "gpt-6.2-sol",
                   "anthropic-ultra": "sonnet", "anthropic-ultra-plus": "sonnet"}.get(profile, strong)
             self.assertEqual(resolved["pm"]["model"], pm)
             self.assertEqual(resolved["dev"]["model"], dev)
@@ -563,7 +563,7 @@ class ConfigTests(unittest.TestCase):
         for tier, profile in document["profiles"].items():
             if tier == "basic":
                 self.assertEqual(profile, {"model": "gpt-6-luna", "reasoning": "high",
-                                           "reviewer": {"model": "gpt-6.1-sol", "reasoning": "medium"}})
+                                           "reviewer": {"model": "gpt-6.2-sol", "reasoning": "medium"}})
             else:
                 self.assertEqual(set(profile), roles)
             for role, values in (profile.items() if tier != "basic" else []):
@@ -580,7 +580,7 @@ class ConfigTests(unittest.TestCase):
 
     def test_anthropic_role_balance_has_explicit_bmad_exceptions(self):
         # Provider recipes remain independent; Terra does not change the existing Haiku role.
-        models = {"gpt-6-luna": "haiku", "gpt-6.1-terra": "haiku", "gpt-6.1-sol": "sonnet", "gpt-6-astra": "opus"}
+        models = {"gpt-6-luna": "haiku", "gpt-6.1-terra": "haiku", "gpt-6.2-sol": "sonnet", "gpt-6.2-astra": "opus"}
         bmad_anthropic_exceptions = {
             "plus": {"devops": {"model": "sonnet", "reasoning": "medium"}},
             "pro": {
@@ -637,7 +637,7 @@ class ConfigTests(unittest.TestCase):
     def test_ultra_plus_follows_the_explicit_effort_exception(self):
         levels = ["low", "medium", "high", "xhigh", "max"]
         exceptions = {
-            ("bmad", "openai", "ux"): {"model": "gpt-6-astra", "reasoning": "medium"},
+            ("bmad", "openai", "ux"): {"model": "gpt-6.2-astra", "reasoning": "medium"},
         }
         for team in ("pnet", "bmad"):
             for vendor, host in (("openai", "codex"), ("anthropic", "claude"),
@@ -677,8 +677,8 @@ class ConfigTests(unittest.TestCase):
                             "dev": {"reasoning": "max"}}}
         roles = resolve(config)["hosts"]["codex"]
         self.assertEqual(roles["architect"], {"model": "custom-model", "reasoning": "low"})
-        self.assertEqual(roles["pm"], {"model": "gpt-6.1-sol", "reasoning": "low"})
-        self.assertEqual(roles["reviewer"], {"model": "gpt-6.1-sol", "reasoning": "low"})
+        self.assertEqual(roles["pm"], {"model": "gpt-6.2-sol", "reasoning": "low"})
+        self.assertEqual(roles["reviewer"], {"model": "gpt-6.2-sol", "reasoning": "low"})
         self.assertEqual(roles["dev"], {"model": "gpt-6-luna", "reasoning": "max"})
 
     def test_switches_preserve_overrides_without_mutating_source(self):
@@ -698,7 +698,7 @@ class ConfigTests(unittest.TestCase):
         config["team"] = "bmad"
         config["model_profile"] = "openai-pro"
         roles = resolve(config)["hosts"]["codex"]
-        self.assertEqual(roles["architect"]["model"], "gpt-6.1-sol")
+        self.assertEqual(roles["architect"]["model"], "gpt-6.2-sol")
         self.assertEqual(roles["dev"]["reasoning"], "max")
         config["model_profile"] = "inherit"
         self.assertEqual(resolve(config)["hosts"]["codex"]["dev"], {"reasoning": "max"})
@@ -724,12 +724,12 @@ class ConfigTests(unittest.TestCase):
             root = Path(temp).resolve()
             shutil.copytree(ROOT / "teams", root / "teams")
             profile = root / "teams/pnet/profiles/openai.toml"
-            profile.write_text(profile.read_text().replace("gpt-6.1-sol", "team-specific-model"))
+            profile.write_text(profile.read_text().replace("gpt-6.2-sol", "team-specific-model"))
             with patch.object(MODULE, "ROOT", root):
                 self.assertEqual(resolve({"team": "pnet", "model_profile": "openai-plus"})[
                     "hosts"]["codex"]["pm"]["model"], "team-specific-model")
                 self.assertEqual(resolve({"team": "bmad", "model_profile": "openai-plus"})[
-                    "hosts"]["codex"]["pm"]["model"], "gpt-6.1-sol")
+                    "hosts"]["codex"]["pm"]["model"], "gpt-6.2-sol")
                 profile.unlink()
                 existing = {"team": "bmad", "model_profile": "openai-plus"}
                 with self.assertRaisesRegex(ValueError, "Unknown profiles"):
@@ -755,7 +755,7 @@ class ConfigTests(unittest.TestCase):
             "openai": ("codex", [
                 ("gpt-6-luna", "high"), ("gpt-6-luna", "high"),
                 ("gpt-6.1-terra", "medium"), ("gpt-6.1-terra", "high"),
-                ("gpt-6.1-sol", "low"), ("gpt-6.1-sol", "high"),
+                ("gpt-6.2-sol", "low"), ("gpt-6.2-sol", "high"),
             ]),
             "anthropic": ("claude", [
                 ("haiku", "high"), ("haiku", "high"), ("haiku", "xhigh"),
@@ -775,7 +775,7 @@ class ConfigTests(unittest.TestCase):
             ]),
         }
         bmad_exceptions = {
-            ("openai", "ultra"): ("gpt-6.1-sol", "medium"),
+            ("openai", "ultra"): ("gpt-6.2-sol", "medium"),
         }
         for team in ("pnet", "bmad"):
             for vendor, (host, recommendations) in providers.items():
@@ -867,7 +867,7 @@ class ConfigTests(unittest.TestCase):
         })
         codex_bmad = render_host_roles(custom_bmad, "codex")
         parsed_arch = tomllib.loads(codex_bmad["architect"]["content"])
-        self.assertEqual(parsed_arch["model"], "gpt-6.1-sol")
+        self.assertEqual(parsed_arch["model"], "gpt-6.2-sol")
         self.assertEqual(parsed_arch["model_reasoning_effort"], "medium")
         self.assertIn("bmad-agent-architect, custom-arch-skill.", parsed_arch["developer_instructions"])
 

@@ -21,7 +21,7 @@ host = "codex"
   reasoning = "high"
 
 [profiles.plus.pm]
-  model     = "gpt-6.1-sol"
+  model     = "gpt-6.2-sol"
   reasoning = "low"
 
 [profiles.plus.explorer]
@@ -29,7 +29,7 @@ host = "codex"
   reasoning = "high"
 
 [profiles.plus.researcher]
-  model     = "gpt-6.1-sol"
+  model     = "gpt-6.2-sol"
   reasoning = "low"
 
 [profiles.plus.dev]
@@ -37,7 +37,7 @@ host = "codex"
   reasoning = "xhigh"
 
 [profiles.plus.reviewer]
-  model     = "gpt-6.1-sol"
+  model     = "gpt-6.2-sol"
   reasoning = "medium"
 
 [profiles.plus.qa]
@@ -45,7 +45,7 @@ host = "codex"
   reasoning = "high"
 
 [profiles.plus.devops]
-  model     = "gpt-6.1-sol"
+  model     = "gpt-6.2-sol"
   reasoning = "medium"
 
 # ==================== Pro ====================
@@ -55,7 +55,7 @@ host = "codex"
   reasoning = "medium"
 
 [profiles.pro.pm]
-  model     = "gpt-6.1-sol"
+  model     = "gpt-6.2-sol"
   reasoning = "medium"
 
 [profiles.pro.explorer]
@@ -63,7 +63,7 @@ host = "codex"
   reasoning = "high"
 
 [profiles.pro.researcher]
-  model     = "gpt-6.1-sol"
+  model     = "gpt-6.2-sol"
   reasoning = "low"
 
 [profiles.pro.dev]
@@ -71,7 +71,7 @@ host = "codex"
   reasoning = "max"
 
 [profiles.pro.reviewer]
-  model     = "gpt-6.1-sol"
+  model     = "gpt-6.2-sol"
   reasoning = "high"
 
 [profiles.pro.qa]
@@ -79,7 +79,7 @@ host = "codex"
   reasoning = "max"
 
 [profiles.pro.devops]
-  model     = "gpt-6.1-sol"
+  model     = "gpt-6.2-sol"
   reasoning = "high"
 
 # ==================== Pro+ ====================
@@ -89,96 +89,96 @@ host = "codex"
   reasoning = "high"
 
 [profiles.pro-plus.pm]
-  model     = "gpt-6.1-sol"
+  model     = "gpt-6.2-sol"
   reasoning = "medium"
 
 [profiles.pro-plus.explorer]
-  model     = "gpt-6.1-sol"
+  model     = "gpt-6.2-sol"
   reasoning = "low"
 
 [profiles.pro-plus.researcher]
-  model     = "gpt-6.1-sol"
+  model     = "gpt-6.2-sol"
   reasoning = "low"
 
 [profiles.pro-plus.dev]
-  model     = "gpt-6.1-sol"
+  model     = "gpt-6.2-sol"
   reasoning = "medium"
 
 [profiles.pro-plus.reviewer]
-  model     = "gpt-6.1-sol"
+  model     = "gpt-6.2-sol"
   reasoning = "high"
 
 [profiles.pro-plus.qa]
-  model     = "gpt-6.1-sol"
+  model     = "gpt-6.2-sol"
   reasoning = "high"
 
 [profiles.pro-plus.devops]
-  model     = "gpt-6.1-sol"
+  model     = "gpt-6.2-sol"
   reasoning = "high"
 
 # ==================== Ultra ====================
 
 [coordinator.ultra]
-  model     = "gpt-6.1-sol"
+  model     = "gpt-6.2-sol"
   reasoning = "low"
 
 [profiles.ultra.pm]
-  model     = "gpt-6.1-sol"
+  model     = "gpt-6.2-sol"
   reasoning = "medium"
 
 [profiles.ultra.explorer]
-  model     = "gpt-6.1-sol"
+  model     = "gpt-6.2-sol"
   reasoning = "medium"
 
 [profiles.ultra.researcher]
-  model     = "gpt-6-astra"
+  model     = "gpt-6.2-astra"
   reasoning = "low"
 
 [profiles.ultra.dev]
-  model     = "gpt-6.1-sol"
+  model     = "gpt-6.2-sol"
   reasoning = "medium"
 
 [profiles.ultra.reviewer]
-  model     = "gpt-6-astra"
+  model     = "gpt-6.2-astra"
   reasoning = "medium"
 
 [profiles.ultra.qa]
-  model     = "gpt-6.1-sol"
+  model     = "gpt-6.2-sol"
   reasoning = "high"
 
 [profiles.ultra.devops]
-  model     = "gpt-6-astra"
+  model     = "gpt-6.2-astra"
   reasoning = "medium"
 
 # ==================== Ultra+ ====================
 
 [coordinator.ultra-plus]
-  model     = "gpt-6.1-sol"
+  model     = "gpt-6.2-sol"
   reasoning = "high"
 
 [profiles.ultra-plus.pm]
-  model     = "gpt-6.1-sol"
+  model     = "gpt-6.2-sol"
   reasoning = "high"
 
 [profiles.ultra-plus.explorer]
-  model     = "gpt-6.1-sol"
+  model     = "gpt-6.2-sol"
   reasoning = "high"
 
 [profiles.ultra-plus.researcher]
-  model     = "gpt-6-astra"
+  model     = "gpt-6.2-astra"
   reasoning = "medium"
 
 [profiles.ultra-plus.dev]
-  model     = "gpt-6.1-sol"
+  model     = "gpt-6.2-sol"
   reasoning = "high"
 
 [profiles.ultra-plus.reviewer]
-  model     = "gpt-6-astra"
+  model     = "gpt-6.2-astra"
   reasoning = "high"
 
 [profiles.ultra-plus.qa]
-  model     = "gpt-6.1-sol"
+  model     = "gpt-6.2-sol"
   reasoning = "xhigh"
 [profiles.ultra-plus.devops]
-  model     = "gpt-6-astra"
+  model     = "gpt-6.2-astra"
   reasoning = "high"

@@ -137,7 +137,7 @@ Jede Zelle zeigt **Entwicklung → Code-Review** für das mitgelieferte `pnet`-T
 - **BMad:** dieselben Entwicklungs-/Review-Paare, aber Basic nutzt für Review bereits Sol, Sonnet, `inherit` beziehungsweise Sonnet medium. Planung, Architektur und weitere Rollen haben eigene Einstellungen.
 - **Inherit:** Vorgaben des Clients/der Sitzung. In Gemini-Profilen legt `inherit` kein bestimmtes Gemini-Pro-Modell fest.
 
-Konfigurierte IDs: Luna = `gpt-6-luna`, Terra = `gpt-6.1-terra`, Sol = `gpt-6.1-sol`, Astra = `gpt-6-astra`.
+Konfigurierte IDs: Luna = `gpt-6-luna`, Terra = `gpt-6.1-terra`, Sol (GPT-6.2 Sol) = `gpt-6.2-sol`, Astra (GPT-6.2 Astra) = `gpt-6.2-astra`.
 Claude Code nutzt die Aliase `haiku`, `sonnet`, `opus`; die Anthropic-Profile in Antigravity verwenden
 `claude-sonnet-5-5-{low,medium,high}` und `claude-opus-5-5-{low,medium,high}`.
 Dies sind mitgelieferte Einstellungen, keine Garantie für Modellverfügbarkeit oder Einsparungen. Setup zeigt die wirksamen Einstellungen einschließlich Projektüberschreibungen.

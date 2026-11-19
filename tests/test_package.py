@@ -286,7 +286,7 @@ class PackageTests(unittest.TestCase):
             applied_payload = json.loads(apply_res.stdout)
             self.assertEqual(
                 applied_payload["effective_roles"]["architect"],
-                {"model": "gpt-6.1-sol", "reasoning": "medium"},
+                {"model": "gpt-6.2-sol", "reasoning": "medium"},
             )
             self.assertEqual(
                 applied_payload["effective_roles"]["pm"],

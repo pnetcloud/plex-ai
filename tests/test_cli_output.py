@@ -68,12 +68,12 @@ class OutputTests(unittest.TestCase):
             "pnet": {
                 "basic": "gpt-6-luna / high", "plus": "gpt-6-luna / high",
                 "pro": "gpt-6.1-terra / medium", "pro-plus": "gpt-6.1-terra / high",
-                "ultra": "gpt-6.1-sol / low", "ultra-plus": "gpt-6.1-sol / high",
+                "ultra": "gpt-6.2-sol / low", "ultra-plus": "gpt-6.2-sol / high",
             },
             "bmad": {
                 "basic": "gpt-6-luna / high", "plus": "gpt-6-luna / high",
                 "pro": "gpt-6.1-terra / medium", "pro-plus": "gpt-6.1-terra / high",
-                "ultra": "gpt-6.1-sol / medium", "ultra-plus": "gpt-6.1-sol / high",
+                "ultra": "gpt-6.2-sol / medium", "ultra-plus": "gpt-6.2-sol / high",
             },
         }
         for team in ("pnet", "bmad"):

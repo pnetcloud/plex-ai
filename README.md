@@ -137,7 +137,7 @@ Each cell shows **development → code review** in the bundled `pnet` team.
   and DevOps has its own provider settings.
 - **Inherit:** use client/session defaults. In the Gemini profiles, `inherit` is not a pinned Gemini Pro model.
 
-Configured IDs: Luna = `gpt-6-luna`, Terra = `gpt-6.1-terra`, Sol = `gpt-6.1-sol`, Astra = `gpt-6-astra`.
+Configured IDs: Luna = `gpt-6-luna`, Terra = `gpt-6.1-terra`, Sol (GPT-6.2 Sol) = `gpt-6.2-sol`, Astra (GPT-6.2 Astra) = `gpt-6.2-astra`.
 Claude Code uses `haiku`, `sonnet`, `opus` aliases; the Antigravity Anthropic profiles use
 `claude-sonnet-5-5-{low,medium,high}` and `claude-opus-5-5-{low,medium,high}`.
 These are shipped settings, not a guarantee of model availability or cost savings. Setup shows effective settings including project overrides.

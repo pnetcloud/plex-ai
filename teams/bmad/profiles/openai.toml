@@ -14,7 +14,7 @@ host = "codex"
   reasoning = "high"
 
   [profiles.basic.reviewer]
-    model     = "gpt-6.1-sol"
+    model     = "gpt-6.2-sol"
     reasoning = "medium"
 
 
@@ -25,15 +25,15 @@ host = "codex"
   reasoning = "high"
 
 [profiles.plus.pm]
-  model     = "gpt-6.1-sol"
+  model     = "gpt-6.2-sol"
   reasoning = "low"
 
 [profiles.plus.analyst]
-  model     = "gpt-6.1-sol"
+  model     = "gpt-6.2-sol"
   reasoning = "low"
 
 [profiles.plus.architect]
-  model     = "gpt-6.1-sol"
+  model     = "gpt-6.2-sol"
   reasoning = "medium"
 
 [profiles.plus.ux]
@@ -49,7 +49,7 @@ host = "codex"
   reasoning = "xhigh"
 
 [profiles.plus.reviewer]
-  model     = "gpt-6.1-sol"
+  model     = "gpt-6.2-sol"
   reasoning = "medium"
 
 [profiles.plus.devops]
@@ -63,23 +63,23 @@ host = "codex"
   reasoning = "medium"
 
 [profiles.pro.pm]
-  model     = "gpt-6.1-sol"
+  model     = "gpt-6.2-sol"
   reasoning = "medium"
 
 [profiles.pro.analyst]
-  model     = "gpt-6.1-sol"
+  model     = "gpt-6.2-sol"
   reasoning = "low"
 
 [profiles.pro.architect]
-  model     = "gpt-6.1-sol"
+  model     = "gpt-6.2-sol"
   reasoning = "medium"
 
 [profiles.pro.ux]
-  model     = "gpt-6.1-sol"
+  model     = "gpt-6.2-sol"
   reasoning = "high"
 
 [profiles.pro.po]
-  model     = "gpt-6.1-sol"
+  model     = "gpt-6.2-sol"
   reasoning = "low"
 
 [profiles.pro.dev]
@@ -87,11 +87,11 @@ host = "codex"
   reasoning = "max"
 
 [profiles.pro.reviewer]
-  model     = "gpt-6.1-sol"
+  model     = "gpt-6.2-sol"
   reasoning = "medium"
 
 [profiles.pro.devops]
-  model     = "gpt-6.1-sol"
+  model     = "gpt-6.2-sol"
   reasoning = "medium"
 
   # ==================== Pro+ ====================
@@ -101,109 +101,109 @@ host = "codex"
   reasoning = "high"
 
 [profiles.pro-plus.pm]
-  model     = "gpt-6.1-sol"
+  model     = "gpt-6.2-sol"
   reasoning = "medium"
 
 [profiles.pro-plus.analyst]
-  model     = "gpt-6.1-sol"
+  model     = "gpt-6.2-sol"
   reasoning = "low"
 
 [profiles.pro-plus.architect]
-  model     = "gpt-6.1-sol"
+  model     = "gpt-6.2-sol"
   reasoning = "medium"
 
 [profiles.pro-plus.ux]
-  model     = "gpt-6.1-sol"
+  model     = "gpt-6.2-sol"
   reasoning = "medium"
 
 [profiles.pro-plus.po]
-  model     = "gpt-6.1-sol"
+  model     = "gpt-6.2-sol"
   reasoning = "low"
 
 [profiles.pro-plus.dev]
-  model     = "gpt-6.1-sol"
+  model     = "gpt-6.2-sol"
   reasoning = "medium"
 
 [profiles.pro-plus.reviewer]
-  model     = "gpt-6.1-sol"
+  model     = "gpt-6.2-sol"
   reasoning = "medium"
 
 [profiles.pro-plus.devops]
-  model     = "gpt-6.1-sol"
+  model     = "gpt-6.2-sol"
   reasoning = "medium"
 
   # ==================== Ultra ====================
 
 [coordinator.ultra]
-  model     = "gpt-6.1-sol"
+  model     = "gpt-6.2-sol"
   reasoning = "medium"
 
 [profiles.ultra.pm]
-  model     = "gpt-6.1-sol"
+  model     = "gpt-6.2-sol"
   reasoning = "medium"
 
 [profiles.ultra.analyst]
-  model     = "gpt-6-astra"
+  model     = "gpt-6.2-astra"
   reasoning = "low"
 
 [profiles.ultra.architect]
-  model     = "gpt-6-astra"
+  model     = "gpt-6.2-astra"
   reasoning = "medium"
 
 [profiles.ultra.ux]
-  model     = "gpt-6-astra"
+  model     = "gpt-6.2-astra"
   reasoning = "medium"
 
 [profiles.ultra.po]
-  model     = "gpt-6.1-sol"
+  model     = "gpt-6.2-sol"
   reasoning = "medium"
 
 [profiles.ultra.dev]
-  model     = "gpt-6.1-sol"
+  model     = "gpt-6.2-sol"
   reasoning = "medium"
 
 [profiles.ultra.reviewer]
-  model     = "gpt-6-astra"
+  model     = "gpt-6.2-astra"
   reasoning = "medium"
 
 [profiles.ultra.devops]
-  model     = "gpt-6.1-sol"
+  model     = "gpt-6.2-sol"
   reasoning = "medium"
 
   # ==================== Ultra+ ====================
 
 [coordinator.ultra-plus]
-  model     = "gpt-6.1-sol"
+  model     = "gpt-6.2-sol"
   reasoning = "high"
 
 [profiles.ultra-plus.pm]
-  model     = "gpt-6.1-sol"
+  model     = "gpt-6.2-sol"
   reasoning = "high"
 
 [profiles.ultra-plus.analyst]
-  model     = "gpt-6-astra"
+  model     = "gpt-6.2-astra"
   reasoning = "medium"
 
 [profiles.ultra-plus.architect]
-  model     = "gpt-6-astra"
+  model     = "gpt-6.2-astra"
   reasoning = "high"
 
 [profiles.ultra-plus.ux]
-  model     = "gpt-6-astra"
+  model     = "gpt-6.2-astra"
   reasoning = "medium"
 
 [profiles.ultra-plus.po]
-  model     = "gpt-6.1-sol"
+  model     = "gpt-6.2-sol"
   reasoning = "high"
 
 [profiles.ultra-plus.dev]
-  model     = "gpt-6.1-sol"
+  model     = "gpt-6.2-sol"
   reasoning = "high"
 
 [profiles.ultra-plus.reviewer]
-  model     = "gpt-6-astra"
+  model     = "gpt-6.2-astra"
   reasoning = "high"
 
 [profiles.ultra-plus.devops]
-  model     = "gpt-6.1-sol"
+  model     = "gpt-6.2-sol"
   reasoning = "high"

@@ -4,6 +4,10 @@ Important changes retained in Plex, grouped by release. Interfaces and configura
 may change before 1.0. Releases through v0.5.4 were previews; v0.5.5 and later are
 regular releases.
 
+## [0.19.3] — 2026-11-19
+
+- Upgrade OpenAI Sol and Astra defaults to `gpt-6.2-sol` and `gpt-6.2-astra` in both teams, including applicable coordinator recommendations. Preserve role assignments, reasoning levels, Terra/Luna settings and other providers; update current documentation and expected configurations without rewriting historical evaluation results.
+
 ## [0.19.2] — 2026-10-29
 
 - Supervise delegated work against observable acceptance milestones: check repeated unchanged reports against actual artifacts, reuse answers and let advancing executors continue without status-request or planning loops.

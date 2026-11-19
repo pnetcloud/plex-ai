@@ -34,6 +34,7 @@ Englisch ist die gepflegte Quelle; Übersetzungen spiegeln die Dateinamen.
 
 | Version | Änderungen |
 |---|---|
+| [v0.19.3](releases/v0.19.3.md) | GPT-6.2 Sol und Astra in den OpenAI-Profilen beider Teams. |
 | [v0.19.2](releases/v0.19.2.md) | Fortschrittsprüfung anhand der Abnahme und aktuelle Checkpoints ohne Koordinationsschleifen. |
 | [v0.19.1](releases/v0.19.1.md) | Passendes Codex-Routing nach entfernten Kommentaren erhalten; klarere Terra-Empfehlung. |
 | [v0.19.0](releases/v0.19.0.md) | Neue ausführbare BMad-Anforderungen vor der Umsetzung prüfen und Kandidaten unabhängig reviewen. |

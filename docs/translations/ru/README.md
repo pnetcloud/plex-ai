@@ -136,7 +136,7 @@ Luna, Sol и Astra либо Haiku, Sonnet и Opus между ролями; ко�
 - **BMad:** те же пары разработки и ревью, но уже в Basic ревью выполняет Sol, Sonnet, `inherit` или Sonnet medium соответственно. Планирование, архитектура и остальные роли имеют свои настройки.
 - **Inherit:** настройки клиента/сессии. В профилях Gemini значение `inherit` не закрепляет модель Gemini Pro.
 
-Идентификаторы в конфигурации: Luna = `gpt-6-luna`, Terra = `gpt-6.1-terra`, Sol = `gpt-6.1-sol`, Astra = `gpt-6-astra`.
+Идентификаторы в конфигурации: Luna = `gpt-6-luna`, Terra = `gpt-6.1-terra`, Sol (GPT-6.2 Sol) = `gpt-6.2-sol`, Astra (GPT-6.2 Astra) = `gpt-6.2-astra`.
 Claude Code использует алиасы `haiku`, `sonnet`, `opus`; профили Anthropic в Antigravity —
 `claude-sonnet-5-5-{low,medium,high}` и `claude-opus-5-5-{low,medium,high}`.
 Это поставляемые настройки, без гарантии доступности моделей или экономии. Установщик показывает итоговую конфигурацию с учётом переопределений проекта.
